@@ -83,6 +83,12 @@ One git tag per chunk; push after each tag.
 - [ ] Worked out from the saved best finishes (trophies already won count).
 - [ ] Tag v0.5.0.
 
+## 6b. Points ranking at the end of each race (owner, 2026-11-09)
+- [ ] Show the cup's points ranking right at the end of each race. Today it's only on our STANDINGS page, which
+      opens after the game's results and the ~3 s main-menu flash, as plain text (two columns). Options: draw it
+      over the game's own post-race results screen (a widget in the viewport while the results show), and/or make
+      our standings page a clear table (place, racer, +points this race, total, change in rank). Owner to say which.
+
 ## 7. v0.6 Polish
 - [ ] Tile art per cup (planet art), standings layout, short intro text, controller check (owner's pad).
 - [ ] Hide the ~3 s main-menu flash between a race and the standings (loading screen, or a shorter wait).
