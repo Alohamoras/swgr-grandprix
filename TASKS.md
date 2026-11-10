@@ -49,8 +49,9 @@ One git tag per chunk; push after each tag.
 - [x] The AI's four per racer (config `Abilities.Racers`, one per category, by style), level by class, the game's
       `_AI` mines, at race load (`loadout.lua` from the Underground); never yours, never Autopilot.
 - [x] Tests (`test_abil`, `test_abilities`); tag v0.3.0.
-- [ ] In game: your four on the HUD; the log's `[loadout] <class>, 11 racers: ...` line; do the AI fire them,
-      Shields included (R7)?
+- [x] In game (owner, 2026-11-09, 50cc Lantaana race 1): your four loaded (Shockwave, Shield, Surge, Status
+      Scrubber); all 11 AI racers got their four at load; quitting the race = DNF, the cup moved on to race 2.
+- [ ] Still to see: do the AI fire their abilities, Shields included (R7)?
 
 ## 5. v0.4 Speed classes: AI difficulty
 - [ ] AI pressure per class (`ai.lua`, the rubber band) on top of the class's part levels (3 / 6 / 10 for everyone).
