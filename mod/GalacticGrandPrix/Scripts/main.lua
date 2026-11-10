@@ -5,7 +5,7 @@
 -- v0.3: your four abilities (v0.3.10: free pick, one per family), the AI racers' four, levels by class.
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.3.10'
+local VERSION = '0.3.11'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -76,6 +76,21 @@ local function bestText(classKey, cupKey)
   if not b then return 'Not raced yet' end
   return TROPHY_NAME[b] and ('Best: ' .. TROPHY_NAME[b] .. ' trophy') or ('Best: ' .. ordinal(b))
 end
+-- the trophy badge on a cup tile (v0.3.11, owner): GOLD / SILVER / BRONZE, nil without a trophy
+local function trophyBadge(classKey, cupKey)
+  local b = K.best(classKey, cupKey)
+  return b and TROPHY_NAME[b] and (TROPHY_NAME[b] .. ' TROPHY') or nil
+end
+-- 'Race 3 of 4' / 'Race 4 of 4 - the final race'
+local function raceOf(run)
+  return ('Race %d of %d%s'):format(run.race, run.races, run.race == run.races and ' - the final race' or '')
+end
+-- the cup in progress: your place and points so far
+local function soFar(run)
+  if #(run.history or {}) == 0 then return 'No races run yet' end
+  local rank, pts = CU.yourRank(run)
+  return ('You are %s with %d points'):format(ordinal(rank or 0), pts or 0)
+end
 local function shortName(key) return key == CU.YOU and 'YOU' or key end
 
 -- launch the cup's next race (the cup's own vehicle and class)
@@ -112,20 +127,36 @@ local SCREENS = {}
 SCREENS.classes = function()
   local items = {}
   for _, c in ipairs(K.classes()) do
-    local golds = 0
-    for _, cup in ipairs(K.cups()) do if K.best(c.key, cup.key) == 1 then golds = golds + 1 end end
+    local golds, trophies = 0, 0
+    for _, cup in ipairs(K.cups()) do
+      local b = K.best(c.key, cup.key)
+      if b == 1 then golds = golds + 1 end
+      if b and b <= 3 then trophies = trophies + 1 end
+    end
     items[#items + 1] = { title = c.name:upper(), art = 'T_UI_FE_Tile_Campaign_Hero',
-      desc = ('%s\nEvery part at level %d\nGold trophies %d / %d'):format(c.blurb or '', c.parts, golds, #K.cups()),
+      badge = trophies > 0 and ('%d / %d TROPHIES'):format(trophies, #K.cups()) or nil,
+      desc = ('%s\nEvery part at level %d\nTrophies %d / %d   (gold %d)'):format(c.blurb or '', c.parts, trophies, #K.cups(), golds),
       act = function() S.class = c.key; K.data.class = c.key; K.save(); return go('cups') end }
   end
   local run = K.run()
   if run then
     local cup = K.cup(run.cup)
-    table.insert(items, 1, { title = 'CONTINUE CUP', art = 'T_UI_FE_Tile_02',
-      desc = ('%s  %s\nRace %d of %d'):format(cup and cup.name or run.cup, (K.class(run.class) or {}).name or run.class, run.race, run.races),
+    table.insert(items, 1, { title = 'CONTINUE CUP', art = 'T_UI_FE_Tile_02', badge = ('RACE %d / %d'):format(run.race, run.races),
+      desc = ('%s  %s\n%s\n%s'):format(cup and cup.name or run.cup, (K.class(run.class) or {}).name or run.class, raceOf(run), soFar(run)),
       act = function() S.class, S.cup = run.class, run.cup; return go('cup') end })
   end
   items[#items + 1] = { title = 'EXIT', art = 'T_UI_FE_Tile_03', desc = 'Back to the main menu', act = function() return 'close' end }
+  items[#items + 1] = { title = 'RESET PROGRESS', art = 'T_UI_FE_Tile_03', desc = 'Start over: clear every trophy\n(asks first)',
+    act = function()
+      S.confirm = { text = 'Reset all progress? Every trophy and best finish' .. (run and ', and the cup in progress,' or '')
+          .. ' will be cleared. Your abilities and vehicle are kept. (A backup of the save is made first.)',
+        back = 'classes', noFirst = true,
+        yes = function()
+          local b = K.reset()
+          S.message = b and 'Progress reset - a clean start' or 'Could not back up the save - nothing was reset'
+        end }
+      return go('confirm')
+    end }
   return { key = 'classes', title = 'GALACTIC GRAND PRIX',
     lines = { { 'Pick a speed class', 24, U.WHITE }, { ('Races %d        Cups finished %d'):format(K.data.races, K.data.cups), 18 }, msgLine() },
     items = items, hint = HINT }
@@ -140,6 +171,7 @@ SCREENS.cups = function()
     local names = {}
     for _, r in ipairs(cup.races) do names[#names + 1] = r.title end
     items[#items + 1] = { title = cup.name, art = cup.art or 'T_UI_FE_Tile_01',
+      badge = here and ('IN PROGRESS  %d / %d'):format(run.race, run.races) or trophyBadge(cls.key, cup.key),
       desc = (here and ('IN PROGRESS: race %d of %d'):format(run.race, run.races) or bestText(cls.key, cup.key)) .. '\n'
         .. table.concat(names, ', ', 1, math.min(2, #names)) .. (#names > 2 and ' ...' or ''),
       act = function() S.cup = cup.key; return go('cup') end }
@@ -161,13 +193,13 @@ SCREENS.cup = function()
     local ev = K.nextRace()
     local veh = K.vehicle(run.vehicle)
     return { key = 'cup', title = cup.name .. '  -  ' .. cls.name:upper(),
-      lines = { { ('Race %d of %d   -   %s   -   %s'):format(run.race, run.races, veh.name,
+      lines = { { ('%s   -   %s   -   %s'):format(raceOf(run):upper(), veh.name,
           picksText(run.picks or picksFor(run.class), AB.levelFor(run.class))), 22, U.WHITE },
         #run.history == 0 and { table.concat(list, '        '), 20, U.WHITE } or { '', 0 }, msgLine() },
       table = #run.history > 0 and rankingTable(run) or nil,
       items = {
-        { title = 'NEXT RACE', art = 'T_UI_FE_Tile_Campaign_Hero', desc = ('%d. %s\n%s'):format(run.race, ev and ev.title or '?', ev and ev.kind or ''),
-          act = launchNext },
+        { title = 'NEXT RACE', art = 'T_UI_FE_Tile_Campaign_Hero', badge = ('RACE %d / %d'):format(run.race, run.races),
+          desc = ('%s\n%s'):format(raceOf(run), ev and (ev.title .. ' (' .. (ev.kind or '') .. ')') or '?'), act = launchNext },
         { title = 'QUIT CUP', art = 'T_UI_FE_Tile_03', desc = 'Give up this cup\n(no trophy)',
           act = function()
             S.confirm = { text = ('Quit the %s? Your points so far are lost.'):format(cup.name), back = 'cup',
@@ -295,7 +327,9 @@ SCREENS.standings = function()
   local items = {}
   if K.run() then
     local nxt = K.nextRace()
-    items[#items + 1] = { title = 'NEXT RACE', art = 'T_UI_FE_Tile_Campaign_Hero', desc = ('%d. %s\n%s'):format(nxt.race, nxt.title, nxt.kind or ''), act = launchNext }
+    local run2 = K.run()
+    items[#items + 1] = { title = 'NEXT RACE', art = 'T_UI_FE_Tile_Campaign_Hero', badge = ('RACE %d / %d'):format(run2.race, run2.races),
+      desc = ('%s\n%s (%s)'):format(raceOf(run2), nxt.title, nxt.kind or ''), act = launchNext }
     items[#items + 1] = { title = 'LATER', art = 'T_UI_FE_Tile_03', desc = 'Back to the menus\n(the cup stays in progress)', act = function() return go('cup') end }
   else
     items[#items + 1] = { title = 'CONTINUE', art = 'T_UI_FE_Tile_Campaign_Hero', desc = 'Back to the cups', act = function() return go('cups') end }
@@ -307,14 +341,13 @@ end
 SCREENS.confirm = function()
   local c = S.confirm or { text = '?' }
   local function done(screen) S.screen, S.confirm = screen, nil; return true end
+  local yes = { title = 'YES', art = 'T_UI_FE_Tile_01', desc = 'Yes', act = function()
+    if c.yes then c.yes() end
+    return done(c.after or c.back or 'classes')
+  end }
+  local no = { title = 'NO', art = 'T_UI_FE_Tile_03', desc = 'Cancel', act = function() return done(c.back or 'classes') end }
   return { key = 'confirm', title = 'CONFIRM', lines = { { c.text, 26, U.WHITE }, msgLine() },
-    items = {
-      { title = 'YES', art = 'T_UI_FE_Tile_01', desc = 'Yes', act = function()
-        if c.yes then c.yes() end
-        return done(c.after or c.back or 'classes')
-      end },
-      { title = 'NO', art = 'T_UI_FE_Tile_03', desc = 'Cancel', act = function() return done(c.back or 'classes') end },
-    }, hint = 'Enter / A : choose        Backspace / B : cancel' }
+    items = c.noFirst and { no, yes } or { yes, no }, hint = 'Enter / A : choose        Backspace / B : cancel' }
 end
 
 ---------------------------------------------------------------------------------------------------------------------

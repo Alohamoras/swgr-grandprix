@@ -42,8 +42,9 @@ local function makeTile(lib, pc, it)
   local art = texture(it.art)
   if art then try(function() t.TileArt = art end) end
   try(function() t.TxtLabel = FText(it.title) end)
-  try(function() t.TxtSupplemental = FText('') end)
-  try(function() t.ShowSupplementalText = false end)
+  -- the tile's small extra line (v0.3.11): the trophy badge on cup and class tiles, 'RACE 4 / 4' on NEXT RACE
+  try(function() t.TxtSupplemental = FText(it.badge or '') end)
+  try(function() t.ShowSupplementalText = it.badge ~= nil end)
   try(function() t.TxtDescription = FText(it.desc or '') end)
   try(function() t.ShowDescriptionText = it.desc ~= nil end)
   try(function() t.UseLargeLabel = false end)
@@ -75,7 +76,7 @@ local function textBlock(make, s, size, color, wrapAt)
   return t
 end
 
--- a screen: { title, lines = { {text, size, color} ... }, table = (see below), items = { {title, desc, art, disabled} ... },
+-- a screen: { title, lines = { {text, size, color} ... }, table = (see below), items = { {title, desc, art, badge, disabled} ... },
 -- hint }
 -- table (v0.3.8, the ranking): { size = text size, cols = { { w = width, align = 'left'|'right'|'center' } ... },
 --   header = { cell text ... }, rows = { { cells = { text ... }, color = {r,g,b} (default white), colors = { [col] =

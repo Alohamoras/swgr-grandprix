@@ -170,6 +170,9 @@ Recon R3 picks the one that works; set before launch, put back at the menu. Cras
 - Best trophy per cup and class saved, shown on the cup tiles (a visible marker on the tile, owner 2026-11-10). No money, no shop, no upgrades.
 - Unlocks are worked out from the saved best finishes, so trophies won before this is built count (e.g. the owner's
   50cc Jakku gold). Locked classes / cups show what opens them.
+- **Reset progress** (owner, 2026-11-10, v0.3.11): RESET PROGRESS, the last tile on the class screen, asks first
+  (NO selected first). Clears every trophy and best finish, the cup in progress and the cups count; keeps your
+  abilities, vehicle and race count. The save is copied to `save.backup-reset-<date>.lua` first. One full reset only.
 - Save: `Mods/GalacticGrandPrix/save.lua` (the Underground's save code), never the game's save.
 
 ## 9. What we reuse from the Underground

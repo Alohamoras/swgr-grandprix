@@ -148,6 +148,20 @@ function K.forfeit()
   K.data.run = nil
   K.save()
 end
+-- v0.3.11 (owner, 2026-11-10): start over. Clears every trophy / best finish, the cup in progress and the cups
+-- count; keeps your abilities, vehicle, race count and anything still to put back in the game's builds. The save
+-- is copied to save.backup-reset-<date>.lua first. Returns the backup's name.
+function K.reset()
+  local name = ('save.backup-reset-%s.lua'):format(os.date('%Y%m%d-%H%M%S'))
+  local b = io.open(C.DIR .. '/' .. name, 'w')
+  if not b then log('reset: could not write the backup - nothing reset'); return nil end
+  b:write('-- Galactic Grand Prix save\nreturn ', C.serialize(K.data), '\n')
+  b:close()
+  K.data.best, K.data.run, K.data.cups = {}, nil, 0
+  K.save()
+  log('progress reset: trophies, best finishes and the cup in progress cleared (backup ' .. name .. ')')
+  return name
+end
 -- the next race of the cup in progress, as a launchable event
 function K.nextRace()
   local run = K.data.run

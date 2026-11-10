@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.3.11 (2026-11-10): trophy badges, race N of 4, reset progress
+- Cup tiles carry a badge with your best trophy at that class (GOLD / SILVER / BRONZE TROPHY), or IN PROGRESS 3 / 4;
+  class tiles show how many of the 7 cups have a trophy. (The tile's own small extra line, unused until now.)
+- "Race N of 4" everywhere a cup goes on: CONTINUE CUP (also your place and points so far), the cup screen and NEXT
+  RACE ("RACE 4 / 4", "the final race"). Owner, 2026-11-10: race 4 of a cup left from the day before looked like a
+  single race winning a cup trophy.
+- RESET PROGRESS on the class screen: asks first (NO first); clears trophies, best finishes, the cup in progress and
+  the cups count; keeps abilities, vehicle and race count; backs the save up first.
+- New `test_trophies`.
+
 ## v0.3.10 (2026-11-10): free pick abilities
 - Owner: pick any four abilities, one per family (Bolt, Shockwave, Mines, Shield, Scrubber, Vent, Surge). The
   ABILITIES screen shows your four by name; picking a slot lists every family the other three don't hold (and the

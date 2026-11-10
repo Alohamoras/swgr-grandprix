@@ -83,15 +83,20 @@ One git tag per chunk; push after each tag.
 - [ ] MODS screen next to ABILITIES: slots and rarity by class; kept for the cup; written at race load.
 - [ ] Tests; tag v0.4.0.
 
-## 5b. Trophy display (owner, 2026-11-10)
+## 5b. Trophy display and reset (owner, 2026-11-10)
 - Owner saw a gold cup trophy after winning one race. Checked: not a bug. That race was race 4 of the Jakku cup
   left in progress the night before (races 1-3 on 2026-11-09; 15+12+10+15 = 54 points), carried into 150cc by the
   save conversion. Trophies are only written at the end of race 4 (`gp.lua` cupOver). The 200cc Jakku gold was a
   full cup (1st, 2nd, 3rd, 1st = 52).
-- [ ] Make "race N of 4" impossible to miss: on the cup screen, on CONTINUE CUP, and on the standings before
-      launching, so race 4 of an old cup doesn't look like a one-off race.
-- [ ] Trophy marker on the cup tile itself (not only the "Best:" line): e.g. a gold / silver / bronze title colour or
-      a trophy tag in the title, per class. Class tiles could show the count by colour too.
+- [x] v0.3.11: "race N of 4" on CONTINUE CUP, the cup screen, NEXT RACE (badge "RACE 4 / 4", "the final race")
+      and CONTINUE CUP shows your place and points so far.
+- [x] v0.3.11: trophy badge on the cup tiles (the tile's own small extra line: GOLD / SILVER / BRONZE TROPHY, or
+      IN PROGRESS 3 / 4); class tiles show "3 / 7 TROPHIES".
+- [x] v0.3.11: RESET PROGRESS (owner): last tile on the class screen; confirm with NO first; clears trophies, best
+      finishes, the cup in progress and the cups count; keeps abilities, vehicle, race count; backup first
+      (`save.backup-reset-<date>.lua`).
+- [ ] In game: do the badges show on the tiles (the game's supplemental text; never used before)? If not, put the
+      trophy in the title instead.
 
 ## 6. v0.5 Progression (owner asked for it, 2026-11-09; DESIGN.md §8)
 - [ ] Class unlocks (owner, 2026-11-10): **50cc and 100cc open from the start**; 150cc after a trophy in all five

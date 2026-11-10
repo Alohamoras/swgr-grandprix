@@ -56,6 +56,16 @@ function T.titles()
   for _, t in ipairs(W.tiles or {}) do all[#all + 1] = label(t) end
   return table.concat(all, '|')
 end
+-- the small extra line on each tile (the trophy badge), '' where none: 'GOLD TROPHY||...'
+function T.badges()
+  local all = {}
+  for _, t in ipairs(W.tiles or {}) do
+    local p = rawget(t, '__props')
+    local b = p.ShowSupplementalText and p.TxtSupplemental and rawget(p.TxtSupplemental, '__props').__text or ''
+    all[#all + 1] = b
+  end
+  return table.concat(all, '|')
+end
 function T.ntiles() return W.tiles and #W.tiles or 0 end
 function T.save() return dofile(T.dir .. '/save.lua') end
 -- a launch build's part levels as text '0=3 1=3 ...'
