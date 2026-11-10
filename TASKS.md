@@ -76,8 +76,12 @@ One git tag per chunk; push after each tag.
 ## 6. v0.6 No crash limit
 - [ ] The R3 control, set before each race, put back at the menu. Tag v0.6.0.
 
-## 7. v0.7 Progression
-- [ ] Class unlocks, Outer Rim / Galactic cups, reverse cups, Champion Showdown; trophies on the cup tiles.
+## 7. v0.7 Progression (owner asked for it, 2026-11-09; DESIGN.md §8)
+- [ ] Class unlocks: 50cc open; 100cc after a trophy in all five 50cc planet cups, 150cc likewise (setting
+      `Unlock = 'trophy' | 'gold'`; owner to confirm). Locked tiles say what opens them.
+- [ ] Outer Rim / Galactic cups after gold in all five planet cups at the class; reverse cups after 150cc;
+      Champion Showdown after gold in every 150cc cup.
+- [ ] Worked out from the saved best finishes (trophies already won count). Small: can move ahead of v0.5 mods.
 - [ ] Tag v0.7.0.
 
 ## 8. v0.8 Polish
