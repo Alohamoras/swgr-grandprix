@@ -1,0 +1,2033 @@
+{
+ "groups": {
+  "Afterburner": [
+   {
+    "key": "AFX_Afterburner_BetterWhileAirborne",
+    "name": "Underbody Intakes",
+    "desc": "While airborne, Afterburner consumes 50% less fuel. \u2026 top step: While airborne, Afterburner consumes no fuel.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic"
+    ],
+    "assets": [
+     "AFX_Afterburner_BetterWhileAirborne_v1",
+     "AFX_Afterburner_BetterWhileAirborne_v2",
+     "AFX_Afterburner_BetterWhileAirborne_v3"
+    ]
+   },
+   {
+    "key": "AFX_Afterburner_CooledAfterFullUse",
+    "name": "Coolant Cycler",
+    "desc": "After a full Afterburner use, gain Cooled for 5 / 10 / 15s.",
+    "rarities": [
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Afterburner_CooledAfterFullUse_v1",
+     "AFX_Afterburner_CooledAfterFullUse_v2",
+     "AFX_Afterburner_CooledAfterFullUse_v3"
+    ]
+   },
+   {
+    "key": "AFX_Afterburner_CooledSavesFuel",
+    "name": "Fuel Coolant",
+    "desc": "While Cooled, Afterburner can burn 75% / 150% / 200% / 300% longer.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Afterburner_CooledSavesFuel_v1",
+     "AFX_Afterburner_CooledSavesFuel_v2",
+     "AFX_Afterburner_CooledSavesFuel_v3",
+     "AFX_Afterburner_CooledSavesFuel_v4"
+    ]
+   },
+   {
+    "key": "AFX_Afterburner_FasterRecharge",
+    "name": "Improved Regulators",
+    "desc": "Afterburner fuel refills 50% / 100% / 150% / 200% faster.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Afterburner_FasterRecharge_v1",
+     "AFX_Afterburner_FasterRecharge_v2",
+     "AFX_Afterburner_FasterRecharge_v3",
+     "AFX_Afterburner_FasterRecharge_v4"
+    ]
+   },
+   {
+    "key": "AFX_Afterburner_FullFuelIncreasesPower",
+    "name": "Optimized Fuel",
+    "desc": "When fully fueled, Afterburner power increased by 25% / 50% / 100% / 150%.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Afterburner_FullFuelIncreasesPower_v1",
+     "AFX_Afterburner_FullFuelIncreasesPower_v2",
+     "AFX_Afterburner_FullFuelIncreasesPower_v3",
+     "AFX_Afterburner_FullFuelIncreasesPower_v4"
+    ]
+   },
+   {
+    "key": "AFX_Afterburner_FullyRechargeWhenRamjetReady",
+    "name": "Afterburner Recharger",
+    "desc": "When Ramjet becomes ready, fully refill Afterburner.",
+    "rarities": [
+     "common"
+    ],
+    "assets": [
+     "AFX_Afterburner_FullyRechargeWhenRamjetReady"
+    ]
+   },
+   {
+    "key": "AFX_Afterburner_gainCooledWhile",
+    "name": "Thermoactive Fuel",
+    "desc": "While using Afterburner, gain Cooled.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Afterburner_gainCooledWhile"
+    ]
+   },
+   {
+    "key": "AFX_Afterburner_gainShieldWhile",
+    "name": "Shielding Fuel",
+    "desc": "While using Afterburner, gain Shielded.",
+    "rarities": [
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Afterburner_gainShieldWhile"
+    ]
+   },
+   {
+    "key": "AFX_Afterburner_IncreasedTopSpeed",
+    "name": "Enriched Fuel",
+    "desc": "Afterburner speed boost increased by 10% / 25% / 50% / 100%.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Afterburner_IncreasedTopSpeed_v1",
+     "AFX_Afterburner_IncreasedTopSpeed_v2",
+     "AFX_Afterburner_IncreasedTopSpeed_v3",
+     "AFX_Afterburner_IncreasedTopSpeed_v4"
+    ]
+   },
+   {
+    "key": "AFX_Afterburner_MoreDuration",
+    "name": "Afterburner Efficiency",
+    "desc": "Afterburner can burn 50% / 100% / 150% / 200% longer.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Afterburner_MoreDuration_v1",
+     "AFX_Afterburner_MoreDuration_v2",
+     "AFX_Afterburner_MoreDuration_v3",
+     "AFX_Afterburner_MoreDuration_v4"
+    ]
+   },
+   {
+    "key": "AFX_Afterburner_MorePowerPerTakedown",
+    "name": "Fuel Agitator",
+    "desc": "Every Takedown, +5% / 10% / 15% / 20% Afterburner power.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Afterburner_MorePowerPerTakedown_v1",
+     "AFX_Afterburner_MorePowerPerTakedown_v2",
+     "AFX_Afterburner_MorePowerPerTakedown_v3",
+     "AFX_Afterburner_MorePowerPerTakedown_v4"
+    ]
+   },
+   {
+    "key": "AFX_Afterburner_OverchargedRechargeRate",
+    "name": "Overcharging Afterburner",
+    "desc": "While Overcharged, Afterburner fuel refills 200% faster.",
+    "rarities": [
+     "common"
+    ],
+    "assets": [
+     "AFX_Afterburner_OverchargedRechargeRate"
+    ]
+   },
+   {
+    "key": "AFX_Afterburner_OverheatIncreasesPowerUntilCrash",
+    "name": "Thermophilic Fuel",
+    "desc": "Redlining adds +3% / 7% / 10% Afterburner power, lost on Crash.",
+    "rarities": [
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Afterburner_OverheatIncreasesPowerUntilCrash_v1",
+     "AFX_Afterburner_OverheatIncreasesPowerUntilCrash_v2",
+     "AFX_Afterburner_OverheatIncreasesPowerUntilCrash_v3"
+    ]
+   },
+   {
+    "key": "AFX_Afterburner_OverheatingIncreasesPowerOnce",
+    "name": "Heated Fuel",
+    "desc": "Redlining increases power of next Afterburner by 25% / 50% / 100% / 150%.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Afterburner_OverheatingIncreasesPowerOnce_v1",
+     "AFX_Afterburner_OverheatingIncreasesPowerOnce_v2",
+     "AFX_Afterburner_OverheatingIncreasesPowerOnce_v3",
+     "AFX_Afterburner_OverheatingIncreasesPowerOnce_v4"
+    ]
+   },
+   {
+    "key": "AFX_Afterburner_OverheatingStacksFuel",
+    "name": "Expanding Fueltank",
+    "desc": "Redlining expands Afterburner tank by 10% each time.",
+    "rarities": [
+     "epic"
+    ],
+    "assets": [
+     "AFX_Afterburner_OverheatingStacksFuel"
+    ]
+   },
+   {
+    "key": "AFX_Afterburner_RamjetCharge",
+    "name": "Residual Afterburner",
+    "desc": "Ramjet no longer slows Afterburner refill rate.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Afterburner_RamjetCharge"
+    ]
+   },
+   {
+    "key": "AFX_Afterburner_RefillOnImpact",
+    "name": "Kinetic Refueler",
+    "desc": "On collision with another vehicle, refill 30% of Afterburner. \u2026 top step: On collision with another vehicle, fully refill Afterburner.",
+    "rarities": [
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Afterburner_RefillOnImpact_v1",
+     "AFX_Afterburner_RefillOnImpact_v2",
+     "AFX_Afterburner_RefillOnImpact_v3"
+    ]
+   },
+   {
+    "key": "AFX_Afterburner_RefillOnLanding",
+    "name": "Reconstituted Fuel",
+    "desc": "On Perfect Landing, refill Afterburner fuel by 50%. \u2026 top step: On landing, fully refill Afterburner fuel.",
+    "rarities": [
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Afterburner_RefillOnLanding_V1",
+     "AFX_Afterburner_RefillOnLanding_V2",
+     "AFX_Afterburner_RefillOnLanding_V3"
+    ]
+   },
+   {
+    "key": "AFX_Afterburner_ShieldedAfterFullUse",
+    "name": "Depleted Shielding",
+    "desc": "After a full Afterburner use, become Shielded for 5s.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Afterburner_ShieldedAfterFullUse"
+    ]
+   },
+   {
+    "key": "AFX_Afterburner_SurgingFillsFuel",
+    "name": "Surging Fuel",
+    "desc": "When entering Surging, fully refill Afterburner.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Afterburner_SurgingFillsFuel"
+    ]
+   }
+  ],
+  "Ramjet": [
+   {
+    "key": "AFX_Ramjet_AlarmBoost",
+    "name": "Redlining Power",
+    "desc": "While Redlining, Ramjet is 100% more powerful.",
+    "rarities": [
+     "epic"
+    ],
+    "assets": [
+     "AFX_Ramjet_AlarmBoost"
+    ]
+   },
+   {
+    "key": "AFX_Ramjet_CooledWhenCritical",
+    "name": "Phase-change Radiators",
+    "desc": "While Redlining, gain Cooled for 10 / 15 / 20s.",
+    "rarities": [
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Ramjet_CooledWhenCritical_v1",
+     "AFX_Ramjet_CooledWhenCritical_v2",
+     "AFX_Ramjet_CooledWhenCritical_v3"
+    ]
+   },
+   {
+    "key": "AFX_Ramjet_CoolsFaster",
+    "name": "Ramjet Cooling",
+    "desc": "Speed-based Ramjet cooling improved by 10% / 20% / 30% / 40%.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Ramjet_CoolsFaster_v1",
+     "AFX_Ramjet_CoolsFaster_v2",
+     "AFX_Ramjet_CoolsFaster_v3",
+     "AFX_Ramjet_CoolsFaster_v4"
+    ]
+   },
+   {
+    "key": "AFX_Ramjet_CriticalResetChance",
+    "name": "Hail-Mary Reset",
+    "desc": "60% / 75% / 90% chance Ramjet resets and strengthens rather than explodes.",
+    "rarities": [
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Ramjet_CriticalResetChance_v1",
+     "AFX_Ramjet_CriticalResetChance_v2",
+     "AFX_Ramjet_CriticalResetChance_v3"
+    ]
+   },
+   {
+    "key": "AFX_Ramjet_ExtendedAlarm",
+    "name": "Extended Alarm",
+    "desc": "Redlining duration is 50% / 100% / 150% / 200% longer.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Ramjet_ExtendedAlarm_v1",
+     "AFX_Ramjet_ExtendedAlarm_v2",
+     "AFX_Ramjet_ExtendedAlarm_v3",
+     "AFX_Ramjet_ExtendedAlarm_v4"
+    ]
+   },
+   {
+    "key": "AFX_Ramjet_GainShieldWhenCritical",
+    "name": "Overflow Shielding",
+    "desc": "While Redlining, gain Shielded.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic"
+    ],
+    "assets": [
+     "AFX_Ramjet_GainShieldWhenCritical_v1",
+     "AFX_Ramjet_GainShieldWhenCritical_v2",
+     "AFX_Ramjet_GainShieldWhenCritical_v3"
+    ]
+   },
+   {
+    "key": "AFX_Ramjet_gainShieldWhile",
+    "name": "Shielding Ramjet",
+    "desc": "While using Ramjet, gain Shielded.",
+    "rarities": [
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Ramjet_gainShieldWhile"
+    ]
+   },
+   {
+    "key": "AFX_Ramjet_GainSurgingWhenCritical",
+    "name": "Surging Alarm",
+    "desc": "When Redlining, gain Surging for 10 / 15 / 20s.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic"
+    ],
+    "assets": [
+     "AFX_Ramjet_GainSurgingWhenCritical_v1",
+     "AFX_Ramjet_GainSurgingWhenCritical_v2",
+     "AFX_Ramjet_GainSurgingWhenCritical_v3"
+    ]
+   },
+   {
+    "key": "AFX_Ramjet_HeatReduction",
+    "name": "Heat Reduction",
+    "desc": "Ramjet generates 5% / 10% / 20% / 30% less heat.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Ramjet_HeatReduction_v1",
+     "AFX_Ramjet_HeatReduction_v2",
+     "AFX_Ramjet_HeatReduction_v3",
+     "AFX_Ramjet_HeatReduction_v4"
+    ]
+   },
+   {
+    "key": "AFX_Ramjet_ImprovedCooldown",
+    "name": "Optimized Radiators",
+    "desc": "Ramjet cooldown after use improved by 20% / 50% / 80%.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic"
+    ],
+    "assets": [
+     "AFX_Ramjet_ImprovedCooldown_v1",
+     "AFX_Ramjet_ImprovedCooldown_v2",
+     "AFX_Ramjet_ImprovedCooldown_v3"
+    ]
+   },
+   {
+    "key": "AFX_Ramjet_MorePower",
+    "name": "Ramjet Power",
+    "desc": "Ramjet is 10% / 25% / 40% / 50% more powerful.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Ramjet_MorePower_v1",
+     "AFX_Ramjet_MorePower_v2",
+     "AFX_Ramjet_MorePower_v3",
+     "AFX_Ramjet_MorePower_v4"
+    ]
+   },
+   {
+    "key": "AFX_Ramjet_NoHeatWhileAirborne",
+    "name": "Aerial Intakes",
+    "desc": "While airborne, Ramjet generates no heat.",
+    "rarities": [
+     "common"
+    ],
+    "assets": [
+     "AFX_Ramjet_NoHeatWhileAirborne"
+    ]
+   },
+   {
+    "key": "AFX_Ramjet_OverheatIncreasesPowerUntilCrash",
+    "name": "Overheat Loop",
+    "desc": "Redlining adds +1% / 3% / 5% Ramjet power, lost on Crash.",
+    "rarities": [
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Ramjet_OverheatIncreasesPowerUntilCrash_v1",
+     "AFX_Ramjet_OverheatIncreasesPowerUntilCrash_v2",
+     "AFX_Ramjet_OverheatIncreasesPowerUntilCrash_v3"
+    ]
+   },
+   {
+    "key": "AFX_Ramjet_OverheatingReleaseResetsHeat",
+    "name": "Redline Purge",
+    "desc": "Releasing Ramjet while Redlining readies it but increases heat gain.",
+    "rarities": [
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Ramjet_OverheatingReleaseResetsHeat"
+    ]
+   },
+   {
+    "key": "AFX_Ramjet_ResetHeatOnLanding",
+    "name": "Thermocycling Dampers",
+    "desc": "On Perfect Landing, reset Ramjet temperature. \u2026 top step: On landing, reset Ramjet temperature.",
+    "rarities": [
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Ramjet_ResetHeatOnLanding_v1",
+     "AFX_Ramjet_ResetHeatOnLanding_v2"
+    ]
+   },
+   {
+    "key": "AFX_Ramjet_TempCanDropWhileBoosting",
+    "name": "Uncapped Cooling",
+    "desc": "Ramjet temperature can decrease while active.",
+    "rarities": [
+     "epic"
+    ],
+    "assets": [
+     "AFX_Ramjet_TempCanDropWhileBoosting"
+    ]
+   }
+  ],
+  "Cooling & heat": [
+   {
+    "key": "AFX_Burning_GainOvercharged",
+    "name": "Thermal Inverter",
+    "desc": "While Burning, gain Overcharged.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Burning_GainOvercharged"
+    ]
+   },
+   {
+    "key": "AFX_Burning_PowerfulAfterburner",
+    "name": "Afterburner Thermalizer",
+    "desc": "While Burning, Afterburner is 100% more powerful.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Burning_PowerfulAfterburner"
+    ]
+   },
+   {
+    "key": "AFX_Burning_PowerfulRamjet",
+    "name": "Burning Ramjet",
+    "desc": "While Burning, Ramjet is 200% more powerful.",
+    "rarities": [
+     "epic"
+    ],
+    "assets": [
+     "AFX_Burning_PowerfulRamjet"
+    ]
+   },
+   {
+    "key": "AFX_Cooled_CooledToOvercharged",
+    "name": "Cooling Overcharge",
+    "desc": "While Cooled, gain Overcharged.",
+    "rarities": [
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Cooled_CooledToOvercharged"
+    ]
+   },
+   {
+    "key": "AFX_Cooled_CoolRamjetWhileSlipstream",
+    "name": "Slipstream Intakes",
+    "desc": "While Slipstreaming, speed-based Ramjet cooling improved by 100%.",
+    "rarities": [
+     "epic"
+    ],
+    "assets": [
+     "AFX_Cooled_CoolRamjetWhileSlipstream"
+    ]
+   },
+   {
+    "key": "AFX_Cooled_CorrodeProtection",
+    "name": "Chassis Cleansing",
+    "desc": "While Cooled, protected from Corroded.",
+    "rarities": [
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Cooled_CorrodeProtection"
+    ]
+   },
+   {
+    "key": "AFX_Cooled_FastAbilityCooldown",
+    "name": "Supercooled Attachments",
+    "desc": "While Cooled, Abilities reload 200% faster.",
+    "rarities": [
+     "epic"
+    ],
+    "assets": [
+     "AFX_Cooled_FastAbilityCooldown"
+    ]
+   },
+   {
+    "key": "AFX_Cooled_GainOnLanding",
+    "name": "Cooling Dampers",
+    "desc": "On Perfect Landing, gain Cooled for 5 / 10 / 15 / 20s.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Cooled_GainOnLanding_v1",
+     "AFX_Cooled_GainOnLanding_v2",
+     "AFX_Cooled_GainOnLanding_v3",
+     "AFX_Cooled_GainOnLanding_v4"
+    ]
+   },
+   {
+    "key": "AFX_Cooled_GainWhileAirborne",
+    "name": "Cooling Aerofoils",
+    "desc": "While airborne, gain Cooled.",
+    "rarities": [
+     "common"
+    ],
+    "assets": [
+     "AFX_Cooled_GainWhileAirborne"
+    ]
+   },
+   {
+    "key": "AFX_Cooled_GainWhileSlipstream",
+    "name": "Cooling Slipstream",
+    "desc": "While Slipstreaming, gain Cooled.",
+    "rarities": [
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Cooled_GainWhileSlipstream"
+    ]
+   },
+   {
+    "key": "AFX_Cooled_PowerfulRamjet",
+    "name": "Ramjet Accelerator",
+    "desc": "While Cooled, Ramjet is 15% / 30% / 50% / 75% more powerful.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Cooled_PowerfulRamjet_v1",
+     "AFX_Cooled_PowerfulRamjet_v2",
+     "AFX_Cooled_PowerfulRamjet_v3",
+     "AFX_Cooled_PowerfulRamjet_v4"
+    ]
+   },
+   {
+    "key": "AFX_Overcharged_GainSurge",
+    "name": "Overcharged Supercharger",
+    "desc": "While Overcharged, gain Surging.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Overcharged_GainSurge"
+    ]
+   },
+   {
+    "key": "AFX_Overcharged_GainUponLanding",
+    "name": "Charging Repulsors",
+    "desc": "On Perfect Landing, gain Overcharged for 10 / 10s.",
+    "rarities": [
+     "rare",
+     "epic"
+    ],
+    "assets": [
+     "AFX_Overcharged_GainUponLanding_V1",
+     "AFX_Overcharged_GainUponLanding_v2"
+    ]
+   },
+   {
+    "key": "AFX_Overcharged_GainWhileSpeeding",
+    "name": "Overcharged Injector",
+    "desc": "When speed reaches {speed}, gain Overcharged for 10s.",
+    "rarities": [
+     "epic"
+    ],
+    "assets": [
+     "AFX_Overcharged_GainWhileSpeeding"
+    ]
+   },
+   {
+    "key": "AFX_Overcharged_RamjetActivatesOvercharged",
+    "name": "Overcharging Propellant",
+    "desc": "On Ramjet activation, gain Overcharged for 10s.",
+    "rarities": [
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Overcharged_RamjetActivatesOvercharged"
+    ]
+   },
+   {
+    "key": "AFX_Overcharged_RemoveSysMalf",
+    "name": "Protective Overcharge",
+    "desc": "While Overcharged, protected from System Malfunction.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Overcharged_RemoveSysMalf"
+    ]
+   },
+   {
+    "key": "AFX_Overcharge_WhenAirborne",
+    "name": "Repulsor Surplus",
+    "desc": "While airborne, gain Overcharged.",
+    "rarities": [
+     "epic"
+    ],
+    "assets": [
+     "AFX_Overcharge_WhenAirborne"
+    ]
+   }
+  ],
+  "Shields, surges & slipstream": [
+   {
+    "key": "AFX_Shielded_GainOnPerfectLanding",
+    "name": "Shielding Repulsor",
+    "desc": "On Perfect Landing, gain Shielded for 5 / 10 / 10s.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic"
+    ],
+    "assets": [
+     "AFX_Shielded_GainOnPerfectLanding_v1",
+     "AFX_Shielded_GainOnPerfectLanding_v2",
+     "AFX_Shielded_GainOnPerfectLanding_v3"
+    ]
+   },
+   {
+    "key": "AFX_Shielded_GainOnRaceStart",
+    "name": "Defensive Start",
+    "desc": "At race start, gain Shielded for 10s.",
+    "rarities": [
+     "common"
+    ],
+    "assets": [
+     "AFX_Shielded_GainOnRaceStart"
+    ]
+   },
+   {
+    "key": "AFX_Shielded_GainOnSpeed",
+    "name": "Inertial Shield",
+    "desc": "When speed reaches {speed}, gain Shielded for 10s.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Shielded_GainOnSpeed"
+    ]
+   },
+   {
+    "key": "AFX_Slipstream_gainSurging",
+    "name": "Surging Inlets",
+    "desc": "Upon Slipstreaming for 5 / 5 / 5s, gain Surging for {int1}s.",
+    "rarities": [
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Slipstream_gainSurging_v1",
+     "AFX_Slipstream_gainSurging_v2",
+     "AFX_Slipstream_gainSurging_v3"
+    ]
+   },
+   {
+    "key": "AFX_Slipstreaming_ImprovedBuffs",
+    "name": "Improved Drafting",
+    "desc": "Slipstreaming speed bonus increased by 100%.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Slipstreaming_ImprovedBuffs"
+    ]
+   },
+   {
+    "key": "AFX_Slipstreaming_LastsUntilImpact",
+    "name": "Polished Inlets",
+    "desc": "All Slipstreaming bonuses are retained until impact.",
+    "rarities": [
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Slipstreaming_LastsUntilImpact"
+    ]
+   },
+   {
+    "key": "AFX_Surge_CancelChoked",
+    "name": "Dechoking Mechanism",
+    "desc": "While Surging, protected from Choked.",
+    "rarities": [
+     "common"
+    ],
+    "assets": [
+     "AFX_Surge_CancelChoked"
+    ]
+   },
+   {
+    "key": "AFX_Surge_GainShielded",
+    "name": "Shielding Surge",
+    "desc": "While Surging, gain Shielded.",
+    "rarities": [
+     "epic"
+    ],
+    "assets": [
+     "AFX_Surge_GainShielded"
+    ]
+   },
+   {
+    "key": "AFX_Surge_GainWhileAirborne",
+    "name": "Aerial Surge",
+    "desc": "While airborne, gain Surging.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Surge_GainWhileAirborne"
+    ]
+   },
+   {
+    "key": "AFX_Surge_SurgeToCooled",
+    "name": "Cooling Surge",
+    "desc": "While Surging, gain Cooled.",
+    "rarities": [
+     "epic"
+    ],
+    "assets": [
+     "AFX_Surge_SurgeToCooled"
+    ]
+   },
+   {
+    "key": "AFX_Surging_AfterburnerMoreDuration",
+    "name": "Fuel Vortexer",
+    "desc": "While Surging, Afterburner can burn 75% / 150% / 200% / 300% longer.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Surging_AfterburnerMoreDuration_v1",
+     "AFX_Surging_AfterburnerMoreDuration_v2",
+     "AFX_Surging_AfterburnerMoreDuration_v3",
+     "AFX_Surging_AfterburnerMoreDuration_v4"
+    ]
+   },
+   {
+    "key": "AFX_Surging_AfterburnerMorePowerful",
+    "name": "Enriching Siphon",
+    "desc": "While Surging, Afterburner power increased by 100%.",
+    "rarities": [
+     "epic"
+    ],
+    "assets": [
+     "AFX_Surging_AfterburnerMorePowerful"
+    ]
+   },
+   {
+    "key": "AFX_Surging_BlockSysMalf",
+    "name": "Robust Surge",
+    "desc": "While Surging, protected from System Malfunction.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Surging_BlockSysMalf"
+    ]
+   },
+   {
+    "key": "AFX_Surging_FasterAbilityCooldowns",
+    "name": "Reload Surge",
+    "desc": "While Surging, all Abilities reload 150% faster.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Surging_FasterAbilityCooldowns"
+    ]
+   },
+   {
+    "key": "AFX_Surging_ResetRamjet",
+    "name": "Purging Surge",
+    "desc": "Upon Surging, ready Ramjet and reset heat.",
+    "rarities": [
+     "epic"
+    ],
+    "assets": [
+     "AFX_Surging_ResetRamjet"
+    ]
+   }
+  ],
+  "Status protection": [
+   {
+    "key": "AFX_Choke_NoInteruptCurrentRamjet",
+    "name": "Particulate Filter",
+    "desc": "Choked no longer cancels active Ramjet.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Choke_NoInteruptCurrentRamjet"
+    ]
+   },
+   {
+    "key": "AFX_Concussed_gainSurge",
+    "name": "Jolted Boost",
+    "desc": "After Concussed, gain Surging for 10 / 20 / 30s.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic"
+    ],
+    "assets": [
+     "AFX_Concussed_gainSurge_v1",
+     "AFX_Concussed_gainSurge_v2",
+     "AFX_Concussed_gainSurge_v3"
+    ]
+   },
+   {
+    "key": "AFX_Concussion_ClearQuicklyAndGainSpeed",
+    "name": "Impact Regulator",
+    "desc": "Concussed clears quickly, then massively increases Speed for 10 / 20 / 30s.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic"
+    ],
+    "assets": [
+     "AFX_Concussion_ClearQuicklyAndGainSpeed_v1",
+     "AFX_Concussion_ClearQuicklyAndGainSpeed_v2",
+     "AFX_Concussion_ClearQuicklyAndGainSpeed_v3"
+    ]
+   },
+   {
+    "key": "AFX_Conditions_BurningProtection",
+    "name": "Burn Protection",
+    "desc": "Protected from Burning.",
+    "rarities": [
+     "epic"
+    ],
+    "assets": [
+     "AFX_Conditions_BurningProtection"
+    ]
+   },
+   {
+    "key": "AFX_Conditions_Cooled_IncreasedPotency",
+    "name": "Enhanced Coolant",
+    "desc": "Cooled is 10% / 30% / 80% / 150% more potent.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Conditions_Cooled_IncreasedPotency_v1",
+     "AFX_Conditions_Cooled_IncreasedPotency_v2",
+     "AFX_Conditions_Cooled_IncreasedPotency_v3",
+     "AFX_Conditions_Cooled_IncreasedPotency_v4"
+    ]
+   },
+   {
+    "key": "AFX_Conditions_CooledLastsLonger",
+    "name": "Extended Cooling",
+    "desc": "Cooled lasts 5 / 10 / 15s longer.",
+    "rarities": [
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Conditions_CooledLastsLonger_v1",
+     "AFX_Conditions_CooledLastsLonger_v2",
+     "AFX_Conditions_CooledLastsLonger_v3"
+    ]
+   },
+   {
+    "key": "AFX_Conditions_CorrodeResistance",
+    "name": "Corrode Resistance",
+    "desc": "Takes 200% longer to Crash from Corroded.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Conditions_CorrodeResistance"
+    ]
+   },
+   {
+    "key": "AFX_Conditions_CorrodeShedding",
+    "name": "Corrosion Shedding",
+    "desc": "Corroded clears 300% faster.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Conditions_CorrodeShedding"
+    ]
+   },
+   {
+    "key": "AFX_Conditions_DecreaseBurningPotency",
+    "name": "Dissipative Plating",
+    "desc": "Burning generates 50% / 70% / 90% less heat.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic"
+    ],
+    "assets": [
+     "AFX_Conditions_DecreaseBurningPotency_v1",
+     "AFX_Conditions_DecreaseBurningPotency_v2",
+     "AFX_Conditions_DecreaseBurningPotency_v3"
+    ]
+   },
+   {
+    "key": "AFX_Conditions_DisruptedProtection",
+    "name": "Disruption Protection",
+    "desc": "Protected from Disrupted.",
+    "rarities": [
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Conditions_DisruptedProtection"
+    ]
+   },
+   {
+    "key": "AFX_Conditions_FreezeProtection",
+    "name": "Frost Protection",
+    "desc": "Protected from Frozen.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Conditions_FreezeProtection"
+    ]
+   },
+   {
+    "key": "AFX_Conditions_FreezeResistance",
+    "name": "Freeze Resistance",
+    "desc": "Takes 100% / 300% longer to become Frozen.",
+    "rarities": [
+     "common",
+     "rare"
+    ],
+    "assets": [
+     "AFX_Conditions_FreezeResistance_v1",
+     "AFX_Conditions_FreezeResistance_v2"
+    ]
+   },
+   {
+    "key": "AFX_Conditions_FreezeShedding",
+    "name": "Freeze Shedding",
+    "desc": "Frozen clears 200% faster.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Conditions_FreezeShedding"
+    ]
+   },
+   {
+    "key": "AFX_Condition_Surging_IncreasedPotency",
+    "name": "Optimized Surge",
+    "desc": "Surging is 20% / 50% / 100% more potent.",
+    "rarities": [
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Condition_Surging_IncreasedPotency_v1",
+     "AFX_Condition_Surging_IncreasedPotency_v2",
+     "AFX_Condition_Surging_IncreasedPotency_v3"
+    ]
+   },
+   {
+    "key": "AFX_Corrode_NoLongerChokes",
+    "name": "Antacid Coating",
+    "desc": "Corroded no longer causes Choked.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Corrode_NoLongerChokes_v1"
+    ]
+   },
+   {
+    "key": "AFX_Frozen_IncreaseSpeed",
+    "name": "Frozen Finesse",
+    "desc": "While Frozen, massively increase Speed.",
+    "rarities": [
+     "epic"
+    ],
+    "assets": [
+     "AFX_Frozen_IncreaseSpeed"
+    ]
+   },
+   {
+    "key": "AFX_Frozen_MoreCooling",
+    "name": "Subzero Cooling",
+    "desc": "While Frozen, Cooled is 100% more potent.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Frozen_MoreCooling"
+    ]
+   },
+   {
+    "key": "AFX_Frozen_PowerfulRamjet",
+    "name": "Superconducting Ramjet",
+    "desc": "While Frozen, Ramjet is 100% more powerful.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Frozen_PowerfulRamjet"
+    ]
+   },
+   {
+    "key": "AFX_Frozen_ReducedSteeringPenalty",
+    "name": "Insulated Servos",
+    "desc": "Frozen has 20% / 40% / 60% less impact on Cornering.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic"
+    ],
+    "assets": [
+     "AFX_Frozen_ReducedSteeringPenalty_v1",
+     "AFX_Frozen_ReducedSteeringPenalty_v2",
+     "AFX_Frozen_ReducedSteeringPenalty_v3"
+    ]
+   }
+  ],
+  "Abilities & energy": [
+   {
+    "key": "AFX_Ability_FasterCooldown",
+    "name": "Faster Attachments",
+    "desc": "Abilities reload 50% / 100% / 150% / 200% faster.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Ability_FasterCooldown_v1",
+     "AFX_Ability_FasterCooldown_v2",
+     "AFX_Ability_FasterCooldown_v3",
+     "AFX_Ability_FasterCooldown_v4"
+    ]
+   },
+   {
+    "key": "AFX_Ability_GainShielded",
+    "name": "Shield Cycler",
+    "desc": "Upon activating an Ability, gain Shielded for 5 / 10s.",
+    "rarities": [
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Ability_GainShielded_v1",
+     "AFX_Ability_GainShielded_v2"
+    ]
+   },
+   {
+    "key": "AFX_Ability_IncreaseAfterburnerRegen",
+    "name": "Ability Catalyst",
+    "desc": "Each Ability activation, +10% Afterburner refill rate.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Ability_IncreaseAfterburnerRegen"
+    ]
+   },
+   {
+    "key": "AFX_Ability_MoreTotalEnergyUntilCrash",
+    "name": "Volatile Battery",
+    "desc": "Start a race with +4 Energy, lost on Crash.",
+    "rarities": [
+     "common"
+    ],
+    "assets": [
+     "AFX_Ability_MoreTotalEnergyUntilCrash"
+    ]
+   },
+   {
+    "key": "AFX_Ability_RechargeAfterburner",
+    "name": "Refueling Abilities",
+    "desc": "Upon activating an Ability, fully refill Afterburner.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Ability_RechargeAfterburner"
+    ]
+   },
+   {
+    "key": "AFX_Energy_AddOnTakedown",
+    "name": "Kinetic Energizer",
+    "desc": "Every Takedown, gain +1 / 2 max Energy (limited).",
+    "rarities": [
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Energy_AddOnTakedown_v1",
+     "AFX_Energy_AddOnTakedown_v2"
+    ]
+   },
+   {
+    "key": "AFX_Energy_CorrodeRechargesOverTime",
+    "name": "Acid Battery",
+    "desc": "While Corroded, rapidly recharge Energy.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Energy_CorrodeRechargesOverTime"
+    ]
+   },
+   {
+    "key": "AFX_Energy_FasterAfterburnerRecharge",
+    "name": "Fuel Synthesis",
+    "desc": "At 6+ Energy, Afterburner refills 150% faster.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Energy_FasterAfterburnerRecharge"
+    ]
+   },
+   {
+    "key": "AFX_Energy_GainCooled",
+    "name": "Surplus Cooling",
+    "desc": "At 8+ Energy, gain Cooled.",
+    "rarities": [
+     "epic"
+    ],
+    "assets": [
+     "AFX_Energy_GainCooled"
+    ]
+   },
+   {
+    "key": "AFX_Energy_GainOnTakedown",
+    "name": "Scrap Recycler",
+    "desc": "On Takedown, recharge 1 / 2 / 3 / 4 Energy.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Energy_GainOnTakedown_v1",
+     "AFX_Energy_GainOnTakedown_v2",
+     "AFX_Energy_GainOnTakedown_v3",
+     "AFX_Energy_GainOnTakedown_v4"
+    ]
+   },
+   {
+    "key": "AFX_Energy_GainSurging",
+    "name": "Surplus Surging",
+    "desc": "At 8+ Energy, gain Surging.",
+    "rarities": [
+     "epic"
+    ],
+    "assets": [
+     "AFX_Energy_GainSurging"
+    ]
+   }
+  ],
+  "Takedowns": [
+   {
+    "key": "AFX_Takedown_AbilityCooldown",
+    "name": "Scrap Reloader",
+    "desc": "On Takedown, instantly reload all Abilities.",
+    "rarities": [
+     "epic"
+    ],
+    "assets": [
+     "AFX_Takedown_AbilityCooldown"
+    ]
+   },
+   {
+    "key": "AFX_Takedown_GainCooled",
+    "name": "Cooling Actuator",
+    "desc": "On Takedown, gain Cooled for 5 / 10 / 20 / 30s.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Takedown_GainCooled_v1",
+     "AFX_Takedown_GainCooled_v2",
+     "AFX_Takedown_GainCooled_v3",
+     "AFX_Takedown_GainCooled_v4"
+    ]
+   },
+   {
+    "key": "AFX_Takedown_GainSurgeAndOvercharged",
+    "name": "Power Cascade",
+    "desc": "On Takedown, gain Surging and Overcharged for 10 / 15 / 20s.",
+    "rarities": [
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Takedown_GainSurgeAndOvercharged_v1",
+     "AFX_Takedown_GainSurgeAndOvercharged_v2",
+     "AFX_Takedown_GainSurgeAndOvercharged_v3"
+    ]
+   },
+   {
+    "key": "AFX_Takedown_IncreaseCooledPotency",
+    "name": "Amplifying Regulator",
+    "desc": "Every Takedown, Cooled becomes 10% more potent.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Takedown_IncreaseCooledPotency"
+    ]
+   },
+   {
+    "key": "AFX_Takedown_IncreaseSpeedStat",
+    "name": "Lethal Velocity",
+    "desc": "Every Takedown slightly increases Speed. \u2026 top step: Every Takedown greatly increases Speed.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Takedown_IncreaseSpeedStat_v1",
+     "AFX_Takedown_IncreaseSpeedStat_v2",
+     "AFX_Takedown_IncreaseSpeedStat_v3",
+     "AFX_Takedown_IncreaseSpeedStat_v4"
+    ]
+   },
+   {
+    "key": "AFX_Takedown_ResetHeat",
+    "name": "Release Actuators",
+    "desc": "On Takedown, ready Ramjet and reset heat.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Takedown_ResetHeat"
+    ]
+   }
+  ],
+  "Crashes & recovery": [
+   {
+    "key": "AFX_Crashes_CooledSurgingShieldedWhenOneCrashRemains",
+    "name": "Critical Hope",
+    "desc": "While 1 Crash remains, gain Surging, Shielded and Cooled.",
+    "rarities": [
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Crashes_CooledSurgingShieldedWhenOneCrashRemains"
+    ]
+   },
+   {
+    "key": "AFX_Crashes_CooledWhenOneCrashRemains",
+    "name": "Critical Cooling",
+    "desc": "While 1 Crash remains, gain Cooled.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Crashes_CooledWhenOneCrashRemains"
+    ]
+   },
+   {
+    "key": "AFX_Crashes_IncreaseTopSpeed",
+    "name": "Strategic Ablation",
+    "desc": "After every Crash, +8% top speed.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Crashes_IncreaseTopSpeed"
+    ]
+   },
+   {
+    "key": "AFX_Crashes_RestoredOnTakedowns",
+    "name": "Scrap Reclaimer",
+    "desc": "Every 3 Takedowns restores a Crash.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Crashes_RestoredOnTakedowns"
+    ]
+   },
+   {
+    "key": "AFX_Crashes_ShieldWhenOneCrashRemains",
+    "name": "Critical Shielding",
+    "desc": "While 1 Crash remains, gain Shielded.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Crashes_ShieldWhenOneCrashRemains"
+    ]
+   },
+   {
+    "key": "AFX_Crashes_SurgingWhenOneCrashRemains",
+    "name": "Critical Surging",
+    "desc": "While 1 Crash remains, gain Surging.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Crashes_SurgingWhenOneCrashRemains"
+    ]
+   },
+   {
+    "key": "AFX_Crash_ReturnWithCooled",
+    "name": "Recovery Coolant",
+    "desc": "After a Crash, gain Cooled for 30s.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Crash_ReturnWithCooled"
+    ]
+   },
+   {
+    "key": "AFX_Crash_ReturnWithShield",
+    "name": "Recovery Shield",
+    "desc": "After a Crash, gain Shielded for 30s.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Crash_ReturnWithShield"
+    ]
+   },
+   {
+    "key": "AFX_Crash_ReturnWithSurge",
+    "name": "Recovery Surge",
+    "desc": "After a Crash, gain Surging for 30s.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_Crash_ReturnWithSurge"
+    ]
+   },
+   {
+    "key": "AFX_CritMalf_EasierCheck",
+    "name": "Critical Assist",
+    "desc": "Perfect recovery zone during Critical Malfunction is larger.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_CritMalf_EasierCheck"
+    ]
+   },
+   {
+    "key": "AFX_CritMalf_PerfectIncreasesSpeed",
+    "name": "Critical Injectors",
+    "desc": "Perfect recovery from Critical Malfunction considerably increases Speed. \u2026 top step: Perfect recovery from Critical Malfunction greatly increases Speed.",
+    "rarities": [
+     "rare",
+     "epic"
+    ],
+    "assets": [
+     "AFX_CritMalf_PerfectIncreasesSpeed_v1",
+     "AFX_CritMalf_PerfectIncreasesSpeed_v2"
+    ]
+   },
+   {
+    "key": "AFX_CritMalf_PerfectRecoversCrash",
+    "name": "Systematic Servicing",
+    "desc": "Perfect recovery from Critical Malfunction recovers a Crash.",
+    "rarities": [
+     "common"
+    ],
+    "assets": [
+     "AFX_CritMalf_PerfectRecoversCrash"
+    ]
+   },
+   {
+    "key": "AFX_SysMalf_GainCooled",
+    "name": "Emergency Cooling",
+    "desc": "During System Malfunction and 10s after, gain Cooled.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_SysMalf_GainCooled"
+    ]
+   },
+   {
+    "key": "AFX_SysMalf_GainOvercharged",
+    "name": "Overcharged Systems",
+    "desc": "On System Malfunction, gain Overcharged for 10s.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_SysMalf_GainOvercharged"
+    ]
+   },
+   {
+    "key": "AFX_SysMalf_GainSurge",
+    "name": "System Surge",
+    "desc": "During System Malfunction and 10s after, gain Surging.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_SysMalf_GainSurge"
+    ]
+   },
+   {
+    "key": "AFX_SysMalf_PowerfulAfterburner",
+    "name": "Afterburner Reconfiguration",
+    "desc": "During System Malfunction, Afterburner is 100% more powerful.",
+    "rarities": [
+     "epic"
+    ],
+    "assets": [
+     "AFX_SysMalf_PowerfulAfterburner"
+    ]
+   },
+   {
+    "key": "AFX_SysMalf_PowerfulRamjet",
+    "name": "Ramjet Reconfiguration",
+    "desc": "During System Malfunction, Ramjet is 100% more powerful.",
+    "rarities": [
+     "epic"
+    ],
+    "assets": [
+     "AFX_SysMalf_PowerfulRamjet"
+    ]
+   },
+   {
+    "key": "AFX_SysMalf_ShorterMalfunction",
+    "name": "System Degausser",
+    "desc": "Recover from System Malfunction 100% / 200% faster.",
+    "rarities": [
+     "common",
+     "rare"
+    ],
+    "assets": [
+     "AFX_SysMalf_ShorterMalfunction_v1",
+     "AFX_SysMalf_ShorterMalfunction_v2"
+    ]
+   }
+  ],
+  "Driving skill": [
+   {
+    "key": "AFX_FirstPlace_GainShielded",
+    "name": "Shielding Lead",
+    "desc": "Upon taking first place, gain Shielded for 30s.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_FirstPlace_GainShielded"
+    ]
+   },
+   {
+    "key": "AFX_Ignition_PerfectStartPower",
+    "name": "Spark Plugs",
+    "desc": "Perfect Start slightly increases Speed. \u2026 top step: Perfect Start greatly increases Speed.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Ignition_PerfectStartPower_v1",
+     "AFX_Ignition_PerfectStartPower_v2",
+     "AFX_Ignition_PerfectStartPower_v3",
+     "AFX_Ignition_PerfectStartPower_v4"
+    ]
+   },
+   {
+    "key": "AFX_Landing_IncreaseSpeedStat",
+    "name": "Calibrating Landings",
+    "desc": "After each Perfect Landing, slightly increase Speed. \u2026 top step: After each Perfect Landing, considerably increase Speed.",
+    "rarities": [
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Landing_IncreaseSpeedStat_v1",
+     "AFX_Landing_IncreaseSpeedStat_v2",
+     "AFX_Landing_IncreaseSpeedStat_v3"
+    ]
+   },
+   {
+    "key": "AFX_Landing_PerfectBoost",
+    "name": "Repulsormod",
+    "desc": "On Perfect Landing, massively increase Speed for 5 / 10 / 15 / 20s.",
+    "rarities": [
+     "common",
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_Landing_PerfectBoost_v1",
+     "AFX_Landing_PerfectBoost_v2",
+     "AFX_Landing_PerfectBoost_v3",
+     "AFX_Landing_PerfectBoost_v4"
+    ]
+   },
+   {
+    "key": "AFX_PerfectStart_GainOvercharged",
+    "name": "Charging Coils",
+    "desc": "Perfect Start grants Overcharged for 30s.",
+    "rarities": [
+     "rare"
+    ],
+    "assets": [
+     "AFX_PerfectStart_GainOvercharged"
+    ]
+   },
+   {
+    "key": "AFX_PerfectStart_GainShield",
+    "name": "Protective Ignition",
+    "desc": "Perfect Start grants Shielded for 30s. \u2026 top step: Perfect Start grants Shielded until it is broken.",
+    "rarities": [
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_PerfectStart_GainShield_v1",
+     "AFX_PerfectStart_GainShield_v2",
+     "AFX_PerfectStart_GainShield_v3"
+    ]
+   },
+   {
+    "key": "AFX_PerfectStart_ImprovedSlipstreaming",
+    "name": "Optimized Inlets",
+    "desc": "Perfect Start improves Slipstreaming by 200% / 200% / 200% for 30 / 60 / Nones.",
+    "rarities": [
+     "rare",
+     "epic",
+     "legendary"
+    ],
+    "assets": [
+     "AFX_PerfectStart_ImprovedSlipstreaming_v1",
+     "AFX_PerfectStart_ImprovedSlipstreaming_v2",
+     "AFX_PerfectStart_ImprovedSlipstreaming_v3"
+    ]
+   }
+  ],
+  "Podracer only": [
+   {
+    "key": "AFX_PlaneTrait_CabbageCretornis_1",
+    "name": "Optimized Nozzles",
+    "desc": "While on straights, Afterburner power and top speed are increased.",
+    "rarities": [
+     "legendary"
+    ],
+    "assets": [
+     "AFX_PlaneTrait_CabbageCretornis_1"
+    ]
+   },
+   {
+    "key": "AFX_PlaneTrait_CeleryHexing_1",
+    "name": "Energy Surplus",
+    "desc": "Afterburner power and tank refill rate are increased.",
+    "rarities": [
+     "legendary"
+    ],
+    "assets": [
+     "AFX_PlaneTrait_CeleryHexing_1"
+    ]
+   },
+   {
+    "key": "AFX_PlaneTrait_GarlicSordes_1",
+    "name": "Bleeding-Edge Tech",
+    "desc": "Afterburner power is increased and Cornering maneuverability improved.",
+    "rarities": [
+     "legendary"
+    ],
+    "assets": [
+     "AFX_PlaneTrait_GarlicSordes_1"
+    ]
+   },
+   {
+    "key": "AFX_PlaneTrait_OnionDearc_1",
+    "name": "Double Control Surfaces",
+    "desc": "Vehicle drag is reduced, improving Cornering.",
+    "rarities": [
+     "legendary"
+    ],
+    "assets": [
+     "AFX_PlaneTrait_OnionDearc_1"
+    ]
+   },
+   {
+    "key": "AFX_PlaneTrait_PepperTarchia_1",
+    "name": "Overbuilt Engines",
+    "desc": "Maximum top speed is increased.",
+    "rarities": [
+     "legendary"
+    ],
+    "assets": [
+     "AFX_PlaneTrait_PepperTarchia_1"
+    ]
+   },
+   {
+    "key": "AFX_PlaneTrait_SwedeNesodon_1",
+    "name": "Built for Battle",
+    "desc": "Vehicle collisions result in lower received damage and higher given damage.",
+    "rarities": [
+     "legendary"
+    ],
+    "assets": [
+     "AFX_PlaneTrait_SwedeNesodon_1"
+    ]
+   }
+  ]
+ },
+ "faulty": [
+  {
+   "name": "Cracked Battery",
+   "desc": "Upon activating an Ability, become Corroded.",
+   "steps": 1
+  },
+  {
+   "name": "Faulty Abilities",
+   "desc": "Abilities reload 300% slower.",
+   "steps": 1
+  },
+  {
+   "name": "Dud Battery",
+   "desc": "-2 total Energy.",
+   "steps": 1
+  },
+  {
+   "name": "Frosted Injectors",
+   "desc": "While using Afterburner, gradually become Frozen.",
+   "steps": 1
+  },
+  {
+   "name": "Cracked Fuelpipes",
+   "desc": "While airborne, Afterburner tank is emptied.",
+   "steps": 1
+  },
+  {
+   "name": "Volatile Fuel",
+   "desc": "While using Afterburner, become Burning.",
+   "steps": 1
+  },
+  {
+   "name": "Ignited Fuel",
+   "desc": "Upon emptying Afterburner tank, become Burning for 20s.",
+   "steps": 1
+  },
+  {
+   "name": "Iced Fuel",
+   "desc": "Upon emptying Afterburner tank, become Frozen for 20s.",
+   "steps": 1
+  },
+  {
+   "name": "Acidic Fuel",
+   "desc": "Upon emptying Afterburner tank, become Corroded for 2s.",
+   "steps": 1
+  },
+  {
+   "name": "Glitched Fuel",
+   "desc": "Upon emptying Afterburner tank, System Malfunction for 20s.",
+   "steps": 1
+  },
+  {
+   "name": "Leaky Tank",
+   "desc": "Afterburner fuel refills 200% slower.",
+   "steps": 1
+  },
+  {
+   "name": "Underclocking Device",
+   "desc": "Overcharged is blocked.",
+   "steps": 1
+  },
+  {
+   "name": "Anti-Surge Device",
+   "desc": "Surging is blocked.",
+   "steps": 1
+  },
+  {
+   "name": "Disregulated Heating",
+   "desc": "Upon activating an Ability, become Burning for 10s.",
+   "steps": 1
+  },
+  {
+   "name": "Burning Contacts",
+   "desc": "On impact, become Burning for 8s.",
+   "steps": 1
+  },
+  {
+   "name": "Choking Burn",
+   "desc": "While Burning, become Choked.",
+   "steps": 1
+  },
+  {
+   "name": "Overheated Motivators",
+   "desc": "When speed is above {speed}, become Burning.",
+   "steps": 1
+  },
+  {
+   "name": "Unquenchable Components",
+   "desc": "Burning no longer ends by itself.",
+   "steps": 1
+  },
+  {
+   "name": "Weakened Cockpit",
+   "desc": "On impact, become Concussed.",
+   "steps": 1
+  },
+  {
+   "name": "Endothermic Repulsors",
+   "desc": "While airborne, become Frozen.",
+   "steps": 1
+  },
+  {
+   "name": "Corrosion Vulnerability",
+   "desc": "100% faster to Crash from Corroded.",
+   "steps": 1
+  },
+  {
+   "name": "Explosive Burning",
+   "desc": "After 3s of Burning, vehicle will Crash.",
+   "steps": 1
+  },
+  {
+   "name": "Fragile Subsystems",
+   "desc": "After a Crash, become Disrupted for 10s.",
+   "steps": 1
+  },
+  {
+   "name": "Faulty Failsafe",
+   "desc": "Critical Malfunction skill check moves 100% faster.",
+   "steps": 1
+  },
+  {
+   "name": "Strained Circuits",
+   "desc": "System Malfunction triggers Critical Malfunction more often.",
+   "steps": 1
+  },
+  {
+   "name": "Disrupted Fuel",
+   "desc": "Disrupted blocks Afterburner for 30s.",
+   "steps": 1
+  },
+  {
+   "name": "Freeze Vulnerability",
+   "desc": "Become Frozen 300% quicker.",
+   "steps": 1
+  },
+  {
+   "name": "Exposed Servos",
+   "desc": "Frozen has 50% greater impairment on Cornering.",
+   "steps": 1
+  },
+  {
+   "name": "Lingering Frost",
+   "desc": "Frozen lasts 300% longer.",
+   "steps": 1
+  },
+  {
+   "name": "Unsettled Start",
+   "desc": "At race start, become Disrupted for 20s.",
+   "steps": 1
+  },
+  {
+   "name": "Iced Ignition",
+   "desc": "At race start, become Frozen for 30s.",
+   "steps": 1
+  },
+  {
+   "name": "Startup Malfunction",
+   "desc": "At race start, System Malfunction for 30s.",
+   "steps": 1
+  },
+  {
+   "name": "Degraded Dampers",
+   "desc": "On landing, System Malfunction and become Concussed.",
+   "steps": 1
+  },
+  {
+   "name": "Inefficient Aerodynamics",
+   "desc": "Slipstreaming is blocked.",
+   "steps": 1
+  },
+  {
+   "name": "Incendiary Overcharge",
+   "desc": "While Overcharged, become Burning.",
+   "steps": 1
+  },
+  {
+   "name": "Flammable Manifold",
+   "desc": "When Redlining, become Burning for 10s.",
+   "steps": 1
+  },
+  {
+   "name": "Acrid Alarm",
+   "desc": "While Redlining, become Corroded.",
+   "steps": 1
+  },
+  {
+   "name": "Athermic Alarm",
+   "desc": "While Redlining, become Frozen for 10s.",
+   "steps": 1
+  },
+  {
+   "name": "Faulty Activator",
+   "desc": "Failing a Perfect Start causes a Crash.",
+   "steps": 1
+  },
+  {
+   "name": "Imprecise Calibration",
+   "desc": "Perfect Start zone is significantly smaller.",
+   "steps": 1
+  },
+  {
+   "name": "Thermal Loop",
+   "desc": "Ramjet generates 100% more heat.",
+   "steps": 1
+  },
+  {
+   "name": "Weak Ramjet",
+   "desc": "Ramjet is 50% less powerful.",
+   "steps": 1
+  },
+  {
+   "name": "Defective Alarm",
+   "desc": "Redlining duration is significantly shorter.",
+   "steps": 1
+  },
+  {
+   "name": "Frosted Aerofoils",
+   "desc": "While Slipstreaming, gradually become Frozen.",
+   "steps": 1
+  },
+  {
+   "name": "Pyrophoric Surfaces",
+   "desc": "While Slipstreaming, gradually become Burning.",
+   "steps": 1
+  },
+  {
+   "name": "Coldstart Afterburner",
+   "desc": "At race start, Afterburner is 50% weaker for 60s.",
+   "steps": 1
+  },
+  {
+   "name": "Steering Malfunction",
+   "desc": "Vehicle steering pulls in one direction.",
+   "steps": 1
+  },
+  {
+   "name": "Unstable Plating",
+   "desc": "On System Malfunction, become Corroded.",
+   "steps": 1
+  },
+  {
+   "name": "Unreliable Afterburner",
+   "desc": "During System Malfunction, Afterburner tank is emptied.",
+   "steps": 1
+  },
+  {
+   "name": "Failsafe Coolant",
+   "desc": "On System Malfunction, become Frozen.",
+   "steps": 1
+  },
+  {
+   "name": "System Fragmentation",
+   "desc": "System Malfunction lasts 200% longer.",
+   "steps": 1
+  },
+  {
+   "name": "Draggy Control Surfaces",
+   "desc": "While Cornering, top speed is reduced.",
+   "steps": 1
+  },
+  {
+   "name": "Large Cross-Section",
+   "desc": "Vehicle drag is increased, reducing top speed.",
+   "steps": 1
+  },
+  {
+   "name": "Small Thrusters",
+   "desc": "Maximum top speed is reduced.",
+   "steps": 1
+  },
+  {
+   "name": "Complex Interlocks",
+   "desc": "Vehicle collisions result in higher received damage.",
+   "steps": 1
+  },
+  {
+   "name": "Massive Momentum",
+   "desc": "Cornering maneuverability is reduced.",
+   "steps": 1
+  },
+  {
+   "name": "Old Dog, Old Tricks",
+   "desc": "Afterburner tank refills at a reduced rate.",
+   "steps": 1
+  }
+ ],
+ "avail": {
+  "100cc": 97,
+  "150cc": 119,
+  "200cc": 129
+ }
+}

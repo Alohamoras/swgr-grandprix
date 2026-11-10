@@ -125,12 +125,23 @@ What we know (Underground recon, *header dump*):
 - Your race copy of the build (`RacerBuildState.VehicleBuilds[].AffixSlots`) holds them as `FVehicleAffix`
   (`PrimaryAffix` / `SecondaryAffix` = direct `UAffixPassiveConfig*`, `Status`), the same kind of copy the AI's
   abilities are written into at race load. The launch build's own list (`Affixes`) is soft pointers: not touched.
-- **Unknown:** does an affix written into the race copy at load take effect (are passives applied later than abilities
-  spawn)? Recon M1 first.
+- **Recon M1 (2026-11-10, `tools/recon/ModRecon`, log `modrecon-20261110.log`):**
+  - The launch build's own list is `UVehicleBuildDef.Affixes` = **direct** `UAffixPassiveConfig*` (the soft-pointer
+    list is the debug build class). Base `VBD_Car_Base`: `Affixes` empty, `UnlockedAffixSlots` 4, maximum 10. A Lua
+    assignment to index Num + 1 grows the array.
+  - Two affixes written there at the menu became **active passives on the car** in the race
+    (`PassiveManagerComponent.PassiveList`, race copy `AffixSlots` Status 1 = Active).
+  - The AI cars copy the same build and got them too. Clearing the bots' race copies (`AffixSlots[i].PrimaryAffix`) as
+    soon as their copies exist at race load left them with **no passives** and kept yours (their passive lists were
+    still empty at that moment). So mods can be yours only, or the AI can get its own sets (like their abilities).
+  - Catalogue: `tools/recon/ModRecon/affixes.tsv` (316: 308 vehicle mods + AI / scenario / story ones) and
+    `catalogue.json` / `mods-catalogue.html` (grouped: 129 effects to choose from, 6 podracer-only, 57 faulty
+    effects). Campaign unlocks them in groups (`UnlockedBy` = `Unlock.Cam.Affixes.Base` / `UnlockGroup_NN`).
 
-Proposal (to confirm with the owner):
-- Slots by class: 50cc 2, 100cc 3, 150cc 4. Rarity by class: 50cc common + rare, 100cc up to epic, 150cc up to
-  legendary. Faulty ones left out (or a later "risky" option).
+Proposal (to confirm with the owner; 50cc stays mod-free - owner, 2026-11-10):
+- Slots by class: 50cc 0, 100cc 2, 150cc 3, 200cc 4. Strength by class: 100cc up to rare, 150cc up to epic, 200cc up
+  to legendary (each effect at its highest step the class allows; 97 / 119 / 129 effects). One per effect. Faulty
+  ones left out (or a later "risky" option).
 - A MODS screen next to ABILITIES: affixes grouped by what they affect (Afterburner, Ramjet, Cornering, Abilities,
   Resilience...), each with its in-game description; I / II / III steps shown as one entry at the class's best step.
 - Kept for the whole cup, like the abilities. The AI: none at first (their four abilities are their thing); maybe a

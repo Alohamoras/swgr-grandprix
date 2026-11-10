@@ -1,0 +1,63 @@
+11:55:06 ModRecon loaded (316 affix paths)
+11:55:17 dump: 316 affixes written to affixes.tsv, 0 not loaded
+11:55:35 arm: before Affixes=[] UnlockedAffixSlots=4 MaximumAffixSlots=10
+11:55:35   Affixes[1] = AFX_Afterburner_FasterRecharge_v4: true  (array now 1)
+11:55:35   Affixes[2] = AFX_Conditions_FreezeProtection: true  (array now 2)
+11:55:35 arm: UnlockedAffixSlots raise true
+11:55:35 arm: after Affixes=[AFX_Afterburner_FasterRecharge_v4, AFX_Conditions_FreezeProtection] UnlockedAffixSlots=4 MaximumAffixSlots=10
+11:56:24 check: passives of GfnPlayerState_2147479790 (PassiveManagerComponent): AFX_Afterburner_FasterRecharge_v4, AFX_Conditions_FreezeProtection
+11:56:24 check: passives of GfnPlayerState_2147480212 (PassiveManagerComponent): AFX_Afterburner_FasterRecharge_v4, AFX_Conditions_FreezeProtection
+11:56:24 check: passives of GfnPlayerState_2147480213 (PassiveManagerComponent): AFX_Afterburner_FasterRecharge_v4, AFX_Conditions_FreezeProtection
+11:56:24 check: passives of GfnPlayerState_2147480214 (PassiveManagerComponent): AFX_Afterburner_FasterRecharge_v4, AFX_Conditions_FreezeProtection
+11:56:24 check: passives of GfnPlayerState_2147480215 (PassiveManagerComponent): AFX_Afterburner_FasterRecharge_v4, AFX_Conditions_FreezeProtection
+11:56:24 check: passives of GfnPlayerState_2147480216 (PassiveManagerComponent): AFX_Afterburner_FasterRecharge_v4, AFX_Conditions_FreezeProtection
+11:56:24 check: passives of GfnPlayerState_2147480217 (PassiveManagerComponent): AFX_Afterburner_FasterRecharge_v4, AFX_Conditions_FreezeProtection
+11:56:24 check: passives of GfnPlayerState_2147480218 (PassiveManagerComponent): AFX_Afterburner_FasterRecharge_v4, AFX_Conditions_FreezeProtection
+11:56:24 check: passives of GfnPlayerState_2147480219 (PassiveManagerComponent): AFX_Afterburner_FasterRecharge_v4, AFX_Conditions_FreezeProtection
+11:56:24 check: passives of GfnPlayerState_2147480220 (PassiveManagerComponent): AFX_Afterburner_FasterRecharge_v4, AFX_Conditions_FreezeProtection
+11:56:24 check: passives of GfnPlayerState_2147480221 (PassiveManagerComponent): AFX_Afterburner_FasterRecharge_v4, AFX_Conditions_FreezeProtection
+11:56:24 check: passives of GfnPlayerState_2147480222 (PassiveManagerComponent): AFX_Afterburner_FasterRecharge_v4, AFX_Conditions_FreezeProtection
+11:56:24 check: race copy of Dwayne: build1 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build2 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build3 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build4 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0]
+11:56:24 check: race copy of Griff Halloran: build1 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build2 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build3 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build4 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0]
+11:56:24 check: race copy of Lyren Shok: build1 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build2 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build3 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build4 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0]
+11:56:24 check: race copy of Malis Vazosk: build1 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build2 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build3 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build4 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0]
+11:56:24 check: race copy of Nik Skandaro: build1 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build2 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build3 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build4 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0]
+11:56:24 check: race copy of Ary Quill: build1 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build2 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build3 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build4 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0]
+11:56:24 check: race copy of Katja Mox: build1 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build2 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build3 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build4 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0]
+11:56:24 check: race copy of Goli & 02-R0: build1 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build2 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build3 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build4 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0]
+11:56:24 check: race copy of Biddy Blas: build1 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build2 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build3 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build4 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0]
+11:56:24 check: race copy of Fola Kanjen: build1 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build2 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build3 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build4 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0]
+11:56:24 check: race copy of Sen Fira: build1 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build2 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build3 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build4 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0]
+11:56:24 check: race copy of Soren Zaks: build1 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build2 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build3 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build4 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0]
+11:57:21 ModRecon loaded (316 affix paths)
+11:57:37 arm: before Affixes=[] UnlockedAffixSlots=4 MaximumAffixSlots=10
+11:57:37   Affixes[1] = AFX_Afterburner_FasterRecharge_v4: true  (array now 1)
+11:57:37   Affixes[2] = AFX_Conditions_FreezeProtection: true  (array now 2)
+11:57:37 arm: UnlockedAffixSlots raise true
+11:57:37 arm: after Affixes=[AFX_Afterburner_FasterRecharge_v4, AFX_Conditions_FreezeProtection] UnlockedAffixSlots=4 MaximumAffixSlots=10
+11:57:40 strip: armed for the next race load
+11:57:59 strip: 11 bots, 88 affix slots cleared, 0 failed; bots' passive counts at that moment: 0,0,0,0,0,0,0,0,0,0,0
+11:58:19 check: passives of GfnPlayerState_2147479943 (PassiveManagerComponent): AFX_Afterburner_FasterRecharge_v4, AFX_Conditions_FreezeProtection
+11:58:19 check: passives of GfnPlayerState_2147480365 (PassiveManagerComponent): none
+11:58:19 check: passives of GfnPlayerState_2147480366 (PassiveManagerComponent): none
+11:58:19 check: passives of GfnPlayerState_2147480367 (PassiveManagerComponent): none
+11:58:19 check: passives of GfnPlayerState_2147480368 (PassiveManagerComponent): none
+11:58:19 check: passives of GfnPlayerState_2147480369 (PassiveManagerComponent): none
+11:58:19 check: passives of GfnPlayerState_2147480370 (PassiveManagerComponent): none
+11:58:19 check: passives of GfnPlayerState_2147480371 (PassiveManagerComponent): none
+11:58:19 check: passives of GfnPlayerState_2147480372 (PassiveManagerComponent): none
+11:58:19 check: passives of GfnPlayerState_2147480373 (PassiveManagerComponent): none
+11:58:19 check: passives of GfnPlayerState_2147480374 (PassiveManagerComponent): none
+11:58:19 check: passives of GfnPlayerState_2147480375 (PassiveManagerComponent): none
+11:58:19 check: race copy of Dwayne: build1 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build2 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build3 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0] | build4 unlocked=4 [AFX_Afterburner_FasterRecharge_v4/1, AFX_Conditions_FreezeProtection/1, -/0, -/0]
+11:58:19 check: race copy of Goli & 02-R0: build1 unlocked=4 [-/0, -/0, -/0, -/0] | build2 unlocked=4 [-/0, -/0, -/0, -/0] | build3 unlocked=4 [-/0, -/0, -/0, -/0] | build4 unlocked=4 [-/0, -/0, -/0, -/0]
+11:58:19 check: race copy of Fola Kanjen: build1 unlocked=4 [-/0, -/0, -/0, -/0] | build2 unlocked=4 [-/0, -/0, -/0, -/0] | build3 unlocked=4 [-/0, -/0, -/0, -/0] | build4 unlocked=4 [-/0, -/0, -/0, -/0]
+11:58:19 check: race copy of Sen Fira: build1 unlocked=4 [-/0, -/0, -/0, -/0] | build2 unlocked=4 [-/0, -/0, -/0, -/0] | build3 unlocked=4 [-/0, -/0, -/0, -/0] | build4 unlocked=4 [-/0, -/0, -/0, -/0]
+11:58:19 check: race copy of Griff Halloran: build1 unlocked=4 [-/0, -/0, -/0, -/0] | build2 unlocked=4 [-/0, -/0, -/0, -/0] | build3 unlocked=4 [-/0, -/0, -/0, -/0] | build4 unlocked=4 [-/0, -/0, -/0, -/0]
+11:58:19 check: race copy of Malis Vazosk: build1 unlocked=4 [-/0, -/0, -/0, -/0] | build2 unlocked=4 [-/0, -/0, -/0, -/0] | build3 unlocked=4 [-/0, -/0, -/0, -/0] | build4 unlocked=4 [-/0, -/0, -/0, -/0]
+11:58:19 check: race copy of Nik Skandaro: build1 unlocked=4 [-/0, -/0, -/0, -/0] | build2 unlocked=4 [-/0, -/0, -/0, -/0] | build3 unlocked=4 [-/0, -/0, -/0, -/0] | build4 unlocked=4 [-/0, -/0, -/0, -/0]
+11:58:19 check: race copy of Lyren Shok: build1 unlocked=4 [-/0, -/0, -/0, -/0] | build2 unlocked=4 [-/0, -/0, -/0, -/0] | build3 unlocked=4 [-/0, -/0, -/0, -/0] | build4 unlocked=4 [-/0, -/0, -/0, -/0]
+11:58:19 check: race copy of Ary Quill: build1 unlocked=4 [-/0, -/0, -/0, -/0] | build2 unlocked=4 [-/0, -/0, -/0, -/0] | build3 unlocked=4 [-/0, -/0, -/0, -/0] | build4 unlocked=4 [-/0, -/0, -/0, -/0]
+11:58:19 check: race copy of Soren Zaks: build1 unlocked=4 [-/0, -/0, -/0, -/0] | build2 unlocked=4 [-/0, -/0, -/0, -/0] | build3 unlocked=4 [-/0, -/0, -/0, -/0] | build4 unlocked=4 [-/0, -/0, -/0, -/0]
+11:58:19 check: race copy of Katja Mox: build1 unlocked=4 [-/0, -/0, -/0, -/0] | build2 unlocked=4 [-/0, -/0, -/0, -/0] | build3 unlocked=4 [-/0, -/0, -/0, -/0] | build4 unlocked=4 [-/0, -/0, -/0, -/0]
+11:58:19 check: race copy of Biddy Blas: build1 unlocked=4 [-/0, -/0, -/0, -/0] | build2 unlocked=4 [-/0, -/0, -/0, -/0] | build3 unlocked=4 [-/0, -/0, -/0, -/0] | build4 unlocked=4 [-/0, -/0, -/0, -/0]

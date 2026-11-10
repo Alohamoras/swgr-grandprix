@@ -80,10 +80,12 @@ One git tag per chunk; push after each tag.
       second at the menu. Not felt so far; make it cheaper (notification + rare checks) if the menus ever hitch.
 
 ## 5. v0.4 Mods: the vehicle's affixes (owner, 2026-11-09; DESIGN.md §5b)
-- [ ] **Recon M1:** at race load, write one affix with an obvious effect into your race copy's `AffixSlots`
-      (`PrimaryAffix`); does it show in the HUD / build and change the car? Also read the copy's affix slot count.
-      If it's too late at load, try earlier (launch) or another route.
-- [ ] Catalogue in config from the recon dump (name, description, rarity, group by effect, I/II/III steps).
+- [x] **Recon M1 (2026-11-10):** works. Affixes in the launch build's `Affixes` (direct pointers) become active
+      passives; the bots copy them too, and clearing the bots' race copies at load keeps them yours only
+      (DESIGN.md §5b). 50cc stays mod-free (owner).
+- [x] Catalogue dumped and grouped (`tools/recon/ModRecon`); shown to the owner as a page.
+- [ ] Owner: slots 2 / 3 / 4, strength by class, one per effect, no faulty, no AI mods - confirm or change.
+- [ ] Catalogue into config (groups, effects, steps by asset name).
 - [ ] MODS screen next to ABILITIES: slots and rarity by class; kept for the cup; written at race load.
 - [ ] Tests; tag v0.4.0.
 
