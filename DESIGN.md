@@ -24,7 +24,7 @@ save.
 - **Speed classes 50cc / 100cc / 150cc / 200cc**: they set how fast every vehicle is, how sharp the AI is, and how strong
   everyone's abilities are.
 - **Points over a cup**, standings between races, a trophy at the end.
-- **Abilities, not upgrades**: pick one offensive, one defensive, one utility and one wildcard. **No Autopilot.**
+- **Abilities, not upgrades**: pick any four, one per family (free pick, owner 2026-11-10). **No Autopilot.**
 - **No crash limit**: crashing costs time, never the race.
 - Quick: race → standings → next race, no paddock, no cutscenes.
 
@@ -85,7 +85,13 @@ Underground's `ai.lua` and `loadout.lua` (proven: every bot gets its own abiliti
 How often the AI uses them: `AiAbilityChanceMultiplier` (rubber-band tune data).
 
 ## 5. Abilities: your four picks
-Before each cup you pick four, one per category. The level comes from the class (§4); at levels 2 and 3 you pick the
+**Free pick (owner, 2026-11-10, v0.3.10):** any four of the seven families (Ion Bolt, Shockwave, Concussion Mine,
+Shield, Status Scrubber, Vent, Surge), at most one of each. No defence or all defence is allowed. Your four are kept
+in the mod's save across races, cups, classes and restarts until you change them; a cup keeps the four it started
+with. The AI racers keep their category fours (below). The category rule is still there as a setting
+(`Abilities.Rule = 'categories'`); what follows describes it.
+
+Category rule (v0.3.0): before each cup you pick four, one per category. The level comes from the class (§4); at levels 2 and 3 you pick the
 branch (e.g. Concussive Bolt or Multi-Bolt). Picks are kept for the whole cup (like choosing your kart); a setting can
 allow changes between races.
 
@@ -209,4 +215,5 @@ circuits 4-8. First race in game (v0.1): The War Fields, 2 laps, about 2 min 20 
 | 2026-11-09 | Order: mods (v0.4), progression (v0.5), polish (v0.6); AI difficulty and the crash limit moved to the end as "maybe". |
 | 2026-11-09 | New task: pick the vehicle's mods (affixes) before a cup, like the abilities (§5b). Difficulty so far: "difficult but fun". |
 | 2026-11-09 | Abilities built before the AI difficulty (v0.3); AI difficulty per class becomes v0.4. |
+| 2026-11-10 | Abilities: free pick, any four, one per family (owner). The AI keeps its category fours. Points 15-12-10-...-1 kept ("works well"). 50cc and 100cc open from the start. |
 | 2026-11-09 | Mines only as the Wildcard. The AI follows the four-category rule too. 150cc fully maxed. Quitting a cup forfeits it (easiest to build). |

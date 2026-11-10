@@ -81,10 +81,15 @@ return {
         } },
     },
 
-    -- Abilities (v0.3, DESIGN.md §5). You pick four before a cup, one per category; the class sets their level, and
+    -- Abilities (v0.3, DESIGN.md §5). You pick four before a cup (Rule below); the class sets their level, and
     -- at levels 2 and 3 you pick the branch. The AI racers get four each the same way (Racers below). Autopilot is
     -- never offered or given.
     Abilities = {
+        -- 'free' (owner, 2026-11-10): pick any four, one per family. 'categories': one per category below (v0.3.0).
+        -- The AI racers keep their category fours (Racers) either way.
+        Rule = 'free',
+        -- the families, in the order the pick screen shows them (Autopilot is never one)
+        Families = { 'bolt', 'shockwave', 'mine', 'shield', 'scrubber', 'vent', 'surge' },
         Categories = {
             { key = 'offensive', name = 'OFFENSIVE', families = { 'bolt', 'shockwave' } },
             { key = 'defensive', name = 'DEFENSIVE', families = { 'shield' } },

@@ -2,10 +2,10 @@
 -- The GRAND PRIX tab on the game's main menu (or F6) -> speed class -> cup -> race. Races launch straight away through
 -- the game's offline quick race (FrontEndGameMode:LaunchQuickRace) with every part at the class's level.
 -- v0.2: cups of 4 races with points for all 12 racers, standings after each race, a trophy at the end.
--- v0.3: your four abilities (offensive / defensive / utility / wildcard), the AI racers' four, levels by class.
+-- v0.3: your four abilities (v0.3.10: free pick, one per family), the AI racers' four, levels by class.
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.3.9'
+local VERSION = '0.3.10'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -67,7 +67,7 @@ local function picksFor(classKey)
 end
 local function picksText(picks, level)
   local o = {}
-  for _, c in ipairs(AB.categories()) do o[#o + 1] = AB.label(picks[c.key], level) end
+  for _, p in ipairs(AB.toList(picks)) do o[#o + 1] = AB.label(p, level) end
   return table.concat(o, '  /  ')
 end
 local TROPHY_NAME = { 'GOLD', 'SILVER', 'BRONZE' }
@@ -226,48 +226,56 @@ SCREENS.offline = function()
   }
 end
 
--- your four: one tile per category, then that category's choices
+-- your four: one tile per slot (free: any four, one per family; or one per category), then that slot's choices
 SCREENS.abilities = function()
   local cls = K.class(S.class) or K.classes()[1]
   local level = AB.levelFor(cls.key)
   local picks = picksFor(cls.key)
+  local free = AB.rule() == 'free'
   local items = {}
-  for _, c in ipairs(AB.categories()) do
-    items[#items + 1] = { title = c.name, art = 'T_UI_FE_Tile_02', desc = ('%s\n%s'):format(AB.label(picks[c.key], level), AB.blurb(picks[c.key])),
-      act = function() S.cat = c.key; return go('pick') end }
+  for i, slot in ipairs(AB.slots()) do
+    items[#items + 1] = { title = free and AB.label(picks[i], level):upper() or slot.name, art = 'T_UI_FE_Tile_02',
+      desc = free and (AB.blurb(picks[i]) .. '\nSelect to change') or ('%s\n%s'):format(AB.label(picks[i], level), AB.blurb(picks[i])),
+      act = function() S.slot = i; return go('pick') end }
   end
   items[#items + 1] = { title = 'DONE', art = 'T_UI_FE_Tile_03', desc = 'Back to the cup', act = function() return go('cup') end }
   return { key = 'abilities', title = 'ABILITIES  -  ' .. cls.name:upper(),
-    lines = { { ('Pick one of each.  %s: level %d%s.'):format(cls.name, level, level > 1 and ', pick the branch' or ''), 22, U.WHITE },
-      { 'The wildcard can be mines or any family you haven\'t picked.  The AI racers bring four each too.', 18 }, msgLine() },
+    lines = { { ('%s  %s: level %d%s.'):format(free and 'Pick any four, one of each kind.' or 'Pick one of each.', cls.name, level,
+        level > 1 and ', pick the branch' or ''), 22, U.WHITE },
+      { free and 'Kept for every cup until you change them.  The AI racers bring four each too.'
+        or 'The wildcard can be mines or any family you haven\'t picked.  The AI racers bring four each too.', 18 }, msgLine() },
     items = items, hint = HINT }
 end
 SCREENS.pick = function()
   local cls = K.class(S.class) or K.classes()[1]
   local level = AB.levelFor(cls.key)
   local picks = picksFor(cls.key)
-  local cat = AB.category(S.cat) or AB.categories()[1]
+  local i = (S.slot and AB.slots()[S.slot]) and S.slot or 1
+  local slot = AB.slots()[i]
   local items = {}
-  for _, o in ipairs(AB.options(cat.key, level, picks)) do
-    local chosen = AB.rel(picks[cat.key], level) == o.rel
+  for _, o in ipairs(AB.choices(i, level, picks)) do
+    local chosen = AB.rel(picks[i], level) == o.rel
     items[#items + 1] = { title = o.name:upper(), art = chosen and 'T_UI_FE_Tile_Campaign_Hero' or 'T_UI_FE_Tile_01',
       desc = (chosen and 'PICKED\n' or '') .. AB.blurb(o.pick),
       act = function()
         local np = {}
-        for k, v in pairs(picks) do np[k] = v end
-        np[cat.key] = o.pick
-        local before = np.wildcard
-        K.data.picks = AB.normalize(np, level)
+        for k = 1, 4 do np[k] = picks[k] end
+        np[i] = o.pick
+        local now = AB.normalize(np, level)
+        K.data.picks = now
         K.save()
-        S.message = o.name .. ' picked' .. ((cat.key ~= 'wildcard' and K.data.picks.wildcard ~= before)
-          and ('  -  wildcard changed to ' .. AB.label(K.data.picks.wildcard, level)) or '')
+        local changed = {}
+        for k = 1, 4 do if k ~= i and now[k] ~= np[k] then changed[#changed + 1] = AB.label(now[k], level) end end
+        S.message = o.name .. ' picked' .. (#changed > 0 and ('  -  ' .. table.concat(changed, ', ') .. ' put in its place') or '')
         S.screen = 'abilities'
         return true
       end }
   end
   items[#items + 1] = { title = 'BACK', art = 'T_UI_FE_Tile_03', desc = 'Your four', act = function() return go('abilities') end }
-  return { key = 'pick', title = cat.name .. '  -  ' .. cls.name:upper(),
-    lines = { { 'Now: ' .. AB.label(picks[cat.key], level), 22, U.WHITE }, msgLine() }, items = items, hint = HINT }
+  return { key = 'pick', title = (AB.rule() == 'free' and ('ABILITY ' .. i) or slot.name) .. '  -  ' .. cls.name:upper(),
+    lines = { { 'Now: ' .. AB.label(picks[i], level), 22, U.WHITE },
+      AB.rule() == 'free' and { 'Kinds you already have in another slot are not listed.', 18 } or { '', 0 }, msgLine() },
+    items = items, hint = HINT }
 end
 
 SCREENS.standings = function()

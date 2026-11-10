@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.3.10 (2026-11-10): free pick abilities
+- Owner: pick any four abilities, one per family (Bolt, Shockwave, Mines, Shield, Scrubber, Vent, Surge). The
+  ABILITIES screen shows your four by name; picking a slot lists every family the other three don't hold (and the
+  branches from 150cc). No Autopilot. The AI racers keep their category fours.
+- Picks are a list of four now. Old saves (offensive / defensive / utility / wildcard) and a cup in progress holding
+  the old form are read as the list in that order, unchanged.
+- The old rule stays as a setting: `Abilities.Rule = 'categories'` in config.lua.
+- Tests: `test_abil` covers both rules; `test_abilities` the free-pick screens; new `test_oldpicks` an old save with
+  a cup in progress.
+
 ## v0.3.9 (2026-11-10): the stutter's real cause
 - The v0.3.7 real-clock timing showed our race check taking 11.7 ms on average (worst 74 ms) every 100 ms. Cause, in
   UE4SS.log: "Failed to find FUObjectHashTables::Get()" - UE4SS has no object hash tables in this game, so every

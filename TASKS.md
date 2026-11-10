@@ -50,6 +50,8 @@ One git tag per chunk; push after each tag.
 - [x] In game (owner, 2026-11-09, 50cc Lantaana race 1): your four loaded (Shockwave, Shield, Surge, Status
       Scrubber); all 11 AI racers got their four at load; quitting the race = DNF, the cup moved on to race 2.
 - [ ] Still to see: do the AI fire their abilities, Shields included (R7)?
+- [x] v0.3.10 (owner, 2026-11-10): free pick, any four abilities, one per family; kept until changed (it already was
+      saved across races and restarts). Category rule kept as a setting. In game: pick a four and race with it.
 
 - [x] v0.3.1: race stutter (owner) - full object sweeps cut from ~22/s to ~0.5/s while racing. Confirmed fixed in
       game by the owner (2026-11-09).

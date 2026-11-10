@@ -38,17 +38,59 @@ function AB.levelFor(classKey)
   return 1
 end
 
--- the choices for a category at a level: { pick, name } - one per distinct ability (branches that are the same
--- ability at this level are offered once). The wildcard leaves out families already picked in the other categories.
-function AB.options(catKey, level, picks)
-  local cat = AB.category(catKey)
-  if not cat then return {} end
-  local taken = {}
-  if catKey == 'wildcard' then
-    for k, p in pairs(picks or {}) do if k ~= 'wildcard' then taken[AB.family(p) or ''] = true end end
+-- v0.3.10 (owner, 2026-11-10): the rule. 'free' = any four, one per family (the default); 'categories' = one per
+-- category (offensive / defensive / utility / wildcard), as in v0.3.0. Your picks are a list of four either way.
+function AB.rule() return conf().Rule == 'categories' and 'categories' or 'free' end
+function AB.families()
+  if conf().Families then return conf().Families end
+  local out = {}
+  for fam in pairs(conf().Lines or {}) do out[#out + 1] = fam end
+  table.sort(out)
+  return out
+end
+
+-- the four slots: { name, families, wildcard } (free: every family in each)
+function AB.slots()
+  if AB.rule() == 'categories' then
+    local out = {}
+    for i, c in ipairs(AB.categories()) do out[i] = { name = c.name, families = c.families, wildcard = c.key == 'wildcard' } end
+    return out
   end
+  local out = {}
+  for i = 1, 4 do out[i] = { name = 'ABILITY ' .. i, families = AB.families() } end
+  return out
+end
+
+-- picks as a list of four; an old save's { offensive, defensive, utility, wildcard } becomes the list in that order
+function AB.toList(picks)
+  local out = {}
+  if type(picks) ~= 'table' then return out end
+  if picks[1] ~= nil or picks[2] ~= nil or picks[3] ~= nil or picks[4] ~= nil then
+    for i = 1, 4 do out[i] = picks[i] end
+    return out
+  end
+  for i, c in ipairs(AB.categories()) do out[i] = picks[c.key] end
+  return out
+end
+function AB.defaults() return AB.toList(conf().Default) end
+
+-- the families the other slots hold (free: every slot's one; categories: only for the wildcard)
+local function takenBy(slot, list)
+  local t, s = {}, AB.slots()[slot]
+  if AB.rule() == 'free' or (s and s.wildcard) then
+    for i = 1, 4 do if i ~= slot and list[i] then t[AB.family(list[i]) or ''] = true end end
+  end
+  return t
+end
+
+-- the choices for slot i at a level: { pick, name, rel } - one per distinct ability (branches that are the same
+-- ability at this level are offered once), leaving out the families held by the other slots (see takenBy).
+function AB.choices(slot, level, picks)
+  local s = AB.slots()[slot]
+  if not s then return {} end
+  local taken = takenBy(slot, AB.toList(picks))
   local out, seen = {}, {}
-  for _, fam in ipairs(cat.families) do
+  for _, fam in ipairs(s.families) do
     if not taken[fam] then
       local branches = {}
       for br in pairs(lines(fam)) do branches[#branches + 1] = br end
@@ -66,36 +108,40 @@ function AB.options(catKey, level, picks)
   return out
 end
 
--- is this pick allowed in this category (the same ability as one of the options, at this level)?
-local function allowed(catKey, pick, level, picks)
+-- is this pick allowed in slot i, given the slots before it?
+local function allowed(slot, pick, level, before)
   local rel = AB.rel(pick, level)
-  for _, o in ipairs(AB.options(catKey, level, picks)) do if o.rel == rel then return true end end
+  if not rel then return false end
+  for _, o in ipairs(AB.choices(slot, level, before)) do if o.rel == rel then return true end end
   return false
 end
 
--- picks made valid: anything missing or not allowed falls back to the default, then to the first option.
--- (Order matters: the wildcard is checked last, against the other three.)
+-- picks made valid (a list of four): slot by slot against the slots before it; anything missing or not allowed falls
+-- back to that slot's default, then any default not yet used, then the first choice.
 function AB.normalize(picks, level)
-  local out, def = {}, conf().Default or {}
-  for _, c in ipairs(AB.categories()) do
-    local p = (picks or {})[c.key]
-    if not (p and allowed(c.key, p, level, out)) then
-      p = def[c.key]
-      if not (p and allowed(c.key, p, level, out)) then
-        local o = AB.options(c.key, level, out)[1]
+  local list, def, out = AB.toList(picks), AB.defaults(), {}
+  for i = 1, #AB.slots() do
+    local p = list[i]
+    if not (p and allowed(i, p, level, out)) then
+      p = nil
+      local tries = { def[i] }
+      for j = 1, 4 do if j ~= i then tries[#tries + 1] = def[j] end end
+      for _, d in ipairs(tries) do if d and allowed(i, d, level, out) then p = d; break end end
+      if not p then
+        local o = AB.choices(i, level, out)[1]
         p = o and o.pick or nil
       end
     end
-    out[c.key] = p
+    out[i] = p
   end
   return out
 end
 
--- class paths for the build's 4 slots, in category order
+-- class paths for the build's 4 slots (your list, or an AI racer's { offensive, ... })
 function AB.classPaths(picks, level, forBots)
-  local out = {}
-  for _, c in ipairs(AB.categories()) do
-    local rel = AB.rel((picks or {})[c.key], level, forBots)
+  local out, list = {}, AB.toList(picks)
+  for i = 1, 4 do
+    local rel = AB.rel(list[i], level, forBots)
     if rel then out[#out + 1] = AB.classPath(rel) end
   end
   return out
