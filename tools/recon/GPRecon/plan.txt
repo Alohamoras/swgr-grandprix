@@ -1,0 +1,16 @@
+# GPRecon plan (TASKS.md §1). One race per line: <event path> <car|bike|skimmer> <part level> [health=none|def|state|tune]
+# A) R1 finishing order, R2 the field across a cup, R3 crash limit: the Jakku Cup at 50cc-ish parts, one health
+#    experiment per race (none = baseline)
+/Game/Griffin/Gameplay/Events/Planets/Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD car 3 health=none
+/Game/Griffin/Gameplay/Events/Planets/Mastiff/P2P_A/EVT_MAS_P2P_FWD car 3 health=def
+/Game/Griffin/Gameplay/Events/Planets/Mastiff/Loop_B/EVT_MAS_LOOP_B_FWD car 3 health=state
+/Game/Griffin/Gameplay/Events/Planets/Mastiff/Loop_A/EVT_MAS_LOOP_A_SHORT_02 car 3 health=tune
+# B) R4 class speed: The War Fields at parts 3 / 6 / 10 with each vehicle type
+/Game/Griffin/Gameplay/Events/Planets/Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD car 6
+/Game/Griffin/Gameplay/Events/Planets/Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD car 10
+/Game/Griffin/Gameplay/Events/Planets/Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD bike 3
+/Game/Griffin/Gameplay/Events/Planets/Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD bike 6
+/Game/Griffin/Gameplay/Events/Planets/Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD bike 10
+/Game/Griffin/Gameplay/Events/Planets/Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD skimmer 3
+/Game/Griffin/Gameplay/Events/Planets/Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD skimmer 6
+/Game/Griffin/Gameplay/Events/Planets/Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD skimmer 10

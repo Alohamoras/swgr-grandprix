@@ -75,11 +75,12 @@ band.
 |---|---|---|---|
 | Your parts (all 6 slots) | level 3 | level 6 | level 10 |
 | AI pressure (rubber band) | easy | the game's own | hard |
-| AI abilities | 1 at level 1 | 2 at level 2 | full kit at level 3, used more often |
+| AI abilities | 4 picks at level 1 | 4 picks at level 2 | 4 picks at level 3, used more often |
 | Your ability level | 1 | 2 (pick the branch) | 3 |
 
-Values are a starting point to tune. AI pressure and AI ability kits are the Underground's `ai.lua` and `loadout.lua`
-(proven: every bot gets its own signature kit at race load, the same every race).
+Values are a starting point to tune; 150cc is fully maxed (owner, 2026-11-09). AI pressure and AI abilities use the
+Underground's `ai.lua` and `loadout.lua` (proven: every bot gets its own abilities at race load, the same every race).
+How often the AI uses them: `AiAbilityChanceMultiplier` (rubber-band tune data).
 
 ## 5. Abilities: your four picks
 Before each cup you pick four, one per category. The level comes from the class (§4); at levels 2 and 3 you pick the
@@ -89,12 +90,18 @@ allow changes between races.
 | Category | Families (level 1 → level 2 / 3 branches) |
 |---|---|
 | **Offensive** | Ion Bolt (Concussive / Multi), Shockwave (Magnetic / Vectored) |
-| **Defensive** | Shield (Impact / Surging), Concussion Mine (Double / Freezing) |
+| **Defensive** | Shield (Impact / Surging) |
 | **Utility** | Status Scrubber (Auto / Multi), Vent (Auto / Supercooled / Flame), Surge (Impact / Overtaking) |
-| **Wildcard** | any family above, as long as it isn't already one of your picks |
+| **Wildcard** | Concussion Mine (Double / Freezing), or any family above that isn't already one of your picks |
 
 - **Autopilot is never offered** and is removed if it shows up in a build (it's also kept off the AI).
-- Mines sit under Defensive because they're dropped behind you to block chasers. Owner to confirm.
+- Mines are only in the Wildcard slot (owner, 2026-11-09). Defensive is the Shield family, so its choice is the
+  branch (from 100cc).
+- **The AI follows the same rule** (owner, 2026-11-09: more kart-racer-like). Every named racer has a fixed set of
+  four, one per category, matching their style in the game's data (e.g. Biddy Blas: Vectored Shockwave / Shield /
+  Flame Vent / mines), the same every race; the class sets the level. The Underground's signature kits (DESIGN.md §3
+  there) are re-sorted into the four categories. Known risk: in the Underground tests the AI never fired a Shield, so
+  the AI's defensive slot may sit unused; recon R7.
 - The crash ability (Ion Blast) stays the vehicle's default. It could become a fifth pick later.
 - A build has exactly 4 ability slots, so the four picks fill them. Written into the launch build the way the
   Underground does it (`race.lua` `applyAbilities`), put back at the menu.
@@ -104,8 +111,8 @@ allow changes between races.
    → four abilities.
 2. Race 1 launches straight away (quick race; StreamlineCampaign skips the intros).
 3. Results come back: **points for all 12 racers**, then a standings screen with the cup so far.
-4. Continue → the next race launches. Quit at any point gives up the cup (it can be resumed if we keep state; see
-   open questions).
+4. Continue → the next race launches. Quitting gives up the cup (owner: start with whatever is easier to code; a
+   forfeit is). Resume can come later.
 5. After race 4: the final standings, the trophy (1st gold, 2nd silver, 3rd bronze), and unlocks.
 
 **Points:** 15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1. Ties on points: the better finish in the last race wins.
@@ -153,9 +160,13 @@ Copied, not shared: the Underground is on hold and the two can change separately
   cup race.
 - **R6 Race length**: laps and times, so a cup is about 15–20 minutes.
 
+- **R7 AI and Shields**: does the AI ever fire a Shield when it's one of four? (Underground: never, as a third pick.)
+
 ## 11. Open questions for the owner
-- Mines as Defensive (§5)?
 - Cup line-up (§3): happy with these, and with leaving knockouts / 1 v 1s out?
-- Can you quit mid-cup and resume, or does quitting forfeit?
-- Should the AI's abilities also follow the four-category rule, or keep their signature kits?
-- 150cc parts at 10 (maxed) or 9, leaving room for a "200cc" later?
+
+## 12. Decisions
+| Date | Decision |
+|---|---|
+| 2026-11-09 | New design, new repo (owner). Crash limit off. Four picks: offensive, defensive, utility, wildcard; no Autopilot. |
+| 2026-11-09 | Mines only as the Wildcard. The AI follows the four-category rule too. 150cc fully maxed. Quitting a cup forfeits it (easiest to build). |
