@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.7.0 (2026-11-10): menu art (owner: "I like all of those, just go for it")
+- Every picture is one of the game's own textures, loaded by path (`art.lua`; research page and the extractor in
+  `tools/art/`).
+- Class tiles: the game's four difficulty banners, sage / gold / blue / red for 50 / 100 / 150 / 200cc.
+- Cup tiles: each planet's Arcade poster in your vehicle's version (falls back when the game has none: Crait has
+  no car poster, Sentinel only a car one). Remix cups show the planet's dark full-colour scene instead. Outer Rim
+  and Galactic use the BGL and WHP art. NEXT RACE, START CUP, CONTINUE CUP and GO TO IT show the cup's art.
+- Trophies: a won cup shows its gold / silver / bronze medal in the tile's icon slot (the text badge stays); the
+  cup result's CONTINUE tile shows the medal won.
+- ABILITIES and MODS tiles, the nine mod groups and the mods in them: the game's racer-style pictures.
+- VEHICLE tile: the car / bike / skimmer main-menu tile.
+- Standings and cup result: a dark backdrop behind the points table.
+- One screen looks each picture up once (lookups are full sweeps in this game).
+
 ## v0.6.3 (2026-11-10): remix cups seen in game
 - The Sentinel Remix's last race is Corrosion Hypersphere (its real name, read from the game's track data). The
   Ando Remix's short circuit has no name in the game (a developer label only); it is a finished, lit 5-lap ice

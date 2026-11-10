@@ -3,6 +3,20 @@
 Design: DESIGN.md. Shared playbook and house rules: ~/Projects/swgr-underground/AUTOMATION.md.
 One git tag per chunk; push after each tag.
 
+## Waiting on the owner's playtest (v0.6.3 installed, 2026-11-10)
+Things only a real play can answer. Tick them off (or note what felt wrong) as you go.
+- [ ] **Mods:** which feel good, which feel too strong - the 23 "check" ones especially
+      (catalogue page: https://claude.ai/artifact/4nFmiUyn62CRY21JBZRgx9).
+- [ ] **Remix cups:** race them (open at every class now). Name the Ando short track if you like
+      (shown as "ANDO SHORT CIRCUIT" for now).
+- [ ] **Points table after each race:** lines up and reads well; the loading-screen cover appears and goes. If it ever
+      sticks or blocks input: `HideMenuFlash = false` in config.lua.
+- [ ] **Unlock message:** a cup that opens something says "UNLOCKED: ..." on the result screen (gold in all five 100cc
+      planet cups opens the 100cc Outer Rim cup).
+- [ ] **Menu flash** between a race and the standings: still "much less noticeable"? (decides v0.7 item below)
+- [ ] **Free ability pick and trophy badges:** do they read clearly?
+- [ ] **AI abilities (R7):** do the AI racers fire their abilities, Shields included? Watch for it in races.
+
 ## 0. Repo and design (2026-11-09)
 - [x] Repo, DESIGN.md, this plan.
 - [x] Owner answers: mines = wildcard, AI follows the four-category rule, 150cc maxed, quit = forfeit.
@@ -70,7 +84,7 @@ One git tag per chunk; push after each tag.
       late 2-3 times a race (Dai Bendu before: 220); Lua memory steady at ~0.5-0.6 MB.
 - [x] v0.3.6: four classes (owner): 50cc no upgrades (parts 0), 100cc 3, 150cc 6, 200cc 10 (maxed); abilities
       1 / 1 / 2 / 3. Save v2: trophies and the cup in progress move up one class (backup kept).
-- [ ] Put the save's race count back (211 -> 13) with the game closed (the file has Windows line endings).
+- [x] ~~Put the save's race count back~~ (moot: progress was reset 2026-11-10).
 
 - [x] v0.3.9 (2026-11-10): real cause found - every lookup by path is a full sweep in this game (UE4SS has no object
       hash tables). No lookups while racing; one sweep every 2 s. In game: check the PERF "our tick" numbers.
@@ -86,7 +100,7 @@ One git tag per chunk; push after each tag.
 - [x] Catalogue dumped and grouped (`tools/recon/ModRecon`); shown to the owner as a page.
 - [x] Owner (2026-11-10): no pure-speed mods; protections and playstyle mods only. Every effect tagged (24 power left
       out, 24 protection, 81 playstyle of which 23 "check"); page updated.
-- [ ] Owner: rescue / drop individual mods on the page; slots 2 / 3 / 4; top step everywhere or step by class;
+- [x] Owner: rescue / drop individual mods on the page; slots 2 / 3 / 4; top step everywhere or step by class;
       what to do with the 23 "check" ones (keep, drop, or try a few in game first).
 - [x] Owner (2026-11-10): top step everywhere, keep the "check" ones, build it.
 - [x] Built as **v0.6.0** (tags were already past v0.4): catalogue generated into `Scripts/mods.lua`
@@ -96,8 +110,8 @@ One git tag per chunk; push after each tag.
       AI cars none ("88 slots cleared"); "mods put back (main menu): VBD_Car_Base (0)" - `Empty()` works.
 - [x] v0.6.1: tile descriptions were cut after two lines -> a gold info line with the focused mod's full text.
 - [ ] Owner: play with mods; which ones feel good / too strong (the 23 "check" ones especially).
-- [ ] MODS screen next to ABILITIES: slots and rarity by class; kept for the cup; written at race load.
-- [ ] Tests; tag v0.4.0.
+- [x] MODS screen next to ABILITIES: slots by class; kept for the cup; written at race load (v0.6.0).
+- [x] Tests; tagged as v0.6.0.
 
 ## 5b. Trophy display and reset (owner, 2026-11-10)
 - Owner saw a gold cup trophy after winning one race. Checked: not a bug. That race was race 4 of the Jakku cup
@@ -137,7 +151,7 @@ One git tag per chunk; push after each tag.
       (12 racers). Names read: Corrosion Hypersphere; the Ando short 01 has no player-facing name (finished-looking ice
       circuit, kept as ANDO SHORT CIRCUIT - owner may name it).
 - [ ] Owner: race the remix cups once unlocked.
-- [ ] (old note) **Reverse cups (v0.5.x):** the five planet cups on reverse (or night / weather) variants. Needs the event paths
+- [x] (old note, replaced by the remix cups) **Reverse cups (v0.5.x):** the five planet cups on reverse (or night / weather) variants. Needs the event paths
       (Underground config `Planets`) and a launch check in game for each. When do they open: after 150cc (DESIGN §3)
       or after the top class (owner's earlier note)? Ask the owner.
 - [ ] **Champion Showdown (v0.5.x):** the 1 v 1 against Kestar Bool (`EVT_WHP_SHORTBOSS_FAIR`) as a single bonus race
@@ -154,6 +168,22 @@ One git tag per chunk; push after each tag.
 
 ## 7. v0.7 Polish (was v0.6)
 - [ ] Tile art per cup (planet art), standings layout, short intro text, controller check (owner's pad).
+- [x] Art research (2026-11-10): textures pulled from the paks (`tools/art/iotex.py`); page with previews and paths:
+      https://claude.ai/artifact/6mLfAbAs7k8NeCqvpU8yML. All under `/Game/Griffin/UI/Library/Textures/`:
+  - Classes: `Backgrounds/T_UI_DifficultySettings01..04_Bg` (sage / gold / blue / red = 50 / 100 / 150 / 200cc).
+  - Cups: `Content/Arcade/T_UI_Arcade_<P>_<Vehicle>_Tile` posters, one colour per planet, per vehicle
+    (Car / Bike / Skimmer / Plane). P: Jakku MAS, Lantaana DAL, Ando COR, Crait SPA, Sentinel HUS (events HSK),
+    Galactic WHP, Outer Rim BGL (Plane only). Crait has no Car tile (Bike / Plane / Needle).
+  - Remix cups: `Content/Arcade/T_UI_Arcade_<P>_<Vehicle>_Bg` (dark full-colour planet scenes).
+  - Trophies: `Icons/Leaderboard/T_UI_Grit_Medals_Gold|Silver|Bronze` in the tile's `Img_Icon` (hidden today).
+  - Showdown: `Content/RacerStyles/T_UI_RacerStyle_Antagonist_Bg` (Kestar); `Icons/Map/T_UI_Map_ChampionEvent_Icn`.
+  - Mod groups: `Content/RacerStyles/T_UI_RacerStyle_<Afterburner|Ramjet|Cooling|Surging|Frozen|Abilities|Battling|
+    Struggling|Airborne>_Bg`.
+  - Standings / results backdrop: `Backgrounds/T_UI_Retro_A..D_Bg`, `T_UI_MainMenu_Bg`, `T_UI_Scenario_Bg`.
+  - Not usable as-is: `Content/Planets/T_UI_Planet_*` are grey masks (detail in alpha, tinted by a material).
+- [x] Owner (2026-11-10): "I like all of those, just go for it". Built as **v0.7.0** (`art.lua`, test_art).
+- [ ] In game: screenshots of every screen; fix anything that crops or stretches badly. Was: pick from the art page; then `ui.lua` `texture()` takes full paths (today only `Content/MainMenu/`),
+      cups get `art` per vehicle, won cups show their medal icon.
 - [ ] Hide the ~3 s main-menu flash between a race and the standings (loading screen, or a shorter wait).
 - [ ] Tag v0.7.0.
 

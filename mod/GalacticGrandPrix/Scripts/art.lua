@@ -1,0 +1,80 @@
+-- Galactic Grand Prix: menu art (v0.7.0, owner 2026-11-10: "I like all of those, just go for it").
+-- Every picture is one of the game's own textures, loaded by path (research and previews: tools/art/README.md,
+-- https://claude.ai/artifact/6mLfAbAs7k8NeCqvpU8yML). Pure functions: paths only, nothing looked up here.
+local A = {}
+
+local TEX = '/Game/Griffin/UI/Library/Textures/'
+local ARCADE = TEX .. 'Content/Arcade/T_UI_Arcade_'
+
+-- the speed classes: the game's four difficulty banners (sage, gold, blue, red)
+local CLASS = { ['50'] = 1, ['100'] = 2, ['150'] = 3, ['200'] = 4 }
+function A.class(key)
+  local n = CLASS[tostring(key)]
+  return n and (TEX .. 'Backgrounds/T_UI_DifficultySettings0' .. n .. '_Bg') or nil
+end
+
+-- the planets' Arcade art: a poster (Tile) and a dark full-colour scene (Bg) per vehicle, not every pair exists
+-- (from the pak index, 2026-11-10)
+local HAVE = {
+  Tile = {
+    Mas = { Car = 1, Bike = 1, Skimmer = 1, Plane = 1 }, Dal = { Car = 1, Bike = 1, Skimmer = 1, Plane = 1 },
+    Cor = { Car = 1, Bike = 1, Skimmer = 1, Plane = 1 }, Spa = { Bike = 1, Plane = 1 }, Hus = { Car = 1 },
+    Whp = { Car = 1, Bike = 1, Skimmer = 1, Plane = 1 }, Bgl = { Plane = 1 },
+  },
+  Bg = {
+    Mas = { Car = 1, Bike = 1, Skimmer = 1, Plane = 1 }, Dal = { Car = 1, Bike = 1, Skimmer = 1, Plane = 1 },
+    Cor = { Car = 1, Bike = 1, Skimmer = 1, Plane = 1 }, Spa = { Car = 1, Bike = 1, Skimmer = 1, Plane = 1 },
+    Hus = { Bike = 1, Skimmer = 1 }, Whp = { Car = 1, Bike = 1, Skimmer = 1, Plane = 1 }, Bgl = { Plane = 1 },
+  },
+}
+local VEH = { car = 'Car', bike = 'Bike', skimmer = 'Skimmer' }
+local ORDER = { 'Car', 'Bike', 'Skimmer', 'Plane' }
+
+-- a planet's picture, your vehicle's version when there is one
+function A.planet(planet, kind, vehicleKey)
+  local have = HAVE[kind] and HAVE[kind][planet]
+  if not have then return nil end
+  local want = VEH[vehicleKey or 'car'] or 'Car'
+  local pick = have[want] and want
+  if not pick then for _, v in ipairs(ORDER) do if have[v] then pick = v; break end end end
+  return pick and (ARCADE .. planet .. '_' .. pick .. '_' .. kind) or nil
+end
+
+-- the cups: planet cups show the planet's poster, remix cups its dark scene (so they look different at a glance)
+local PLANET = { jakku = 'Mas', lantaana = 'Dal', ando = 'Cor', crait = 'Spa', sentinel = 'Hus', outerrim = 'Bgl', galactic = 'Whp' }
+function A.cup(cup, vehicleKey)
+  if not cup then return nil end
+  if cup.artPath then return cup.artPath end
+  local base = cup.key and cup.key:gsub('_remix$', '')
+  local p = PLANET[base]
+  if not p then return nil end
+  return A.planet(p, cup.remix and 'Bg' or 'Tile', vehicleKey)
+end
+
+-- the trophy medals (best = 1 / 2 / 3)
+local MEDAL = { 'Gold', 'Silver', 'Bronze' }
+function A.medal(best)
+  local m = MEDAL[best or 0]
+  return m and (TEX .. 'Icons/Leaderboard/T_UI_Grit_Medals_' .. m) or nil
+end
+
+-- the mod groups: the game's racer-style pictures
+local GROUP = {
+  ['Afterburner'] = 'Afterburner', ['Ramjet'] = 'Ramjet', ['Cooling & heat'] = 'Cooling',
+  ['Shields, surges & slipstream'] = 'Surging', ['Status protection'] = 'Frozen', ['Abilities & energy'] = 'Abilities',
+  ['Takedowns'] = 'Battling', ['Crashes & recovery'] = 'Struggling', ['Driving skill'] = 'Airborne',
+}
+function A.style(name) return TEX .. 'Content/RacerStyles/T_UI_RacerStyle_' .. name .. '_Bg' end
+function A.modGroup(g) return GROUP[g] and A.style(GROUP[g]) or nil end
+
+-- your vehicle (the game's main-menu vehicle tiles)
+local VTILE = { car = 'T_UI_FE_Tile_05', bike = 'T_UI_FE_Tile_05_Bike', skimmer = 'T_UI_FE_Tile_05_Skim' }
+function A.vehicle(key) return VTILE[key] or 'T_UI_FE_Tile_05' end
+
+A.ABILITIES = A.style('Abilities')
+A.MODS = A.style('Surging')
+A.SHOWDOWN = A.style('Antagonist')
+-- behind the points table (dark, so the text stays readable)
+A.BACKDROP = TEX .. 'Backgrounds/T_UI_Scenario_Bg'
+
+return A

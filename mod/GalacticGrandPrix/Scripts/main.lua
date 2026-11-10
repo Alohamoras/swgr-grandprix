@@ -19,6 +19,7 @@ for k, v in pairs(rawget(_G, 'GU_TEST_CFG') or {}) do cfg[k] = v end -- test har
 local K = require('gp')
 local R = require('race')
 local U = require('ui')
+local ART = require('art')
 local TB = require('tab')
 local try, alive, log, ordinal = C.try, C.alive, C.log, C.ordinal
 
@@ -94,6 +95,11 @@ local function trophyBadge(classKey, cupKey)
   local b = K.best(classKey, cupKey)
   return b and TROPHY_NAME[b] and (TROPHY_NAME[b] .. ' TROPHY') or nil
 end
+-- v0.7: the trophy's medal in the cup tile's icon slot
+local function medal(classKey, cupKey)
+  local b = K.best(classKey, cupKey)
+  return b and TROPHY_NAME[b] and ART.medal(b) or nil
+end
 -- 'Race 3 of 4' / 'Race 4 of 4 - the final race'
 local function raceOf(run)
   return ('Race %d of %d%s'):format(run.race, run.races, run.race == run.races and ' - the final race' or '')
@@ -148,11 +154,11 @@ SCREENS.classes = function()
     end
     local open, why = PR.classOpen(K.data, c.key)
     if not open then
-      items[#items + 1] = { title = c.name:upper(), art = 'T_UI_FE_Tile_Campaign_Hero', badge = 'LOCKED', disabled = true,
+      items[#items + 1] = { title = c.name:upper(), art = ART.class(c.key), badge = 'LOCKED', disabled = true,
         desc = 'To open: ' .. why,
         act = function() S.message = c.name .. ' is locked. To open it: ' .. why; return true end }
     else
-    items[#items + 1] = { title = c.name:upper(), art = 'T_UI_FE_Tile_Campaign_Hero',
+    items[#items + 1] = { title = c.name:upper(), art = ART.class(c.key),
       badge = trophies > 0 and ('%d / %d TROPHIES'):format(trophies, #K.cups()) or nil,
       desc = ('%s\nGold %d / %d'):format(c.blurb or '', golds, #K.cups()),
       act = function() S.class = c.key; K.data.class = c.key; K.save(); return go('cups') end }
@@ -161,7 +167,7 @@ SCREENS.classes = function()
   local run = K.run()
   if run then
     local cup = K.cup(run.cup)
-    table.insert(items, 1, { title = 'CONTINUE CUP', art = 'T_UI_FE_Tile_02', badge = ('RACE %d / %d'):format(run.race, run.races),
+    table.insert(items, 1, { title = 'CONTINUE CUP', art = ART.cup(cup, run.vehicle) or 'T_UI_FE_Tile_02', badge = ('RACE %d / %d'):format(run.race, run.races),
       desc = ('%s  %s\n%s\n%s'):format(cup and cup.name or run.cup, (K.class(run.class) or {}).name or run.class, raceOf(run), soFar(run)),
       act = function() S.class, S.cup = run.class, run.cup; return go('cup') end })
   end
@@ -192,12 +198,13 @@ SCREENS.cups = function()
     for _, r in ipairs(cup.races) do names[#names + 1] = r.title end
     local open, why = PR.cupOpen(K.data, cls.key, cup.key)
     if not open then
-      items[#items + 1] = { title = cup.name, art = cup.art or 'T_UI_FE_Tile_01', badge = 'LOCKED', disabled = true,
+      items[#items + 1] = { title = cup.name, art = ART.cup(cup, K.data.vehicle) or cup.art, badge = 'LOCKED', disabled = true,
         desc = 'To open: ' .. why,
         act = function() S.message = cup.name .. ' is locked at ' .. cls.name .. '. To open it: ' .. why; return true end }
     else
-    items[#items + 1] = { title = cup.name, art = cup.art or 'T_UI_FE_Tile_01',
+    items[#items + 1] = { title = cup.name, art = ART.cup(cup, here and run.vehicle or K.data.vehicle) or cup.art,
       badge = here and ('IN PROGRESS  %d / %d'):format(run.race, run.races) or trophyBadge(cls.key, cup.key),
+      icon = not here and medal(cls.key, cup.key) or nil,
       desc = (here and ('IN PROGRESS: race %d of %d'):format(run.race, run.races) or bestText(cls.key, cup.key)) .. '\n'
         .. table.concat(names, ', ', 1, math.min(2, #names)) .. (#names > 2 and ' ...' or ''),
       act = function() S.cup = cup.key; return go('cup') end }
@@ -226,7 +233,7 @@ SCREENS.cup = function()
         #run.history == 0 and { table.concat(list, '        '), 20, U.WHITE } or { '', 0 }, msgLine() },
       table = #run.history > 0 and rankingTable(run) or nil,
       items = {
-        { title = 'NEXT RACE', art = 'T_UI_FE_Tile_Campaign_Hero', badge = ('RACE %d / %d'):format(run.race, run.races),
+        { title = 'NEXT RACE', art = ART.cup(cup, run.vehicle) or 'T_UI_FE_Tile_Campaign_Hero', badge = ('RACE %d / %d'):format(run.race, run.races),
           desc = ('%s\n%s'):format(raceOf(run), ev and (ev.title .. ' (' .. (ev.kind or '') .. ')') or '?'), act = launchNext },
         { title = 'QUIT CUP', art = 'T_UI_FE_Tile_03', desc = 'Give up this cup\n(no trophy)',
           act = function()
@@ -245,7 +252,7 @@ SCREENS.cup = function()
         (K.class(run.class) or {}).name or run.class, run.race, run.races), 22, U.WHITE },
         { 'Finish it or quit it to start another.', 18 }, msgLine() },
       items = {
-        { title = 'GO TO IT', art = 'T_UI_FE_Tile_02', desc = 'The cup in progress', act = function() S.class, S.cup = run.class, run.cup; return go('cup') end },
+        { title = 'GO TO IT', art = ART.cup(K.cup(run.cup), run.vehicle) or 'T_UI_FE_Tile_02', desc = 'The cup in progress', act = function() S.class, S.cup = run.class, run.cup; return go('cup') end },
         { title = 'BACK', art = 'T_UI_FE_Tile_03', desc = 'All cups', act = function() return go('cups') end },
       }, hint = HINT }
   end
@@ -255,7 +262,7 @@ SCREENS.cup = function()
       { table.concat(list, '        '), 20, U.WHITE },
       { 'Points: 15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1.  Top 3 after 4 races win a trophy.', 18 }, msgLine() },
     items = {
-      { title = 'START CUP', art = 'T_UI_FE_Tile_Campaign_Hero', desc = ('Race 1: %s\nwith the %s'):format(cup.races[1].title, veh.name),
+      { title = 'START CUP', art = ART.cup(cup, veh.key) or 'T_UI_FE_Tile_Campaign_Hero', desc = ('Race 1: %s\nwith the %s'):format(cup.races[1].title, veh.name),
         act = function()
           local open, why = PR.cupOpen(K.data, cls.key, cup.key)
           if not open then S.message = 'Locked. To open it: ' .. why; return true end
@@ -264,15 +271,15 @@ SCREENS.cup = function()
           if res ~= 'launched' then K.forfeit() end -- couldn't start: no cup left half-begun
           return res
         end },
-      { title = 'ABILITIES', art = 'T_UI_FE_Tile_02', desc = picksText(picksFor(cls.key), AB.levelFor(cls.key)):gsub('  /  ', '\n'),
+      { title = 'ABILITIES', art = ART.ABILITIES, desc = picksText(picksFor(cls.key), AB.levelFor(cls.key)):gsub('  /  ', '\n'),
         act = function() return go('abilities') end },
-      { title = 'MODS', art = 'T_UI_FE_Tile_02', disabled = MS.slotsFor(cls.key) == 0,
+      { title = 'MODS', art = ART.MODS, disabled = MS.slotsFor(cls.key) == 0,
         desc = MS.slotsFor(cls.key) == 0 and 'None at 50cc\n(pure driving)' or modsText(modsFor(), cls.key):gsub('  /  ', '\n'),
         act = function()
           if MS.slotsFor(cls.key) == 0 then S.message = cls.name .. ' has no mods: pure driving'; return true end
           return go('mods')
         end },
-      { title = 'VEHICLE', art = 'T_UI_FE_Tile_05', desc = veh.name .. '\nSelect to change',
+      { title = 'VEHICLE', art = ART.vehicle(veh.key), desc = veh.name .. '\nSelect to change',
         act = function()
           local vs, nxt = K.vehicles(), 1
           for i, v in ipairs(vs) do if v.key == veh.key then nxt = i % #vs + 1 end end
@@ -354,7 +361,7 @@ SCREENS.mods = function()
   local items = {}
   for i = 1, n do
     local e = MS.effect(list[i])
-    items[#items + 1] = { title = e and e.name:upper() or 'EMPTY SLOT', art = e and 'T_UI_FE_Tile_02' or 'T_UI_FE_Tile_01',
+    items[#items + 1] = { title = e and e.name:upper() or 'EMPTY SLOT', art = e and ART.modGroup(e.group) or 'T_UI_FE_Tile_01',
       badge = e and (e.tag == 'protect' and 'PROTECTION' or 'PLAYSTYLE') or ('SLOT ' .. i), desc = e and e.desc or 'Select to pick a mod',
       info = e and (e.name .. ':  ' .. e.desc) or ('Slot ' .. i .. ' is empty'),
       act = function() S.mslot = i; return go('modgroups') end }
@@ -376,7 +383,8 @@ SCREENS.modgroups = function()
   local items = {}
   for _, g in ipairs(MS.groups()) do
     local n = #MS.choices(g, list, i)
-    items[#items + 1] = { title = g:upper(), art = (cur and cur.group == g) and 'T_UI_FE_Tile_Campaign_Hero' or 'T_UI_FE_Tile_01',
+    items[#items + 1] = { title = g:upper(), art = ART.modGroup(g) or 'T_UI_FE_Tile_01',
+      badge = (cur and cur.group == g) and 'NOW' or nil,
       desc = ('%d mods'):format(n), act = function() S.mgroup = g; return go('modpick') end }
   end
   if cur then
@@ -396,7 +404,7 @@ SCREENS.modpick = function()
   local items = {}
   for _, e in ipairs(MS.choices(g, list, i)) do
     local chosen = list[i] == e.key
-    items[#items + 1] = { title = e.name:upper(), art = chosen and 'T_UI_FE_Tile_Campaign_Hero' or 'T_UI_FE_Tile_01',
+    items[#items + 1] = { title = e.name:upper(), art = ART.modGroup(g) or 'T_UI_FE_Tile_01',
       badge = chosen and 'PICKED' or (e.tag == 'protect' and 'PROTECTION' or nil), desc = e.desc, info = e.name .. ':  ' .. e.desc,
       act = function()
         list[i] = e.key
@@ -434,14 +442,15 @@ SCREENS.standings = function()
   if K.run() then
     local nxt = K.nextRace()
     local run2 = K.run()
-    items[#items + 1] = { title = 'NEXT RACE', art = 'T_UI_FE_Tile_Campaign_Hero', badge = ('RACE %d / %d'):format(run2.race, run2.races),
+    items[#items + 1] = { title = 'NEXT RACE', art = ART.cup(K.cup(run2.cup), run2.vehicle) or 'T_UI_FE_Tile_Campaign_Hero', badge = ('RACE %d / %d'):format(run2.race, run2.races),
       desc = ('%s\n%s (%s)'):format(raceOf(run2), nxt.title, nxt.kind or ''), act = launchNext }
     items[#items + 1] = { title = 'LATER', art = 'T_UI_FE_Tile_03', desc = 'Back to the menus\n(the cup stays in progress)', act = function() return go('cup') end }
   else
-    items[#items + 1] = { title = 'CONTINUE', art = 'T_UI_FE_Tile_Campaign_Hero', desc = 'Back to the cups', act = function() return go('cups') end }
+    items[#items + 1] = { title = 'CONTINUE', art = ART.cup(cup, run and run.vehicle) or 'T_UI_FE_Tile_Campaign_Hero', desc = 'Back to the cups',
+      icon = r.trophy and ART.medal(({ GOLD = 1, SILVER = 2, BRONZE = 3 })[r.trophy]) or nil, act = function() return go('cups') end }
   end
   return { key = 'standings', title = r.cupOver and 'CUP RESULT' or 'STANDINGS', lines = lines,
-    table = run and rankingTable(run) or nil, items = items, hint = 'Enter / A : select' }
+    table = run and rankingTable(run) or nil, items = items, hint = 'Enter / A : select', backdrop = ART.BACKDROP }
 end
 
 SCREENS.confirm = function()

@@ -21,10 +21,18 @@ function U.setLayout()
 end
 U.setLayout()
 
+-- a texture by name (the main-menu set) or full path (v0.7 art.lua). Each lookup is a sweep of every object
+-- (AUTOMATION.md), so one screen build looks each picture up once (memo cleared at every build; nothing kept
+-- between ticks).
+local memo = {}
 local function texture(name)
   if not name then return nil end
-  return C.asset(ART .. name)
+  local path = name:sub(1, 1) == '/' and name or (ART .. name)
+  local t = memo[path]
+  if t == nil then t = C.asset(path) or false; memo[path] = t end
+  return t or nil
 end
+U.texture = texture
 
 -- A click on a toggle button (controller A, Enter or mouse - however the game's UI took it) flips its selected
 -- state through the game's own code; the menu tick watches for that (main.lua syncGameUI). No hooks needed.
@@ -55,7 +63,12 @@ local function makeTile(lib, pc, it)
   try(function() t.SzB_SizeOverride:SetHeightOverride(U.TILE_H) end)
   if art then try(function() t.Img_TileArt:SetBrushFromTexture(art, false) end)
   else try(function() t.Img_TileArt:SetVisibility(1) end) end
-  try(function() t.Img_Icon:SetVisibility(1) end)
+  -- v0.7: a picture in the tile's icon slot (the trophy medal), else the slot stays hidden
+  local icon = texture(it.icon)
+  if icon then
+    try(function() t.Img_Icon:SetBrushFromTexture(icon, false) end)
+    try(function() t.Img_Icon:SetVisibility(4) end) -- SelfHitTestInvisible
+  else try(function() t.Img_Icon:SetVisibility(1) end) end
   try(function() t:SetText(FText(it.title)) end)
   if it.disabled then try(function() t:SetRenderOpacity(0.5) end) end
   U.makeToggle(t)
@@ -94,12 +107,19 @@ function U.build(spec, host)
   local tree = host and host.tree
   if not alive(tree) then log('[menu] no widget tree'); return nil end
   local function make(path) return try(function() return StaticConstructObject(StaticFindObject(path), tree) end) end
+  memo = {}
 
   local border, box = make('/Script/UMG.Border'), make('/Script/UMG.VerticalBox')
   local sizer, scroll, grid = make('/Script/UMG.SizeBox'), make('/Script/UMG.ScrollBox'), make('/Script/UMG.UniformGridPanel')
   if not (alive(border) and alive(box) and alive(grid)) then log('[menu] could not build panels'); return nil end
   -- the page panel (on the game's own menu background)
   try(function() border:SetBrushColor({ R = 0.01, G = 0.012, B = 0.016, A = 0.6 }) end)
+  -- v0.7: a picture behind the page (spec.backdrop), darkened so the text stays readable
+  local bd = texture(spec.backdrop)
+  if bd then
+    try(function() border:SetBrushFromTexture(bd) end)
+    try(function() border:SetBrushColor({ R = 0.45, G = 0.45, B = 0.45, A = 0.92 }) end)
+  end
   try(function() border:SetPadding({ Left = 36, Top = 24, Right = 36, Bottom = 24 }) end)
   local content = box
   if spec.side then
