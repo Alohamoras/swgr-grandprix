@@ -133,8 +133,10 @@ One git tag per chunk; push after each tag.
       else another planet track), after a trophy in all five planet cups at 200cc, playable at every open class.
       Events dumped in game (GPRecon, 2026-11-10): all 12-car TeamRaceConfig, Vehicle.Standard. Path case matters
       (`Dalmatian/`, `Husky/LOOP_A/`). The COR P2P REV night / snow versions are tagged "NO LIGHTING PASS": left out.
-- [ ] In game: race a remix cup (owner); read the display names of the two new tracks (Ando short 01, Sentinel
-      special short 02) and put them in config.
+- [x] In game (Claude, 2026-11-10, test copy of the save): remix cups open at 200cc; the Sentinel Remix launched
+      (12 racers). Names read: Corrosion Hypersphere; the Ando short 01 has no player-facing name (finished-looking ice
+      circuit, kept as ANDO SHORT CIRCUIT - owner may name it).
+- [ ] Owner: race the remix cups once unlocked.
 - [ ] (old note) **Reverse cups (v0.5.x):** the five planet cups on reverse (or night / weather) variants. Needs the event paths
       (Underground config `Planets`) and a launch check in game for each. When do they open: after 150cc (DESIGN §3)
       or after the top class (owner's earlier note)? Ask the owner.

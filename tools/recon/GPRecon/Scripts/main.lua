@@ -306,8 +306,10 @@ local function dump()
       seen[p.path] = true
       local e = asset(p.path)
       if e then
-        log(('event %s | name %s | tag %s | laps %s | mode %s | track %s | grid %s | custom opponents %s'):format(
-          p.path:match('[^/]+$'), tostring(try(function() return e.PlayerFacingName:ToString() end)),
+        local td = try(function() return e.TrackDef end)
+        log(('event %s | track name %s | name %s | tag %s | laps %s | mode %s | track %s | grid %s | custom opponents %s'):format(
+          p.path:match('[^/]+$'), tostring(try(function() return td.PlayerFacingName:ToString() end)),
+          tostring(try(function() return e.PlayerFacingName:ToString() end)),
           tag(try(function() return e.VehicleTypeTag end)), num(try(function() return e.LapCount end)),
           nm(try(function() return e.EventMode end)), nm(try(function() return e.TrackDef end)),
           nm(try(function() return e.GridMakeup end)), tostring(try(function() return e.CustomOpponents:GetArrayNum() end))))

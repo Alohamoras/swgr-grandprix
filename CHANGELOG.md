@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.6.3 (2026-11-10): remix cups seen in game
+- The Sentinel Remix's last race is Corrosion Hypersphere (its real name, read from the game's track data). The
+  Ando Remix's short circuit has no name in the game (a developer label only); it is a finished, lit 5-lap ice
+  circuit with a full field, so it stays as "ANDO SHORT CIRCUIT".
+- In game: the five remix cups show and open at 200cc with the unlock earned; the Sentinel Remix's first race
+  launched (Sentinel Lakes forward, overcast, 12 racers, mods yours only).
+
 ## v0.6.2 (2026-11-10): remix cups
 - Five remix cups (owner): the planet cups reversed where the game has a reverse layout, else night / wet / snow /
   mines / scorching versions, else another track from the planet (Scrap Spiral, an Ando short circuit, a Sentinel

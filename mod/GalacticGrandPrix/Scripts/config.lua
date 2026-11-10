@@ -90,7 +90,8 @@ return {
         -- else in their night / wet / snow / mines / scorching versions, else another track from the planet. Open
         -- after a trophy in all five planet cups at the top class (prog.lua), then at any open class. Every event read
         -- in game (GPRecon dump 2026-11-10): normal 12-car team races, any vehicle. Track names of the two new tracks
-        -- (Ando short 01, Sentinel special short 02) still to be read from the game.
+        -- read in game: the Sentinel special short 02 is Corrosion Hypersphere; the Ando short 01 has no player-facing name
+        -- (a developer label only) but is a finished, lit 5-lap ice circuit (seen 2026-11-10).
         { key = 'jakku_remix', name = 'JAKKU REMIX', art = 'T_UI_FE_Tile_01', remix = true, races = {
             race('Mastiff/Loop_A/EVT_MAS_LOOP_A_REV', 'THE WAR FIELDS (REVERSE)', 'Circuit'),
             race('Mastiff/Loop_B/EVT_MAS_LOOP_B_SHORT_01', 'SCRAP SPIRAL', 'Short circuit'),
@@ -119,7 +120,7 @@ return {
             race('Husky/LOOP_A/EVT_HSK_LOOP_A_FWD_Overcast', 'SENTINEL LAKES (FORWARD)', 'Circuit'),
             race('Husky/LOOP_B/EVT_HSK_LOOP_B_FWD_BlueHour', 'CAUSTIC FIELDS (FORWARD, BLUE HOUR)', 'Circuit'),
             race('Husky/P2P/EVT_HSK_P2P_FWD_Overcast', 'BOOL RIVER RUN (FORWARD)', 'Sprint'),
-            race('Husky/P2P/EVT_HSK_P2P_SPEC_SHORT_02_ApproachingStorm', 'SENTINEL SPECIAL CIRCUIT (STORM)', 'Short circuit'),
+            race('Husky/P2P/EVT_HSK_P2P_SPEC_SHORT_02_ApproachingStorm', 'CORROSION HYPERSPHERE (STORM)', 'Short circuit'),
         } },
     },
 
