@@ -20,5 +20,7 @@ git archive "$REF" mod/GalacticGrandPrix | tar -x -C "$TMP"
 rm -rf "$DEST/Scripts"
 cp -r "$TMP/mod/GalacticGrandPrix/." "$DEST/"
 echo "$REF ($(git rev-parse --short "$REF^{commit}"))" > "$DEST/VERSION.txt"
+# UE4SS only starts a mod folder that has enabled.txt
+[ -f "$DEST/disabled.txt" ] || touch "$DEST/enabled.txt"
 echo "Installed Galactic Grand Prix $REF into the game."
 git log -1 --format='  %s' "$REF"
