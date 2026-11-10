@@ -84,7 +84,10 @@ One git tag per chunk; push after each tag.
       passives; the bots copy them too, and clearing the bots' race copies at load keeps them yours only
       (DESIGN.md §5b). 50cc stays mod-free (owner).
 - [x] Catalogue dumped and grouped (`tools/recon/ModRecon`); shown to the owner as a page.
-- [ ] Owner: slots 2 / 3 / 4, strength by class, one per effect, no faulty, no AI mods - confirm or change.
+- [x] Owner (2026-11-10): no pure-speed mods; protections and playstyle mods only. Every effect tagged (24 power left
+      out, 24 protection, 81 playstyle of which 23 "check"); page updated.
+- [ ] Owner: rescue / drop individual mods on the page; slots 2 / 3 / 4; top step everywhere or step by class;
+      what to do with the 23 "check" ones (keep, drop, or try a few in game first).
 - [ ] Catalogue into config (groups, effects, steps by asset name).
 - [ ] MODS screen next to ABILITIES: slots and rarity by class; kept for the cup; written at race load.
 - [ ] Tests; tag v0.4.0.

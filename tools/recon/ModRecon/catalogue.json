@@ -14,7 +14,9 @@
      "AFX_Afterburner_BetterWhileAirborne_v1",
      "AFX_Afterburner_BetterWhileAirborne_v2",
      "AFX_Afterburner_BetterWhileAirborne_v3"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Afterburner_CooledAfterFullUse",
@@ -29,7 +31,9 @@
      "AFX_Afterburner_CooledAfterFullUse_v1",
      "AFX_Afterburner_CooledAfterFullUse_v2",
      "AFX_Afterburner_CooledAfterFullUse_v3"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Afterburner_CooledSavesFuel",
@@ -46,7 +50,9 @@
      "AFX_Afterburner_CooledSavesFuel_v2",
      "AFX_Afterburner_CooledSavesFuel_v3",
      "AFX_Afterburner_CooledSavesFuel_v4"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    },
    {
     "key": "AFX_Afterburner_FasterRecharge",
@@ -63,7 +69,9 @@
      "AFX_Afterburner_FasterRecharge_v2",
      "AFX_Afterburner_FasterRecharge_v3",
      "AFX_Afterburner_FasterRecharge_v4"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Afterburner_FullFuelIncreasesPower",
@@ -80,7 +88,9 @@
      "AFX_Afterburner_FullFuelIncreasesPower_v2",
      "AFX_Afterburner_FullFuelIncreasesPower_v3",
      "AFX_Afterburner_FullFuelIncreasesPower_v4"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Afterburner_FullyRechargeWhenRamjetReady",
@@ -91,7 +101,9 @@
     ],
     "assets": [
      "AFX_Afterburner_FullyRechargeWhenRamjetReady"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    },
    {
     "key": "AFX_Afterburner_gainCooledWhile",
@@ -102,7 +114,9 @@
     ],
     "assets": [
      "AFX_Afterburner_gainCooledWhile"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Afterburner_gainShieldWhile",
@@ -113,7 +127,9 @@
     ],
     "assets": [
      "AFX_Afterburner_gainShieldWhile"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Afterburner_IncreasedTopSpeed",
@@ -130,7 +146,9 @@
      "AFX_Afterburner_IncreasedTopSpeed_v2",
      "AFX_Afterburner_IncreasedTopSpeed_v3",
      "AFX_Afterburner_IncreasedTopSpeed_v4"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Afterburner_MoreDuration",
@@ -147,7 +165,9 @@
      "AFX_Afterburner_MoreDuration_v2",
      "AFX_Afterburner_MoreDuration_v3",
      "AFX_Afterburner_MoreDuration_v4"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Afterburner_MorePowerPerTakedown",
@@ -164,7 +184,9 @@
      "AFX_Afterburner_MorePowerPerTakedown_v2",
      "AFX_Afterburner_MorePowerPerTakedown_v3",
      "AFX_Afterburner_MorePowerPerTakedown_v4"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Afterburner_OverchargedRechargeRate",
@@ -175,7 +197,9 @@
     ],
     "assets": [
      "AFX_Afterburner_OverchargedRechargeRate"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Afterburner_OverheatIncreasesPowerUntilCrash",
@@ -190,7 +214,9 @@
      "AFX_Afterburner_OverheatIncreasesPowerUntilCrash_v1",
      "AFX_Afterburner_OverheatIncreasesPowerUntilCrash_v2",
      "AFX_Afterburner_OverheatIncreasesPowerUntilCrash_v3"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Afterburner_OverheatingIncreasesPowerOnce",
@@ -207,7 +233,9 @@
      "AFX_Afterburner_OverheatingIncreasesPowerOnce_v2",
      "AFX_Afterburner_OverheatingIncreasesPowerOnce_v3",
      "AFX_Afterburner_OverheatingIncreasesPowerOnce_v4"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    },
    {
     "key": "AFX_Afterburner_OverheatingStacksFuel",
@@ -218,7 +246,9 @@
     ],
     "assets": [
      "AFX_Afterburner_OverheatingStacksFuel"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Afterburner_RamjetCharge",
@@ -229,7 +259,9 @@
     ],
     "assets": [
      "AFX_Afterburner_RamjetCharge"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    },
    {
     "key": "AFX_Afterburner_RefillOnImpact",
@@ -244,7 +276,9 @@
      "AFX_Afterburner_RefillOnImpact_v1",
      "AFX_Afterburner_RefillOnImpact_v2",
      "AFX_Afterburner_RefillOnImpact_v3"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    },
    {
     "key": "AFX_Afterburner_RefillOnLanding",
@@ -259,7 +293,9 @@
      "AFX_Afterburner_RefillOnLanding_V1",
      "AFX_Afterburner_RefillOnLanding_V2",
      "AFX_Afterburner_RefillOnLanding_V3"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Afterburner_ShieldedAfterFullUse",
@@ -270,7 +306,9 @@
     ],
     "assets": [
      "AFX_Afterburner_ShieldedAfterFullUse"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Afterburner_SurgingFillsFuel",
@@ -281,7 +319,9 @@
     ],
     "assets": [
      "AFX_Afterburner_SurgingFillsFuel"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    }
   ],
   "Ramjet": [
@@ -294,7 +334,9 @@
     ],
     "assets": [
      "AFX_Ramjet_AlarmBoost"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    },
    {
     "key": "AFX_Ramjet_CooledWhenCritical",
@@ -309,7 +351,9 @@
      "AFX_Ramjet_CooledWhenCritical_v1",
      "AFX_Ramjet_CooledWhenCritical_v2",
      "AFX_Ramjet_CooledWhenCritical_v3"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Ramjet_CoolsFaster",
@@ -326,7 +370,9 @@
      "AFX_Ramjet_CoolsFaster_v2",
      "AFX_Ramjet_CoolsFaster_v3",
      "AFX_Ramjet_CoolsFaster_v4"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Ramjet_CriticalResetChance",
@@ -341,7 +387,9 @@
      "AFX_Ramjet_CriticalResetChance_v1",
      "AFX_Ramjet_CriticalResetChance_v2",
      "AFX_Ramjet_CriticalResetChance_v3"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    },
    {
     "key": "AFX_Ramjet_ExtendedAlarm",
@@ -358,7 +406,9 @@
      "AFX_Ramjet_ExtendedAlarm_v2",
      "AFX_Ramjet_ExtendedAlarm_v3",
      "AFX_Ramjet_ExtendedAlarm_v4"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Ramjet_GainShieldWhenCritical",
@@ -373,7 +423,9 @@
      "AFX_Ramjet_GainShieldWhenCritical_v1",
      "AFX_Ramjet_GainShieldWhenCritical_v2",
      "AFX_Ramjet_GainShieldWhenCritical_v3"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Ramjet_gainShieldWhile",
@@ -384,7 +436,9 @@
     ],
     "assets": [
      "AFX_Ramjet_gainShieldWhile"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Ramjet_GainSurgingWhenCritical",
@@ -399,7 +453,9 @@
      "AFX_Ramjet_GainSurgingWhenCritical_v1",
      "AFX_Ramjet_GainSurgingWhenCritical_v2",
      "AFX_Ramjet_GainSurgingWhenCritical_v3"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Ramjet_HeatReduction",
@@ -416,7 +472,9 @@
      "AFX_Ramjet_HeatReduction_v2",
      "AFX_Ramjet_HeatReduction_v3",
      "AFX_Ramjet_HeatReduction_v4"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Ramjet_ImprovedCooldown",
@@ -431,7 +489,9 @@
      "AFX_Ramjet_ImprovedCooldown_v1",
      "AFX_Ramjet_ImprovedCooldown_v2",
      "AFX_Ramjet_ImprovedCooldown_v3"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Ramjet_MorePower",
@@ -448,7 +508,9 @@
      "AFX_Ramjet_MorePower_v2",
      "AFX_Ramjet_MorePower_v3",
      "AFX_Ramjet_MorePower_v4"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Ramjet_NoHeatWhileAirborne",
@@ -459,7 +521,9 @@
     ],
     "assets": [
      "AFX_Ramjet_NoHeatWhileAirborne"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    },
    {
     "key": "AFX_Ramjet_OverheatIncreasesPowerUntilCrash",
@@ -474,7 +538,9 @@
      "AFX_Ramjet_OverheatIncreasesPowerUntilCrash_v1",
      "AFX_Ramjet_OverheatIncreasesPowerUntilCrash_v2",
      "AFX_Ramjet_OverheatIncreasesPowerUntilCrash_v3"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Ramjet_OverheatingReleaseResetsHeat",
@@ -485,7 +551,9 @@
     ],
     "assets": [
      "AFX_Ramjet_OverheatingReleaseResetsHeat"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    },
    {
     "key": "AFX_Ramjet_ResetHeatOnLanding",
@@ -498,7 +566,9 @@
     "assets": [
      "AFX_Ramjet_ResetHeatOnLanding_v1",
      "AFX_Ramjet_ResetHeatOnLanding_v2"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Ramjet_TempCanDropWhileBoosting",
@@ -509,7 +579,9 @@
     ],
     "assets": [
      "AFX_Ramjet_TempCanDropWhileBoosting"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    }
   ],
   "Cooling & heat": [
@@ -522,7 +594,9 @@
     ],
     "assets": [
      "AFX_Burning_GainOvercharged"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Burning_PowerfulAfterburner",
@@ -533,7 +607,9 @@
     ],
     "assets": [
      "AFX_Burning_PowerfulAfterburner"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    },
    {
     "key": "AFX_Burning_PowerfulRamjet",
@@ -544,7 +620,9 @@
     ],
     "assets": [
      "AFX_Burning_PowerfulRamjet"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    },
    {
     "key": "AFX_Cooled_CooledToOvercharged",
@@ -555,7 +633,9 @@
     ],
     "assets": [
      "AFX_Cooled_CooledToOvercharged"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Cooled_CoolRamjetWhileSlipstream",
@@ -566,7 +646,9 @@
     ],
     "assets": [
      "AFX_Cooled_CoolRamjetWhileSlipstream"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Cooled_CorrodeProtection",
@@ -577,7 +659,9 @@
     ],
     "assets": [
      "AFX_Cooled_CorrodeProtection"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    },
    {
     "key": "AFX_Cooled_FastAbilityCooldown",
@@ -588,7 +672,9 @@
     ],
     "assets": [
      "AFX_Cooled_FastAbilityCooldown"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    },
    {
     "key": "AFX_Cooled_GainOnLanding",
@@ -605,7 +691,9 @@
      "AFX_Cooled_GainOnLanding_v2",
      "AFX_Cooled_GainOnLanding_v3",
      "AFX_Cooled_GainOnLanding_v4"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Cooled_GainWhileAirborne",
@@ -616,7 +704,9 @@
     ],
     "assets": [
      "AFX_Cooled_GainWhileAirborne"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Cooled_GainWhileSlipstream",
@@ -627,7 +717,9 @@
     ],
     "assets": [
      "AFX_Cooled_GainWhileSlipstream"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Cooled_PowerfulRamjet",
@@ -644,7 +736,9 @@
      "AFX_Cooled_PowerfulRamjet_v2",
      "AFX_Cooled_PowerfulRamjet_v3",
      "AFX_Cooled_PowerfulRamjet_v4"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    },
    {
     "key": "AFX_Overcharged_GainSurge",
@@ -655,7 +749,9 @@
     ],
     "assets": [
      "AFX_Overcharged_GainSurge"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Overcharged_GainUponLanding",
@@ -668,7 +764,9 @@
     "assets": [
      "AFX_Overcharged_GainUponLanding_V1",
      "AFX_Overcharged_GainUponLanding_v2"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Overcharged_GainWhileSpeeding",
@@ -679,7 +777,9 @@
     ],
     "assets": [
      "AFX_Overcharged_GainWhileSpeeding"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Overcharged_RamjetActivatesOvercharged",
@@ -690,7 +790,9 @@
     ],
     "assets": [
      "AFX_Overcharged_RamjetActivatesOvercharged"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Overcharged_RemoveSysMalf",
@@ -701,7 +803,9 @@
     ],
     "assets": [
      "AFX_Overcharged_RemoveSysMalf"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    },
    {
     "key": "AFX_Overcharge_WhenAirborne",
@@ -712,7 +816,9 @@
     ],
     "assets": [
      "AFX_Overcharge_WhenAirborne"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    }
   ],
   "Shields, surges & slipstream": [
@@ -729,7 +835,9 @@
      "AFX_Shielded_GainOnPerfectLanding_v1",
      "AFX_Shielded_GainOnPerfectLanding_v2",
      "AFX_Shielded_GainOnPerfectLanding_v3"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Shielded_GainOnRaceStart",
@@ -740,7 +848,9 @@
     ],
     "assets": [
      "AFX_Shielded_GainOnRaceStart"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Shielded_GainOnSpeed",
@@ -751,7 +861,9 @@
     ],
     "assets": [
      "AFX_Shielded_GainOnSpeed"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Slipstream_gainSurging",
@@ -766,7 +878,9 @@
      "AFX_Slipstream_gainSurging_v1",
      "AFX_Slipstream_gainSurging_v2",
      "AFX_Slipstream_gainSurging_v3"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Slipstreaming_ImprovedBuffs",
@@ -777,7 +891,9 @@
     ],
     "assets": [
      "AFX_Slipstreaming_ImprovedBuffs"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Slipstreaming_LastsUntilImpact",
@@ -788,7 +904,9 @@
     ],
     "assets": [
      "AFX_Slipstreaming_LastsUntilImpact"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    },
    {
     "key": "AFX_Surge_CancelChoked",
@@ -799,7 +917,9 @@
     ],
     "assets": [
      "AFX_Surge_CancelChoked"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    },
    {
     "key": "AFX_Surge_GainShielded",
@@ -810,7 +930,9 @@
     ],
     "assets": [
      "AFX_Surge_GainShielded"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Surge_GainWhileAirborne",
@@ -821,7 +943,9 @@
     ],
     "assets": [
      "AFX_Surge_GainWhileAirborne"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Surge_SurgeToCooled",
@@ -832,7 +956,9 @@
     ],
     "assets": [
      "AFX_Surge_SurgeToCooled"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Surging_AfterburnerMoreDuration",
@@ -849,7 +975,9 @@
      "AFX_Surging_AfterburnerMoreDuration_v2",
      "AFX_Surging_AfterburnerMoreDuration_v3",
      "AFX_Surging_AfterburnerMoreDuration_v4"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    },
    {
     "key": "AFX_Surging_AfterburnerMorePowerful",
@@ -860,7 +988,9 @@
     ],
     "assets": [
      "AFX_Surging_AfterburnerMorePowerful"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    },
    {
     "key": "AFX_Surging_BlockSysMalf",
@@ -871,7 +1001,9 @@
     ],
     "assets": [
      "AFX_Surging_BlockSysMalf"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    },
    {
     "key": "AFX_Surging_FasterAbilityCooldowns",
@@ -882,7 +1014,9 @@
     ],
     "assets": [
      "AFX_Surging_FasterAbilityCooldowns"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    },
    {
     "key": "AFX_Surging_ResetRamjet",
@@ -893,7 +1027,9 @@
     ],
     "assets": [
      "AFX_Surging_ResetRamjet"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    }
   ],
   "Status protection": [
@@ -906,7 +1042,9 @@
     ],
     "assets": [
      "AFX_Choke_NoInteruptCurrentRamjet"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    },
    {
     "key": "AFX_Concussed_gainSurge",
@@ -921,7 +1059,9 @@
      "AFX_Concussed_gainSurge_v1",
      "AFX_Concussed_gainSurge_v2",
      "AFX_Concussed_gainSurge_v3"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Concussion_ClearQuicklyAndGainSpeed",
@@ -936,7 +1076,9 @@
      "AFX_Concussion_ClearQuicklyAndGainSpeed_v1",
      "AFX_Concussion_ClearQuicklyAndGainSpeed_v2",
      "AFX_Concussion_ClearQuicklyAndGainSpeed_v3"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    },
    {
     "key": "AFX_Conditions_BurningProtection",
@@ -947,7 +1089,9 @@
     ],
     "assets": [
      "AFX_Conditions_BurningProtection"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    },
    {
     "key": "AFX_Conditions_Cooled_IncreasedPotency",
@@ -964,7 +1108,9 @@
      "AFX_Conditions_Cooled_IncreasedPotency_v2",
      "AFX_Conditions_Cooled_IncreasedPotency_v3",
      "AFX_Conditions_Cooled_IncreasedPotency_v4"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Conditions_CooledLastsLonger",
@@ -979,7 +1125,9 @@
      "AFX_Conditions_CooledLastsLonger_v1",
      "AFX_Conditions_CooledLastsLonger_v2",
      "AFX_Conditions_CooledLastsLonger_v3"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Conditions_CorrodeResistance",
@@ -990,7 +1138,9 @@
     ],
     "assets": [
      "AFX_Conditions_CorrodeResistance"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    },
    {
     "key": "AFX_Conditions_CorrodeShedding",
@@ -1001,7 +1151,9 @@
     ],
     "assets": [
      "AFX_Conditions_CorrodeShedding"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    },
    {
     "key": "AFX_Conditions_DecreaseBurningPotency",
@@ -1016,7 +1168,9 @@
      "AFX_Conditions_DecreaseBurningPotency_v1",
      "AFX_Conditions_DecreaseBurningPotency_v2",
      "AFX_Conditions_DecreaseBurningPotency_v3"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    },
    {
     "key": "AFX_Conditions_DisruptedProtection",
@@ -1027,7 +1181,9 @@
     ],
     "assets": [
      "AFX_Conditions_DisruptedProtection"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    },
    {
     "key": "AFX_Conditions_FreezeProtection",
@@ -1038,7 +1194,9 @@
     ],
     "assets": [
      "AFX_Conditions_FreezeProtection"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    },
    {
     "key": "AFX_Conditions_FreezeResistance",
@@ -1051,7 +1209,9 @@
     "assets": [
      "AFX_Conditions_FreezeResistance_v1",
      "AFX_Conditions_FreezeResistance_v2"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    },
    {
     "key": "AFX_Conditions_FreezeShedding",
@@ -1062,7 +1222,9 @@
     ],
     "assets": [
      "AFX_Conditions_FreezeShedding"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    },
    {
     "key": "AFX_Condition_Surging_IncreasedPotency",
@@ -1077,7 +1239,9 @@
      "AFX_Condition_Surging_IncreasedPotency_v1",
      "AFX_Condition_Surging_IncreasedPotency_v2",
      "AFX_Condition_Surging_IncreasedPotency_v3"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Corrode_NoLongerChokes",
@@ -1088,7 +1252,9 @@
     ],
     "assets": [
      "AFX_Corrode_NoLongerChokes_v1"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    },
    {
     "key": "AFX_Frozen_IncreaseSpeed",
@@ -1099,7 +1265,9 @@
     ],
     "assets": [
      "AFX_Frozen_IncreaseSpeed"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    },
    {
     "key": "AFX_Frozen_MoreCooling",
@@ -1110,7 +1278,9 @@
     ],
     "assets": [
      "AFX_Frozen_MoreCooling"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Frozen_PowerfulRamjet",
@@ -1121,7 +1291,9 @@
     ],
     "assets": [
      "AFX_Frozen_PowerfulRamjet"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Frozen_ReducedSteeringPenalty",
@@ -1136,7 +1308,9 @@
      "AFX_Frozen_ReducedSteeringPenalty_v1",
      "AFX_Frozen_ReducedSteeringPenalty_v2",
      "AFX_Frozen_ReducedSteeringPenalty_v3"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    }
   ],
   "Abilities & energy": [
@@ -1155,7 +1329,9 @@
      "AFX_Ability_FasterCooldown_v2",
      "AFX_Ability_FasterCooldown_v3",
      "AFX_Ability_FasterCooldown_v4"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Ability_GainShielded",
@@ -1168,7 +1344,9 @@
     "assets": [
      "AFX_Ability_GainShielded_v1",
      "AFX_Ability_GainShielded_v2"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Ability_IncreaseAfterburnerRegen",
@@ -1179,7 +1357,9 @@
     ],
     "assets": [
      "AFX_Ability_IncreaseAfterburnerRegen"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Ability_MoreTotalEnergyUntilCrash",
@@ -1190,7 +1370,9 @@
     ],
     "assets": [
      "AFX_Ability_MoreTotalEnergyUntilCrash"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Ability_RechargeAfterburner",
@@ -1201,7 +1383,9 @@
     ],
     "assets": [
      "AFX_Ability_RechargeAfterburner"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    },
    {
     "key": "AFX_Energy_AddOnTakedown",
@@ -1214,7 +1398,9 @@
     "assets": [
      "AFX_Energy_AddOnTakedown_v1",
      "AFX_Energy_AddOnTakedown_v2"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Energy_CorrodeRechargesOverTime",
@@ -1225,7 +1411,9 @@
     ],
     "assets": [
      "AFX_Energy_CorrodeRechargesOverTime"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Energy_FasterAfterburnerRecharge",
@@ -1236,7 +1424,9 @@
     ],
     "assets": [
      "AFX_Energy_FasterAfterburnerRecharge"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Energy_GainCooled",
@@ -1247,7 +1437,9 @@
     ],
     "assets": [
      "AFX_Energy_GainCooled"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Energy_GainOnTakedown",
@@ -1264,7 +1456,9 @@
      "AFX_Energy_GainOnTakedown_v2",
      "AFX_Energy_GainOnTakedown_v3",
      "AFX_Energy_GainOnTakedown_v4"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Energy_GainSurging",
@@ -1275,7 +1469,9 @@
     ],
     "assets": [
      "AFX_Energy_GainSurging"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    }
   ],
   "Takedowns": [
@@ -1288,7 +1484,9 @@
     ],
     "assets": [
      "AFX_Takedown_AbilityCooldown"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    },
    {
     "key": "AFX_Takedown_GainCooled",
@@ -1305,7 +1503,9 @@
      "AFX_Takedown_GainCooled_v2",
      "AFX_Takedown_GainCooled_v3",
      "AFX_Takedown_GainCooled_v4"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Takedown_GainSurgeAndOvercharged",
@@ -1320,7 +1520,9 @@
      "AFX_Takedown_GainSurgeAndOvercharged_v1",
      "AFX_Takedown_GainSurgeAndOvercharged_v2",
      "AFX_Takedown_GainSurgeAndOvercharged_v3"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    },
    {
     "key": "AFX_Takedown_IncreaseCooledPotency",
@@ -1331,7 +1533,9 @@
     ],
     "assets": [
      "AFX_Takedown_IncreaseCooledPotency"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Takedown_IncreaseSpeedStat",
@@ -1348,7 +1552,9 @@
      "AFX_Takedown_IncreaseSpeedStat_v2",
      "AFX_Takedown_IncreaseSpeedStat_v3",
      "AFX_Takedown_IncreaseSpeedStat_v4"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Takedown_ResetHeat",
@@ -1359,7 +1565,9 @@
     ],
     "assets": [
      "AFX_Takedown_ResetHeat"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    }
   ],
   "Crashes & recovery": [
@@ -1372,7 +1580,9 @@
     ],
     "assets": [
      "AFX_Crashes_CooledSurgingShieldedWhenOneCrashRemains"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    },
    {
     "key": "AFX_Crashes_CooledWhenOneCrashRemains",
@@ -1383,7 +1593,9 @@
     ],
     "assets": [
      "AFX_Crashes_CooledWhenOneCrashRemains"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Crashes_IncreaseTopSpeed",
@@ -1394,7 +1606,9 @@
     ],
     "assets": [
      "AFX_Crashes_IncreaseTopSpeed"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Crashes_RestoredOnTakedowns",
@@ -1405,7 +1619,9 @@
     ],
     "assets": [
      "AFX_Crashes_RestoredOnTakedowns"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    },
    {
     "key": "AFX_Crashes_ShieldWhenOneCrashRemains",
@@ -1416,7 +1632,9 @@
     ],
     "assets": [
      "AFX_Crashes_ShieldWhenOneCrashRemains"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Crashes_SurgingWhenOneCrashRemains",
@@ -1427,7 +1645,9 @@
     ],
     "assets": [
      "AFX_Crashes_SurgingWhenOneCrashRemains"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Crash_ReturnWithCooled",
@@ -1438,7 +1658,9 @@
     ],
     "assets": [
      "AFX_Crash_ReturnWithCooled"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Crash_ReturnWithShield",
@@ -1449,7 +1671,9 @@
     ],
     "assets": [
      "AFX_Crash_ReturnWithShield"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Crash_ReturnWithSurge",
@@ -1460,7 +1684,9 @@
     ],
     "assets": [
      "AFX_Crash_ReturnWithSurge"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_CritMalf_EasierCheck",
@@ -1471,7 +1697,9 @@
     ],
     "assets": [
      "AFX_CritMalf_EasierCheck"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    },
    {
     "key": "AFX_CritMalf_PerfectIncreasesSpeed",
@@ -1484,7 +1712,9 @@
     "assets": [
      "AFX_CritMalf_PerfectIncreasesSpeed_v1",
      "AFX_CritMalf_PerfectIncreasesSpeed_v2"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    },
    {
     "key": "AFX_CritMalf_PerfectRecoversCrash",
@@ -1495,7 +1725,9 @@
     ],
     "assets": [
      "AFX_CritMalf_PerfectRecoversCrash"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    },
    {
     "key": "AFX_SysMalf_GainCooled",
@@ -1506,7 +1738,9 @@
     ],
     "assets": [
      "AFX_SysMalf_GainCooled"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_SysMalf_GainOvercharged",
@@ -1517,7 +1751,9 @@
     ],
     "assets": [
      "AFX_SysMalf_GainOvercharged"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_SysMalf_GainSurge",
@@ -1528,7 +1764,9 @@
     ],
     "assets": [
      "AFX_SysMalf_GainSurge"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_SysMalf_PowerfulAfterburner",
@@ -1539,7 +1777,9 @@
     ],
     "assets": [
      "AFX_SysMalf_PowerfulAfterburner"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_SysMalf_PowerfulRamjet",
@@ -1550,7 +1790,9 @@
     ],
     "assets": [
      "AFX_SysMalf_PowerfulRamjet"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_SysMalf_ShorterMalfunction",
@@ -1563,7 +1805,9 @@
     "assets": [
      "AFX_SysMalf_ShorterMalfunction_v1",
      "AFX_SysMalf_ShorterMalfunction_v2"
-    ]
+    ],
+    "tag": "protect",
+    "strong": false
    }
   ],
   "Driving skill": [
@@ -1576,7 +1820,9 @@
     ],
     "assets": [
      "AFX_FirstPlace_GainShielded"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_Ignition_PerfectStartPower",
@@ -1593,7 +1839,9 @@
      "AFX_Ignition_PerfectStartPower_v2",
      "AFX_Ignition_PerfectStartPower_v3",
      "AFX_Ignition_PerfectStartPower_v4"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Landing_IncreaseSpeedStat",
@@ -1608,7 +1856,9 @@
      "AFX_Landing_IncreaseSpeedStat_v1",
      "AFX_Landing_IncreaseSpeedStat_v2",
      "AFX_Landing_IncreaseSpeedStat_v3"
-    ]
+    ],
+    "tag": "power",
+    "strong": false
    },
    {
     "key": "AFX_Landing_PerfectBoost",
@@ -1625,7 +1875,9 @@
      "AFX_Landing_PerfectBoost_v2",
      "AFX_Landing_PerfectBoost_v3",
      "AFX_Landing_PerfectBoost_v4"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    },
    {
     "key": "AFX_PerfectStart_GainOvercharged",
@@ -1636,7 +1888,9 @@
     ],
     "assets": [
      "AFX_PerfectStart_GainOvercharged"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_PerfectStart_GainShield",
@@ -1651,7 +1905,9 @@
      "AFX_PerfectStart_GainShield_v1",
      "AFX_PerfectStart_GainShield_v2",
      "AFX_PerfectStart_GainShield_v3"
-    ]
+    ],
+    "tag": "style",
+    "strong": false
    },
    {
     "key": "AFX_PerfectStart_ImprovedSlipstreaming",
@@ -1666,7 +1922,9 @@
      "AFX_PerfectStart_ImprovedSlipstreaming_v1",
      "AFX_PerfectStart_ImprovedSlipstreaming_v2",
      "AFX_PerfectStart_ImprovedSlipstreaming_v3"
-    ]
+    ],
+    "tag": "style",
+    "strong": true
    }
   ],
   "Podracer only": [
@@ -1679,7 +1937,9 @@
     ],
     "assets": [
      "AFX_PlaneTrait_CabbageCretornis_1"
-    ]
+    ],
+    "tag": "podracer",
+    "strong": false
    },
    {
     "key": "AFX_PlaneTrait_CeleryHexing_1",
@@ -1690,7 +1950,9 @@
     ],
     "assets": [
      "AFX_PlaneTrait_CeleryHexing_1"
-    ]
+    ],
+    "tag": "podracer",
+    "strong": false
    },
    {
     "key": "AFX_PlaneTrait_GarlicSordes_1",
@@ -1701,7 +1963,9 @@
     ],
     "assets": [
      "AFX_PlaneTrait_GarlicSordes_1"
-    ]
+    ],
+    "tag": "podracer",
+    "strong": false
    },
    {
     "key": "AFX_PlaneTrait_OnionDearc_1",
@@ -1712,7 +1976,9 @@
     ],
     "assets": [
      "AFX_PlaneTrait_OnionDearc_1"
-    ]
+    ],
+    "tag": "podracer",
+    "strong": false
    },
    {
     "key": "AFX_PlaneTrait_PepperTarchia_1",
@@ -1723,7 +1989,9 @@
     ],
     "assets": [
      "AFX_PlaneTrait_PepperTarchia_1"
-    ]
+    ],
+    "tag": "podracer",
+    "strong": false
    },
    {
     "key": "AFX_PlaneTrait_SwedeNesodon_1",
@@ -1734,7 +2002,9 @@
     ],
     "assets": [
      "AFX_PlaneTrait_SwedeNesodon_1"
-    ]
+    ],
+    "tag": "podracer",
+    "strong": false
    }
   ]
  },

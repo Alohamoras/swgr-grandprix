@@ -138,7 +138,13 @@ What we know (Underground recon, *header dump*):
     `catalogue.json` / `mods-catalogue.html` (grouped: 129 effects to choose from, 6 podracer-only, 57 faulty
     effects). Campaign unlocks them in groups (`UnlockedBy` = `Unlock.Cam.Affixes.Base` / `UnlockGroup_NN`).
 
-Proposal (to confirm with the owner; 50cc stays mod-free - owner, 2026-11-10):
+**Owner's rule (2026-11-10): mods change how you race, not how fast.** Every effect is tagged in
+`tools/recon/ModRecon/catalogue.json` (`tag`): `power` = always-on "more of a number" (24, left out), `protect` =
+protection / rule-changer (24), `style` = a bonus for driving a certain way (81; 23 flagged `strong` = big speed /
+power payoffs to try in game before keeping), `podracer` (6, left out). With the power mods gone, strength by class is
+an open question (top step everywhere, or step by class); the class sets the slot count.
+
+Earlier proposal (to confirm with the owner; 50cc stays mod-free - owner, 2026-11-10):
 - Slots by class: 50cc 0, 100cc 2, 150cc 3, 200cc 4. Strength by class: 100cc up to rare, 150cc up to epic, 200cc up
   to legendary (each effect at its highest step the class allows; 97 / 119 / 129 effects). One per effect. Faulty
   ones left out (or a later "risky" option).
