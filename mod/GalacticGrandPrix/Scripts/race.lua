@@ -2,6 +2,8 @@
 -- (From the Underground's race.lua: the same launch, put-back and offline checks; career, AI and abilities removed.)
 local C = require('core')
 local K = require('gp')
+local AB = require('abil')
+local LO = require('loadout')
 local try, alive, addr, log = C.try, C.alive, C.addr, C.log
 
 local R = { run = nil }
@@ -71,7 +73,44 @@ local function writeLevels(build, want)
   end
 end
 
-function R.pendingRestore() return next(K.data.restores) ~= nil end
+function R.pendingRestore() return next(K.data.restores) ~= nil or next(K.data.abilityRestores) ~= nil end
+
+-- ability slots (v0.3): a class object -> its path ('' = empty)
+local function slotPath(c)
+  if not alive(c) then return '' end
+  local full = try(function() return c:GetFullName() end)
+  return type(full) == 'string' and full:match('^%S+%s+(.+)$') or ''
+end
+local function setSlot(slots, i, path)
+  local cls = path ~= '' and C.uclass(path) or nil
+  return pcall(function() slots[i] = cls or CreateInvalidObject() end)
+end
+-- your four picks into the launch build's slots (originals into the save first). A slot holding Autopilot was put
+-- there by the test-only TestAutopilot (it drives test races) and is left alone; the Grand Prix never gives Autopilot.
+local function applyAbilities(path, b, want)
+  local slots = try(function() return b.AbilitySlots end)
+  local n = slots and try(function() return slots:GetArrayNum() end) or 0
+  if n == 0 then log('abilities: the build has no ability slots'); return end
+  local cur = {}
+  for i = 1, n do cur[i] = slotPath(try(function() return slots[i] end)) end
+  if not K.data.abilityRestores[path] then
+    local orig = {}
+    for i = 1, n do if not cur[i]:find('Autopilot') then orig[i] = cur[i] end end
+    K.data.abilityRestores[path] = orig
+    K.save()
+  end
+  local k, names = 1, {}
+  for i = 1, n do
+    if not cur[i]:find('Autopilot') then
+      local p = want[k] or ''
+      k = k + 1
+      if not setSlot(slots, i, p) then log('ability slot ' .. i .. ' refused ' .. p) end
+      if p ~= '' then names[#names + 1] = p:match('BP_Ability_([%w_]+)%.') or p end
+    end
+  end
+  if k <= #want then log(('abilities: only %d of %d fit (a slot holds Autopilot)'):format(k - 1, #want)) end
+  log('your abilities for this race: ' .. (#names > 0 and table.concat(names, ', ') or 'none'))
+end
 
 function R.restoreBuild(why)
   local done = {}
@@ -86,6 +125,16 @@ function R.restoreBuild(why)
     done[#done + 1] = path
   end
   for _, path in ipairs(done) do K.data.restores[path] = nil end
+  for path, orig in pairs(K.data.abilityRestores) do
+    local b = C.asset(path)
+    local slots = b and try(function() return b.AbilitySlots end)
+    if slots then
+      for i, p in pairs(orig) do setSlot(slots, i, p) end
+      log(('ability slots put back (%s): %s'):format(why, path:match('([^/]+)$')))
+    end
+    K.data.abilityRestores[path] = nil
+    done[#done + 1] = path
+  end
   if #done > 0 then K.save() end
 end
 
@@ -122,8 +171,9 @@ local function archetype(n)
   return nil
 end
 
--- ev = { path, title, kind, cup, class, race } ; returns true, or false + a message for the player
-function R.launch(ev, classKey, vehKey)
+-- ev = { path, title, kind, cup, class, race }; picks = your four abilities (abil.lua) or nil for none.
+-- Returns true, or false + a message for the player.
+function R.launch(ev, classKey, vehKey, picks)
   if R.run then return false, 'A race is already running' end
   local fe, why = R.atMainMenu()
   if not fe then return false, 'Cannot launch: ' .. why end
@@ -136,6 +186,10 @@ function R.launch(ev, classKey, vehKey)
   local build = C.asset(veh.build)
   if not (alive(arch) and build) then log('vehicle or build not found: ' .. veh.key); return false, 'Vehicle or build not found' end
   applyBuild(veh.build, build, K.levelsFor(classKey))
+  if picks then
+    local okA, errA = pcall(applyAbilities, veh.build, build, AB.classPaths(picks, AB.levelFor(classKey)))
+    if not okA then log('abilities not set: ' .. tostring(errA)) end
+  end
   local oldGs = C.first('RacingGameState')
   local ok, err = try(function() fe:LaunchQuickRace(arch, e, build); return true end)
   if not ok then
@@ -147,6 +201,8 @@ function R.launch(ev, classKey, vehKey)
   log(('LAUNCH %s (%s - %s) class=%s vehicle=%s tag=%s mode=%s'):format(ev.path:match('([^/]+)$'), ev.title, ev.kind or '',
     tostring(classKey), veh.key, tostring(tag), C.idname(try(function() return e.EventMode end))))
   R.run = { ev = ev, at = C.clock, oldGs = addr(oldGs), oldFe = addr(fe), phase = 'loading', top = 0, field = {}, ticks = 0 }
+  local ok3, lo = pcall(LO.begin, classKey)
+  if ok3 then R.run.lo = lo else log('[loadout] ' .. tostring(lo)) end
   return true
 end
 
@@ -228,6 +284,8 @@ function R.watch()
           R.restoreBuild('not offline'); R.run = nil; return { failed = 'not offline' }
         end
         r.gs, r.phase = addr(gs), 'racing'
+        local ok, err = pcall(LO.apply, r.lo)
+        if not ok then log('[loadout] apply failed: ' .. tostring(err)); r.lo = nil end
         return nil
       end
     end
@@ -254,6 +312,10 @@ function R.watch()
     return out
   end
   if not gs then return nil end
+  if r.lo and not r.lo.done then
+    local ok, err = pcall(LO.apply, r.lo)
+    if not ok then log('[loadout] apply failed: ' .. tostring(err)); r.lo = nil end
+  end
   local started = try(function() return gs.bIsRaceStarted end) == true
   if not started then return nil end
   -- the field: every 5th tick, and right away when you finish (the bots behind you keep racing for a while)

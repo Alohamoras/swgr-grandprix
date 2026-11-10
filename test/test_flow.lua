@@ -10,7 +10,7 @@ T.check(T.logHas('[menu] classes'), 'F6 opens the class screen')
 T.clickTitle('100CC'); M.tick(3)
 T.check(T.ntiles() == 8, '7 cups + BACK (' .. T.ntiles() .. ')')
 T.clickTitle('JAKKU CUP'); M.tick(3)
-T.check(T.titles() == 'START CUP|VEHICLE|BACK', 'a cup not started: START CUP, VEHICLE, BACK (' .. T.titles() .. ')')
+T.check(T.titles() == 'START CUP|ABILITIES|VEHICLE|BACK', 'a cup not started: START CUP, ABILITIES, VEHICLE, BACK (' .. T.titles() .. ')')
 
 -- one race: bots finish around you; you finish `you`
 local function race(n, you)

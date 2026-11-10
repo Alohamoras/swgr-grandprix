@@ -15,6 +15,10 @@ local function fill(d)
   d.races = tonumber(d.races) or 0
   -- launch builds we changed: path -> original part levels { [slot] = level }, put back at the menu
   d.restores = type(d.restores) == 'table' and d.restores or {}
+  -- v0.3: launch builds whose ability slots we changed: path -> { [slot] = original class path or '' }
+  d.abilityRestores = type(d.abilityRestores) == 'table' and d.abilityRestores or {}
+  -- v0.3: your four ability picks (abil.lua), kept between cups; a cup keeps its own copy (run.picks)
+  d.picks = type(d.picks) == 'table' and d.picks or nil
   d.class = type(d.class) == 'string' and d.class or nil -- the class picked last
   d.vehicle = type(d.vehicle) == 'string' and d.vehicle or 'car'
   -- v0.2: the cup in progress (nil = none) and best finishes
@@ -89,9 +93,10 @@ end
 -- the cup in progress
 
 function K.run() return K.data.run end
-function K.startCup(classKey, cupKey, vehicleKey)
+function K.startCup(classKey, cupKey, vehicleKey, picks)
   local cup = K.cup(cupKey)
   K.data.run = CU.new(classKey, cupKey, vehicleKey, cup and #cup.races or 4)
+  K.data.run.picks = picks
   K.save()
   log(('cup started: %s %s, %s'):format(classKey, cupKey, vehicleKey))
   return K.data.run

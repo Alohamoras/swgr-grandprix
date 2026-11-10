@@ -2,14 +2,15 @@
 -- The GRAND PRIX tab on the game's main menu (or F6) -> speed class -> cup -> race. Races launch straight away through
 -- the game's offline quick race (FrontEndGameMode:LaunchQuickRace) with every part at the class's level.
 -- v0.2: cups of 4 races with points for all 12 racers, standings after each race, a trophy at the end.
+-- v0.3: your four abilities (offensive / defensive / utility / wildcard), the AI racers' four, levels by class.
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.2.0'
+local VERSION = '0.3.0'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
 package.path = scripts .. '/?.lua;' .. package.path
-for _, m in ipairs({ 'core', 'config', 'gp', 'race', 'ui', 'tab' }) do package.loaded[m] = nil end
+for _, m in ipairs({ 'core', 'config', 'abil', 'cup', 'gp', 'loadout', 'race', 'ui', 'tab' }) do package.loaded[m] = nil end
 
 local C = require('core')
 C.DIR = scripts:match('^(.*)[/\\][Ss]cripts$') or '.'
@@ -31,7 +32,8 @@ U.setLayout('tab')
 
 local S = {
   ui = nil,          -- the built screen { w, items, scroll, pc }
-  screen = nil,      -- 'classes' | 'cups' | 'cup' | 'standings' | 'trophy' | 'confirm' | 'offline'
+  screen = nil,      -- 'classes' | 'cups' | 'cup' | 'abilities' | 'pick' | 'standings' | 'trophy' | 'confirm' | 'offline'
+  cat = nil,         -- ability category being picked
   confirm = nil,     -- { text, yes = function, back = screen, after = screen after yes }
   class = nil,       -- class key
   cup = nil,         -- cup key
@@ -55,6 +57,19 @@ local startLoop -- forward
 local function go(screen) S.screen = screen; S.message = nil; return true end
 
 local CU = require('cup')
+local AB = require('abil')
+
+-- your four picks, made valid for a class's level (and kept in the save)
+local function picksFor(classKey)
+  local p = AB.normalize(K.data.picks, AB.levelFor(classKey))
+  K.data.picks = p
+  return p
+end
+local function picksText(picks, level)
+  local o = {}
+  for _, c in ipairs(AB.categories()) do o[#o + 1] = AB.label(picks[c.key], level) end
+  return table.concat(o, '  /  ')
+end
 local TROPHY_NAME = { 'GOLD', 'SILVER', 'BRONZE' }
 local function bestText(classKey, cupKey)
   local b = K.best(classKey, cupKey)
@@ -67,7 +82,7 @@ local function shortName(key) return key == CU.YOU and 'YOU' or key end
 local function launchNext()
   local run, ev = K.run(), K.nextRace()
   if not (run and ev) then S.message = 'No cup in progress'; return true end
-  local ok, why = R.launch(ev, run.class, run.vehicle)
+  local ok, why = R.launch(ev, run.class, run.vehicle, run.picks or picksFor(run.class))
   if ok then S.message = nil; return 'launched' end
   S.message = why
   return true
@@ -147,7 +162,8 @@ SCREENS.cup = function()
     local ev = K.nextRace()
     local veh = K.vehicle(run.vehicle)
     return { key = 'cup', title = cup.name .. '  -  ' .. cls.name:upper(),
-      lines = { { ('Race %d of %d   -   %s'):format(run.race, run.races, veh.name), 22, U.WHITE },
+      lines = { { ('Race %d of %d   -   %s   -   %s'):format(run.race, run.races, veh.name,
+          picksText(run.picks or picksFor(run.class), AB.levelFor(run.class))), 22, U.WHITE },
         { #run.history > 0 and standingsText(run) or table.concat(list, '        '), 20, U.WHITE }, msgLine() },
       items = {
         { title = 'NEXT RACE', art = 'T_UI_FE_Tile_Campaign_Hero', desc = ('%d. %s\n%s'):format(run.race, ev and ev.title or '?', ev and ev.kind or ''),
@@ -181,11 +197,13 @@ SCREENS.cup = function()
     items = {
       { title = 'START CUP', art = 'T_UI_FE_Tile_Campaign_Hero', desc = ('Race 1: %s\nwith the %s'):format(cup.races[1].title, veh.name),
         act = function()
-          K.startCup(cls.key, cup.key, veh.key)
+          K.startCup(cls.key, cup.key, veh.key, picksFor(cls.key))
           local res = launchNext()
           if res ~= 'launched' then K.forfeit() end -- couldn't start: no cup left half-begun
           return res
         end },
+      { title = 'ABILITIES', art = 'T_UI_FE_Tile_02', desc = picksText(picksFor(cls.key), AB.levelFor(cls.key)):gsub('  /  ', '\n'),
+        act = function() return go('abilities') end },
       { title = 'VEHICLE', art = 'T_UI_FE_Tile_05', desc = veh.name .. '\nSelect to change',
         act = function()
           local vs, nxt = K.vehicles(), 1
@@ -206,6 +224,50 @@ SCREENS.offline = function()
       { 'Leave the party / stop matchmaking, then come back to this tab.', 18 } },
     items = { { title = 'EXIT', art = 'T_UI_FE_Tile_03', desc = 'Back to the main menu', act = function() return 'close' end } },
   }
+end
+
+-- your four: one tile per category, then that category's choices
+SCREENS.abilities = function()
+  local cls = K.class(S.class) or K.classes()[1]
+  local level = AB.levelFor(cls.key)
+  local picks = picksFor(cls.key)
+  local items = {}
+  for _, c in ipairs(AB.categories()) do
+    items[#items + 1] = { title = c.name, art = 'T_UI_FE_Tile_02', desc = ('%s\n%s'):format(AB.label(picks[c.key], level), AB.blurb(picks[c.key])),
+      act = function() S.cat = c.key; return go('pick') end }
+  end
+  items[#items + 1] = { title = 'DONE', art = 'T_UI_FE_Tile_03', desc = 'Back to the cup', act = function() return go('cup') end }
+  return { key = 'abilities', title = 'ABILITIES  -  ' .. cls.name:upper(),
+    lines = { { ('Pick one of each.  %s: level %d%s.'):format(cls.name, level, level > 1 and ', pick the branch' or ''), 22, U.WHITE },
+      { 'The wildcard can be mines or any family you haven\'t picked.  The AI racers bring four each too.', 18 }, msgLine() },
+    items = items, hint = HINT }
+end
+SCREENS.pick = function()
+  local cls = K.class(S.class) or K.classes()[1]
+  local level = AB.levelFor(cls.key)
+  local picks = picksFor(cls.key)
+  local cat = AB.category(S.cat) or AB.categories()[1]
+  local items = {}
+  for _, o in ipairs(AB.options(cat.key, level, picks)) do
+    local chosen = AB.rel(picks[cat.key], level) == o.rel
+    items[#items + 1] = { title = o.name:upper(), art = chosen and 'T_UI_FE_Tile_Campaign_Hero' or 'T_UI_FE_Tile_01',
+      desc = (chosen and 'PICKED\n' or '') .. AB.blurb(o.pick),
+      act = function()
+        local np = {}
+        for k, v in pairs(picks) do np[k] = v end
+        np[cat.key] = o.pick
+        local before = np.wildcard
+        K.data.picks = AB.normalize(np, level)
+        K.save()
+        S.message = o.name .. ' picked' .. ((cat.key ~= 'wildcard' and K.data.picks.wildcard ~= before)
+          and ('  -  wildcard changed to ' .. AB.label(K.data.picks.wildcard, level)) or '')
+        S.screen = 'abilities'
+        return true
+      end }
+  end
+  items[#items + 1] = { title = 'BACK', art = 'T_UI_FE_Tile_03', desc = 'Your four', act = function() return go('abilities') end }
+  return { key = 'pick', title = cat.name .. '  -  ' .. cls.name:upper(),
+    lines = { { 'Now: ' .. AB.label(picks[cat.key], level), 22, U.WHITE }, msgLine() }, items = items, hint = HINT }
 end
 
 -- after a race: this race's points and the standings (or the trophy, after the last race)
@@ -339,7 +401,7 @@ end
 ---------------------------------------------------------------------------------------------------------------------
 -- input
 
-local BACK = { cups = 'classes', cup = 'cups', standings = 'cup', trophy = 'cups' }
+local BACK = { cups = 'classes', cup = 'cups', standings = 'cup', trophy = 'cups', abilities = 'cup', pick = 'abilities' }
 local function handle(name)
   if name == 'menu' then
     if S.ui then close('menu key') else S.message = nil; S.screen = 'classes'; show() end

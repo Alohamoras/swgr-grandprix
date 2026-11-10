@@ -41,15 +41,20 @@ One git tag per chunk; push after each tag.
       rebuilt menu to settle). Cover it with the game's loading screen (`WBP_LoadingScreen_C`, StreamlineCampaign
       CONTEXT.md) or shorten the wait.
 
-## 4. v0.3 Speed classes
-- [ ] Parts per class on your build (R4 values; 150cc = 10); AI pressure per class (`ai.lua`).
-- [ ] Tag v0.3.0. Play one cup per class (owner) to tune.
+## 4. v0.3 Abilities (moved ahead of the AI difficulty, owner 2026-11-09)
+- [x] Pick screens: ABILITIES on the cup screen → OFFENSIVE / DEFENSIVE (Shield) / UTILITY / WILDCARD (mines or any
+      unpicked family); the class sets the level (1 / 2 / 3), branches offered from level 2; a clash resets the
+      wildcard; no Autopilot. Picks saved; a cup keeps its own copy.
+- [x] Your four into the launch build (originals in the save first; put back at the menu, like the parts).
+- [x] The AI's four per racer (config `Abilities.Racers`, one per category, by style), level by class, the game's
+      `_AI` mines, at race load (`loadout.lua` from the Underground); never yours, never Autopilot.
+- [x] Tests (`test_abil`, `test_abilities`); tag v0.3.0.
+- [ ] In game: your four on the HUD; the log's `[loadout] <class>, 11 racers: ...` line; do the AI fire them,
+      Shields included (R7)?
 
-## 5. v0.4 Your four abilities
-- [ ] Pick screen: Offensive / Defensive (Shield) / Utility / Wildcard (mines or any unpicked family), branch picks
-      at levels 2 and 3, no duplicates, no Autopilot. Picks into the launch build, put back at the menu.
-- [ ] The AI's four per racer (one per category, by style), level by class, via `loadout.lua`; Autopilot never.
-- [ ] Tag v0.4.0.
+## 5. v0.4 Speed classes: AI difficulty
+- [ ] AI pressure per class (`ai.lua`, the rubber band) on top of the class's part levels (3 / 6 / 10 for everyone).
+- [ ] Tag v0.4.0. Play one cup per class (owner) to tune.
 
 ## 6. v0.5 No crash limit
 - [ ] The R3 control, set before each race, put back at the menu. Tag v0.5.0.

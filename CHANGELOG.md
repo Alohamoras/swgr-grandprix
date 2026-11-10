@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.3.0 (2026-11-09): abilities
+- ABILITIES on the cup screen: pick one OFFENSIVE (Ion Bolt / Shockwave), DEFENSIVE (Shield), UTILITY (Status
+  Scrubber / Vent / Surge) and WILDCARD (mines, or any family not already picked). The class sets the level
+  (50cc 1, 100cc 2, 150cc 3); from level 2 you pick the branch. Autopilot is never offered.
+- Your four go into the build you race with and are put back after the race (originals saved first). A cup keeps the
+  four it started with.
+- Every AI racer gets four too, one per category, sorted from their Underground signature kits by style (config
+  `Abilities.Racers`; anyone else gets the default four), at the class's level, written while the race loads. They
+  never get yours or Autopilot.
+
 ## v0.2.0 (2026-11-09): cups
 - A cup is 4 races in a row: START CUP on the cup screen, then NEXT RACE after each race.
 - Points for all 12 racers by place (15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1; config `Points`). Not finishing (or
