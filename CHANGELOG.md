@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.7.1 (2026-11-10): the art fitted to the tiles (seen in game)
+- The tile draws its art through the game's own material, which zooms by `ImageScale` (default 0.44, made for the
+  game's big tiles). Ours showed only the top-left corner. Now each texture is scaled to just cover the tile, and
+  tall posters are moved up to their vehicle art. The art is no longer set on the image directly (that skipped the
+  material).
+- Trophy medals: moved to the top-right corner (they sat on the title) and tinted gold / silver / bronze (the tile
+  draws icons as one-colour shapes).
+- MODS tile: the darker Afterburner picture; white text was hard to read on the bright desert one when focused.
+- Seen in game: classes, cups (medals, posters, remix scenes), cup page, mods, mod groups, cup in progress.
+  Not seen yet: the standings / cup result backdrop (needs a race).
+
 ## v0.7.0 (2026-11-10): menu art (owner: "I like all of those, just go for it")
 - Every picture is one of the game's own textures, loaded by path (`art.lua`; research page and the extractor in
   `tools/art/`).

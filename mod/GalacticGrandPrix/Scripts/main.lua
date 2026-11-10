@@ -5,7 +5,7 @@
 -- v0.3: your four abilities (v0.3.10: free pick, one per family), the AI racers' four, levels by class.
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.6.3'
+local VERSION = '0.7.1'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -85,6 +85,7 @@ local function picksText(picks, level)
   return table.concat(o, '  /  ')
 end
 local TROPHY_NAME = { 'GOLD', 'SILVER', 'BRONZE' }
+local TROPHY_INDEX = { GOLD = 1, SILVER = 2, BRONZE = 3 }
 local function bestText(classKey, cupKey)
   local b = K.best(classKey, cupKey)
   if not b then return 'Not raced yet' end
@@ -98,7 +99,8 @@ end
 -- v0.7: the trophy's medal in the cup tile's icon slot
 local function medal(classKey, cupKey)
   local b = K.best(classKey, cupKey)
-  return b and TROPHY_NAME[b] and ART.medal(b) or nil
+  if not (b and TROPHY_NAME[b]) then return nil end
+  return ART.medal(b), ART.medalColor(b)
 end
 -- 'Race 3 of 4' / 'Race 4 of 4 - the final race'
 local function raceOf(run)
@@ -202,9 +204,10 @@ SCREENS.cups = function()
         desc = 'To open: ' .. why,
         act = function() S.message = cup.name .. ' is locked at ' .. cls.name .. '. To open it: ' .. why; return true end }
     else
+    local mIcon, mColor = medal(cls.key, cup.key)
     items[#items + 1] = { title = cup.name, art = ART.cup(cup, here and run.vehicle or K.data.vehicle) or cup.art,
       badge = here and ('IN PROGRESS  %d / %d'):format(run.race, run.races) or trophyBadge(cls.key, cup.key),
-      icon = not here and medal(cls.key, cup.key) or nil,
+      icon = not here and mIcon or nil, iconColor = mColor,
       desc = (here and ('IN PROGRESS: race %d of %d'):format(run.race, run.races) or bestText(cls.key, cup.key)) .. '\n'
         .. table.concat(names, ', ', 1, math.min(2, #names)) .. (#names > 2 and ' ...' or ''),
       act = function() S.cup = cup.key; return go('cup') end }
@@ -447,7 +450,7 @@ SCREENS.standings = function()
     items[#items + 1] = { title = 'LATER', art = 'T_UI_FE_Tile_03', desc = 'Back to the menus\n(the cup stays in progress)', act = function() return go('cup') end }
   else
     items[#items + 1] = { title = 'CONTINUE', art = ART.cup(cup, run and run.vehicle) or 'T_UI_FE_Tile_Campaign_Hero', desc = 'Back to the cups',
-      icon = r.trophy and ART.medal(({ GOLD = 1, SILVER = 2, BRONZE = 3 })[r.trophy]) or nil, act = function() return go('cups') end }
+      icon = r.trophy and ART.medal(TROPHY_INDEX[r.trophy]) or nil, iconColor = r.trophy and ART.medalColor(TROPHY_INDEX[r.trophy]) or nil, act = function() return go('cups') end }
   end
   return { key = 'standings', title = r.cupOver and 'CUP RESULT' or 'STANDINGS', lines = lines,
     table = run and rankingTable(run) or nil, items = items, hint = 'Enter / A : select', backdrop = ART.BACKDROP }

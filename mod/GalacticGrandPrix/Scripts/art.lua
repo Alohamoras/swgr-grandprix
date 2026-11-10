@@ -57,6 +57,9 @@ function A.medal(best)
   local m = MEDAL[best or 0]
   return m and (TEX .. 'Icons/Leaderboard/T_UI_Grit_Medals_' .. m) or nil
 end
+-- the tile draws its icon as a one-colour shape (seen in game), so each medal gets its colour back
+local MEDAL_COLOR = { { 1, 0.78, 0.25 }, { 0.82, 0.86, 0.92 }, { 0.86, 0.52, 0.3 } }
+function A.medalColor(best) return MEDAL_COLOR[best or 0] end
 
 -- the mod groups: the game's racer-style pictures
 local GROUP = {
@@ -72,7 +75,8 @@ local VTILE = { car = 'T_UI_FE_Tile_05', bike = 'T_UI_FE_Tile_05_Bike', skimmer 
 function A.vehicle(key) return VTILE[key] or 'T_UI_FE_Tile_05' end
 
 A.ABILITIES = A.style('Abilities')
-A.MODS = A.style('Surging')
+-- (darker than the group pictures' sunny desert ones: the white title stays readable on a focused tile)
+A.MODS = A.style('Afterburner')
 A.SHOWDOWN = A.style('Antagonist')
 -- behind the points table (dark, so the text stays readable)
 A.BACKDROP = TEX .. 'Backgrounds/T_UI_Scenario_Bg'

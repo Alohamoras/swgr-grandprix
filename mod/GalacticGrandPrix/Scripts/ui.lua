@@ -61,13 +61,32 @@ local function makeTile(lib, pc, it)
   try(function() t:PreConstruct(false) end)
   try(function() t.SzB_SizeOverride:SetWidthOverride(U.TILE_W) end)
   try(function() t.SzB_SizeOverride:SetHeightOverride(U.TILE_H) end)
-  if art then try(function() t.Img_TileArt:SetBrushFromTexture(art, false) end)
+  if art then
+    -- v0.7 (seen in game 2026-11-10): the tile draws its art through the game's material, which zooms by
+    -- ImageScale around ImageX/YOffset; the share of the texture shown is tile size / (texture size x scale). The
+    -- game's 0.44 suits its own tiles only: scale each texture to just cover the tile (no repeats). Tall posters
+    -- (vehicle art in the top half) are moved up. Setting the brush straight to the texture skips the material
+    -- (drawn at full size, cropped) - not done.
+    local sx = try(function() return art:Blueprint_GetSizeX() end)
+    local sy = try(function() return art:Blueprint_GetSizeY() end)
+    if type(sx) == "number" and type(sy) == "number" and sx > 0 and sy > 0 then
+      local sc = math.max(U.TILE_W / sx, U.TILE_H / sy)
+      try(function() t.ImageScale = sc end)
+      if sy * sc > U.TILE_H * 1.2 then try(function() t.ImageYOffset = 0.3 end) end
+      try(function() t:PreConstruct(false) end)
+    end
   else try(function() t.Img_TileArt:SetVisibility(1) end) end
   -- v0.7: a picture in the tile's icon slot (the trophy medal), else the slot stays hidden
   local icon = texture(it.icon)
   if icon then
     try(function() t.Img_Icon:SetBrushFromTexture(icon, false) end)
     try(function() t.Img_Icon:SetVisibility(4) end) -- SelfHitTestInvisible
+    -- the tile draws its icon as a shape in one colour (seen in game): white, or the item's colour (medals)
+    local c = it.iconColor or { 1, 1, 1 }
+    try(function() t.Img_Icon:SetColorAndOpacity({ R = c[1], G = c[2], B = c[3], A = 1 }) end)
+    try(function() t.Img_Icon:SetBrushTintColor({ SpecifiedColor = { R = 1, G = 1, B = 1, A = 1 }, ColorUseRule = 0 }) end)
+    -- to the top right corner, off the title (the slot sits over it)
+    try(function() t.Img_Icon:SetRenderTranslation({ X = 85, Y = -38 }) end)
   else try(function() t.Img_Icon:SetVisibility(1) end) end
   try(function() t:SetText(FText(it.title)) end)
   if it.disabled then try(function() t:SetRenderOpacity(0.5) end) end

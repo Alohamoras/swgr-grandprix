@@ -182,7 +182,11 @@ Things only a real play can answer. Tick them off (or note what felt wrong) as y
   - Standings / results backdrop: `Backgrounds/T_UI_Retro_A..D_Bg`, `T_UI_MainMenu_Bg`, `T_UI_Scenario_Bg`.
   - Not usable as-is: `Content/Planets/T_UI_Planet_*` are grey masks (detail in alpha, tinted by a material).
 - [x] Owner (2026-11-10): "I like all of those, just go for it". Built as **v0.7.0** (`art.lua`, test_art).
-- [ ] In game: screenshots of every screen; fix anything that crops or stretches badly. Was: pick from the art page; then `ui.lua` `texture()` takes full paths (today only `Content/MainMenu/`),
+- [x] In game (Claude, 2026-11-10): art cropped to its top-left corner -> fitted per texture (v0.7.1); medals moved
+      and coloured; MODS art darker. Classes, cups, cup page, mods, groups, cup in progress all checked.
+- [ ] Still to see: the standings / cup result backdrop (`T_UI_Scenario_Bg`) after a race; the 50cc banner is light,
+      so its white title is harder to read when focused (darker art or a crop if it bothers the owner).
+- [ ] (was) In game: screenshots of every screen; fix anything that crops or stretches badly. Was: pick from the art page; then `ui.lua` `texture()` takes full paths (today only `Content/MainMenu/`),
       cups get `art` per vehicle, won cups show their medal icon.
 - [ ] Hide the ~3 s main-menu flash between a race and the standings (loading screen, or a shorter wait).
 - [ ] Tag v0.7.0.
