@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.3 (2026-11-09): better stutter measurement
+- The PERF line also measures the real time between our own ticks (asked for every 100 ms): any hitch, ours
+  included, makes a gap longer. The frame-time sample alone can't see a hitch we cause (it reads the frame before
+  ours). Scrap Spiral (owner felt stutter) read average 10.6 ms, 2 frames over 33 ms on the old measure.
+- The meaningless "our tick" time (os.clock under Proton) is gone.
+
 ## v0.3.2 (2026-11-09): stutter hunt, part 2
 - Owner: the stutter came back in race 2. Two v0.3.1 problems: the main menu was still searched for every 3 s while
   racing (one full object sweep), and checking the loading race every 250 ms was too slow for the AI's abilities

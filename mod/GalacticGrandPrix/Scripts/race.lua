@@ -280,11 +280,27 @@ R.fieldList = fieldList
 
 -- frame times (v0.3.2, stutter hunt): the game's frame time sampled every tick (100 ms) while racing, plus how long
 -- our own tick took. Summarised in the log when the race ends. Numbers only.
+-- v0.3.3: also the real time between our own ticks (they're asked for every 100 ms). A hitch anywhere - ours
+-- included, which the frame-time sample can't see (it reads the frame before ours) - makes that gap longer.
 function R.perf(r)
-  local p = r.perf or { n = 0, sum = 0, max = 0, over33 = 0, over50 = 0, over100 = 0, ourMax = 0, ourSum = 0 }
+  local p = r.perf or { n = 0, sum = 0, max = 0, over33 = 0, over50 = 0, over100 = 0, ourMax = 0, ourSum = 0,
+    gaps = 0, gapMax = 0, late40 = 0, late100 = 0 }
   r.perf = p
   local gsl = C.lib('GameplayStatics')
   local w = C.deref(r.gsRef)
+  local now = (gsl and w) and try(function() return gsl:GetRealTimeSeconds(w) end)
+  if type(now) == 'number' then
+    if p.lastReal then
+      local gap = (now - p.lastReal) * 1000
+      if gap > 0 and gap < 2000 then -- (a pause or a long load isn't a hitch)
+        p.gaps = p.gaps + 1
+        if gap > p.gapMax then p.gapMax = gap end
+        if gap > 140 then p.late40 = p.late40 + 1 end
+        if gap > 200 then p.late100 = p.late100 + 1 end
+      end
+    end
+    p.lastReal = now
+  end
   local dt = (gsl and w) and try(function() return gsl:GetWorldDeltaSeconds(w) end)
   if type(dt) == 'number' and dt > 0 then
     local ms = dt * 1000
@@ -306,8 +322,9 @@ local function perfLine(r)
   if not p or p.n == 0 then return 'frames: no samples' end
   -- (v0.3.3: no "our tick" time any more - os.clock under Proton counts the whole game's CPU time, not ours, so it
   -- read 15-25 ms a tick while the frames were 10 ms)
-  return ('frames: %d samples, average %.1f ms, worst %.0f ms, over 33 ms %d (%.0f%%), over 50 ms %d, over 100 ms %d'):format(
-    p.n, p.sum / p.n, p.max, p.over33, 100 * p.over33 / p.n, p.over50, p.over100)
+  return ('frames: %d samples, average %.1f ms, worst %.0f ms, over 33 ms %d (%.0f%%), over 50 ms %d, over 100 ms %d | tick gaps (asked 100 ms): %d, worst %.0f ms, 40+ ms late %d (%.1f%%), 100+ ms late %d'):format(
+    p.n, p.sum / p.n, p.max, p.over33, 100 * p.over33 / p.n, p.over50, p.over100,
+    p.gaps, p.gapMax, p.late40, 100 * p.late40 / math.max(1, p.gaps), p.late100)
 end
 
 function R.watch()
