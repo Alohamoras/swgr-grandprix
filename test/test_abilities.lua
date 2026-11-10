@@ -5,12 +5,12 @@ local W = require('world')
 local T = require('util')
 T.boot()
 M.press('F6'); M.tick(6)
-T.clickTitle('100CC'); M.tick(3)
+T.clickTitle('150CC'); M.tick(3)
 T.clickTitle('JAKKU CUP'); M.tick(3)
 T.clickTitle('ABILITIES'); M.tick(3)
 T.check(T.titles() == 'OFFENSIVE|DEFENSIVE|UTILITY|WILDCARD|DONE', 'four categories (' .. T.titles() .. ')')
 T.clickTitle('OFFENSIVE'); M.tick(3)
-T.check(T.titles() == 'CONCUSSIVE BOLT|MULTI-BOLT|MAGNETIC SHOCKWAVE|VECTORED SHOCKWAVE|BACK', '100cc offensive: level-2 branches (' .. T.titles() .. ')')
+T.check(T.titles() == 'CONCUSSIVE BOLT|MULTI-BOLT|MAGNETIC SHOCKWAVE|VECTORED SHOCKWAVE|BACK', '150cc offensive: level-2 branches (' .. T.titles() .. ')')
 T.clickTitle('VECTORED SHOCKWAVE'); M.tick(3)
 T.clickTitle('UTILITY'); M.tick(3)
 T.clickTitle('FLAME VENT'); M.tick(3)
@@ -32,7 +32,7 @@ local function names(list) local t = {}; for i = 1, 4 do t[i] = rawget(list[i], 
 T.check(names(slots) == 'BP_Ability_Disruptor_Concuss_C,BP_Ability_Shield_Charged_C,BP_Ability_Vent_Flame_C,BP_Ability_Mine_Double_C',
   'launch build: your four at level 2, your (non-_AI) mines (' .. names(slots) .. ')')
 T.check(T.save().run.picks.utility == 'vent.flame', 'the cup keeps its own copy of the picks')
-T.check(T.logHas('[loadout] class 100: AI racers get their four'), 'AI loadout armed')
+T.check(T.logHas('[loadout] class 150: AI racers get their four'), 'AI loadout armed')
 
 W.race(11); M.tick(5)
 T.check(W.slots(W.bots[2]) == 'BP_Ability_Disruptor_Concuss_C,BP_Ability_Shield_Charged_C,BP_Ability_Surge_Aggressive_C,BP_Ability_Shockwave_Punch_C',

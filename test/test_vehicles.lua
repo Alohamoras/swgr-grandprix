@@ -1,18 +1,18 @@
--- 150cc maxes every part; VEHICLE switches to the bike, and the cup races with it. Quitting a cup forfeits it;
+-- 200cc maxes every part; VEHICLE switches to the bike, and the cup races with it. Quitting a cup forfeits it;
 -- a second cup can't start while one is in progress.
 local M = require('mock')
 local W = require('world')
 local T = require('util')
 T.boot()
 M.press('F6'); M.tick(6)
-T.clickTitle('150CC'); M.tick(3)
+T.clickTitle('200CC'); M.tick(3)
 T.clickTitle('CRAIT CUP'); M.tick(3)
 T.clickTitle('VEHICLE'); M.tick(3)
 T.check(T.save().vehicle == 'bike', 'VEHICLE switches to the speeder bike (saved)')
 T.clickTitle('START CUP')
 local args = M.lastCall('LaunchQuickRace').args
 T.check(rawget(args[1], '__name') == 'VA_Bike', 'the cup races with the bike')
-T.check(T.levels('VBD_Bike_Base') == '0=10 1=10 2=10 3=10 4=10 5=10', '150cc: every part at 10')
+T.check(T.levels('VBD_Bike_Base') == '0=10 1=10 2=10 3=10 4=10 5=10', '200cc: every part at 10')
 T.check(T.levels('VBD_Car_Base') == '0=0 1=0 2=0 3=0 4=0 5=0', 'the landspeeder build untouched')
 -- you quit the race from the pause menu: back at the menu without finishing = DNF, 0 points
 W.race(11); M.tick(10)
@@ -29,6 +29,6 @@ T.clickTitle('GO TO IT'); M.tick(3)
 T.clickTitle('QUIT CUP'); M.tick(3)
 T.clickTitle('YES'); M.tick(3)
 T.check(T.save().run == nil, 'QUIT CUP + YES forfeits it')
-T.check(T.logHas('cup forfeited: 150 crait after 1 of 4 races'), 'forfeit logged')
-T.check(T.save().best['150'] == nil, 'no trophy saved')
+T.check(T.logHas('cup forfeited: 200 crait after 1 of 4 races'), 'forfeit logged')
+T.check(T.save().best['200'] == nil, 'no trophy saved')
 T.finish()

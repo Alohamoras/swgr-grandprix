@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.6 (2026-11-09): four classes
+- 50cc: no upgrades at all (parts 0), abilities level 1. 100cc: parts 3, level 1. 150cc: parts 6, level 2. 200cc:
+  parts 10 (maxed), level 3. (Owner's idea; the old 50 / 100 / 150cc were parts 3 / 6 / 10.)
+- Save version 2: everything stored by class moves up one (old 50cc trophies are now 100cc, 100 -> 150,
+  150 -> 200; also the cup in progress). The old save is kept as save.backup-v1-<date>.lua.
+
 ## v0.3.5 (2026-11-09): fix - the menu didn't come back after a race
 - v0.3.4's Lua-memory figure in the PERF line used %d for a decimal number: an error right after the result was
   recorded, before the race was marked over, so the end of the race ran again every tick (the race counted ~90

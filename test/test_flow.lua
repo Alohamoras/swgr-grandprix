@@ -1,4 +1,4 @@
--- v0.2: a whole cup. GRAND PRIX tab -> 100cc -> Jakku Cup -> START CUP; 4 races with points for all 12 racers,
+-- v0.2: a whole cup. GRAND PRIX tab -> 150cc -> Jakku Cup -> START CUP; 4 races with points for all 12 racers,
 -- standings after each, the trophy at the end; parts at the class level for each race and put back after.
 local M = require('mock')
 local W = require('world')
@@ -7,7 +7,7 @@ T.boot()
 T.check(W.tab.label == 'GRAND PRIX', 'tab added with the label GRAND PRIX')
 M.press('F6'); M.tick(6)
 T.check(T.logHas('[menu] classes'), 'F6 opens the class screen')
-T.clickTitle('100CC'); M.tick(3)
+T.clickTitle('150CC'); M.tick(3)
 T.check(T.ntiles() == 8, '7 cups + BACK (' .. T.ntiles() .. ')')
 T.clickTitle('JAKKU CUP'); M.tick(3)
 T.check(T.titles() == 'START CUP|ABILITIES|VEHICLE|BACK', 'a cup not started: START CUP, ABILITIES, VEHICLE, BACK (' .. T.titles() .. ')')
@@ -29,7 +29,7 @@ end
 T.clickTitle('START CUP')
 T.check(M.called('LaunchQuickRace') == 1, 'START CUP launches race 1')
 T.check(rawget(M.lastCall('LaunchQuickRace').args[2], '__name'):find('EVT_MAS_LOOP_A_FWD', 1, true) ~= nil, 'race 1 = The War Fields')
-T.check(T.levels('VBD_Car_Base') == '0=6 1=6 2=6 3=6 4=6 5=6', '100cc: every part at 6')
+T.check(T.levels('VBD_Car_Base') == '0=6 1=6 2=6 3=6 4=6 5=6', '150cc: every part at 6')
 T.check(T.save().run and T.save().run.race == 1, 'the cup is in the save (race 1)')
 
 race(1, 2)
@@ -47,11 +47,11 @@ for i, you in ipairs({ 1, 1, 3 }) do
   race(i + 1, you)
 end
 -- you: 12 + 15 + 15 + 10 = 52; Biddy: 15 + 12 + 12 + 15 = 54
-T.check(T.logHas('cup over: 100 jakku - you 2nd with 52 points, SILVER trophy'), 'cup over: 2nd, silver')
+T.check(T.logHas('cup over: 150 jakku - you 2nd with 52 points, SILVER trophy'), 'cup over: 2nd, silver')
 T.check(T.logHas('[menu] trophy'), 'the trophy screen after race 4')
 sv = T.save()
 T.check(sv.run == nil, 'no cup in progress any more')
-T.check(sv.best['100'].jakku == 2 and sv.cups == 1 and sv.races == 4, 'best = 2nd saved; 1 cup, 4 races')
+T.check(sv.best['150'].jakku == 2 and sv.cups == 1 and sv.races == 4, 'best = 2nd saved; 1 cup, 4 races')
 T.clickTitle('CONTINUE'); M.tick(3)
 T.check(T.titles():find('JAKKU CUP', 1, true) ~= nil, 'CONTINUE -> the cups')
 T.finish()

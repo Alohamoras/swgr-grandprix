@@ -8,7 +8,23 @@ local CU = require('cup')
 local log = C.log
 
 local K = { data = nil }
-K.SAVE_VERSION = 1
+K.SAVE_VERSION = 2
+
+-- v2 (v0.3.6): four classes instead of three. What was 50cc (parts 3) is now 100cc, 100cc (6) is 150cc, 150cc (10)
+-- is 200cc, so everything stored by class key moves up one: best finishes, the cup in progress, the last class.
+local SHIFT = { ['150'] = '200', ['100'] = '150', ['50'] = '100' }
+function K.convert(d, from)
+  if from < 2 then
+    local best = {}
+    for k, v in pairs(d.best or {}) do best[SHIFT[k] or k] = v end
+    d.best = best
+    if type(d.run) == 'table' and d.run.class then d.run.class = SHIFT[d.run.class] or d.run.class end
+    if d.class then d.class = SHIFT[d.class] or d.class end
+    if type(d.last) == 'table' and d.last.class then d.last.class = SHIFT[d.last.class] or d.last.class end
+  end
+  d.version = K.SAVE_VERSION
+  return d
+end
 
 local function fill(d)
   d.version = tonumber(d.version) or K.SAVE_VERSION
@@ -49,7 +65,17 @@ function K.load()
     local ok, t = false, nil
     if chunk then ok, t = pcall(chunk) end
     if ok and type(t) == 'table' then
-      K.data = fill(t)
+      local was = tonumber(t.version) or 1
+      if was < K.SAVE_VERSION then
+        -- keep the old save next to the new one before converting
+        local name = ('save.backup-v%d-%s.lua'):format(was, os.date('%Y%m%d-%H%M%S'))
+        local b = io.open(C.DIR .. '/' .. name, 'w'); if b then b:write(s); b:close() end
+        K.data = fill(K.convert(t, was))
+        K.save()
+        log(('save converted from version %d to %d (four classes; old save kept as %s)'):format(was, K.SAVE_VERSION, name))
+      else
+        K.data = fill(t)
+      end
       log(('save loaded: %d races'):format(K.data.races))
       return
     end

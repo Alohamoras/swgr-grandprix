@@ -13,7 +13,7 @@ memory-only changes to game data, put back after use; one git tag per chunk.
 
 ## 1. Vision
 Pick a speed class and a cup, choose your vehicle and four abilities, and race four tracks in a row for points against
-the same field. Gold, silver or bronze at the end. Win your way from 50cc to 150cc, then reverse cups. No vehicle
+the same field. Gold, silver or bronze at the end. Win your way from 50cc to 200cc, then reverse cups. No vehicle
 upgrades to grind: the class sets everyone's speed and your skill and ability choices do the rest.
 
 Separate from the campaign and from the Underground: its own tab on the main menu, its own save file, never the game's
@@ -21,7 +21,7 @@ save.
 
 ## 2. Pillars
 - **Cups of 4 races** from the campaign's tracks, one cup per planet plus mixed cups.
-- **Speed classes 50cc / 100cc / 150cc**: they set how fast every vehicle is, how sharp the AI is, and how strong
+- **Speed classes 50cc / 100cc / 150cc / 200cc**: they set how fast every vehicle is, how sharp the AI is, and how strong
   everyone's abilities are.
 - **Points over a cup**, standings between races, a trophy at the end.
 - **Abilities, not upgrades**: pick one offensive, one defensive, one utility and one wildcard. **No Autopilot.**
@@ -71,14 +71,16 @@ The recon behind this: your parts make your vehicle much faster (5 levels on eve
 own part levels don't change its pace. So a class sets **your** part level, and the AI keeps up through the rubber
 band.
 
-| | 50cc | 100cc | 150cc |
-|---|---|---|---|
-| Your parts (all 6 slots) | level 3 | level 6 | level 10 |
-| AI pressure (rubber band) | easy | the game's own | hard |
-| AI abilities | 4 picks at level 1 | 4 picks at level 2 | 4 picks at level 3, used more often |
-| Your ability level | 1 | 2 (pick the branch) | 3 |
+| | 50cc | 100cc | 150cc | 200cc |
+|---|---|---|---|---|
+| Your parts (all 6 slots) | 0 (no upgrades) | 3 | 6 | 10 (maxed) |
+| AI pressure (rubber band) | the game's own (tuning later, maybe) | | | |
+| Abilities (yours and the AI's) | level 1 | level 1 | level 2 | level 3 |
 
-Values are a starting point to tune; 150cc is fully maxed (owner, 2026-11-09). AI pressure and AI abilities use the
+(v0.3.6, owner: four classes, a no-upgrades 50cc up to a maxed 200cc. The first layout was 50 / 100 / 150cc with
+parts 3 / 6 / 10; saves were converted, every class moved up one.)
+
+Values are a starting point to tune; 200cc is fully maxed. AI pressure and AI abilities use the
 Underground's `ai.lua` and `loadout.lua` (proven: every bot gets its own abilities at race load, the same every race).
 How often the AI uses them: `AiAbilityChanceMultiplier` (rubber-band tune data).
 
@@ -152,12 +154,13 @@ Recon R3 picks the one that works; set before launch, put back at the menu. Cras
 
 ## 8. Progression and unlocks (owner asked for it, 2026-11-09)
 - 50cc is open from the start, with its five planet cups.
-- **100cc opens with a trophy (bronze or better) in all five 50cc planet cups; 150cc the same from 100cc**
+- **Each class opens with a trophy (bronze or better) in all five planet cups of the class below** (50 → 100 →
+  150 → 200cc)
   (proposal; the first draft said gold in every cup, which is 20 races of perfect play per class). The rule is a
   setting (`Unlock = 'trophy' | 'gold'`), so it can be made stricter.
 - Outer Rim and Galactic cups: gold in all five planet cups at that class.
 - Reverse cups: after the 150cc cups.
-- Champion Showdown: gold in every 150cc cup.
+- Champion Showdown: gold in every 200cc cup.
 - Best trophy per cup and class saved, shown on the cup tiles. No money, no shop, no upgrades.
 - Unlocks are worked out from the saved best finishes, so trophies won before this is built count (e.g. the owner's
   50cc Jakku gold). Locked classes / cups show what opens them.
@@ -202,6 +205,7 @@ circuits 4-8. First race in game (v0.1): The War Fields, 2 laps, about 2 min 20 
 |---|---|
 | 2026-11-09 | New design, new repo (owner). Crash limit off. Four picks: offensive, defensive, utility, wildcard; no Autopilot. |
 | 2026-11-09 | Recon trimmed: parts 3 / 6 / 10 for every vehicle type (no speed test); the field and the AI's Shields are checked in playtests; crash limit settled later. |
+| 2026-11-09 | Four classes (owner): 50cc parts 0, 100cc 3, 150cc 6, 200cc 10; abilities 1 / 1 / 2 / 3. Saves converted (v2): trophies move up one class. |
 | 2026-11-09 | Order: mods (v0.4), progression (v0.5), polish (v0.6); AI difficulty and the crash limit moved to the end as "maybe". |
 | 2026-11-09 | New task: pick the vehicle's mods (affixes) before a cup, like the abilities (§5b). Difficulty so far: "difficult but fun". |
 | 2026-11-09 | Abilities built before the AI difficulty (v0.3); AI difficulty per class becomes v0.4. |

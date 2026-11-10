@@ -62,6 +62,8 @@ One git tag per chunk; push after each tag.
 - [x] v0.3.4/0.3.5: stutter built up in Grand Prix races only (Arcade smooth); hitches lined up with our ticks.
       Per-tick GC step + racers read ~1/s. Confirmed smooth (owner, Lantaana Cup, 2026-11-09): our ticks 100+ ms
       late 2-3 times a race (Dai Bendu before: 220); Lua memory steady at ~0.5-0.6 MB.
+- [x] v0.3.6: four classes (owner): 50cc no upgrades (parts 0), 100cc 3, 150cc 6, 200cc 10 (maxed); abilities
+      1 / 1 / 2 / 3. Save v2: trophies and the cup in progress move up one class (backup kept).
 - [ ] Put the save's race count back (211 -> 13) with the game closed (the file has Windows line endings).
 
 ## 5. v0.4 Mods: the vehicle's affixes (owner, 2026-11-09; DESIGN.md §5b)
@@ -73,10 +75,11 @@ One git tag per chunk; push after each tag.
 - [ ] Tests; tag v0.4.0.
 
 ## 6. v0.5 Progression (owner asked for it, 2026-11-09; DESIGN.md §8)
-- [ ] Class unlocks: 50cc open; 100cc after a trophy in all five 50cc planet cups, 150cc likewise (setting
+- [ ] Class unlocks: 50cc open; each class after a trophy in all five planet cups of the class below (50 → 100 →
+      150 → 200cc; setting
       `Unlock = 'trophy' | 'gold'`; owner to confirm). Locked tiles say what opens them.
 - [ ] Outer Rim / Galactic cups after gold in all five planet cups at the class; reverse cups after 150cc;
-      Champion Showdown after gold in every 150cc cup.
+      Champion Showdown after gold in every 200cc cup.
 - [ ] Worked out from the saved best finishes (trophies already won count).
 - [ ] Tag v0.5.0.
 

@@ -20,9 +20,12 @@ return {
     -- Speed classes: every part of your vehicle at this level (the AI keeps pace through the game's rubber band)
     Classes = {
         -- parts = every part at this level; abilities = the level of everyone's abilities (yours and the AI's)
-        { key = '50', name = '50cc', parts = 3, abilities = 1, blurb = 'Learn the tracks' },
-        { key = '100', name = '100cc', parts = 6, abilities = 2, blurb = 'Faster, sharper rivals' },
-        { key = '150', name = '150cc', parts = 10, abilities = 3, blurb = 'Everything maxed out' },
+        -- (v0.3.6, owner: four classes - 50cc with no upgrades at all, up to a maxed 200cc. Keys are used in the
+        -- save: never change them; the save was converted from the three-class layout, every class moved up one.)
+        { key = '50', name = '50cc', parts = 0, abilities = 1, blurb = 'No upgrades: pure driving' },
+        { key = '100', name = '100cc', parts = 3, abilities = 1, blurb = 'Learn the tracks' },
+        { key = '150', name = '150cc', parts = 6, abilities = 2, blurb = 'Faster, sharper rivals' },
+        { key = '200', name = '200cc', parts = 10, abilities = 3, blurb = 'Everything maxed out' },
     },
 
     -- Points by place in each race (1st first); a racer who doesn't finish scores 0

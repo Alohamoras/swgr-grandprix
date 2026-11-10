@@ -38,5 +38,5 @@ check(#AB.classPaths(d, 1) == 4, 'four class paths for the build')
 local k = AB.racerPicks('Antagonist')
 check(k.offensive == 'bolt.concuss' and k.wildcard == 'shockwave.vectored', 'Kestar\'s four')
 check(AB.racerPicks('Nobody').utility == 'surge.impact', 'an unknown racer gets the defaults')
-check(AB.levelFor('150') == 3 and AB.levelFor('50') == 1, 'class levels 1 / 3')
+check(AB.levelFor('200') == 3 and AB.levelFor('150') == 2 and AB.levelFor('100') == 1 and AB.levelFor('50') == 1, 'class levels 1 / 1 / 2 / 3')
 if failed then os.exit(1) end

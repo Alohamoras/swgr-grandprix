@@ -1,6 +1,6 @@
 # Galactic Grand Prix (STAR WARS Galactic Racer, UE4SS Lua mod)
 
-Kart-racer-style cups for STAR WARS Galactic Racer: speed classes (50cc / 100cc / 150cc), cups of 4 campaign tracks,
+Kart-racer-style cups for STAR WARS Galactic Racer: speed classes (50cc / 100cc / 150cc / 200cc), cups of 4 campaign tracks,
 points and trophies, four abilities instead of upgrades, no crash limit. Offline only.
 
 Status: v0.3 (cups with points and trophies; four abilities for you and every AI racer). See DESIGN.md (the design), TASKS.md (the work plan), CHANGELOG.md.
