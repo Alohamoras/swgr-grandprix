@@ -5,7 +5,7 @@
   recorded, before the race was marked over, so the end of the race ran again every tick (the race counted ~90
   times, no menu). The race is now marked over first, and the RESULT / PERF log lines can't stop anything.
   `test_perf` reproduces it (8 recordings before the fix, 1 after). The cup itself was unaffected (a race is only
-  added to the cup once); the owner's race count was put back by hand (100 -> 12).
+  added to the cup once); the owner's race count was put back by hand (211 -> 12).
 - The first v0.3.4 race (Griffin's Flight) didn't feel stuttery (owner).
 
 ## v0.3.4 (2026-11-09): stutter, part 3
