@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.5.1 (2026-11-10): menu fixes seen in game
+- A short row of tiles (CONFIRM's NO / YES, the standings' NEXT RACE / LATER) is filled out with empty cells, so the
+  tiles sit side by side (the v0.5.0 width fix didn't take: the uniform grid shares its width over the columns used).
+- NO and RESET PROGRESS on a darker tile: focused, their white title vanished on the pale art.
+- Class tiles: blurb + "Gold n / 7" only (the text ran past the tile).
+
 ## v0.5.0 (2026-11-10): progression - class and bonus-cup unlocks
 - 50cc and 100cc open from the start. 150cc opens with a trophy in all five planet cups at 100cc, 200cc with the same
   at 150cc (`Progression.Unlock = 'gold'` makes it gold). Outer Rim and Galactic open at a class with gold in all

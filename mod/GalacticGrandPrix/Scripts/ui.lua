@@ -174,10 +174,7 @@ function U.build(spec, host)
     local rows = math.ceil(#(spec.items or {}) / U.COLS)
     local h = math.min(rows, U.ROWS) * (U.TILE_H + 20) + 10
     try(function() sizer:SetHeightOverride(h) end)
-    -- only as wide as the tiles in use: a uniform grid shares its width out evenly, so two tiles in a four-tile-wide
-    -- box sat two columns apart (v0.3.11 in game)
-    local used = math.max(1, math.min(#(spec.items or {}), U.COLS))
-    try(function() sizer:SetWidthOverride((U.TILE_W + 20) * used + 10) end)
+    try(function() sizer:SetWidthOverride(wrap + 10) end)
     holder = sizer
   end
   local gs = try(function() return box:AddChildToVerticalBox(holder) end)
@@ -202,6 +199,15 @@ function U.build(spec, host)
       try(function() grid:AddChildToUniformGrid(cell, n // U.COLS, n % U.COLS) end)
       it.btn = t
       list[#list + 1] = it
+    end
+  end
+  -- a short screen (fewer tiles than a row): empty cells fill the row, else the uniform grid shares its width out
+  -- over the tiles in use and two tiles sit two columns apart (seen in game, v0.3.11 / v0.5.0)
+  for col = #list, U.COLS - 1 do
+    local pad = make('/Script/UMG.SizeBox')
+    if alive(pad) then
+      try(function() pad:SetWidthOverride(U.TILE_W); pad:SetHeightOverride(U.TILE_H) end)
+      try(function() grid:AddChildToUniformGrid(pad, 0, col) end)
     end
   end
   if spec.hint then

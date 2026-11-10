@@ -172,7 +172,7 @@ Recon R3 picks the one that works; set before launch, put back at the menu. Cras
   50cc Jakku gold). Locked classes / cups show what opens them.
 - **Kept (v0.5.0):** a class or cup you've already raced through or have a cup in progress in stays open, so v0.5
   never takes away what you were playing. `Progression.On = false` switches the locks off.
-- v0.5.0 = class and bonus-cup unlocks; v0.5.1 = reverse cups; v0.5.2 = Champion Showdown.
+- v0.5.0 = class and bonus-cup unlocks; then reverse cups and the Champion Showdown (each needs checks in game).
 - **Reset progress** (owner, 2026-11-10, v0.3.11): RESET PROGRESS, the last tile on the class screen, asks first
   (NO selected first). Clears every trophy and best finish, the cup in progress and the cups count; keeps your
   abilities, vehicle and race count. The save is copied to `save.backup-reset-<date>.lua` first. One full reset only.

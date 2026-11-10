@@ -5,7 +5,7 @@
 -- v0.3: your four abilities (v0.3.10: free pick, one per family), the AI racers' four, levels by class.
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.5.0'
+local VERSION = '0.5.1'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -142,7 +142,7 @@ SCREENS.classes = function()
     else
     items[#items + 1] = { title = c.name:upper(), art = 'T_UI_FE_Tile_Campaign_Hero',
       badge = trophies > 0 and ('%d / %d TROPHIES'):format(trophies, #K.cups()) or nil,
-      desc = ('%s\nParts level %d  -  gold %d / %d'):format(c.blurb or '', c.parts, golds, #K.cups()),
+      desc = ('%s\nGold %d / %d'):format(c.blurb or '', golds, #K.cups()),
       act = function() S.class = c.key; K.data.class = c.key; K.save(); return go('cups') end }
     end
   end
@@ -154,7 +154,7 @@ SCREENS.classes = function()
       act = function() S.class, S.cup = run.class, run.cup; return go('cup') end })
   end
   items[#items + 1] = { title = 'EXIT', art = 'T_UI_FE_Tile_03', desc = 'Back to the main menu', act = function() return 'close' end }
-  items[#items + 1] = { title = 'RESET PROGRESS', art = 'T_UI_FE_Tile_03', desc = 'Start over: clear every trophy\n(asks first)',
+  items[#items + 1] = { title = 'RESET PROGRESS', art = 'T_UI_FE_Tile_02', desc = 'Start over: clear every trophy\n(asks first)',
     act = function()
       S.confirm = { text = 'Reset all progress? Every trophy and best finish' .. (run and ', and the cup in progress,' or '')
           .. ' will be cleared. Your abilities and vehicle are kept. (A backup of the save is made first.)',
@@ -365,7 +365,7 @@ SCREENS.confirm = function()
     if c.yes then c.yes() end
     return done(c.after or c.back or 'classes')
   end }
-  local no = { title = 'NO', art = 'T_UI_FE_Tile_03', desc = 'Cancel', act = function() return done(c.back or 'classes') end }
+  local no = { title = 'NO', art = 'T_UI_FE_Tile_02', desc = 'Cancel', act = function() return done(c.back or 'classes') end }
   return { key = 'confirm', title = 'CONFIRM', lines = { { c.text, 26, U.WHITE }, msgLine() },
     items = c.noFirst and { no, yes } or { yes, no }, hint = 'Enter / A : choose        Backspace / B : cancel' }
 end

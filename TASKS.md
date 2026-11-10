@@ -112,11 +112,14 @@ One git tag per chunk; push after each tag.
       so the owner's 150cc / 200cc stay open. `Progression.On = false` switches every lock off.
 - [x] The cup result says what it unlocked ("UNLOCKED: 150cc - OUTER RIM CUP at 100cc ...").
 - [x] Tests: `test_prog` (rules), `test_unlocks` (menus, a cup unlocking 150cc); tag v0.5.0.
-- [ ] In game: locked tiles look right; a cup that unlocks something says so.
-- [ ] **v0.5.1 Reverse cups:** the five planet cups on reverse (or night / weather) variants. Needs the event paths
+- [x] In game (2026-11-10): your classes all stay open (kept); 100cc Galactic shows LOCKED, "To open: Gold in all 5
+      planet cups at 100cc (2 / 5)", and selecting it only shows that message. v0.5.1 fixes the NO / YES spacing,
+      the unreadable focused NO / RESET tiles and the class tile text.
+- [ ] Still to see: a cup that unlocks something says so on the result screen.
+- [ ] **Reverse cups (v0.5.x):** the five planet cups on reverse (or night / weather) variants. Needs the event paths
       (Underground config `Planets`) and a launch check in game for each. When do they open: after 150cc (DESIGN §3)
       or after the top class (owner's earlier note)? Ask the owner.
-- [ ] **v0.5.2 Champion Showdown:** the 1 v 1 against Kestar Bool (`EVT_WHP_SHORTBOSS_FAIR`) as a single bonus race
+- [ ] **Champion Showdown (v0.5.x):** the 1 v 1 against Kestar Bool (`EVT_WHP_SHORTBOSS_FAIR`) as a single bonus race
       (win / lose, no points), after gold in every 200cc cup. Needs a 1 v 1 result read in game.
 
 ## 6b. Points ranking after each race (owner, 2026-11-10)
