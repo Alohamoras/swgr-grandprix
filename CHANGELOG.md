@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.6.1 (2026-11-10): full mod descriptions
+- Seen in game: tile descriptions are cut after two lines ("Choked no longer cancels active Ramjet..."). The MODS and
+  mod list screens now have a gold info line under the header with the focused mod's full name and description
+  (`spec.info` / `item.info` in ui.lua, set on every focus change).
+
 ## v0.6.0 (2026-11-10): mods (the planned v0.4)
 - MODS on the cup screen, next to ABILITIES: 2 / 3 / 4 slots at 100 / 150 / 200cc, none at 50cc (pure driving).
   Slot -> group -> mod; one mod per effect; REMOVE empties a slot. Kept until you change them; a cup keeps its own copy.

@@ -91,8 +91,11 @@ One git tag per chunk; push after each tag.
 - [x] Owner (2026-11-10): top step everywhere, keep the "check" ones, build it.
 - [x] Built as **v0.6.0** (tags were already past v0.4): catalogue generated into `Scripts/mods.lua`
       (`tools/gen_mods.py`), MODS screens, launch build Affixes + put-back, bots cleared at load; tests.
-- [ ] In game: the MODS screens read well (long descriptions on tiles); a race with mods: yours active, bots none,
-      the build's list put back at the menu (UE4SS `Empty()` never tried in game before).
+- [x] In game (Claude, 2026-11-10, test copy of the save, 150cc Lantaana): MODS screens work (slots, groups, 16-mod
+      list, PROTECTION badges, a fitted mod not offered again); Frost + Burn Protection on your car's passives, all 11
+      AI cars none ("88 slots cleared"); "mods put back (main menu): VBD_Car_Base (0)" - `Empty()` works.
+- [x] v0.6.1: tile descriptions were cut after two lines -> a gold info line with the focused mod's full text.
+- [ ] Owner: play with mods; which ones feel good / too strong (the 23 "check" ones especially).
 - [ ] MODS screen next to ABILITIES: slots and rarity by class; kept for the cup; written at race load.
 - [ ] Tests; tag v0.4.0.
 

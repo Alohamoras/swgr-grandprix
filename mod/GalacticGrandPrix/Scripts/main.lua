@@ -5,7 +5,7 @@
 -- v0.3: your four abilities (v0.3.10: free pick, one per family), the AI racers' four, levels by class.
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.6.0'
+local VERSION = '0.6.1'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -356,6 +356,7 @@ SCREENS.mods = function()
     local e = MS.effect(list[i])
     items[#items + 1] = { title = e and e.name:upper() or 'EMPTY SLOT', art = e and 'T_UI_FE_Tile_02' or 'T_UI_FE_Tile_01',
       badge = e and (e.tag == 'protect' and 'PROTECTION' or 'PLAYSTYLE') or ('SLOT ' .. i), desc = e and e.desc or 'Select to pick a mod',
+      info = e and (e.name .. ':  ' .. e.desc) or ('Slot ' .. i .. ' is empty'),
       act = function() S.mslot = i; return go('modgroups') end }
   end
   items[#items + 1] = { title = 'DONE', art = 'T_UI_FE_Tile_03', desc = 'Back to the cup', act = function() return go('cup') end }
@@ -365,7 +366,7 @@ SCREENS.mods = function()
     lines = { { ('%s: %d mod slots.  Mods change how you race, not how fast.'):format(cls.name, n), 22, U.WHITE },
       { #hidden > 0 and ('Kept for the higher classes: ' .. table.concat(hidden, ', ')) or 'Kept for every cup until you change them.  The AI racers get none.', 18 },
       msgLine() },
-    items = items, hint = HINT }
+    items = items, hint = HINT, info = true }
 end
 SCREENS.modgroups = function()
   local cls = K.class(S.class) or K.classes()[1]
@@ -396,7 +397,7 @@ SCREENS.modpick = function()
   for _, e in ipairs(MS.choices(g, list, i)) do
     local chosen = list[i] == e.key
     items[#items + 1] = { title = e.name:upper(), art = chosen and 'T_UI_FE_Tile_Campaign_Hero' or 'T_UI_FE_Tile_01',
-      badge = chosen and 'PICKED' or (e.tag == 'protect' and 'PROTECTION' or nil), desc = e.desc,
+      badge = chosen and 'PICKED' or (e.tag == 'protect' and 'PROTECTION' or nil), desc = e.desc, info = e.name .. ':  ' .. e.desc,
       act = function()
         list[i] = e.key
         K.data.mods = MS.normalize(list)
@@ -409,7 +410,7 @@ SCREENS.modpick = function()
   items[#items + 1] = { title = 'BACK', art = 'T_UI_FE_Tile_03', desc = 'The groups', act = function() return go('modgroups') end }
   return { key = 'modpick', title = g:upper() .. '  -  ' .. cls.name:upper(),
     lines = { { ('Mod slot %d.  Mods you have in another slot are not listed.'):format(i), 20, U.WHITE }, msgLine() },
-    items = items, hint = HINT }
+    items = items, hint = HINT, info = true }
 end
 
 SCREENS.standings = function()

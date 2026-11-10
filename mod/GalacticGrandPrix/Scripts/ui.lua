@@ -132,6 +132,15 @@ function U.build(spec, host)
     end
   end
 
+  -- v0.6: an info line (spec.info = true): the full text of the focused tile (its item.info), set on every focus change
+  -- (tile descriptions are cut after two lines; for mods the description is the point)
+  local info
+  if spec.info then
+    info = textBlock(make, ' ', 20, GOLD, wrap)
+    local sl = info and try(function() return box:AddChildToVerticalBox(info) end)
+    if sl then try(function() sl:SetPadding({ Left = 0, Top = 6, Right = 0, Bottom = 0 }) end) end
+  end
+
   if spec.table then
     local tb = spec.table
     local JUST = { left = 0, center = 1, right = 2 }
@@ -216,7 +225,8 @@ function U.build(spec, host)
   end
   if #list == 0 then log('[menu] no tiles'); return nil end
 
-  local screen = { w = border, host = host, items = list, scroll = alive(scroll) and scroll or nil, pc = pc, grid = grid }
+  local screen = { w = border, host = host, items = list, scroll = alive(scroll) and scroll or nil, pc = pc, grid = grid,
+    info = info }
   try(function() host.panel:ClearChildren() end)
   local sl = try(function() return host.panel:AddChildToVerticalBox(border) end)
   if not alive(sl) then sl = try(function() return host.panel:AddChild(border) end) end
@@ -265,6 +275,8 @@ function U.highlight(screen, i)
     local op = (it.disabled and 0.5 or 1) * ((on or U.DIM == 1) and 1 or U.DIM)
     try(function() it.btn:SetRenderOpacity(op) end)
   end
+  local it = screen.items[i]
+  if screen.info and alive(screen.info) then try(function() screen.info:SetText(FText(it and it.info or ' ')) end) end
 end
 
 function U.focus(screen, i)
