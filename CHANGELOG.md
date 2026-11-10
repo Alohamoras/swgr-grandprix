@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.3.1 (2026-11-09): smoother races
+- Owner: steady frame stutter in Grand Prix races, not in the campaign. Cause: while racing the mod swept the game's
+  whole object list (FindAllOf) about 22 times a second (race state and main menu every 100 ms, the racers every
+  0.5 s). Now the race state and the racers are found once and looked up by path + address; the main menu is only
+  searched for once the race is over (or every 3 s); checks every 250 ms. 220 sweeps per 10 s of racing -> 5
+  (`test/test_perf.lua`).
+
 ## v0.3.0 (2026-11-09): abilities
 - ABILITIES on the cup screen: pick one OFFENSIVE (Ion Bolt / Shockwave), DEFENSIVE (Shield), UTILITY (Status
   Scrubber / Vent / Surge) and WILDCARD (mines, or any family not already picked). The class sets the level

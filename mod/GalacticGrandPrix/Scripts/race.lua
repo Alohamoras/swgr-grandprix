@@ -236,10 +236,18 @@ local function pilotName(ps)
   return (type(n) == 'string' and n ~= '') and n or nil
 end
 local function readField(r)
+  -- (v0.3.1: the racers are found once with a full object sweep, then looked up by path + address - cheap - so the
+  -- race isn't swept every half second; a second sweep 5 s later catches anyone who joined late)
+  if not r.psRefs or (not r.psSwept2 and C.clock - (r.psAt or 0) > 5000) then
+    if r.psRefs then r.psSwept2 = true end
+    r.psRefs, r.psAt = {}, C.clock
+    for _, ps in ipairs(C.find('GfnPlayerState')) do r.psRefs[#r.psRefs + 1] = C.ref(ps) end
+  end
   local n, seen = 0, {}
-  for _, ps in ipairs(C.find('GfnPlayerState')) do
-    local rec = try(function() return ps.RaceEventComponent end)
-    local name = pilotName(ps)
+  for _, ref in ipairs(r.psRefs) do
+    local ps = C.deref(ref)
+    local rec = ps and try(function() return ps.RaceEventComponent end)
+    local name = ps and pilotName(ps)
     if alive(rec) and name then
       local you = try(function() return ps.bIsABot end) == false
       local key = you and '@you' or name
@@ -274,6 +282,9 @@ function R.watch()
   local r = R.run
   if not r then return nil end
   if r.phase == 'loading' then
+    -- (loading: a sweep for the new race state, at most every 250 ms)
+    if C.clock - (r.lastScan or -1e9) < 250 then return nil end
+    r.lastScan = C.clock
     for _, gs in ipairs(C.find('RacingGameState')) do
       if addr(gs) ~= r.oldGs then
         local ksl = C.lib('KismetSystemLibrary')
@@ -283,7 +294,7 @@ function R.watch()
           log('NOT an offline race - Grand Prix stops here, build put back')
           R.restoreBuild('not offline'); R.run = nil; return { failed = 'not offline' }
         end
-        r.gs, r.phase = addr(gs), 'racing'
+        r.gs, r.gsRef, r.phase = addr(gs), C.ref(gs), 'racing'
         local ok, err = pcall(LO.apply, r.lo)
         if not ok then log('[loadout] apply failed: ' .. tostring(err)); r.lo = nil end
         return nil
@@ -297,9 +308,17 @@ function R.watch()
     return nil
   end
 
-  local gs
-  for _, g in ipairs(C.find('RacingGameState')) do if addr(g) == r.gs then gs = g end end
-  local fe = C.first('FrontEndGameMode')
+  -- racing (v0.3.1): every 250 ms, no full object sweeps - the race state is looked up by path + address (cheap);
+  -- only once it's gone (or every 3 s, just in case) is the main menu searched for. Sweeping the whole object list
+  -- several times a second made the race stutter.
+  if C.clock - (r.lastWatch or -1e9) < 250 then return nil end
+  r.lastWatch = C.clock
+  local gs = C.deref(r.gsRef)
+  local fe
+  if not gs or C.clock - (r.lastFe or -1e9) >= 3000 then
+    r.lastFe = C.clock
+    fe = C.first('FrontEndGameMode')
+  end
   if alive(fe) and (not gs or addr(fe) ~= r.oldFe) then
     R.restoreBuild('main menu')
     local fl = fieldList(r)
@@ -318,9 +337,9 @@ function R.watch()
   end
   local started = try(function() return gs.bIsRaceStarted end) == true
   if not started then return nil end
-  -- the field: every 5th tick, and right away when you finish (the bots behind you keep racing for a while)
+  -- the field: every other check (~0.5 s), and right away when you finish (the bots behind you keep racing a while)
   r.ticks = r.ticks + 1
-  if r.ticks % 5 == 0 then
+  if r.ticks % 2 == 0 then
     local n = readField(r)
     if not r.fieldLogged and n > 0 then r.fieldLogged = true; log(('field: %d racers'):format(n)) end
   end

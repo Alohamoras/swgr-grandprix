@@ -5,7 +5,7 @@
 -- v0.3: your four abilities (offensive / defensive / utility / wildcard), the AI racers' four, levels by class.
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.3.0'
+local VERSION = '0.3.1'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
