@@ -3,7 +3,7 @@
 local M = require('mock')
 local W = require('world')
 local T = require('util')
-T.boot()
+T.boot(nil, { Progression = { On = false } }) -- (unlocks: test_prog, test_unlocks)
 T.check(W.tab.label == 'GRAND PRIX', 'tab added with the label GRAND PRIX')
 M.press('F6'); M.tick(6)
 T.check(T.logHas('[menu] classes'), 'F6 opens the class screen')

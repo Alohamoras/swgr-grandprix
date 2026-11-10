@@ -5,7 +5,7 @@
 -- v0.3: your four abilities (v0.3.10: free pick, one per family), the AI racers' four, levels by class.
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.3.11'
+local VERSION = '0.5.0'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -58,6 +58,7 @@ local function go(screen) S.screen = screen; S.message = nil; return true end
 
 local CU = require('cup')
 local AB = require('abil')
+local PR = require('prog')
 
 -- your four picks, made valid for a class's level (and kept in the save)
 local function picksFor(classKey)
@@ -133,10 +134,17 @@ SCREENS.classes = function()
       if b == 1 then golds = golds + 1 end
       if b and b <= 3 then trophies = trophies + 1 end
     end
+    local open, why = PR.classOpen(K.data, c.key)
+    if not open then
+      items[#items + 1] = { title = c.name:upper(), art = 'T_UI_FE_Tile_Campaign_Hero', badge = 'LOCKED', disabled = true,
+        desc = 'To open: ' .. why,
+        act = function() S.message = c.name .. ' is locked. To open it: ' .. why; return true end }
+    else
     items[#items + 1] = { title = c.name:upper(), art = 'T_UI_FE_Tile_Campaign_Hero',
       badge = trophies > 0 and ('%d / %d TROPHIES'):format(trophies, #K.cups()) or nil,
-      desc = ('%s\nEvery part at level %d\nTrophies %d / %d   (gold %d)'):format(c.blurb or '', c.parts, trophies, #K.cups(), golds),
+      desc = ('%s\nParts level %d  -  gold %d / %d'):format(c.blurb or '', c.parts, golds, #K.cups()),
       act = function() S.class = c.key; K.data.class = c.key; K.save(); return go('cups') end }
+    end
   end
   local run = K.run()
   if run then
@@ -170,11 +178,18 @@ SCREENS.cups = function()
     local here = run and run.cup == cup.key and run.class == cls.key
     local names = {}
     for _, r in ipairs(cup.races) do names[#names + 1] = r.title end
+    local open, why = PR.cupOpen(K.data, cls.key, cup.key)
+    if not open then
+      items[#items + 1] = { title = cup.name, art = cup.art or 'T_UI_FE_Tile_01', badge = 'LOCKED', disabled = true,
+        desc = 'To open: ' .. why,
+        act = function() S.message = cup.name .. ' is locked at ' .. cls.name .. '. To open it: ' .. why; return true end }
+    else
     items[#items + 1] = { title = cup.name, art = cup.art or 'T_UI_FE_Tile_01',
       badge = here and ('IN PROGRESS  %d / %d'):format(run.race, run.races) or trophyBadge(cls.key, cup.key),
       desc = (here and ('IN PROGRESS: race %d of %d'):format(run.race, run.races) or bestText(cls.key, cup.key)) .. '\n'
         .. table.concat(names, ', ', 1, math.min(2, #names)) .. (#names > 2 and ' ...' or ''),
       act = function() S.cup = cup.key; return go('cup') end }
+    end
   end
   items[#items + 1] = { title = 'BACK', art = 'T_UI_FE_Tile_03', desc = 'Pick another class', act = function() return go('classes') end }
   return { key = 'cups', title = cls.name:upper() .. '  -  CUPS',
@@ -229,6 +244,8 @@ SCREENS.cup = function()
     items = {
       { title = 'START CUP', art = 'T_UI_FE_Tile_Campaign_Hero', desc = ('Race 1: %s\nwith the %s'):format(cup.races[1].title, veh.name),
         act = function()
+          local open, why = PR.cupOpen(K.data, cls.key, cup.key)
+          if not open then S.message = 'Locked. To open it: ' .. why; return true end
           K.startCup(cls.key, cup.key, veh.key, picksFor(cls.key))
           local res = launchNext()
           if res ~= 'launched' then K.forfeit() end -- couldn't start: no cup left half-begun
@@ -320,6 +337,9 @@ SCREENS.standings = function()
   if r.cupOver then
     lines[#lines + 1] = { r.trophy and (r.trophy .. ' TROPHY') or ('%s PLACE'):format(ordinal(r.rank or 0):upper()), 44, r.trophy and U.GOLD or U.GREY }
     lines[#lines + 1] = { ('%s   -   %s   -   %d points%s'):format(cup.name, cls.name, r.pts or 0, r.newBest and '   -   NEW BEST' or ''), 22, U.WHITE }
+    if r.unlocked and #r.unlocked > 0 then
+      lines[#lines + 1] = { 'UNLOCKED:  ' .. table.concat(r.unlocked, '   -   '), 24, U.GOLD }
+    end
   else
     lines[#lines + 1] = { ('%s   -   %s   -   race %d of %d'):format(cup.name, ev.title, ev.race or 0, run and run.races or 4), 22, U.WHITE }
   end

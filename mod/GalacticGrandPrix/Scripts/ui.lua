@@ -174,7 +174,10 @@ function U.build(spec, host)
     local rows = math.ceil(#(spec.items or {}) / U.COLS)
     local h = math.min(rows, U.ROWS) * (U.TILE_H + 20) + 10
     try(function() sizer:SetHeightOverride(h) end)
-    try(function() sizer:SetWidthOverride(wrap + 10) end)
+    -- only as wide as the tiles in use: a uniform grid shares its width out evenly, so two tiles in a four-tile-wide
+    -- box sat two columns apart (v0.3.11 in game)
+    local used = math.max(1, math.min(#(spec.items or {}), U.COLS))
+    try(function() sizer:SetWidthOverride((U.TILE_W + 20) * used + 10) end)
     holder = sizer
   end
   local gs = try(function() return box:AddChildToVerticalBox(holder) end)

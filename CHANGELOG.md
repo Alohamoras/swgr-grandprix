@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.5.0 (2026-11-10): progression - class and bonus-cup unlocks
+- 50cc and 100cc open from the start. 150cc opens with a trophy in all five planet cups at 100cc, 200cc with the same
+  at 150cc (`Progression.Unlock = 'gold'` makes it gold). Outer Rim and Galactic open at a class with gold in all
+  five planet cups there.
+- Locked tiles: dimmed, badge LOCKED, "To open: A trophy in all 5 planet cups at 100cc (2 / 5)". They can't be
+  entered (START CUP checks too).
+- Worked out from the saved best finishes, nothing new saved. A class or cup you've already raced through, or have a
+  cup in progress in, stays open. RESET PROGRESS locks everything again. `Progression.On = false`: no locks.
+- The cup result says what it unlocked.
+- Fixes from the first look in game: a short row of tiles (NEXT RACE / LATER) was spread over four columns; the class
+  tile text was cut off.
+- Tests: `test_prog`, `test_unlocks`; older flow tests run with the locks off.
+
 ## v0.3.11 (2026-11-10): trophy badges, race N of 4, reset progress
 - Cup tiles carry a badge with your best trophy at that class (GOLD / SILVER / BRONZE TROPHY), or IN PROGRESS 3 / 4;
   class tiles show how many of the 7 cups have a trophy. (The tile's own small extra line, unused until now.)

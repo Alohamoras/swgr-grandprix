@@ -3,7 +3,7 @@
 local M = require('mock')
 local W = require('world')
 local T = require('util')
-T.boot()
+T.boot(nil, { Progression = { On = false } }) -- (unlocks: test_prog, test_unlocks)
 M.press('F6'); M.tick(6)
 T.clickTitle('150CC'); M.tick(3)
 T.clickTitle('JAKKU CUP'); M.tick(3)

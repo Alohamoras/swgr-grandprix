@@ -21,13 +21,19 @@ return {
     GcStep = true,
     GcStepKB = 64,
 
+    -- Progression (v0.5, DESIGN.md §8). Classes with open = true are open from the start (50cc, 100cc); each other
+    -- class opens with a trophy in every planet cup of the class before it (Unlock = 'gold': gold in every one).
+    -- Bonus cups (bonus = true: Outer Rim, Galactic) open with gold in every planet cup at that class. Anything you
+    -- have already raced through stays open. On = false switches every lock off.
+    Progression = { On = true, Unlock = 'trophy' },
+
     -- Speed classes: every part of your vehicle at this level (the AI keeps pace through the game's rubber band)
     Classes = {
         -- parts = every part at this level; abilities = the level of everyone's abilities (yours and the AI's)
         -- (v0.3.6, owner: four classes - 50cc with no upgrades at all, up to a maxed 200cc. Keys are used in the
         -- save: never change them; the save was converted from the three-class layout, every class moved up one.)
-        { key = '50', name = '50cc', parts = 0, abilities = 1, blurb = 'No upgrades: pure driving' },
-        { key = '100', name = '100cc', parts = 3, abilities = 1, blurb = 'Learn the tracks' },
+        { key = '50', name = '50cc', parts = 0, abilities = 1, open = true, blurb = 'No upgrades: pure driving' },
+        { key = '100', name = '100cc', parts = 3, abilities = 1, open = true, blurb = 'Learn the tracks' },
         { key = '150', name = '150cc', parts = 6, abilities = 2, blurb = 'Faster, sharper rivals' },
         { key = '200', name = '200cc', parts = 10, abilities = 3, blurb = 'Everything maxed out' },
     },
@@ -67,13 +73,13 @@ return {
             race('Husky/P2P/EVT_HSK_P2P_REV', 'BOOL RIVER RUN', 'Sprint'),
             race('Husky/LOOP_B/EVT_HSK_LOOP_B_SHORT_02', 'THE ACID RING', 'Short circuit'),
         } },
-        { key = 'outerrim', name = 'OUTER RIM CUP', art = 'T_UI_FE_Tile_02', races = {
+        { key = 'outerrim', name = 'OUTER RIM CUP', art = 'T_UI_FE_Tile_02', bonus = true, races = {
             race('Mastiff/Loop_B/EVT_MAS_LOOP_B_SHORT_01', 'SCRAP SPIRAL', 'Short circuit'),
             race('Dalmatian/P2P/EVT_DAL_P2P_FWD', 'GEOTHERMAL TOUR', 'Sprint'),
             race('Corgi/P2P/EVT_COR_P2P_REV', 'DAI BENDU ASCENSION', 'Sprint'),
             race('Spaniel/Loop_B/EVT_SPA_Loop_B_SHORT_02', 'CRYSTAL CAVERNS', 'Short circuit'),
         } },
-        { key = 'galactic', name = 'GALACTIC CUP', art = 'T_UI_FE_Tile_05', races = {
+        { key = 'galactic', name = 'GALACTIC CUP', art = 'T_UI_FE_Tile_05', bonus = true, races = {
             race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_SHORT_06', 'OVERFLOW RALLY', 'Short circuit'),
             race('Corgi/P2P/EVT_COR_P2P_SHORT_05', 'ANDOBI EDGE', 'Short circuit'),
             race('Husky/P2P/EVT_HSK_P2P_SHORT_01', 'SKAKOAN GAMBIT', 'Short circuit'),

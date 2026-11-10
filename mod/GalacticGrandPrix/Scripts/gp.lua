@@ -5,6 +5,7 @@
 local C = require('core')
 local cfg = require('config')
 local CU = require('cup')
+local PR = require('prog')
 local log = C.log
 
 local K = { data = nil }
@@ -190,6 +191,7 @@ function K.record(ev, pos, field)
     log(('cup %s race %d: %s'):format(run.cup, run.race - 1, names(out.rows)))
     out.run = run
     if CU.finished(run) then
+      local before = PR.openSet(K.data)
       local rank, pts = CU.yourRank(run)
       out.cupOver, out.rank, out.pts, out.trophy = true, rank, pts, CU.trophy(rank)
       K.data.best[run.class] = K.data.best[run.class] or {}
@@ -199,6 +201,9 @@ function K.record(ev, pos, field)
       log(('cup over: %s %s - you %s with %d points%s'):format(run.class, run.cup, C.ordinal(rank), pts,
         out.trophy and (', ' .. out.trophy .. ' trophy') or ''))
       K.data.run = nil
+      -- v0.5: what this cup opened (a class, a bonus cup)
+      out.unlocked = PR.newlyOpen(before, PR.openSet(K.data))
+      if #out.unlocked > 0 then log('unlocked: ' .. table.concat(out.unlocked, ', ')) end
     end
   end
   K.save()

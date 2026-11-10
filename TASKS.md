@@ -51,7 +51,11 @@ One git tag per chunk; push after each tag.
       Scrubber); all 11 AI racers got their four at load; quitting the race = DNF, the cup moved on to race 2.
 - [ ] Still to see: do the AI fire their abilities, Shields included (R7)?
 - [x] v0.3.10 (owner, 2026-11-10): free pick, any four abilities, one per family; kept until changed (it already was
-      saved across races and restarts). Category rule kept as a setting. In game: pick a four and race with it.
+      saved across races and restarts). Category rule kept as a setting.
+      In game (Claude, 2026-11-10, 50cc Lantaana test cup on a copy of the save, owner's save put back after): your
+      old four showed by name; Shockwave -> Vent offered Ion Bolt / Shockwave / Mine / Vent only; saved as a list;
+      both races launched with Vent, Shield, Surge, Scrubber (four icons on the HUD wheel); put back after each race.
+      Race watch 0.92-0.94 ms a tick.
 
 - [x] v0.3.1: race stutter (owner) - full object sweeps cut from ~22/s to ~0.5/s while racing. Confirmed fixed in
       game by the owner (2026-11-09).
@@ -95,17 +99,25 @@ One git tag per chunk; push after each tag.
 - [x] v0.3.11: RESET PROGRESS (owner): last tile on the class screen; confirm with NO first; clears trophies, best
       finishes, the cup in progress and the cups count; keeps abilities, vehicle, race count; backup first
       (`save.backup-reset-<date>.lua`).
-- [ ] In game: do the badges show on the tiles (the game's supplemental text; never used before)? If not, put the
-      trophy in the title instead.
+- [x] In game (2026-11-10): the badges show at the top of the tiles ("3 / 7 TROPHIES", "RACE 3 / 4"). The ranking
+      table reads well. Fixed in v0.5.0: two tiles sat two columns apart (LATER); the class tile text was cut off.
 
 ## 6. v0.5 Progression (owner asked for it, 2026-11-09; DESIGN.md §8)
-- [ ] Class unlocks (owner, 2026-11-10): **50cc and 100cc open from the start**; 150cc after a trophy in all five
-      planet cups at 100cc; 200cc after the same at 150cc (setting `Unlock = 'trophy' | 'gold'`). Locked tiles say
-      what opens them. Trophies already won count.
-- [ ] Outer Rim / Galactic cups after gold in all five planet cups at the class; reverse cups after 150cc;
-      Champion Showdown after gold in every 200cc cup.
-- [ ] Worked out from the saved best finishes (trophies already won count).
-- [ ] Tag v0.5.0.
+- [x] v0.5.0 class unlocks (owner, 2026-11-10): **50cc and 100cc open from the start**; 150cc after a trophy in all
+      five planet cups at 100cc; 200cc after the same at 150cc (`Progression.Unlock = 'trophy' | 'gold'`). Locked
+      tiles: badge LOCKED, dimmed, "To open: ... (2 / 5)"; selecting one only says so.
+- [x] v0.5.0 Outer Rim / Galactic cups: gold in all five planet cups at that class.
+- [x] Worked out from the saved best finishes every time (trophies already won count; RESET PROGRESS locks again).
+      **Kept:** a class or cup you've already raced through (a best finish) or have a cup in progress in stays open,
+      so the owner's 150cc / 200cc stay open. `Progression.On = false` switches every lock off.
+- [x] The cup result says what it unlocked ("UNLOCKED: 150cc - OUTER RIM CUP at 100cc ...").
+- [x] Tests: `test_prog` (rules), `test_unlocks` (menus, a cup unlocking 150cc); tag v0.5.0.
+- [ ] In game: locked tiles look right; a cup that unlocks something says so.
+- [ ] **v0.5.1 Reverse cups:** the five planet cups on reverse (or night / weather) variants. Needs the event paths
+      (Underground config `Planets`) and a launch check in game for each. When do they open: after 150cc (DESIGN §3)
+      or after the top class (owner's earlier note)? Ask the owner.
+- [ ] **v0.5.2 Champion Showdown:** the 1 v 1 against Kestar Bool (`EVT_WHP_SHORTBOSS_FAIR`) as a single bonus race
+      (win / lose, no points), after gold in every 200cc cup. Needs a 1 v 1 result read in game.
 
 ## 6b. Points ranking after each race (owner, 2026-11-10)
 - Owner: fewer screens is better; flow = the game's race results, then ONE screen with the ranking by points.

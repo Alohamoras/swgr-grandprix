@@ -8,7 +8,7 @@ T.boot({ version = 2, races = 25, cups = 5, class = '200', vehicle = 'car', best
   picks = old,
   run = { class = '200', cup = 'jakku', vehicle = 'car', race = 3, races = 4, points = { YOU = 27 }, last = {}, history = { {}, {} },
     picks = { offensive = 'shockwave.magnetic', defensive = 'shield.impact', utility = 'surge.impact', wildcard = 'scrubber.auto' } },
-  restores = {}, abilityRestores = {} })
+  restores = {}, abilityRestores = {} }, { Progression = { On = false } })
 M.press('F6'); M.tick(6)
 T.clickTitle('CONTINUE CUP'); M.tick(3)
 T.clickTitle('NEXT RACE')
