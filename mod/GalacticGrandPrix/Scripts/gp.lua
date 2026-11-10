@@ -76,6 +76,19 @@ function K.load()
       else
         K.data = fill(t)
       end
+      -- one-off fix: race_fix.txt in the mod folder holds a number to add to the race count, then is deleted
+      -- (v0.3.7: the v0.3.4 bug recorded one race ~200 times)
+      local fx = io.open(C.DIR .. '/race_fix.txt', 'r')
+      if fx then
+        local n = tonumber((fx:read('a') or ''):match('%-?%d+')); fx:close()
+        os.remove(C.DIR .. '/race_fix.txt')
+        if n then
+          local was = K.data.races
+          K.data.races = math.max(0, K.data.races + n)
+          K.save()
+          log(('race count corrected: %d -> %d (race_fix.txt)'):format(was, K.data.races))
+        end
+      end
       log(('save loaded: %d races'):format(K.data.races))
       return
     end

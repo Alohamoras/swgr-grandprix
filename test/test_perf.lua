@@ -8,6 +8,10 @@ local gsl = StaticFindObject('/Script/Engine.Default__GameplayStatics')
 local t = 0
 rawget(gsl, '__props').GetRealTimeSeconds = function() t = t + 0.1037; return t end
 rawget(gsl, '__props').GetWorldDeltaSeconds = function() return 0.0103 end
+-- the real clock (KismetMathLibrary:Now, FDateTime ticks of 100 ns): 0.3 ms per call
+local kml = StaticFindObject('/Script/Engine.Default__KismetMathLibrary')
+local ticks = 638000000000000000
+rawget(kml, '__props').Now = function() ticks = ticks + 3000; return { Ticks = ticks } end
 M.press('F6'); M.tick(6)
 T.clickTitle('50CC'); M.tick(3)
 T.clickTitle('JAKKU CUP'); M.tick(3)
@@ -30,5 +34,6 @@ local results = 0
 for _, l in ipairs(M.log) do if l:find('RESULT THE WAR FIELDS', 1, true) then results = results + 1 end end
 T.check(results == 1, 'the race is recorded exactly once (' .. results .. ')')
 T.check(T.logHas('PERF THE WAR FIELDS: frames:') and T.logHas('Lua memory: start'), 'PERF line written, with Lua memory')
+T.check(T.logHas('our tick (real clock):') and T.logHas('race watch average 0.30 ms'), 'our tick timed with the real clock')
 T.check(T.save().races == 1, 'races = 1')
 T.finish()

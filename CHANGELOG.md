@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.3.7 (2026-11-09): our tick timed with a real clock
+- The PERF line times our own tick with the game's clock (KismetMathLibrary:Now, FDateTime): the race watch and the
+  garbage step separately, average / worst, and how many ticks took over 5 / 20 ms. The War Fields at old-100cc
+  (owner felt stutter) read 5 checks 100+ ms late but 12.6% 40+ ms late (smooth races 7-9%).
+- One-off race-count fix: race_fix.txt in the mod folder (a number added to the count, then deleted). The owner's
+  was written with -199 (the v0.3.4 bug).
+
 ## v0.3.6 (2026-11-09): four classes
 - 50cc: no upgrades at all (parts 0), abilities level 1. 100cc: parts 3, level 1. 150cc: parts 6, level 2. 200cc:
   parts 10 (maxed), level 3. (Owner's idea; the old 50 / 100 / 150cc were parts 3 / 6 / 10.)

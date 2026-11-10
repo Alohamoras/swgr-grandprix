@@ -2,7 +2,8 @@
 local M = require('mock')
 local W = require('world')
 local T = require('util')
-T.boot({ version = 1, races = 12, cups = 3, class = '50', vehicle = 'car',
+local f = io.open(T.dir .. '/race_fix.txt', 'w'); f:write('-199\n'); f:close()
+T.boot({ version = 1, races = 211, cups = 3, class = '50', vehicle = 'car',
   best = { ['50'] = { jakku = 1, outerrim = 1, lantaana = 1 }, ['150'] = { crait = 2 } },
   run = { class = '100', cup = 'ando', vehicle = 'car', race = 2, races = 4, points = { YOU = 15 }, last = {}, history = { {} } },
   restores = {}, abilityRestores = {} })
@@ -13,7 +14,8 @@ T.check(sv.best['100'] and sv.best['100'].jakku == 1 and sv.best['100'].outerrim
 T.check(sv.best['50'] == nil, 'nothing left under the new 50cc (no upgrades)')
 T.check(sv.best['200'] and sv.best['200'].crait == 2, 'old 150cc -> 200cc')
 T.check(sv.run.class == '150' and sv.class == '100', 'the cup in progress and the last class move up too')
-T.check(sv.races == 12 and sv.run.points.YOU == 15, 'nothing else changed')
+T.check(sv.races == 12 and sv.run.points.YOU == 15, 'race_fix.txt applied once (211 - 199 = 12); points unchanged')
+T.check(io.open(T.dir .. '/race_fix.txt') == nil, 'race_fix.txt deleted after use')
 T.check(T.logHas('save converted from version 1 to 2'), 'conversion logged')
 local p = io.popen('ls "' .. T.dir .. '"'); local files = p:read('a'); p:close()
 T.check(files:find('save.backup-v1-', 1, true) ~= nil, 'the old save kept as a backup')

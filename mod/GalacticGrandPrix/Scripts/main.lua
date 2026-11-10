@@ -5,7 +5,7 @@
 -- v0.3: your four abilities (offensive / defensive / utility / wildcard), the AI racers' four, levels by class.
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.3.6'
+local VERSION = '0.3.7'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -499,11 +499,16 @@ local function tick()
       if S.ui and S.ui.back and TB.backPressed(S.ui.back) then pcall(handle, 'back') end
     end
   end
+  local timing = R.run ~= nil and R.run.phase == 'racing'
+  local t0 = timing and R.nowMs() or nil
   local ok, out = pcall(R.watch)
+  local t1 = t0 and R.nowMs() or nil
   -- v0.3.4 (stutter): every engine object we touch leaves a small Lua wrapper behind. Collect a little on every
   -- tick so the garbage never builds up into one big collection that freezes a frame (the hitches the owner felt
   -- lined up with our ticks, and only in Grand Prix races).
   if cfg.GcStep ~= false then collectgarbage('step', cfg.GcStepKB or 64) end
+  local t2 = t1 and R.nowMs() or nil
+  if t2 then pcall(R.perfTick, t1 - t0, t2 - t1) end
   if not ok then log('watch error: ' .. tostring(out))
   elseif out and out.failed then
     -- the launch went nowhere: ours back with a message

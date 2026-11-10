@@ -313,11 +313,31 @@ function R.perf(r)
     if ms > 100 then p.over100 = p.over100 + 1 end
   end
 end
-function R.perfTick(ms)
+-- v0.3.6: a real clock for timing our own tick - the game's KismetMathLibrary:Now() (FDateTime, 100 ns ticks).
+-- (os.clock under Proton counts the whole game's CPU time.) Returns milliseconds, or nil if the clock can't be read.
+local clockBroken, clockLogged = false, false
+function R.nowMs()
+  if clockBroken then return nil end
+  local kml = C.lib('KismetMathLibrary')
+  local t = kml and try(function() return kml:Now() end)
+  local ticks = t ~= nil and try(function() return t.Ticks end)
+  if type(ticks) ~= 'number' then
+    clockBroken = true
+    if not clockLogged then clockLogged = true; log('[perf] no real clock (KismetMathLibrary:Now gave ' .. tostring(t) .. ') - tick times not measured') end
+    return nil
+  end
+  return ticks / 10000
+end
+-- our tick's parts in ms: the race watch and the garbage step (counted while a race runs)
+function R.perfTick(watchMs, gcMs)
   local r = R.run
-  if not (r and r.perf) then return end
-  r.perf.ourSum, r.perf.ticks = r.perf.ourSum + ms, (r.perf.ticks or 0) + 1
-  if ms > r.perf.ourMax then r.perf.ourMax = ms end
+  if not (r and r.perf) or not watchMs then return end
+  local p = r.perf
+  p.tN = (p.tN or 0) + 1
+  p.wSum, p.wMax = (p.wSum or 0) + watchMs, math.max(p.wMax or 0, watchMs)
+  p.gSum, p.gMax = (p.gSum or 0) + (gcMs or 0), math.max(p.gMax or 0, gcMs or 0)
+  if watchMs + (gcMs or 0) > 5 then p.over5 = (p.over5 or 0) + 1 end
+  if watchMs + (gcMs or 0) > 20 then p.over20 = (p.over20 or 0) + 1 end
 end
 local function perfLine(r)
   local p = r.perf
@@ -328,6 +348,8 @@ local function perfLine(r)
     p.n, p.sum / p.n, p.max, p.over33, 100 * p.over33 / p.n, p.over50, p.over100,
     p.gaps, p.gapMax, p.late40, 100 * p.late40 / math.max(1, p.gaps), p.late100)
     .. (' | Lua memory: start %.0f KB, peak %.0f KB, end %.0f KB'):format(p.kb0, p.kbMax, collectgarbage('count'))
+    .. ((p.tN or 0) > 0 and (' | our tick (real clock): %d ticks, race watch average %.2f ms / worst %.1f ms, garbage step average %.2f ms / worst %.1f ms, ticks over 5 ms %d, over 20 ms %d'):format(
+      p.tN, p.wSum / p.tN, p.wMax, p.gSum / p.tN, p.gMax, p.over5 or 0, p.over20 or 0) or ' | our tick: not measured')
 end
 
 function R.watch()
