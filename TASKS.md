@@ -26,7 +26,7 @@ One git tag per chunk; push after each tag.
       cycles landspeeder / bike / skimmer; result screen → back to the cup.
 - [x] Tests (`test/all.sh`: flow, vehicles, offline guard + crash put-back; 28 checks); tag v0.1.0.
 - [ ] In game: the tab appears, a race launches with the class's parts (check `grandprix.log`), the build is put
-      back, the result screen opens. Disable GPRecon's plan launching is not needed (it only launches on go.txt).
+      back, the result screen opens.
 
 ## 3. v0.2 Cup flow and points
 - [ ] Results for all 12 racers (R1) → points; standings screen; Continue launches the next race.
