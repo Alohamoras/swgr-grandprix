@@ -85,10 +85,12 @@ One git tag per chunk; push after each tag.
 
 ## 6b. Points ranking after each race (owner, 2026-11-10)
 - Owner: fewer screens is better; flow = the game's race results, then ONE screen with the ranking by points.
-- [ ] Our STANDINGS page becomes that screen: a clear table of all 12 (rank, racer, +points this race, total,
+- [x] v0.3.8: our STANDINGS page becomes that screen: a clear table of all 12 (rank, racer, +points this race, total,
       places gained / lost), your row highlighted, NEXT RACE / LATER underneath. After race 4 the same table with the
       trophy on top (the trophy page and the standings page become one).
-- [ ] Nothing in between: hide the ~3 s main-menu flash (from v0.6 Polish) so the race results lead straight to it.
+- [x] v0.3.8: nothing in between: the game's loading screen covers the ~3 s main-menu rebuild (`HideMenuFlash`).
+- [ ] In game: the table lines up and reads well; the cover appears and goes (if it sticks or blocks input, set
+      `HideMenuFlash = false`).
 
 ## 7. v0.6 Polish
 - [ ] Tile art per cup (planet art), standings layout, short intro text, controller check (owner's pad).

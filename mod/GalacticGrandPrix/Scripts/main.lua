@@ -5,7 +5,7 @@
 -- v0.3: your four abilities (offensive / defensive / utility / wildcard), the AI racers' four, levels by class.
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.3.7'
+local VERSION = '0.3.8'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -32,7 +32,7 @@ U.setLayout('tab')
 
 local S = {
   ui = nil,          -- the built screen { w, items, scroll, pc }
-  screen = nil,      -- 'classes' | 'cups' | 'cup' | 'abilities' | 'pick' | 'standings' | 'trophy' | 'confirm' | 'offline'
+  screen = nil,      -- 'classes' | 'cups' | 'cup' | 'abilities' | 'pick' | 'standings' | 'confirm' | 'offline'
   cat = nil,         -- ability category being picked
   confirm = nil,     -- { text, yes = function, back = screen, after = screen after yes }
   class = nil,       -- class key
@@ -88,24 +88,23 @@ local function launchNext()
   return true
 end
 
--- the standings as text: two columns of up to 6
-local function standingsText(run)
-  local s = CU.standings(run)
-  local half = math.ceil(math.min(#s, 12) / 2)
-  local out = {}
-  for i = 1, half do
-    local a, b = s[i], s[i + half]
-    local left = ('%2d.  %-18s %3d'):format(a.rank, shortName(a.key), a.pts)
-    out[#out + 1] = b and (left .. ('            %2d.  %-18s %3d'):format(b.rank, shortName(b.key), b.pts)) or left
+-- after a race: ONE screen (owner, 2026-11-10: fewer screens) - the ranking by points, as a table: place, racer,
+-- points this race, total, places moved. After the last race the same table with the trophy on top.
+local GREEN, RED = { 0.45, 0.9, 0.5 }, { 1, 0.5, 0.45 }
+local function rankingTable(run)
+  local rows = {}
+  for _, r in ipairs(CU.table(run)) do
+    local move, mc = '', nil
+    if r.move and r.move > 0 then move, mc = '+' .. r.move, GREEN
+    elseif r.move and r.move < 0 then move, mc = tostring(r.move), RED end
+    rows[#rows + 1] = {
+      cells = { ordinal(r.rank), shortName(r.key), r.dnf and 'DNF' or (r.raced and ('+' .. r.gain) or '-'), tostring(r.total), move },
+      color = r.you and U.GOLD or U.WHITE, colors = { [5] = mc }, highlight = r.you,
+    }
   end
-  return table.concat(out, '\n')
-end
-local function raceText(rows)
-  local p = {}
-  for i, r in ipairs(rows or {}) do
-    if i <= 12 then p[#p + 1] = ('%d. %s %s'):format(r.place, shortName(r.key), r.dnf and 'DNF' or ('+' .. r.pts)) end
-  end
-  return table.concat(p, '     ')
+  return { size = 20, header = { '', 'RACER', 'THIS RACE', 'POINTS', 'MOVED' },
+    cols = { { w = 90, align = 'right' }, { w = 460 }, { w = 220, align = 'right' }, { w = 180, align = 'right' }, { w = 160, align = 'right' } },
+    rows = rows }
 end
 
 local SCREENS = {}
@@ -164,7 +163,8 @@ SCREENS.cup = function()
     return { key = 'cup', title = cup.name .. '  -  ' .. cls.name:upper(),
       lines = { { ('Race %d of %d   -   %s   -   %s'):format(run.race, run.races, veh.name,
           picksText(run.picks or picksFor(run.class), AB.levelFor(run.class))), 22, U.WHITE },
-        { #run.history > 0 and standingsText(run) or table.concat(list, '        '), 20, U.WHITE }, msgLine() },
+        #run.history == 0 and { table.concat(list, '        '), 20, U.WHITE } or { '', 0 }, msgLine() },
+      table = #run.history > 0 and rankingTable(run) or nil,
       items = {
         { title = 'NEXT RACE', art = 'T_UI_FE_Tile_Campaign_Hero', desc = ('%d. %s\n%s'):format(run.race, ev and ev.title or '?', ev and ev.kind or ''),
           act = launchNext },
@@ -270,17 +270,20 @@ SCREENS.pick = function()
     lines = { { 'Now: ' .. AB.label(picks[cat.key], level), 22, U.WHITE }, msgLine() }, items = items, hint = HINT }
 end
 
--- after a race: this race's points and the standings (or the trophy, after the last race)
 SCREENS.standings = function()
   local r = S.result or {}
   local ev = r.ev or { title = '?' }
   local run = r.run
-  local lines = {
-    { r.pos and ('%s PLACE'):format(ordinal(r.pos):upper()) or 'DID NOT FINISH', 40, r.pos and U.GOLD or U.GREY },
-    { ('%s   -   race %d of %d'):format(ev.title, ev.race or 0, run and run.races or 4), 22, U.WHITE },
-  }
-  if r.rows then lines[#lines + 1] = { raceText(r.rows), 16 } end
-  if run then lines[#lines + 1] = { standingsText(run), 20, U.WHITE } end
+  local cup = run and K.cup(run.cup) or { name = '?' }
+  local cls = run and K.class(run.class) or { name = '?' }
+  local lines = {}
+  if r.cupOver then
+    lines[#lines + 1] = { r.trophy and (r.trophy .. ' TROPHY') or ('%s PLACE'):format(ordinal(r.rank or 0):upper()), 44, r.trophy and U.GOLD or U.GREY }
+    lines[#lines + 1] = { ('%s   -   %s   -   %d points%s'):format(cup.name, cls.name, r.pts or 0, r.newBest and '   -   NEW BEST' or ''), 22, U.WHITE }
+  else
+    lines[#lines + 1] = { ('%s   -   %s   -   race %d of %d'):format(cup.name, ev.title, ev.race or 0, run and run.races or 4), 22, U.WHITE }
+  end
+  lines[#lines + 1] = { ('You: %s in this race'):format(r.pos and ordinal(r.pos) or 'did not finish'), 18 }
   local items = {}
   if K.run() then
     local nxt = K.nextRace()
@@ -289,23 +292,8 @@ SCREENS.standings = function()
   else
     items[#items + 1] = { title = 'CONTINUE', art = 'T_UI_FE_Tile_Campaign_Hero', desc = 'Back to the cups', act = function() return go('cups') end }
   end
-  return { key = 'standings', title = 'STANDINGS', lines = lines, items = items, hint = 'Enter / A : select' }
-end
-
-SCREENS.trophy = function()
-  local r = S.result or {}
-  local cup = r.run and K.cup(r.run.cup) or { name = '?' }
-  local cls = r.run and K.class(r.run.class) or { name = '?' }
-  local lines = {
-    { r.trophy and (r.trophy .. ' TROPHY') or ('%s PLACE'):format(ordinal(r.rank or 0):upper()), 48, r.trophy and U.GOLD or U.GREY },
-    { ('%s   -   %s   -   %d points%s'):format(cup.name, cls.name, r.pts or 0, r.newBest and '   -   NEW BEST' or ''), 22, U.WHITE },
-    { ('Last race: %s, %s'):format((r.ev or {}).title or '?', r.pos and ordinal(r.pos) or 'DNF'), 18 },
-    { standingsText(r.run), 20, U.WHITE },
-  }
-  local items = {
-    { title = 'CONTINUE', art = 'T_UI_FE_Tile_Campaign_Hero', desc = 'Back to the cups', act = function() return go('cups') end },
-  }
-  return { key = 'trophy', title = 'CUP RESULT', lines = lines, items = items, hint = 'Enter / A : select' }
+  return { key = 'standings', title = r.cupOver and 'CUP RESULT' or 'STANDINGS', lines = lines,
+    table = run and rankingTable(run) or nil, items = items, hint = 'Enter / A : select' }
 end
 
 SCREENS.confirm = function()
@@ -401,7 +389,7 @@ end
 ---------------------------------------------------------------------------------------------------------------------
 -- input
 
-local BACK = { cups = 'classes', cup = 'cups', standings = 'cup', trophy = 'cups', abilities = 'cup', pick = 'abilities' }
+local BACK = { cups = 'classes', cup = 'cups', standings = 'cup', abilities = 'cup', pick = 'abilities' }
 local function handle(name)
   if name == 'menu' then
     if S.ui then close('menu key') else S.message = nil; S.screen = 'classes'; show() end
@@ -514,17 +502,22 @@ local function tick()
     -- the launch went nowhere: ours back with a message
     S.message = out.failed == 'timeout' and 'The race never loaded - nothing was recorded.' or nil
     if out.failed == 'timeout' and alive(C.first('FrontEndGameMode')) then S.screen = 'cup'; show() end
-  elseif out then S.result, S.openAt = out, C.clock end
+  elseif out then
+    S.result, S.openAt = out, C.clock
+    -- cover the main menu while it's rebuilt, so the race results lead straight to the ranking (config HideMenuFlash)
+    if cfg.HideMenuFlash ~= false and out.run then pcall(U.cover, true) end
+  end
   if S.openAt and C.clock >= S.openAt and not R.run then
     -- the menu is rebuilt after a race: wait for our tab on it, then open the result in the tab
     if TB.ready() then
       S.openAt = nil; S.message = nil
       local run = S.result and S.result.run
       if run then S.class, S.cup = run.class, run.cup end
-      S.screen = (S.result and S.result.cupOver) and 'trophy' or (run and 'standings') or 'cup'
+      S.screen = run and 'standings' or 'cup'
       show()
+      pcall(U.cover, false)
     end
-    if S.openAt and C.clock - S.openAt > 30000 then S.openAt = nil; log('the GRAND PRIX tab never came back - not opening the result') end
+    if S.openAt and C.clock - S.openAt > 30000 then S.openAt = nil; pcall(U.cover, false); log('the GRAND PRIX tab never came back - not opening the result') end
   end
 end
 

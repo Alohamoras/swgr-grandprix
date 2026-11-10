@@ -46,4 +46,16 @@ local s2 = CU.standings(st2)
 check(s2[1].key == CU.YOU and s2[1].pts == 24, 'you 12+12 on top')
 check(s2[2].key == 'B' and s2[2].pts == 15 and s2[3].key == 'A' and s2[3].pts == 15, 'A keeps 15 though missing race 2; tied with B, B ahead (won the latest race)')
 
+-- the ranking table after the latest race (st: 4 races, see above)
+local tb = CU.table(st)
+check(#tb == 12 and tb[1].key == 'Kestar Bool' and tb[1].total == 54 and tb[1].gain == 12, 'table: Kestar 1st, 54, +12 this race')
+check(tb[2].you and tb[2].total == 42 and tb[2].gain == 15 and tb[2].move == 2, 'table: you 2nd (from 4th: up 2), +15; Shade 3rd on the same 42')
+local st3 = CU.new('50', 'x', 'car')
+CU.addRace(st3, field(BOTS, 12))     -- you last
+check(CU.table(st3)[12].you and CU.table(st3)[12].move == nil, 'after race 1: no moves yet')
+CU.addRace(st3, field(BOTS, 1))      -- you win: 1 + 15 = 16
+local you
+for _, r in ipairs(CU.table(st3)) do if r.you then you = r end end
+check(you.total == 16 and you.gain == 15 and you.move and you.move > 0, 'you climbed after a win (move ' .. tostring(you and you.move) .. ')')
+
 if T.failed then os.exit(1) end

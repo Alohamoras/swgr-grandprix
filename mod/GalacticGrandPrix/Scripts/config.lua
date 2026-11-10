@@ -12,6 +12,10 @@ return {
     -- Key that selects the GRAND PRIX tab at the main menu (Backspace / B = back)
     MenuKey = 'F6',
 
+    -- After a race: cover the main menu with the game's loading screen while it's rebuilt, so the race results lead
+    -- straight to the ranking (v0.3.8). false = show the menu as before.
+    HideMenuFlash = true,
+
     -- Lua garbage: collect a little on every tick (KB of work per step) so it never piles up into one big pause
     -- (v0.3.4, race stutter). GcStep = false to switch off for a comparison.
     GcStep = true,

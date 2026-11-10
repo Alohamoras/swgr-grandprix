@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.3.8 (2026-11-10): the ranking screen
+- Owner: fewer screens; after the game's race results, one screen with the ranking by points. The STANDINGS page is
+  now a table of all 12: place, racer, points this race (or DNF), total, places moved since the race before (green
+  up / red down); your row highlighted in gold. NEXT RACE / LATER underneath.
+- After race 4 it's the same screen with the trophy (or your place) on top: the separate trophy page is gone.
+- The cup screen of a cup in progress shows the same table.
+- The main menu flash between the race and the ranking is covered by the game's own loading screen
+  (`WBP_LoadingScreen`) until the ranking is up (config `HideMenuFlash`).
+
 ## v0.3.7 (2026-11-09): our tick timed with a real clock
 - The PERF line times our own tick with the game's clock (KismetMathLibrary:Now, FDateTime): the race watch and the
   garbage step separately, average / worst, and how many ticks took over 5 / 20 ms. The War Fields at old-100cc

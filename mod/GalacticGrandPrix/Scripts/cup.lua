@@ -62,6 +62,46 @@ function CU.standings(st)
   return list
 end
 
+-- the ranking after race k (k = 0 .. races run): { key, pts, rank }, same tie rule as the standings (better finish
+-- in race k first; racers who weren't in race k after those who were)
+function CU.rankAt(st, k)
+  local pts, last = {}, {}
+  for i = 1, math.min(k, #st.history) do
+    for _, r in ipairs(st.history[i]) do
+      pts[r.key] = (pts[r.key] or 0) + r.pts
+      if i == k then last[r.key] = r.dnf and 99 or r.place end
+    end
+  end
+  local list = {}
+  for key, p in pairs(pts) do list[#list + 1] = { key = key, pts = p, last = last[key] or 100 } end
+  table.sort(list, function(a, b)
+    if a.pts ~= b.pts then return a.pts > b.pts end
+    if a.last ~= b.last then return a.last < b.last end
+    return a.key < b.key
+  end)
+  local byKey = {}
+  for i, r in ipairs(list) do r.rank = i; byKey[r.key] = r end
+  return list, byKey
+end
+
+-- the ranking table after the latest race: { rank, key, gain (points this race), total, move (places up since the
+-- race before; nil after race 1), dnf, you }
+function CU.table(st)
+  local k = #st.history
+  local now = CU.rankAt(st, k)
+  local _, before = CU.rankAt(st, k - 1)
+  local race = {}
+  for _, r in ipairs(st.history[k] or {}) do race[r.key] = r end
+  local out = {}
+  for _, r in ipairs(now) do
+    local rr = race[r.key]
+    out[#out + 1] = { rank = r.rank, key = r.key, total = r.pts, gain = rr and rr.pts or 0, dnf = rr and rr.dnf or false,
+      raced = rr ~= nil, you = r.key == CU.YOU,
+      move = (k > 1 and before[r.key]) and (before[r.key].rank - r.rank) or nil }
+  end
+  return out
+end
+
 function CU.yourRank(st)
   for _, r in ipairs(CU.standings(st)) do if r.key == CU.YOU then return r.rank, r.pts end end
   return nil, 0

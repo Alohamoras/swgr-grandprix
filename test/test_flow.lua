@@ -37,6 +37,7 @@ T.check(T.levels('VBD_Car_Base') == '0=0 1=0 2=0 3=0 4=0 5=0', 'build put back a
 T.check(T.logHas('field: 12 racers'), 'all 12 racers read')
 T.check(T.logHas('cup jakku race 1: 1 Biddy Blas, 2 YOU, 3 Kestar Bool'), 'race 1 order logged')
 T.check(T.logHas('[menu] standings'), 'standings after race 1')
+T.check(T.logHas('[cover] on') and T.logHas('[cover] off'), 'the menu is covered while it is rebuilt, and uncovered for the ranking')
 local sv = T.save()
 T.check(sv.run.race == 2 and sv.run.points.YOU == 12 and sv.run.points['Biddy Blas'] == 15, 'points: you 12, Biddy 15')
 
@@ -48,7 +49,7 @@ for i, you in ipairs({ 1, 1, 3 }) do
 end
 -- you: 12 + 15 + 15 + 10 = 52; Biddy: 15 + 12 + 12 + 15 = 54
 T.check(T.logHas('cup over: 150 jakku - you 2nd with 52 points, SILVER trophy'), 'cup over: 2nd, silver')
-T.check(T.logHas('[menu] trophy'), 'the trophy screen after race 4')
+T.check(T.logHas('[menu] standings (1 tiles)'), 'after race 4: the one ranking screen (trophy on top), CONTINUE only')
 sv = T.save()
 T.check(sv.run == nil, 'no cup in progress any more')
 T.check(sv.best['150'].jakku == 2 and sv.cups == 1 and sv.races == 4, 'best = 2nd saved; 1 cup, 4 races')

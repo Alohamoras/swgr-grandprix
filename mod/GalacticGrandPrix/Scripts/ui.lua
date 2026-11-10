@@ -75,7 +75,12 @@ local function textBlock(make, s, size, color, wrapAt)
   return t
 end
 
--- a screen: { title, lines = { {text, size, color} ... }, items = { {title, desc, art, disabled} ... }, hint }
+-- a screen: { title, lines = { {text, size, color} ... }, table = (see below), items = { {title, desc, art, disabled} ... },
+-- hint }
+-- table (v0.3.8, the ranking): { size = text size, cols = { { w = width, align = 'left'|'right'|'center' } ... },
+--   header = { cell text ... }, rows = { { cells = { text ... }, color = {r,g,b} (default white), colors = { [col] =
+--   {r,g,b} }, highlight = true } ... } } - one horizontal box per row, each cell in a box of its column's width, so
+--   the columns line up whatever the font.
 -- returns { w, items (each with .btn), scroll } or nil
 
 local GOLD, GREY, WHITE = { 1, 0.82, 0.35 }, { 0.72, 0.74, 0.78 }, { 1, 1, 1 }
@@ -124,6 +129,40 @@ function U.build(spec, host)
       local sl = t and try(function() return box:AddChildToVerticalBox(t) end)
       if sl then try(function() sl:SetPadding({ Left = 0, Top = 4, Right = 0, Bottom = 0 }) end) end
     end
+  end
+
+  if spec.table then
+    local tb = spec.table
+    local JUST = { left = 0, center = 1, right = 2 }
+    local function row(cells, color, colors, highlight, size)
+      local hb = make('/Script/UMG.HorizontalBox')
+      if not alive(hb) then return end
+      for i, col in ipairs(tb.cols) do
+        local sb = make('/Script/UMG.SizeBox')
+        local t = textBlock(make, tostring(cells[i] or ''), size, (colors and colors[i]) or color or WHITE)
+        if t then try(function() t:SetJustification(JUST[col.align or 'left'] or 0) end) end
+        if alive(sb) and t then
+          try(function() sb:SetWidthOverride(col.w) end)
+          try(function() sb:SetContent(t) end)
+          local sl = try(function() return hb:AddChildToHorizontalBox(sb) end)
+          if sl then try(function() sl:SetPadding({ Left = 0, Top = 0, Right = 24, Bottom = 0 }) end) end
+        end
+      end
+      local holder = hb
+      if highlight then
+        local b = make('/Script/UMG.Border')
+        if alive(b) then
+          try(function() b:SetBrushColor({ R = 1, G = 0.82, B = 0.35, A = 0.16 }) end)
+          try(function() b:SetPadding({ Left = 6, Top = 2, Right = 6, Bottom = 2 }) end)
+          try(function() b:SetContent(hb) end)
+          holder = b
+        end
+      end
+      local sl = try(function() return box:AddChildToVerticalBox(holder) end)
+      if sl then try(function() sl:SetPadding({ Left = highlight and 0 or 6, Top = 2, Right = 0, Bottom = 0 }) end) end
+    end
+    if tb.header then row(tb.header, GREY, nil, false, (tb.size or 20) - 2) end
+    for _, r in ipairs(tb.rows or {}) do row(r.cells, r.color, r.colors, r.highlight, tb.size or 20) end
   end
 
   try(function() grid:SetSlotPadding({ Left = 10, Top = 10, Right = 10, Bottom = 10 }) end)
@@ -225,5 +264,29 @@ function U.focus(screen, i)
   U.grabFocus(it.btn, screen.pc)
   if screen.scroll then try(function() screen.scroll:ScrollWidgetIntoView(it.btn, true, 0, 0) end) end
 end
+
+-- A cover over the main menu while it's rebuilt after a race (v0.3.8, owner: nothing between the race results and
+-- the ranking): the game's own loading screen in the viewport, on top of everything, until our page is up. Kept as
+-- path + address (C.ref), never as the object.
+local COVER = '/Game/Griffin/UI/Screens/WBP_LoadingScreen.WBP_LoadingScreen_C'
+local coverRef, coverAt
+function U.cover(on)
+  if on then
+    if C.deref(coverRef) then return true end
+    local pc, lib = C.localPC(), C.lib('WidgetBlueprintLibrary', 'UMG')
+    local cls = C.uclass(COVER)
+    local w = (alive(pc) and alive(lib) and cls) and try(function() return lib:Create(pc, cls, pc) end)
+    if not alive(w) then log('[cover] could not make the loading screen'); return false end
+    try(function() w:AddToViewport(9000) end)
+    coverRef, coverAt = C.ref(w), C.clock
+    log('[cover] on')
+    return true
+  end
+  local w = C.deref(coverRef)
+  if w then try(function() w:RemoveFromParent() end); log('[cover] off') end
+  coverRef, coverAt = nil, nil
+  return true
+end
+function U.coverAge() return coverAt and (C.clock - coverAt) or nil end
 
 return U
