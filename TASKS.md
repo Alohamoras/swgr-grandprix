@@ -53,8 +53,8 @@ One git tag per chunk; push after each tag.
       Scrubber); all 11 AI racers got their four at load; quitting the race = DNF, the cup moved on to race 2.
 - [ ] Still to see: do the AI fire their abilities, Shields included (R7)?
 
-- [x] v0.3.1: race stutter (owner) - full object sweeps cut from ~22/s to ~0.5/s while racing. In game: does the
-      stutter go?
+- [x] v0.3.1: race stutter (owner) - full object sweeps cut from ~22/s to ~0.5/s while racing. Confirmed fixed in
+      game by the owner (2026-11-09).
 
 ## 5. v0.4 Speed classes: AI difficulty
 - [ ] AI pressure per class (`ai.lua`, the rubber band) on top of the class's part levels (3 / 6 / 10 for everyone).
