@@ -35,8 +35,8 @@ One git tag per chunk; push after each tag.
 - [x] QUIT CUP forfeits the cup (owner). The cup in progress is kept in the save (LATER / CONTINUE CUP), so it
       also survives a restart; one cup at a time.
 - [x] Tests (`test_cup` scoring, `test_flow` a whole cup, `test_vehicles` bike / DNF / forfeit); tag v0.2.0.
-- [~] In game (owner, 2026-11-09): race 1 of the Jakku Cup at 50cc, 1st. `field: 12 racers`, all 12 named
-      (R1 works). Standings screen came up with NEXT RACE / LATER. Still to see: a whole cup and the trophy screen.
+- [x] In game (owner, 2026-11-09): whole Jakku Cup at 50cc, GOLD (54 points); all 12 racers read every race;
+      standings and trophy screens worked.
 - [ ] Polish: after each race the game's main menu shows for ~3 s before the standings (the tab waits for the
       rebuilt menu to settle). Cover it with the game's loading screen (`WBP_LoadingScreen_C`, StreamlineCampaign
       CONTEXT.md) or shorten the wait.
