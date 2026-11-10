@@ -148,7 +148,12 @@ Recon R3 picks the one that works; set before launch, put back at the menu. Cras
 | test harness (`test/`, mock world) | the same style of tests |
 Copied, not shared: the Underground is on hold and the two can change separately.
 
-## 10. Risks and unknowns (recon list R1–R6, TASKS.md)
+## 10. Risks and unknowns (recon list R1–R7, TASKS.md)
+
+**Recon results (GPRecon dump, 2026-11-09):** all 28 cup races are `Vehicle.Standard` (any car / bike / skimmer),
+mode `TeamRaceConfig` (12-car grid, `RaceGridMakeup`), no `CustomOpponents`. Laps: sprints 1, circuits 2-3, short
+circuits 4-8. First race in game (v0.1): The War Fields, 2 laps, about 2 min 20 s at 50cc.
+
 - **R1 Every racer's finishing position** at the end of a race (points for all 12). Underground reads yours
   (`EventPosition`); its recon read every racer's build in a race, so likely possible.
 - **R2 Same field across a cup**: can we choose the 11 opponents? Touching `CustomOpponents[].Driver` (a soft

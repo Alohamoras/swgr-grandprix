@@ -9,8 +9,8 @@ One git tag per chunk; push after each tag.
 - [x] Recon tools ready: `tools/recon/GPRecon` (plan.txt / events.txt), TestAutopilot v1.3 (arms bike and skimmer too).
 
 ## 1. Recon (trimmed by the owner, 2026-11-09)
-- [ ] **R5/R6 data dump** (no driving): vehicle tag, laps, mode, track and custom opponents of the 28 cup races.
-      GPRecon runs it by itself at the next game start (`dump.txt` is waiting in its folder) → `Mods/GPRecon/gprecon.log`.
+- [x] **R5/R6 data dump** (2026-11-09, DESIGN.md §10): all 28 cup races take any car / bike / skimmer
+      (`Vehicle.Standard`), all normal 12-car team races (`TeamRaceConfig`), no custom opponents; 1-8 laps.
 - [ ] **R1 finishing order** of all 12 racers: checked on the first real race of v0.2 (the logging is ready in GPRecon
       and the race component has `EventPosition` / `bHasFinishedEvent` / `EventFinishTime` for every racer).
 - Dropped / later (owner):
