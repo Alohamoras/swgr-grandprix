@@ -11,7 +11,7 @@ T.boot({ version = 2, races = 25, cups = 5, class = '200', vehicle = 'bike',
   restores = {}, abilityRestores = {} })
 M.press('F6'); M.tick(6)
 T.check(T.titles() == 'CONTINUE CUP|50CC|100CC|150CC|200CC|EXIT|RESET PROGRESS', 'class screen (' .. T.titles() .. ')')
-T.check(T.badges() == 'RACE 4 / 4||3 / 7 TROPHIES|LOCKED|1 / 7 TROPHIES||', 'badges: race 4 / 4 on CONTINUE, trophies per class, 150cc locked (' .. T.badges() .. ')')
+T.check(T.badges() == 'RACE 4 / 4||3 / 12 TROPHIES|LOCKED|1 / 12 TROPHIES||', 'badges: race 4 / 4 on CONTINUE, trophies per class, 150cc locked (' .. T.badges() .. ')')
 T.clickTitle('100CC'); M.tick(3)
 local b = T.badges()
 T.check(b:find('^GOLD TROPHY|SILVER TROPHY|') ~= nil, 'cups at 100cc: Jakku gold, Lantaana silver (' .. b .. ')')

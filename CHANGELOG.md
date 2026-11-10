@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.6.2 (2026-11-10): remix cups
+- Five remix cups (owner): the planet cups reversed where the game has a reverse layout, else night / wet / snow /
+  mines / scorching versions, else another track from the planet (Scrap Spiral, an Ando short circuit, a Sentinel
+  special circuit in a storm). Every event read in game first: normal 12-car team races, any vehicle.
+- Open after a trophy in all five planet cups at the top class (200cc), then at every open class; the cup result
+  says "UNLOCKED: REMIX CUPS". Own trophies; remix cups don't count as planet cups for the class unlocks.
+- Tests: `test_remix`; `test_prog` +6.
+
 ## v0.6.1 (2026-11-10): full mod descriptions
 - Seen in game: tile descriptions are cut after two lines ("Choked no longer cancels active Ramjet..."). The MODS and
   mod list screens now have a gold info line under the header with the focused mod's full name and description

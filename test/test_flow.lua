@@ -8,7 +8,7 @@ T.check(W.tab.label == 'GRAND PRIX', 'tab added with the label GRAND PRIX')
 M.press('F6'); M.tick(6)
 T.check(T.logHas('[menu] classes'), 'F6 opens the class screen')
 T.clickTitle('150CC'); M.tick(3)
-T.check(T.ntiles() == 8, '7 cups + BACK (' .. T.ntiles() .. ')')
+T.check(T.ntiles() == 13, '7 cups + 5 remix cups + BACK (' .. T.ntiles() .. ')')
 T.clickTitle('JAKKU CUP'); M.tick(3)
 T.check(T.titles() == 'START CUP|ABILITIES|MODS|VEHICLE|BACK', 'a cup not started: START CUP, ABILITIES, MODS, VEHICLE, BACK (' .. T.titles() .. ')')
 

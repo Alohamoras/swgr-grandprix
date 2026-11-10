@@ -4,6 +4,8 @@
 --   Classes: those with `open = true` are open from the start (50cc, 100cc - owner, 2026-11-10). Each other class
 --     opens with a trophy (or gold: Progression.Unlock) in every planet cup of the class before it.
 --   Bonus cups (`bonus = true`: Outer Rim, Galactic): gold in every planet cup at that class.
+--   Remix cups (`remix = true`, v0.6.2): a trophy (or gold: Unlock) in every planet cup at the top class; then open
+--     at every open class.
 --   Kept: a class or cup you have already raced through (a best finish) or have a cup in progress in stays open,
 --     so v0.5 never takes away what you were playing.
 local cfg = require('config')
@@ -15,7 +17,7 @@ function P.on() return conf().On ~= false end
 local function bestOf(data, classKey, cupKey) return ((data.best or {})[classKey] or {})[cupKey] end
 local function planetCups()
   local out = {}
-  for _, c in ipairs(cfg.Cups or {}) do if not c.bonus then out[#out + 1] = c end end
+  for _, c in ipairs(cfg.Cups or {}) do if not c.bonus and not c.remix then out[#out + 1] = c end end
   return out
 end
 local function className(key) for _, c in ipairs(cfg.Classes or {}) do if c.key == key then return c.name end end return key end
@@ -61,11 +63,27 @@ function P.cupOpen(data, classKey, cupKey)
   if not okC then return false, whyC end
   local cup
   for _, c in ipairs(cfg.Cups or {}) do if c.key == cupKey then cup = c end end
-  if not (cup and cup.bonus) then return true end
+  if not (cup and (cup.bonus or cup.remix)) then return true end
   if raced(data, classKey, cupKey) then return true end
+  if cup.remix then
+    local ok, why = P.remixOpen(data)
+    return ok, why
+  end
   local n, of = count(data, classKey, 1)
   if n >= of then return true end
   return false, ('Gold in all %d planet cups at %s (%d / %d)'):format(of, className(classKey), n, of)
+end
+
+-- the remix cups: a trophy (or gold: Unlock) in every planet cup at the top class -> open, why
+function P.remixOpen(data)
+  if not P.on() then return true end
+  local list = cfg.Classes or {}
+  local top = list[#list]
+  if not top then return true end
+  local gold = conf().Unlock == 'gold'
+  local n, of = count(data, top.key, gold and 1 or 3)
+  if n >= of then return true end
+  return false, ('%s in all %d planet cups at %s (%d / %d)'):format(gold and 'Gold' or 'A trophy', of, top.name, n, of)
 end
 
 -- everything open, as a set of names ('150cc', 'Outer Rim Cup at 100cc') - compared before / after a cup to say
@@ -80,6 +98,7 @@ function P.openSet(data)
       end
     end
   end
+  if P.remixOpen(data) then s['REMIX CUPS'] = true end
   return s
 end
 -- what's open in `after` and wasn't in `before`, in config order (classes first)
@@ -94,6 +113,7 @@ function P.newlyOpen(before, after)
       if after[k] and not before[k] then out[#out + 1] = k end
     end
   end
+  if after['REMIX CUPS'] and not before['REMIX CUPS'] then out[#out + 1] = 'REMIX CUPS' end
   return out
 end
 

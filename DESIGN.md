@@ -59,8 +59,10 @@ Full 12-car grids only. Knockouts, eliminators and 1 v 1 races are left out of p
 | **Outer Rim Cup** | Scrap Spiral · Geothermal Tour · Dai Bendu Ascension · Crystal Caverns |
 | **Galactic Cup** | Overflow Rally · Andobi Edge · Skakoan Gambit · The Galactic Gauntlet |
 
-- **Reverse cups**: the same cups on the reverse (or night / weather) variants, unlocked after 150cc. The game has a
-  reverse version of most tracks; where one is missing, use a weather or night variant.
+- **Remix cups** (v0.6.2, owner 2026-11-10; replaces "reverse cups"): only ~10 of the 28 cup races have a true reverse
+  layout, so each planet cup gets a remix: reverse where it exists, else its night / wet / snow / mines / scorching
+  version, else another track from the planet. Open after a trophy in all five planet cups at the top class, then at
+  every open class. Line-ups in config.lua (`remix = true`).
 - **Champion Showdown**: a bonus race against Kestar Bool (`EVT_WHP_SHORTBOSS_FAIR`), unlocked with gold in every
   150cc cup.
 - Later: a podracer cup.

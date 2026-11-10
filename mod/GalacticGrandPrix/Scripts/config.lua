@@ -86,6 +86,41 @@ return {
             race('Husky/P2P/EVT_HSK_P2P_SHORT_01', 'SKAKOAN GAMBIT', 'Short circuit'),
             race('Whippet/KNOCKOUT/EVT_WHP_LOOP_A_FWD_RACE', 'THE GALACTIC GAUNTLET', 'Circuit'),
         } },
+        -- Remix cups (v0.6.2, owner 2026-11-10): the five planet cups reversed where the game has a reverse layout,
+        -- else in their night / wet / snow / mines / scorching versions, else another track from the planet. Open
+        -- after a trophy in all five planet cups at the top class (prog.lua), then at any open class. Every event read
+        -- in game (GPRecon dump 2026-11-10): normal 12-car team races, any vehicle. Track names of the two new tracks
+        -- (Ando short 01, Sentinel special short 02) still to be read from the game.
+        { key = 'jakku_remix', name = 'JAKKU REMIX', art = 'T_UI_FE_Tile_01', remix = true, races = {
+            race('Mastiff/Loop_A/EVT_MAS_LOOP_A_REV', 'THE WAR FIELDS (REVERSE)', 'Circuit'),
+            race('Mastiff/Loop_B/EVT_MAS_LOOP_B_SHORT_01', 'SCRAP SPIRAL', 'Short circuit'),
+            race('Mastiff/Loop_B/EVT_MAS_LOOP_B_REV', 'DEBRIS DUNES (REVERSE)', 'Circuit'),
+            race('Mastiff/Loop_A/EVT_MAS_LOOP_A_SHORT_02_HARD', 'FALLEN EMPIRE (SCORCHING)', 'Short circuit'),
+        } },
+        { key = 'lantaana_remix', name = 'LANTAANA REMIX', art = 'T_UI_FE_Tile_02', remix = true, races = {
+            race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_FWD_Night', "GRIFFIN'S FLIGHT (NIGHT)", 'Circuit'),
+            race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_REV_Overcast_Wet', 'MORO KEHN TUNNELS (REVERSE, WET)', 'Circuit'),
+            race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_SHORT_01_Overcast_Wet', 'THE PYRODUCTS (WET)', 'Short circuit'),
+            race('Dalmatian/P2P/EVT_DAL_P2P_SHORT_05_Night', 'AHLREN JUNGLE SPEEDWAY (NIGHT)', 'Short circuit'),
+        } },
+        { key = 'ando_remix', name = 'ANDO REMIX', art = 'T_UI_FE_Tile_05', remix = true, races = {
+            race('Corgi/Loop_A/EVT_COR_Loop_A_REV_Overcast_Snow', 'ICE FIELD CIRCUIT (REVERSE, SNOW)', 'Circuit'),
+            race('Corgi/Loop_B/EVT_COR_Loop_B_REV_Overcast_Snow', 'MONASTERY MOUNTAINS (REVERSE, SNOW)', 'Circuit'),
+            race('Corgi/Loop_B/EVT_COR_Loop_B_SHORT_01', 'ANDO SHORT CIRCUIT', 'Short circuit'),
+            race('Corgi/Loop_A/EVT_COR_Loop_A_SHORT_02_Overcast_Snow', 'VONIUM PIPELINE (SNOW)', 'Short circuit'),
+        } },
+        { key = 'crait_remix', name = 'CRAIT REMIX', art = 'T_UI_FE_Tile_A', remix = true, races = {
+            race('Spaniel/Loop_A/EVT_SPA_Loop_A_REV_MINES', 'CRIMSON MINES (REVERSE, MINES)', 'Circuit'),
+            race('Spaniel/Loop_B/EVT_SPA_Loop_B_FWD_MINES', 'FORGIL CANYON (MINES)', 'Circuit'),
+            race('Spaniel/Loop_B/EVT_SPA_Loop_B_P2P_MINES', 'RHODOCHROSITE RUN (MINES)', 'Sprint'),
+            race('Spaniel/Loop_A/EVT_SPA_Loop_A_FWD_MINES_Night', 'CRIMSON MINES (MINES, NIGHT)', 'Circuit'),
+        } },
+        { key = 'sentinel_remix', name = 'SENTINEL REMIX', art = 'T_UI_FE_Tile_01', remix = true, races = {
+            race('Husky/LOOP_A/EVT_HSK_LOOP_A_FWD_Overcast', 'SENTINEL LAKES (FORWARD)', 'Circuit'),
+            race('Husky/LOOP_B/EVT_HSK_LOOP_B_FWD_BlueHour', 'CAUSTIC FIELDS (FORWARD, BLUE HOUR)', 'Circuit'),
+            race('Husky/P2P/EVT_HSK_P2P_FWD_Overcast', 'BOOL RIVER RUN (FORWARD)', 'Sprint'),
+            race('Husky/P2P/EVT_HSK_P2P_SPEC_SHORT_02_ApproachingStorm', 'SENTINEL SPECIAL CIRCUIT (STORM)', 'Short circuit'),
+        } },
     },
 
     -- Abilities (v0.3, DESIGN.md §5). You pick four before a cup (Rule below); the class sets their level, and

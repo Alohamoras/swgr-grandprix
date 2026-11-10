@@ -128,7 +128,14 @@ One git tag per chunk; push after each tag.
       planet cups at 100cc (2 / 5)", and selecting it only shows that message. v0.5.1 fixes the NO / YES spacing,
       the unreadable focused NO / RESET tiles and the class tile text.
 - [ ] Still to see: a cup that unlocks something says so on the result screen.
-- [ ] **Reverse cups (v0.5.x):** the five planet cups on reverse (or night / weather) variants. Needs the event paths
+- [x] **Remix cups (v0.6.2, owner 2026-11-10):** only ~10 of the 28 cup races have a true reverse, so instead of a
+      reverse option per cup: five remix cups (reverse where it exists, else night / wet / snow / mines / scorching,
+      else another planet track), after a trophy in all five planet cups at 200cc, playable at every open class.
+      Events dumped in game (GPRecon, 2026-11-10): all 12-car TeamRaceConfig, Vehicle.Standard. Path case matters
+      (`Dalmatian/`, `Husky/LOOP_A/`). The COR P2P REV night / snow versions are tagged "NO LIGHTING PASS": left out.
+- [ ] In game: race a remix cup (owner); read the display names of the two new tracks (Ando short 01, Sentinel
+      special short 02) and put them in config.
+- [ ] (old note) **Reverse cups (v0.5.x):** the five planet cups on reverse (or night / weather) variants. Needs the event paths
       (Underground config `Planets`) and a launch check in game for each. When do they open: after 150cc (DESIGN §3)
       or after the top class (owner's earlier note)? Ask the owner.
 - [ ] **Champion Showdown (v0.5.x):** the 1 v 1 against Kestar Bool (`EVT_WHP_SHORTBOSS_FAIR`) as a single bonus race
