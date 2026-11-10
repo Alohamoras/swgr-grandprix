@@ -61,20 +61,28 @@ One git tag per chunk; push after each tag.
       (89 ms); Fallen Empire average 10.3 ms, worst 14 ms. No stutter in the numbers. (The "our tick" time was
       meaningless under Proton and is gone in v0.3.3.)
 
-## 5. v0.4 Speed classes: AI difficulty
+## 5. v0.4 Speed classes: AI difficulty (owner after the first cups: "difficult but fun" - may need little)
 - [ ] AI pressure per class (`ai.lua`, the rubber band) on top of the class's part levels (3 / 6 / 10 for everyone).
 - [ ] Tag v0.4.0. Play one cup per class (owner) to tune.
 
-## 6. v0.5 No crash limit
-- [ ] The R3 control, set before each race, put back at the menu. Tag v0.5.0.
+## 5b. v0.5 Mods: the vehicle's affixes (owner, 2026-11-09; DESIGN.md §5b)
+- [ ] **Recon M1:** at race load, write one affix with an obvious effect into your race copy's `AffixSlots`
+      (`PrimaryAffix`); does it show in the HUD / build and change the car? Also read the copy's affix slot count.
+      If it's too late at load, try earlier (launch) or another route.
+- [ ] Catalogue in config from the recon dump (name, description, rarity, group by effect, I/II/III steps).
+- [ ] MODS screen next to ABILITIES: slots and rarity by class; kept for the cup; written at race load.
+- [ ] Tests; tag.
 
-## 7. v0.6 Progression
+## 6. v0.6 No crash limit
+- [ ] The R3 control, set before each race, put back at the menu. Tag v0.6.0.
+
+## 7. v0.7 Progression
 - [ ] Class unlocks, Outer Rim / Galactic cups, reverse cups, Champion Showdown; trophies on the cup tiles.
-- [ ] Tag v0.6.0.
-
-## 8. v0.7 Polish
-- [ ] Tile art per cup (planet art), standings layout, short intro text, controller check (owner's pad).
 - [ ] Tag v0.7.0.
+
+## 8. v0.8 Polish
+- [ ] Tile art per cup (planet art), standings layout, short intro text, controller check (owner's pad).
+- [ ] Tag v0.8.0.
 
 ## 9. v1.0 Tuning
 - [ ] Owner plays every cup at every class; tune parts per class, AI pressure, AI kits, points.

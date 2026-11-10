@@ -106,7 +106,29 @@ allow changes between races.
 - A build has exactly 4 ability slots, so the four picks fill them. Written into the launch build the way the
   Underground does it (`race.lua` `applyAbilities`), put back at the menu.
 
-## 6. A cup, race by race
+## 5b. Mods: the vehicle's affixes (owner's request, 2026-11-09; not built)
+Before a cup you also pick a few **mods**: the game's affixes (perks), e.g. "Underbody Intakes I: while airborne,
+Afterburner ...", "Uncapped Cooling: Ramjet temperature can decrease while active". Not cosmetics.
+
+What we know (Underground recon, *header dump*):
+- 308 affixes with in-game names and descriptions (`AFX_*`, `UAffixPassiveConfig`): common 40, rare 89, epic 68,
+  legendary 54, faulty 57 (with a downside). Many come as I / II / III steps of the same effect.
+- A build has 4 affix slots (maximum 10: `UnlockedAffixSlots` / `MaximumAffixSlots`).
+- Your race copy of the build (`RacerBuildState.VehicleBuilds[].AffixSlots`) holds them as `FVehicleAffix`
+  (`PrimaryAffix` / `SecondaryAffix` = direct `UAffixPassiveConfig*`, `Status`), the same kind of copy the AI's
+  abilities are written into at race load. The launch build's own list (`Affixes`) is soft pointers: not touched.
+- **Unknown:** does an affix written into the race copy at load take effect (are passives applied later than abilities
+  spawn)? Recon M1 first.
+
+Proposal (to confirm with the owner):
+- Slots by class: 50cc 2, 100cc 3, 150cc 4. Rarity by class: 50cc common + rare, 100cc up to epic, 150cc up to
+  legendary. Faulty ones left out (or a later "risky" option).
+- A MODS screen next to ABILITIES: affixes grouped by what they affect (Afterburner, Ramjet, Cornering, Abilities,
+  Resilience...), each with its in-game description; I / II / III steps shown as one entry at the class's best step.
+- Kept for the whole cup, like the abilities. The AI: none at first (their four abilities are their thing); maybe a
+  matching set per racer later.
+
+
 1. **GRAND PRIX tab** on the main menu (the Underground's tab code) → class → cup → vehicle (car / bike / skimmer)
    → four abilities.
 2. Race 1 launches straight away (quick race; StreamlineCampaign skips the intros).
@@ -175,5 +197,6 @@ circuits 4-8. First race in game (v0.1): The War Fields, 2 laps, about 2 min 20 
 |---|---|
 | 2026-11-09 | New design, new repo (owner). Crash limit off. Four picks: offensive, defensive, utility, wildcard; no Autopilot. |
 | 2026-11-09 | Recon trimmed: parts 3 / 6 / 10 for every vehicle type (no speed test); the field and the AI's Shields are checked in playtests; crash limit settled later. |
+| 2026-11-09 | New task: pick the vehicle's mods (affixes) before a cup, like the abilities (§5b). Difficulty so far: "difficult but fun". |
 | 2026-11-09 | Abilities built before the AI difficulty (v0.3); AI difficulty per class becomes v0.4. |
 | 2026-11-09 | Mines only as the Wildcard. The AI follows the four-category rule too. 150cc fully maxed. Quitting a cup forfeits it (easiest to build). |
