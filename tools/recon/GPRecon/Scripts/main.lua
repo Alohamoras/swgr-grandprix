@@ -7,7 +7,7 @@
 --   plan.txt   one race per line:  <event path> <car|bike|skimmer> <part level 0-10> [health=none|def|state|tune]
 --   go.txt     launch the next plan line (when at the main menu)
 --   auto.txt   while it exists, launch the next line 8 s after each race returns to the menu
---   dump.txt   log vehicle tag, laps, mode and track of every event in events.txt (one path per line; default: the
+--   dump.txt   (at the main menu) log vehicle tag, laps, mode and track of every event in events.txt (one path per line; default: the
 --              plan's events)
 -- Progress: planpos.txt (next line). Log: gprecon.log. Changes only memory (build part levels, UseHealth, crash
 -- allowance), always put back when the race returns to the menu. Keeps no UObject between ticks.
@@ -328,7 +328,7 @@ LoopInGameThreadWithDelay(250, function()
   if tick % 4 ~= 0 then return false end
   local go = exists('go.txt')
   if go then os.remove(DIR .. 'go.txt') end
-  if exists('dump.txt') then os.remove(DIR .. 'dump.txt'); pcall(dump) end
+  if exists('dump.txt') and not run and alive(first('FrontEndGameMode')) then os.remove(DIR .. 'dump.txt'); pcall(dump) end
   -- keep all three launch builds loaded at the menu, so TestAutopilot (v1.3) can arm the bike / skimmer ones too
   if not run and alive(first('FrontEndGameMode')) and not PRELOADED then
     for _, v in pairs(VEH) do asset(v.build) end

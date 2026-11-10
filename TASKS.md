@@ -8,22 +8,16 @@ One git tag per chunk; push after each tag.
 - [x] Owner answers: mines = wildcard, AI follows the four-category rule, 150cc maxed, quit = forfeit.
 - [x] Recon tools ready: `tools/recon/GPRecon` (plan.txt / events.txt), TestAutopilot v1.3 (arms bike and skimmer too).
 
-## 1. Recon (one session, a read-only mod `tools/recon/GPRecon`, plus a few memory-only experiments)
-Uses quick races from the main menu (the Underground's launch code). Races can be driven by TestAutopilot.
-- [ ] **R1 finishing order:** at the results, log every racer's name and final position (`EventPosition` or the
-      results data), and DNFs.
-- [ ] **R2 the field:** launch the same cup's 4 races, log the 11 opponents each time. Are they the same? Is there a
-      safe way to choose them (grid makeup, racer setup), without touching soft pointers?
-- [ ] **R3 crash limit:** three memory-only tries, one per Jakku race: `UseHealth = false` on the launch build
-      (`def`), on your race copy of the build (`state`), `TotalCrashAllowance = 99` (`tune`). Read
-      `ShouldUseHealth()` and the health of every racer 3 s in, and watch for wrecks. Then a crash test by hand on
-      the one that reads "off" (does the HUD crash counter go away?).
-- [ ] **R4 class speed:** one track at parts 3 / 6 / 10 with car, bike and skimmer: lap times and top speed.
-- [ ] **R5 vehicle types:** read `VehicleTypeTag` of all 28 cup races.
-- [ ] **R6 race length:** laps and times of the 28 races; adjust cups to ~15–20 min.
-- [ ] **R7 AI Shields:** with four abilities each (one a Shield), does the AI ever fire it? (needs the loadout code; can
-      wait for v0.3)
-- [ ] Write the results into DESIGN.md §10 and adjust the design.
+## 1. Recon (trimmed by the owner, 2026-11-09)
+- [ ] **R5/R6 data dump** (no driving): vehicle tag, laps, mode, track and custom opponents of the 28 cup races.
+      GPRecon runs it by itself at the next game start (`dump.txt` is waiting in its folder) → `Mods/GPRecon/gprecon.log`.
+- [ ] **R1 finishing order** of all 12 racers: checked on the first real race of v0.2 (the logging is ready in GPRecon
+      and the race component has `EventPosition` / `bHasFinishedEvent` / `EventFinishTime` for every racer).
+- Dropped / later (owner):
+  - R2 the same field across a cup: seen in the owner's playtests.
+  - R3 crash limit: later; the three tries are ready in GPRecon (`health=def|state|tune`).
+  - R4 class speed: not needed: parts 3 / 6 / 10 for every vehicle type, decided.
+  - R7 AI Shields: seen in playtests once the AI has its four.
 
 ## 2. v0.1 Skeleton: a race from the GRAND PRIX tab
 - [ ] Copy from the Underground: `core`, `tab`, `ui`, `race` (launch, results, put-back, multiplayer guard), test
