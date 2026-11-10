@@ -56,9 +56,10 @@ One git tag per chunk; push after each tag.
 - [x] v0.3.1: race stutter (owner) - full object sweeps cut from ~22/s to ~0.5/s while racing. Confirmed fixed in
       game by the owner (2026-11-09).
 
-- [ ] v0.3.2: stutter came back in race 2 (owner). Remaining sweeps removed; PERF line per race in the log. Compare
-      the PERF lines of a few races; if they show spikes our tick doesn't explain, look at the game itself (new
-      tracks compile shaders on first visit; Steam shader pre-caching is off).
+- [x] v0.3.2: stutter came back in race 2 (owner). Remaining sweeps removed; PERF line per race in the log.
+      First readings (Jakku Cup at 50cc, gold, 2026-11-09): Debris Dunes average 10.3 ms a frame, 1 frame over 33 ms
+      (89 ms); Fallen Empire average 10.3 ms, worst 14 ms. No stutter in the numbers. (The "our tick" time was
+      meaningless under Proton and is gone in v0.3.3.)
 
 ## 5. v0.4 Speed classes: AI difficulty
 - [ ] AI pressure per class (`ai.lua`, the rubber band) on top of the class's part levels (3 / 6 / 10 for everyone).

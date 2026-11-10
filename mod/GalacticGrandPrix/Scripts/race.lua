@@ -304,8 +304,10 @@ end
 local function perfLine(r)
   local p = r.perf
   if not p or p.n == 0 then return 'frames: no samples' end
-  return ('frames: %d samples, average %.1f ms, worst %.0f ms, over 33 ms %d (%.0f%%), over 50 ms %d, over 100 ms %d | our tick: average %.2f ms, worst %.0f ms'):format(
-    p.n, p.sum / p.n, p.max, p.over33, 100 * p.over33 / p.n, p.over50, p.over100, p.ourSum / math.max(1, p.ticks or 1), p.ourMax)
+  -- (v0.3.3: no "our tick" time any more - os.clock under Proton counts the whole game's CPU time, not ours, so it
+  -- read 15-25 ms a tick while the frames were 10 ms)
+  return ('frames: %d samples, average %.1f ms, worst %.0f ms, over 33 ms %d (%.0f%%), over 50 ms %d, over 100 ms %d'):format(
+    p.n, p.sum / p.n, p.max, p.over33, 100 * p.over33 / p.n, p.over50, p.over100)
 end
 
 function R.watch()
