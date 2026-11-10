@@ -11,8 +11,8 @@ One git tag per chunk; push after each tag.
 ## 1. Recon (trimmed by the owner, 2026-11-09)
 - [x] **R5/R6 data dump** (2026-11-09, DESIGN.md §10): all 28 cup races take any car / bike / skimmer
       (`Vehicle.Standard`), all normal 12-car team races (`TeamRaceConfig`), no custom opponents; 1-8 laps.
-- [ ] **R1 finishing order** of all 12 racers: checked on the first real race of v0.2 (the logging is ready in GPRecon
-      and the race component has `EventPosition` / `bHasFinishedEvent` / `EventFinishTime` for every racer).
+- [x] **R1 finishing order** of all 12 racers: works (v0.2 in game, 2026-11-09: 12 racers, all named, from
+      `PlayerNamePrivate` / `EventPosition` / `bHasFinishedEvent`).
 - Dropped / later (owner):
   - R2 the same field across a cup: seen in the owner's playtests.
   - R3 crash limit: later; the three tries are ready in GPRecon (`health=def|state|tune`).
@@ -35,8 +35,11 @@ One git tag per chunk; push after each tag.
 - [x] QUIT CUP forfeits the cup (owner). The cup in progress is kept in the save (LATER / CONTINUE CUP), so it
       also survives a restart; one cup at a time.
 - [x] Tests (`test_cup` scoring, `test_flow` a whole cup, `test_vehicles` bike / DNF / forfeit); tag v0.2.0.
-- [ ] In game: a whole cup. Check `grandprix.log`: `field: 12 racers`, the `cup <cup> race n:` order matches the
-      game's own results screen (R1), standings and trophy screens look right, B on standings / trophy works.
+- [~] In game (owner, 2026-11-09): race 1 of the Jakku Cup at 50cc, 1st. `field: 12 racers`, all 12 named
+      (R1 works). Standings screen came up with NEXT RACE / LATER. Still to see: a whole cup and the trophy screen.
+- [ ] Polish: after each race the game's main menu shows for ~3 s before the standings (the tab waits for the
+      rebuilt menu to settle). Cover it with the game's loading screen (`WBP_LoadingScreen_C`, StreamlineCampaign
+      CONTEXT.md) or shorten the wait.
 
 ## 4. v0.3 Speed classes
 - [ ] Parts per class on your build (R4 values; 150cc = 10); AI pressure per class (`ai.lua`).
