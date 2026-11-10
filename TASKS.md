@@ -79,7 +79,7 @@ One git tag per chunk; push after each tag.
 - [ ] Menu: the main-menu poll (`C.cached('FrontEndGameMode')`, every 200 ms) is a lookup by path too = a sweep 5x a
       second at the menu. Not felt so far; make it cheaper (notification + rare checks) if the menus ever hitch.
 
-## 5. v0.4 Mods: the vehicle's affixes (owner, 2026-11-09; DESIGN.md §5b)
+## 5. v0.4 Mods: the vehicle's affixes (built as v0.6.0) (owner, 2026-11-09; DESIGN.md §5b)
 - [x] **Recon M1 (2026-11-10):** works. Affixes in the launch build's `Affixes` (direct pointers) become active
       passives; the bots copy them too, and clearing the bots' race copies at load keeps them yours only
       (DESIGN.md §5b). 50cc stays mod-free (owner).
@@ -88,7 +88,11 @@ One git tag per chunk; push after each tag.
       out, 24 protection, 81 playstyle of which 23 "check"); page updated.
 - [ ] Owner: rescue / drop individual mods on the page; slots 2 / 3 / 4; top step everywhere or step by class;
       what to do with the 23 "check" ones (keep, drop, or try a few in game first).
-- [ ] Catalogue into config (groups, effects, steps by asset name).
+- [x] Owner (2026-11-10): top step everywhere, keep the "check" ones, build it.
+- [x] Built as **v0.6.0** (tags were already past v0.4): catalogue generated into `Scripts/mods.lua`
+      (`tools/gen_mods.py`), MODS screens, launch build Affixes + put-back, bots cleared at load; tests.
+- [ ] In game: the MODS screens read well (long descriptions on tiles); a race with mods: yours active, bots none,
+      the build's list put back at the menu (UE4SS `Empty()` never tried in game before).
 - [ ] MODS screen next to ABILITIES: slots and rarity by class; kept for the cup; written at race load.
 - [ ] Tests; tag v0.4.0.
 
@@ -136,10 +140,10 @@ One git tag per chunk; push after each tag.
 - [ ] In game: the table lines up and reads well; the cover appears and goes (if it sticks or blocks input, set
       `HideMenuFlash = false`).
 
-## 7. v0.6 Polish
+## 7. v0.7 Polish (was v0.6)
 - [ ] Tile art per cup (planet art), standings layout, short intro text, controller check (owner's pad).
 - [ ] Hide the ~3 s main-menu flash between a race and the standings (loading screen, or a shorter wait).
-- [ ] Tag v0.6.0.
+- [ ] Tag v0.7.0.
 
 ## 8. Maybe (moved to the end by the owner, 2026-11-09: might not be needed)
 - [ ] **AI difficulty per class:** AI pressure (`ai.lua`, the rubber band) on top of the class's part levels.

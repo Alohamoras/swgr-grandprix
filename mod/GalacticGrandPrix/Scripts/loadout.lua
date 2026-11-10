@@ -40,12 +40,39 @@ end
 ---------------------------------------------------------------------------------------------------------------------
 -- during the race load (called every tick from race.watch until it's done)
 
-function L.begin(classKey)
-  if not L.enabled() then return nil end
-  local n, bad = L.preload(classKey)
-  log(('[loadout] class %s: AI racers get their four abilities at load (%d abilities ready%s)'):format(tostring(classKey), n - bad,
-    bad > 0 and (', ' .. bad .. ' missing') or ''))
-  return { class = classKey, at = C.clock, done = false }
+-- modNames: your mods' affix asset names (race.lua, v0.4) - the bots copy them from the launch build, so they're
+-- cleared from the bots' copies at load (recon 2026-11-10: the bots' passives aren't made yet at that point).
+function L.begin(classKey, modNames)
+  local mods = {}
+  for _, n in ipairs(modNames or {}) do mods[n] = true end
+  local hasMods = next(mods) ~= nil
+  if not L.enabled() and not hasMods then return nil end
+  if L.enabled() then
+    local n, bad = L.preload(classKey)
+    log(('[loadout] class %s: AI racers get their four abilities at load (%d abilities ready%s)'):format(tostring(classKey), n - bad,
+      bad > 0 and (', ' .. bad .. ' missing') or ''))
+  end
+  return { class = classKey, at = C.clock, done = false, abil = L.enabled(), mods = hasMods and mods or nil }
+end
+
+-- your mods out of every bot's race copies (AffixSlots[].PrimaryAffix). Returns cleared, failed.
+local function stripMods(bots, mods)
+  local cleared, failed = 0, 0
+  for _, ps in ipairs(bots) do
+    local vb = ps.RacerBuildState.VehicleBuilds
+    for b = 1, vb:GetArrayNum() do
+      local slots = try(function() return vb[b].AffixSlots end)
+      for j = 1, (slots and slots:GetArrayNum() or 0) do
+        local a = try(function() return slots[j].PrimaryAffix end)
+        local n = alive(a) and try(function() return a:GetFName():ToString() end)
+        if n and mods[n] then
+          local ok = pcall(function() slots[j].PrimaryAffix = CreateInvalidObject(); slots[j].Status = 0 end)
+          if ok and not alive(try(function() return slots[j].PrimaryAffix end)) then cleared = cleared + 1 else failed = failed + 1 end
+        end
+      end
+    end
+  end
+  return cleared, failed
 end
 
 local function psName(ps)
@@ -136,6 +163,12 @@ function L.apply(st)
   end
   if #bots == 0 then return end
   st.done = true
+  if st.mods then
+    local okS, cleared, failed = pcall(stripMods, bots, st.mods)
+    if okS then log(('[loadout] your mods cleared from the AI racers\' copies: %d slots%s'):format(cleared, failed > 0 and (', ' .. failed .. ' FAILED') or ''))
+    else log('[loadout] could not clear your mods from the AI: ' .. tostring(cleared)) end
+  end
+  if not st.abil then return end
   if botAbilitySpawned() then
     log('[loadout] too late: the AI racers\' abilities had already spawned - this race keeps the game\'s')
     return

@@ -36,6 +36,10 @@ local function fill(d)
   d.abilityRestores = type(d.abilityRestores) == 'table' and d.abilityRestores or {}
   -- v0.3: your four ability picks (abil.lua), kept between cups; a cup keeps its own copy (run.picks)
   d.picks = type(d.picks) == 'table' and d.picks or nil
+  -- v0.4: your mods (modsel.lua: four slots), kept between cups; a cup keeps its own copy (run.mods). modRestores =
+  -- the launch builds' own Affixes / UnlockedAffixSlots, put back at the menu like the parts and abilities.
+  d.mods = type(d.mods) == 'table' and d.mods or nil
+  d.modRestores = type(d.modRestores) == 'table' and d.modRestores or {}
   d.class = type(d.class) == 'string' and d.class or nil -- the class picked last
   d.vehicle = type(d.vehicle) == 'string' and d.vehicle or 'car'
   -- v0.2: the cup in progress (nil = none) and best finishes
@@ -133,10 +137,11 @@ end
 -- the cup in progress
 
 function K.run() return K.data.run end
-function K.startCup(classKey, cupKey, vehicleKey, picks)
+function K.startCup(classKey, cupKey, vehicleKey, picks, mods)
   local cup = K.cup(cupKey)
   K.data.run = CU.new(classKey, cupKey, vehicleKey, cup and #cup.races or 4)
   K.data.run.picks = picks
+  K.data.run.mods = mods
   K.save()
   log(('cup started: %s %s, %s'):format(classKey, cupKey, vehicleKey))
   return K.data.run

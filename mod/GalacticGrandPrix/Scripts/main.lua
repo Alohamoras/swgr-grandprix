@@ -5,7 +5,7 @@
 -- v0.3: your four abilities (v0.3.10: free pick, one per family), the AI racers' four, levels by class.
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.5.1'
+local VERSION = '0.6.0'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -59,12 +59,24 @@ local function go(screen) S.screen = screen; S.message = nil; return true end
 local CU = require('cup')
 local AB = require('abil')
 local PR = require('prog')
+local MS = require('modsel')
 
 -- your four picks, made valid for a class's level (and kept in the save)
 local function picksFor(classKey)
   local p = AB.normalize(K.data.picks, AB.levelFor(classKey))
   K.data.picks = p
   return p
+end
+-- your mods (four slots), made valid and kept in the save (v0.4)
+local function modsFor()
+  K.data.mods = MS.normalize(K.data.mods)
+  return K.data.mods
+end
+local function modsText(list, classKey)
+  local n = MS.slotsFor(classKey)
+  if n == 0 then return 'None at this class' end
+  local names = MS.names(list, classKey)
+  return #names > 0 and table.concat(names, '  /  ') or ('No mods yet (' .. n .. ' slots)')
 end
 local function picksText(picks, level)
   local o = {}
@@ -98,7 +110,7 @@ local function shortName(key) return key == CU.YOU and 'YOU' or key end
 local function launchNext()
   local run, ev = K.run(), K.nextRace()
   if not (run and ev) then S.message = 'No cup in progress'; return true end
-  local ok, why = R.launch(ev, run.class, run.vehicle, run.picks or picksFor(run.class))
+  local ok, why = R.launch(ev, run.class, run.vehicle, run.picks or picksFor(run.class), run.mods or modsFor())
   if ok then S.message = nil; return 'launched' end
   S.message = why
   return true
@@ -210,6 +222,7 @@ SCREENS.cup = function()
     return { key = 'cup', title = cup.name .. '  -  ' .. cls.name:upper(),
       lines = { { ('%s   -   %s   -   %s'):format(raceOf(run):upper(), veh.name,
           picksText(run.picks or picksFor(run.class), AB.levelFor(run.class))), 22, U.WHITE },
+        { 'Mods: ' .. modsText(run.mods or modsFor(), run.class), 18 },
         #run.history == 0 and { table.concat(list, '        '), 20, U.WHITE } or { '', 0 }, msgLine() },
       table = #run.history > 0 and rankingTable(run) or nil,
       items = {
@@ -246,13 +259,19 @@ SCREENS.cup = function()
         act = function()
           local open, why = PR.cupOpen(K.data, cls.key, cup.key)
           if not open then S.message = 'Locked. To open it: ' .. why; return true end
-          K.startCup(cls.key, cup.key, veh.key, picksFor(cls.key))
+          K.startCup(cls.key, cup.key, veh.key, picksFor(cls.key), modsFor())
           local res = launchNext()
           if res ~= 'launched' then K.forfeit() end -- couldn't start: no cup left half-begun
           return res
         end },
       { title = 'ABILITIES', art = 'T_UI_FE_Tile_02', desc = picksText(picksFor(cls.key), AB.levelFor(cls.key)):gsub('  /  ', '\n'),
         act = function() return go('abilities') end },
+      { title = 'MODS', art = 'T_UI_FE_Tile_02', disabled = MS.slotsFor(cls.key) == 0,
+        desc = MS.slotsFor(cls.key) == 0 and 'None at 50cc\n(pure driving)' or modsText(modsFor(), cls.key):gsub('  /  ', '\n'),
+        act = function()
+          if MS.slotsFor(cls.key) == 0 then S.message = cls.name .. ' has no mods: pure driving'; return true end
+          return go('mods')
+        end },
       { title = 'VEHICLE', art = 'T_UI_FE_Tile_05', desc = veh.name .. '\nSelect to change',
         act = function()
           local vs, nxt = K.vehicles(), 1
@@ -324,6 +343,72 @@ SCREENS.pick = function()
   return { key = 'pick', title = (AB.rule() == 'free' and ('ABILITY ' .. i) or slot.name) .. '  -  ' .. cls.name:upper(),
     lines = { { 'Now: ' .. AB.label(picks[i], level), 22, U.WHITE },
       AB.rule() == 'free' and { 'Kinds you already have in another slot are not listed.', 18 } or { '', 0 }, msgLine() },
+    items = items, hint = HINT }
+end
+
+-- your mods (v0.4): one tile per open slot, then a group, then the mod. Owner: mods change how you race, not how fast.
+SCREENS.mods = function()
+  local cls = K.class(S.class) or K.classes()[1]
+  local n = MS.slotsFor(cls.key)
+  local list = modsFor()
+  local items = {}
+  for i = 1, n do
+    local e = MS.effect(list[i])
+    items[#items + 1] = { title = e and e.name:upper() or 'EMPTY SLOT', art = e and 'T_UI_FE_Tile_02' or 'T_UI_FE_Tile_01',
+      badge = e and (e.tag == 'protect' and 'PROTECTION' or 'PLAYSTYLE') or ('SLOT ' .. i), desc = e and e.desc or 'Select to pick a mod',
+      act = function() S.mslot = i; return go('modgroups') end }
+  end
+  items[#items + 1] = { title = 'DONE', art = 'T_UI_FE_Tile_03', desc = 'Back to the cup', act = function() return go('cup') end }
+  local hidden = {}
+  for i = n + 1, MS.MAX do local e = MS.effect(list[i]); if e then hidden[#hidden + 1] = e.name end end
+  return { key = 'mods', title = 'MODS  -  ' .. cls.name:upper(),
+    lines = { { ('%s: %d mod slots.  Mods change how you race, not how fast.'):format(cls.name, n), 22, U.WHITE },
+      { #hidden > 0 and ('Kept for the higher classes: ' .. table.concat(hidden, ', ')) or 'Kept for every cup until you change them.  The AI racers get none.', 18 },
+      msgLine() },
+    items = items, hint = HINT }
+end
+SCREENS.modgroups = function()
+  local cls = K.class(S.class) or K.classes()[1]
+  local list = modsFor()
+  local i = S.mslot or 1
+  local cur = MS.effect(list[i])
+  local items = {}
+  for _, g in ipairs(MS.groups()) do
+    local n = #MS.choices(g, list, i)
+    items[#items + 1] = { title = g:upper(), art = (cur and cur.group == g) and 'T_UI_FE_Tile_Campaign_Hero' or 'T_UI_FE_Tile_01',
+      desc = ('%d mods'):format(n), act = function() S.mgroup = g; return go('modpick') end }
+  end
+  if cur then
+    items[#items + 1] = { title = 'REMOVE', art = 'T_UI_FE_Tile_03', desc = 'Empty this slot',
+      act = function() list[i] = false; K.data.mods = MS.normalize(list); K.save(); S.message = cur.name .. ' removed'; S.screen = 'mods'; return true end }
+  end
+  items[#items + 1] = { title = 'BACK', art = 'T_UI_FE_Tile_03', desc = 'Your mods', act = function() return go('mods') end }
+  return { key = 'modgroups', title = ('MOD SLOT %d  -  %s'):format(i, cls.name:upper()),
+    lines = { { 'Now: ' .. (cur and (cur.name .. '  -  ' .. cur.desc) or 'empty'), 22, U.WHITE }, { 'Pick a group', 18 }, msgLine() },
+    items = items, hint = HINT }
+end
+SCREENS.modpick = function()
+  local cls = K.class(S.class) or K.classes()[1]
+  local list = modsFor()
+  local i = S.mslot or 1
+  local g = S.mgroup or MS.groups()[1]
+  local items = {}
+  for _, e in ipairs(MS.choices(g, list, i)) do
+    local chosen = list[i] == e.key
+    items[#items + 1] = { title = e.name:upper(), art = chosen and 'T_UI_FE_Tile_Campaign_Hero' or 'T_UI_FE_Tile_01',
+      badge = chosen and 'PICKED' or (e.tag == 'protect' and 'PROTECTION' or nil), desc = e.desc,
+      act = function()
+        list[i] = e.key
+        K.data.mods = MS.normalize(list)
+        K.save()
+        S.message = e.name .. ' fitted'
+        S.screen = 'mods'
+        return true
+      end }
+  end
+  items[#items + 1] = { title = 'BACK', art = 'T_UI_FE_Tile_03', desc = 'The groups', act = function() return go('modgroups') end }
+  return { key = 'modpick', title = g:upper() .. '  -  ' .. cls.name:upper(),
+    lines = { { ('Mod slot %d.  Mods you have in another slot are not listed.'):format(i), 20, U.WHITE }, msgLine() },
     items = items, hint = HINT }
 end
 
@@ -450,7 +535,7 @@ end
 ---------------------------------------------------------------------------------------------------------------------
 -- input
 
-local BACK = { cups = 'classes', cup = 'cups', standings = 'cup', abilities = 'cup', pick = 'abilities' }
+local BACK = { cups = 'classes', cup = 'cups', standings = 'cup', abilities = 'cup', pick = 'abilities', mods = 'cup', modgroups = 'mods', modpick = 'modgroups' }
 local function handle(name)
   if name == 'menu' then
     if S.ui then close('menu key') else S.message = nil; S.screen = 'classes'; show() end

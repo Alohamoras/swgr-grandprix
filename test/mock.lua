@@ -78,6 +78,7 @@ function M.tarr(list)
       if type(k) == 'number' then return list[k] end
       if k == 'GetArrayNum' then return function() return #list end end
       if k == 'ForEach' then return function(_, fn) for i, v in ipairs(list) do fn(i, { get = function() return v end }) end end end
+      if k == 'Empty' then return function() for i = #list, 1, -1 do list[i] = nil end end end
       return nil
     end,
     __newindex = function(_, k, v) if type(k) == 'number' then list[k] = v end end,

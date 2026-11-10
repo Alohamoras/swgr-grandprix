@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.6.0 (2026-11-10): mods (the planned v0.4)
+- MODS on the cup screen, next to ABILITIES: 2 / 3 / 4 slots at 100 / 150 / 200cc, none at 50cc (pure driving).
+  Slot -> group -> mod; one mod per effect; REMOVE empties a slot. Kept until you change them; a cup keeps its own copy.
+- 105 mods in 9 groups, generated from the in-game recon (`tools/gen_mods.py` -> `Scripts/mods.lua`). Owner's rule:
+  mods change how you race, not how fast - protections / rule-changers and playstyle mods only, no pure-power or
+  podracer ones; the 23 big-payoff ("check") ones kept; every mod at its top step.
+- At launch your mods go into the launch build's `Affixes` (the build's own list saved first, put back at the menu,
+  also after a crash). The AI copies them at load; loadout.lua clears them from every bot's race copy then, so the
+  AI races without mods.
+- Tests: `test_modsel`, `test_mods`.
+
 ## v0.5.1 (2026-11-10): menu fixes seen in game
 - A short row of tiles (CONFIRM's NO / YES, the standings' NEXT RACE / LATER) is filled out with empty cells, so the
   tiles sit side by side (the v0.5.0 width fix didn't take: the uniform grid shares its width over the columns used).

@@ -118,7 +118,12 @@ function W.build(path, levels)
   local full = path .. '.' .. n
   local slots = {}
   for i = 1, 4 do slots[i] = CreateInvalidObject() end
-  local b = M.new(n, { SlotToUpgradeLevelMap = M.tmap(levels or { [0] = 0, 0, 0, 0, 0, 0 }), AbilitySlots = M.tarr(slots) }, 'VehicleBuildDef')
+  -- Affixes: the build's own mod list (empty, as the game's base builds; v0.4), UnlockedAffixSlots 4
+  local affixes = {}
+  local b = M.new(n, { SlotToUpgradeLevelMap = M.tmap(levels or { [0] = 0, 0, 0, 0, 0, 0 }), AbilitySlots = M.tarr(slots),
+    Affixes = M.tarr(affixes), UnlockedAffixSlots = 4, MaximumAffixSlots = 10 }, 'VehicleBuildDef')
+  W.buildAffixes = W.buildAffixes or {}
+  W.buildAffixes[n] = affixes
   W.buildSlots = W.buildSlots or {}
   W.buildSlots[n] = slots
   M.assets[full] = b
@@ -132,15 +137,29 @@ function W.event(path, tag)
   return e
 end
 
--- a racer's build copies (one per vehicle type) with 4 ability slots each, starting as `slots`
+-- a racer's build copies (one per vehicle type) with 4 ability slots each, starting as `slots`, and 4 affix slots
+-- holding the launch build's Affixes (the game copies them to every racer, bots included: recon 2026-11-10)
 local function buildCopies(slots)
   local copies = {}
+  local mods = (W.buildAffixes or {}).VBD_Car_Base or {}
   for i = 1, 4 do
     local list = {}
     for j = 1, 4 do list[j] = slots[j] or CreateInvalidObject() end
-    copies[i] = { AbilitySlots = M.tarr(list) }
+    local aff = {}
+    for j = 1, 4 do aff[j] = { PrimaryAffix = mods[j] or CreateInvalidObject(), Status = mods[j] and 1 or 0 } end
+    copies[i] = { AbilitySlots = M.tarr(list), AffixSlots = M.tarr(aff) }
   end
   return M.tarr(copies)
+end
+-- the affix names in a racer's first race copy ('-' = empty)
+function W.affixes(ps)
+  local st = rawget(ps, '__props').RacerBuildState.VehicleBuilds[1]
+  local out = {}
+  for j = 1, st.AffixSlots:GetArrayNum() do
+    local a = st.AffixSlots[j].PrimaryAffix
+    out[j] = (a and not rawget(a, '__dead')) and rawget(a, '__name') or '-'
+  end
+  return table.concat(out, ',')
 end
 W.buildCopies = buildCopies
 W.BOT_NAMES = { 'Biddy Blas', 'Kestar Bool', 'Katja Mox', 'Zed Unknown', 'Sen Fira', 'Lyren Shok', 'Shade', 'Ary Quill',

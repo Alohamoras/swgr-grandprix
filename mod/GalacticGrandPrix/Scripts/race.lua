@@ -4,6 +4,7 @@ local C = require('core')
 local K = require('gp')
 local AB = require('abil')
 local LO = require('loadout')
+local MS = require('modsel')
 local try, alive, addr, log = C.try, C.alive, C.addr, C.log
 
 local R = { run = nil }
@@ -112,6 +113,39 @@ local function applyAbilities(path, b, want)
   log('your abilities for this race: ' .. (#names > 0 and table.concat(names, ', ') or 'none'))
 end
 
+-- v0.4: your mods into the launch build's Affixes (direct UAffixPassiveConfig pointers; recon 2026-11-10: they become
+-- active passives on the car, and the bots copy them too - loadout.lua clears the bots' copies at load). The build's own
+-- list and slot count go into the save first and come back at the menu. paths = object paths (modsel.lua).
+local function affixNames(b)
+  local o = {}
+  -- 'AffixPassiveConfig /Game/.../AFX_X.AFX_X' (the restore reads the path back out)
+  try(function() b.Affixes:ForEach(function(_, el) o[#o + 1] = el:get():GetFullName() end) end)
+  return o
+end
+local function setAffixes(b, objs)
+  local arr = b.Affixes
+  local n = arr:GetArrayNum()
+  if n > #objs then arr:Empty() end
+  for i, o in ipairs(objs) do arr[i] = o end
+  return arr:GetArrayNum() == #objs
+end
+local function applyMods(path, b, paths)
+  if not K.data.modRestores[path] then
+    K.data.modRestores[path] = { affixes = affixNames(b), unlocked = try(function() return b.UnlockedAffixSlots end) }
+    K.save()
+  end
+  local objs, names = {}, {}
+  for _, p in ipairs(paths) do
+    local a = C.asset(p:match('^(.-)%.[^/]+$') or p)
+    if a then objs[#objs + 1] = a; names[#names + 1] = MS.assetName(p) else log('mod not found: ' .. p) end
+  end
+  if not setAffixes(b, objs) then log('mods: the build\'s list did not take them all') end
+  local unl = try(function() return b.UnlockedAffixSlots end) or 0
+  if unl < #objs then pcall(function() b.UnlockedAffixSlots = #objs end) end
+  log('your mods for this race: ' .. (#names > 0 and table.concat(names, ', ') or 'none'))
+  return names
+end
+
 function R.restoreBuild(why)
   local done = {}
   for path, orig in pairs(K.data.restores) do
@@ -133,6 +167,18 @@ function R.restoreBuild(why)
       log(('ability slots put back (%s): %s'):format(why, path:match('([^/]+)$')))
     end
     K.data.abilityRestores[path] = nil
+    done[#done + 1] = path
+  end
+  for path, orig in pairs(K.data.modRestores) do
+    local b = C.asset(path)
+    if b then
+      local objs = {}
+      for _, p in ipairs(orig.affixes or {}) do local a = C.asset(p:match('^%S+%s+(.-)%.[^/]+$') or p); if a then objs[#objs + 1] = a end end
+      local ok = pcall(setAffixes, b, objs)
+      if orig.unlocked then pcall(function() b.UnlockedAffixSlots = orig.unlocked end) end
+      log(('mods put back (%s): %s (%d)%s'):format(why, path:match('([^/]+)$'), #objs, ok and '' or ' - FAILED'))
+    end
+    K.data.modRestores[path] = nil
     done[#done + 1] = path
   end
   if #done > 0 then K.save() end
@@ -173,7 +219,7 @@ end
 
 -- ev = { path, title, kind, cup, class, race }; picks = your four abilities (abil.lua) or nil for none.
 -- Returns true, or false + a message for the player.
-function R.launch(ev, classKey, vehKey, picks)
+function R.launch(ev, classKey, vehKey, picks, mods)
   if R.run then return false, 'A race is already running' end
   local fe, why = R.atMainMenu()
   if not fe then return false, 'Cannot launch: ' .. why end
@@ -190,6 +236,14 @@ function R.launch(ev, classKey, vehKey, picks)
     local okA, errA = pcall(applyAbilities, veh.build, build, AB.classPaths(picks, AB.levelFor(classKey)))
     if not okA then log('abilities not set: ' .. tostring(errA)) end
   end
+  local modNames = {}
+  if mods then
+    local paths = MS.paths(mods, classKey)
+    if #paths > 0 or K.data.modRestores[veh.build] then
+      local okM, got = pcall(applyMods, veh.build, build, paths)
+      if okM then modNames = got else log('mods not set: ' .. tostring(got)) end
+    end
+  end
   local oldGs = C.first('RacingGameState')
   local ok, err = try(function() fe:LaunchQuickRace(arch, e, build); return true end)
   if not ok then
@@ -202,7 +256,7 @@ function R.launch(ev, classKey, vehKey, picks)
     tostring(classKey), veh.key, tostring(tag), C.idname(try(function() return e.EventMode end))))
   R.run = { ev = ev, at = C.clock, oldGs = addr(oldGs), oldFe = addr(fe), phase = 'loading', top = 0, field = {}, ticks = 0 }
   R.menuSeen = false
-  local ok3, lo = pcall(LO.begin, classKey)
+  local ok3, lo = pcall(LO.begin, classKey, modNames)
   if ok3 then R.run.lo = lo else log('[loadout] ' .. tostring(lo)) end
   return true
 end
