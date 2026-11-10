@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.3.2 (2026-11-09): stutter hunt, part 2
+- Owner: the stutter came back in race 2. Two v0.3.1 problems: the main menu was still searched for every 3 s while
+  racing (one full object sweep), and checking the loading race every 250 ms was too slow for the AI's abilities
+  (race 2: "too late", the AI kept the game's copy of yours). Now: no sweeps at all while the race world is there;
+  loading checked every tick again.
+- PERF line in the log after each race: the game's frame time sampled every 100 ms (average, worst, how many over
+  33 / 50 / 100 ms) and how long our own tick took - so stutter can be measured, not guessed.
+- Also: StreamlineCampaign v0.5.1 stops its repeated searches during races; TestAutopilot disabled in game.
+
 ## v0.3.1 (2026-11-09): smoother races
 - Owner: steady frame stutter in Grand Prix races, not in the campaign. Cause: while racing the mod swept the game's
   whole object list (FindAllOf) about 22 times a second (race state and main menu every 100 ms, the racers every

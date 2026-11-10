@@ -278,13 +278,42 @@ local function fieldList(r)
 end
 R.fieldList = fieldList
 
+-- frame times (v0.3.2, stutter hunt): the game's frame time sampled every tick (100 ms) while racing, plus how long
+-- our own tick took. Summarised in the log when the race ends. Numbers only.
+function R.perf(r)
+  local p = r.perf or { n = 0, sum = 0, max = 0, over33 = 0, over50 = 0, over100 = 0, ourMax = 0, ourSum = 0 }
+  r.perf = p
+  local gsl = C.lib('GameplayStatics')
+  local w = C.deref(r.gsRef)
+  local dt = (gsl and w) and try(function() return gsl:GetWorldDeltaSeconds(w) end)
+  if type(dt) == 'number' and dt > 0 then
+    local ms = dt * 1000
+    p.n, p.sum = p.n + 1, p.sum + ms
+    if ms > p.max then p.max = ms end
+    if ms > 33 then p.over33 = p.over33 + 1 end
+    if ms > 50 then p.over50 = p.over50 + 1 end
+    if ms > 100 then p.over100 = p.over100 + 1 end
+  end
+end
+function R.perfTick(ms)
+  local r = R.run
+  if not (r and r.perf) then return end
+  r.perf.ourSum, r.perf.ticks = r.perf.ourSum + ms, (r.perf.ticks or 0) + 1
+  if ms > r.perf.ourMax then r.perf.ourMax = ms end
+end
+local function perfLine(r)
+  local p = r.perf
+  if not p or p.n == 0 then return 'frames: no samples' end
+  return ('frames: %d samples, average %.1f ms, worst %.0f ms, over 33 ms %d (%.0f%%), over 50 ms %d, over 100 ms %d | our tick: average %.2f ms, worst %.0f ms'):format(
+    p.n, p.sum / p.n, p.max, p.over33, 100 * p.over33 / p.n, p.over50, p.over100, p.ourSum / math.max(1, p.ticks or 1), p.ourMax)
+end
+
 function R.watch()
   local r = R.run
   if not r then return nil end
   if r.phase == 'loading' then
-    -- (loading: a sweep for the new race state, at most every 250 ms)
-    if C.clock - (r.lastScan or -1e9) < 250 then return nil end
-    r.lastScan = C.clock
+    -- (loading: a sweep for the new race state every tick - the AI's abilities must be set within ~0.7 s of the race
+    -- world appearing (loadout.lua); v0.3.1's 250 ms here was too slow once: "too late" in race 2. Loading is short.)
     for _, gs in ipairs(C.find('RacingGameState')) do
       if addr(gs) ~= r.oldGs then
         local ksl = C.lib('KismetSystemLibrary')
@@ -308,14 +337,19 @@ function R.watch()
     return nil
   end
 
-  -- racing (v0.3.1): every 250 ms, no full object sweeps - the race state is looked up by path + address (cheap);
-  -- only once it's gone (or every 3 s, just in case) is the main menu searched for. Sweeping the whole object list
-  -- several times a second made the race stutter.
+  -- racing (v0.3.1-2): every 250 ms, no full object sweeps - the race state is looked up by path + address (cheap);
+  -- only once it's gone is the main menu searched for (at most every 500 ms). Sweeping the whole object list made
+  -- the race stutter.
+  if r.lo and not r.lo.done then
+    local ok, err = pcall(LO.apply, r.lo)
+    if not ok then log('[loadout] apply failed: ' .. tostring(err)); r.lo = nil end
+  end
+  R.perf(r)
   if C.clock - (r.lastWatch or -1e9) < 250 then return nil end
   r.lastWatch = C.clock
   local gs = C.deref(r.gsRef)
   local fe
-  if not gs or C.clock - (r.lastFe or -1e9) >= 3000 then
+  if not gs and C.clock - (r.lastFe or -1e9) >= 500 then
     r.lastFe = C.clock
     fe = C.first('FrontEndGameMode')
   end
@@ -327,14 +361,11 @@ function R.watch()
     local out = K.record(r.ev, r.finished and r.pos or nil, fl)
     log(('RESULT %s: %s (top speed %d kph, last position seen %s)'):format(r.ev.title,
       r.finished and C.ordinal(r.pos) or 'DNF', math.floor(r.top), tostring(r.lastPos)))
+    log('PERF ' .. r.ev.title .. ': ' .. perfLine(r))
     R.run = nil
     return out
   end
   if not gs then return nil end
-  if r.lo and not r.lo.done then
-    local ok, err = pcall(LO.apply, r.lo)
-    if not ok then log('[loadout] apply failed: ' .. tostring(err)); r.lo = nil end
-  end
   local started = try(function() return gs.bIsRaceStarted end) == true
   if not started then return nil end
   -- the field: every other check (~0.5 s), and right away when you finish (the bots behind you keep racing a while)
