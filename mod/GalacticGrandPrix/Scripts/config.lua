@@ -12,6 +12,11 @@ return {
     -- Key that selects the GRAND PRIX tab at the main menu (Backspace / B = back)
     MenuKey = 'F6',
 
+    -- Lua garbage: collect a little on every tick (KB of work per step) so it never piles up into one big pause
+    -- (v0.3.4, race stutter). GcStep = false to switch off for a comparison.
+    GcStep = true,
+    GcStepKB = 64,
+
     -- Speed classes: every part of your vehicle at this level (the AI keeps pace through the game's rubber band)
     Classes = {
         -- parts = every part at this level; abilities = the level of everyone's abilities (yours and the AI's)

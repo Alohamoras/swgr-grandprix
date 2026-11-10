@@ -284,8 +284,10 @@ R.fieldList = fieldList
 -- included, which the frame-time sample can't see (it reads the frame before ours) - makes that gap longer.
 function R.perf(r)
   local p = r.perf or { n = 0, sum = 0, max = 0, over33 = 0, over50 = 0, over100 = 0, ourMax = 0, ourSum = 0,
-    gaps = 0, gapMax = 0, late40 = 0, late100 = 0 }
+    gaps = 0, gapMax = 0, late40 = 0, late100 = 0, kb0 = collectgarbage('count'), kbMax = 0 }
   r.perf = p
+  local kb = collectgarbage('count')
+  if kb > p.kbMax then p.kbMax = kb end
   local gsl = C.lib('GameplayStatics')
   local w = C.deref(r.gsRef)
   local now = (gsl and w) and try(function() return gsl:GetRealTimeSeconds(w) end)
@@ -325,6 +327,7 @@ local function perfLine(r)
   return ('frames: %d samples, average %.1f ms, worst %.0f ms, over 33 ms %d (%.0f%%), over 50 ms %d, over 100 ms %d | tick gaps (asked 100 ms): %d, worst %.0f ms, 40+ ms late %d (%.1f%%), 100+ ms late %d'):format(
     p.n, p.sum / p.n, p.max, p.over33, 100 * p.over33 / p.n, p.over50, p.over100,
     p.gaps, p.gapMax, p.late40, 100 * p.late40 / math.max(1, p.gaps), p.late100)
+    .. (' | Lua memory: start %d KB, peak %d KB, end %d KB'):format(p.kb0, p.kbMax, collectgarbage('count'))
 end
 
 function R.watch()
@@ -375,8 +378,12 @@ function R.watch()
   if alive(fe) and (not gs or addr(fe) ~= r.oldFe) then
     R.restoreBuild('main menu')
     local fl = fieldList(r)
-    -- your finish counts as read at the moment you crossed the line
-    for _, f in ipairs(fl) do if f.you then f.finished = r.finished; f.pos = r.finished and r.pos or f.pos end end
+    -- your finish counts as read at the moment you crossed the line; you're always in the result (even if you quit
+    -- before the racers were first read)
+    local me
+    for _, f in ipairs(fl) do if f.you then me = f end end
+    if not me then me = { name = 'YOU', you = true }; fl[#fl + 1] = me end
+    me.finished = r.finished; me.pos = r.finished and r.pos or me.pos
     local out = K.record(r.ev, r.finished and r.pos or nil, fl)
     log(('RESULT %s: %s (top speed %d kph, last position seen %s)'):format(r.ev.title,
       r.finished and C.ordinal(r.pos) or 'DNF', math.floor(r.top), tostring(r.lastPos)))
@@ -387,9 +394,10 @@ function R.watch()
   if not gs then return nil end
   local started = try(function() return gs.bIsRaceStarted end) == true
   if not started then return nil end
-  -- the field: every other check (~0.5 s), and right away when you finish (the bots behind you keep racing a while)
+  -- the field: every 4th check (~1 s; v0.3.4, fewer object wrappers), and right away when you finish (the bots
+  -- behind you keep racing a while)
   r.ticks = r.ticks + 1
-  if r.ticks % 2 == 0 then
+  if r.ticks % 4 == 1 then
     local n = readField(r)
     if not r.fieldLogged and n > 0 then r.fieldLogged = true; log(('field: %d racers'):format(n)) end
   end
