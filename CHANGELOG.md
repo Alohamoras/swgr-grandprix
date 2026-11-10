@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.5 (2026-11-09): fix - the menu didn't come back after a race
+- v0.3.4's Lua-memory figure in the PERF line used %d for a decimal number: an error right after the result was
+  recorded, before the race was marked over, so the end of the race ran again every tick (the race counted ~90
+  times, no menu). The race is now marked over first, and the RESULT / PERF log lines can't stop anything.
+  `test_perf` reproduces it (8 recordings before the fix, 1 after). The cup itself was unaffected (a race is only
+  added to the cup once); the owner's race count was put back by hand (100 -> 12).
+- The first v0.3.4 race (Griffin's Flight) didn't feel stuttery (owner).
+
 ## v0.3.4 (2026-11-09): stutter, part 3
 - Owner: stutter still builds up during Grand Prix races; the game's Arcade races are smooth. The PERF line showed
   frames fine between our ticks but our 100 ms ticks often 100+ ms late (Dai Bendu: 220 of 1,646) - the hitches sit

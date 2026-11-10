@@ -327,7 +327,7 @@ local function perfLine(r)
   return ('frames: %d samples, average %.1f ms, worst %.0f ms, over 33 ms %d (%.0f%%), over 50 ms %d, over 100 ms %d | tick gaps (asked 100 ms): %d, worst %.0f ms, 40+ ms late %d (%.1f%%), 100+ ms late %d'):format(
     p.n, p.sum / p.n, p.max, p.over33, 100 * p.over33 / p.n, p.over50, p.over100,
     p.gaps, p.gapMax, p.late40, 100 * p.late40 / math.max(1, p.gaps), p.late100)
-    .. (' | Lua memory: start %d KB, peak %d KB, end %d KB'):format(p.kb0, p.kbMax, collectgarbage('count'))
+    .. (' | Lua memory: start %.0f KB, peak %.0f KB, end %.0f KB'):format(p.kb0, p.kbMax, collectgarbage('count'))
 end
 
 function R.watch()
@@ -384,11 +384,16 @@ function R.watch()
     for _, f in ipairs(fl) do if f.you then me = f end end
     if not me then me = { name = 'YOU', you = true }; fl[#fl + 1] = me end
     me.finished = r.finished; me.pos = r.finished and r.pos or me.pos
-    local out = K.record(r.ev, r.finished and r.pos or nil, fl)
-    log(('RESULT %s: %s (top speed %d kph, last position seen %s)'):format(r.ev.title,
-      r.finished and C.ordinal(r.pos) or 'DNF', math.floor(r.top), tostring(r.lastPos)))
-    log('PERF ' .. r.ev.title .. ': ' .. perfLine(r))
+    -- (v0.3.5: the race is marked over BEFORE anything that could fail - v0.3.4's PERF line had a format error, the
+    -- race was never marked over, and it was recorded again every tick)
     R.run = nil
+    local out = K.record(r.ev, r.finished and r.pos or nil, fl)
+    pcall(function()
+      log(('RESULT %s: %s (top speed %d kph, last position seen %s)'):format(r.ev.title,
+        r.finished and C.ordinal(r.pos) or 'DNF', math.floor(r.top), tostring(r.lastPos)))
+    end)
+    local okP, line = pcall(perfLine, r)
+    log('PERF ' .. r.ev.title .. ': ' .. (okP and line or ('(error: ' .. tostring(line) .. ')')))
     return out
   end
   if not gs then return nil end
