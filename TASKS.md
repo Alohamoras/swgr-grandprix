@@ -59,9 +59,10 @@ One git tag per chunk; push after each tag.
       (89 ms); Fallen Empire average 10.3 ms, worst 14 ms. No stutter in the numbers. (The "our tick" time was
       meaningless under Proton and is gone in v0.3.3.)
 
-- [ ] v0.3.4: stutter builds up in Grand Prix races only (Arcade smooth). Hitches line up with our ticks (PERF tick
-      gaps). Per-tick GC step + fewer reads; Lua memory in PERF. If it persists: time our tick with a real clock
-      (KismetMathLibrary Now) and try `GcStep = false` for a comparison.
+- [x] v0.3.4/0.3.5: stutter built up in Grand Prix races only (Arcade smooth); hitches lined up with our ticks.
+      Per-tick GC step + racers read ~1/s. Confirmed smooth (owner, Lantaana Cup, 2026-11-09): our ticks 100+ ms
+      late 2-3 times a race (Dai Bendu before: 220); Lua memory steady at ~0.5-0.6 MB.
+- [ ] Put the save's race count back (211 -> 13) with the game closed (the file has Windows line endings).
 
 ## 5. v0.4 Mods: the vehicle's affixes (owner, 2026-11-09; DESIGN.md §5b)
 - [ ] **Recon M1:** at race load, write one affix with an obvious effect into your race copy's `AffixSlots`
