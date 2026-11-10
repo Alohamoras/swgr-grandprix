@@ -30,10 +30,13 @@ One git tag per chunk; push after each tag.
       logged nothing. Owner: not a bug (they backed out with B). Check again with the v0.2 cup flow.
 
 ## 3. v0.2 Cup flow and points
-- [ ] Results for all 12 racers (R1) → points; standings screen; Continue launches the next race.
-- [ ] After race 4: final standings, trophy, save best trophy per cup and class (own save file).
-- [ ] Quitting forfeits the cup (owner); no resume yet.
-- [ ] Tests (full cup on the mock world); tag v0.2.0.
+- [x] Results for all 12 racers (R1) → points; standings screen; NEXT RACE launches the next race.
+- [x] After race 4: final standings, trophy, best finish per cup and class (own save file).
+- [x] QUIT CUP forfeits the cup (owner). The cup in progress is kept in the save (LATER / CONTINUE CUP), so it
+      also survives a restart; one cup at a time.
+- [x] Tests (`test_cup` scoring, `test_flow` a whole cup, `test_vehicles` bike / DNF / forfeit); tag v0.2.0.
+- [ ] In game: a whole cup. Check `grandprix.log`: `field: 12 racers`, the `cup <cup> race n:` order matches the
+      game's own results screen (R1), standings and trophy screens look right, B on standings / trophy works.
 
 ## 4. v0.3 Speed classes
 - [ ] Parts per class on your build (R4 values; 150cc = 10); AI pressure per class (`ai.lua`).

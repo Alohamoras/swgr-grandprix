@@ -19,6 +19,9 @@ return {
         { key = '150', name = '150cc', parts = 10, blurb = 'Everything maxed out' },
     },
 
+    -- Points by place in each race (1st first); a racer who doesn't finish scores 0
+    Points = { 15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 },
+
     -- Cups of 4 races (full 12-car grids; no knockouts or 1 v 1s). key is used in the save: never change it.
     Cups = {
         { key = 'jakku', name = 'JAKKU CUP', art = 'T_UI_FE_Tile_01', races = {

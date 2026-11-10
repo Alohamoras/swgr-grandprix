@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.2.0 (2026-11-09): cups
+- A cup is 4 races in a row: START CUP on the cup screen, then NEXT RACE after each race.
+- Points for all 12 racers by place (15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1; config `Points`). Not finishing (or
+  quitting the race) scores 0. Every racer's position is read during the race (names from `PlayerNamePrivate`).
+- Standings screen after each race (this race's points + the cup table); ties go to the better finish in the latest
+  race. After race 4: the trophy screen (1st GOLD, 2nd SILVER, 3rd BRONZE), best finish saved per class and cup and
+  shown on the cup tiles; gold count per class on the class tiles.
+- The cup in progress is in the save: LATER / BACK leave it waiting (CONTINUE CUP on the class screen); one cup at a
+  time; QUIT CUP (with a confirm) forfeits it.
+- The vehicle is picked before the cup and kept for all 4 races. The single-race tiles of v0.1 are gone.
+
 ## v0.1.0 (2026-11-09): skeleton
 - The GRAND PRIX tab on the main menu (F6): speed class (50cc / 100cc / 150cc) -> cup (7 cups of 4 races) -> race.
 - Every part of your vehicle at the class's level (3 / 6 / 10) for the race, put back afterwards (originals kept in

@@ -1,4 +1,5 @@
--- 150cc maxes every part; the VEHICLE tile switches to the bike, which launches with the bike's build.
+-- 150cc maxes every part; VEHICLE switches to the bike, and the cup races with it. Quitting a cup forfeits it;
+-- a second cup can't start while one is in progress.
 local M = require('mock')
 local W = require('world')
 local T = require('util')
@@ -8,10 +9,26 @@ T.clickTitle('150CC'); M.tick(3)
 T.clickTitle('CRAIT CUP'); M.tick(3)
 T.clickTitle('VEHICLE'); M.tick(3)
 T.check(T.save().vehicle == 'bike', 'VEHICLE switches to the speeder bike (saved)')
-T.clickTitle('2. FORGIL CANYON')
+T.clickTitle('START CUP')
 local args = M.lastCall('LaunchQuickRace').args
-T.check(rawget(args[1], '__name') == 'VA_Bike', 'launched with the bike')
-T.check(rawget(args[2], '__name'):find('EVT_SPA_Loop_B_FWD', 1, true) ~= nil, 'the race tile picked')
+T.check(rawget(args[1], '__name') == 'VA_Bike', 'the cup races with the bike')
 T.check(T.levels('VBD_Bike_Base') == '0=10 1=10 2=10 3=10 4=10 5=10', '150cc: every part at 10')
 T.check(T.levels('VBD_Car_Base') == '0=0 1=0 2=0 3=0 4=0 5=0', 'the landspeeder build untouched')
+-- you quit the race from the pause menu: back at the menu without finishing = DNF, 0 points
+W.race(11); M.tick(10)
+local t0 = os.time(); while os.time() - t0 < 3 do end
+W.backToMenu(); M.tick(45)
+T.check(T.logHas('RESULT CRIMSON MINES: DNF'), 'quitting the race = DNF')
+T.check(T.save().run.points.YOU == 0 and T.save().run.race == 2, 'DNF: no points, on to race 2')
+T.check(T.logHas('[menu] standings'), 'standings shown')
+T.clickTitle('LATER'); M.tick(3)
+T.clickTitle('BACK'); M.tick(3)
+T.clickTitle('ANDO CUP'); M.tick(3)
+T.check(T.titles() == 'GO TO IT|BACK', 'another cup: finish or quit the one in progress first')
+T.clickTitle('GO TO IT'); M.tick(3)
+T.clickTitle('QUIT CUP'); M.tick(3)
+T.clickTitle('YES'); M.tick(3)
+T.check(T.save().run == nil, 'QUIT CUP + YES forfeits it')
+T.check(T.logHas('cup forfeited: 150 crait after 1 of 4 races'), 'forfeit logged')
+T.check(T.save().best['150'] == nil, 'no trophy saved')
 T.finish()

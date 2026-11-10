@@ -146,7 +146,7 @@ function R.launch(ev, classKey, vehKey)
   ev.class = classKey
   log(('LAUNCH %s (%s - %s) class=%s vehicle=%s tag=%s mode=%s'):format(ev.path:match('([^/]+)$'), ev.title, ev.kind or '',
     tostring(classKey), veh.key, tostring(tag), C.idname(try(function() return e.EventMode end))))
-  R.run = { ev = ev, at = C.clock, oldGs = addr(oldGs), oldFe = addr(fe), phase = 'loading', top = 0 }
+  R.run = { ev = ev, at = C.clock, oldGs = addr(oldGs), oldFe = addr(fe), phase = 'loading', top = 0, field = {}, ticks = 0 }
   return true
 end
 
@@ -170,6 +170,49 @@ local function playerRow(r)
   return { pos = try(function() return tonumber(rec.EventPosition) end),
     done = try(function() return rec.bHasFinishedEvent end) == true, kph = kph or 0 }
 end
+
+-- every racer's name, position and finished flag (v0.2, the cup's points). Strings and numbers only, read again each
+-- time: a racer's position is kept once they've finished. Returns the number of racers seen.
+-- (PlayerNamePrivate first: that's what the Underground's loadout and recon read in game, 2026-11-09)
+local function pilotName(ps)
+  local n = C.text(ps, 'PlayerNamePrivate')
+  if not n then n = try(function() return ps:GetPlayerName():ToString() end) end
+  return (type(n) == 'string' and n ~= '') and n or nil
+end
+local function readField(r)
+  local n, seen = 0, {}
+  for _, ps in ipairs(C.find('GfnPlayerState')) do
+    local rec = try(function() return ps.RaceEventComponent end)
+    local name = pilotName(ps)
+    if alive(rec) and name then
+      local you = try(function() return ps.bIsABot end) == false
+      local key = you and '@you' or name
+      -- two racers with the same name (shouldn't happen): keep them apart, in the order the game lists them
+      if seen[key] then
+        local i = 2
+        while seen[key .. ' #' .. i] do i = i + 1 end
+        key = key .. ' #' .. i
+        name = name .. ' #' .. i
+      end
+      seen[key] = true
+      local f = r.field[key] or { name = name, you = you }
+      r.field[key] = f
+      if not f.finished then
+        local pos = try(function() return tonumber(rec.EventPosition) end)
+        if pos and pos > 0 then f.pos = pos end
+        if try(function() return rec.bHasFinishedEvent end) == true then f.finished = true end
+      end
+      n = n + 1
+    end
+  end
+  return n
+end
+local function fieldList(r)
+  local out = {}
+  for _, f in pairs(r.field) do out[#out + 1] = { name = f.name, you = f.you, pos = f.pos, finished = f.finished } end
+  return out
+end
+R.fieldList = fieldList
 
 function R.watch()
   local r = R.run
@@ -201,21 +244,32 @@ function R.watch()
   local fe = C.first('FrontEndGameMode')
   if alive(fe) and (not gs or addr(fe) ~= r.oldFe) then
     R.restoreBuild('main menu')
-    local out = K.record(r.ev, r.finished and r.pos or nil)
+    local fl = fieldList(r)
+    -- your finish counts as read at the moment you crossed the line
+    for _, f in ipairs(fl) do if f.you then f.finished = r.finished; f.pos = r.finished and r.pos or f.pos end end
+    local out = K.record(r.ev, r.finished and r.pos or nil, fl)
     log(('RESULT %s: %s (top speed %d kph, last position seen %s)'):format(r.ev.title,
       r.finished and C.ordinal(r.pos) or 'DNF', math.floor(r.top), tostring(r.lastPos)))
     R.run = nil
     return out
   end
-  if not gs or r.finished then return nil end
+  if not gs then return nil end
   local started = try(function() return gs.bIsRaceStarted end) == true
   if not started then return nil end
+  -- the field: every 5th tick, and right away when you finish (the bots behind you keep racing for a while)
+  r.ticks = r.ticks + 1
+  if r.ticks % 5 == 0 then
+    local n = readField(r)
+    if not r.fieldLogged and n > 0 then r.fieldLogged = true; log(('field: %d racers'):format(n)) end
+  end
+  if r.finished then return nil end
   local row = playerRow(r)
   if row then
     if row.kph > r.top then r.top = row.kph end
     if row.pos ~= r.lastPos then r.lastPos = row.pos end
     if row.done then
       r.finished, r.pos = true, row.pos
+      readField(r)
       log(('finished %s'):format(C.ordinal(row.pos)))
     end
   end

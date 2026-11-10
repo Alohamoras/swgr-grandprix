@@ -1,8 +1,10 @@
 -- Galactic Grand Prix: the save file, the classes, cups and vehicles (config.lua).
 -- Save (save.lua, the mod's own file, never the game's): what's needed to put launch builds back after a crash, the
--- race count and the last race. Trophies and cup progress come with v0.2.
+-- cup in progress (run, see cup.lua), the best finish per class and cup (best[class][cup] = 1 gold / 2 silver /
+-- 3 bronze / 4+), and counts.
 local C = require('core')
 local cfg = require('config')
+local CU = require('cup')
 local log = C.log
 
 local K = { data = nil }
@@ -15,6 +17,10 @@ local function fill(d)
   d.restores = type(d.restores) == 'table' and d.restores or {}
   d.class = type(d.class) == 'string' and d.class or nil -- the class picked last
   d.vehicle = type(d.vehicle) == 'string' and d.vehicle or 'car'
+  -- v0.2: the cup in progress (nil = none) and best finishes
+  d.run = type(d.run) == 'table' and d.run or nil
+  d.best = type(d.best) == 'table' and d.best or {}
+  d.cups = tonumber(d.cups) or 0
   return d
 end
 
@@ -79,12 +85,66 @@ function K.levelsFor(classKey)
   return t
 end
 
--- a finished race (v0.1: just counted; points come with v0.2)
-function K.record(ev, pos)
+---------------------------------------------------------------------------------------------------------------------
+-- the cup in progress
+
+function K.run() return K.data.run end
+function K.startCup(classKey, cupKey, vehicleKey)
+  local cup = K.cup(cupKey)
+  K.data.run = CU.new(classKey, cupKey, vehicleKey, cup and #cup.races or 4)
+  K.save()
+  log(('cup started: %s %s, %s'):format(classKey, cupKey, vehicleKey))
+  return K.data.run
+end
+-- give up the cup (no trophy, nothing saved but the count)
+function K.forfeit()
+  local run = K.data.run
+  if not run then return end
+  log(('cup forfeited: %s %s after %d of %d races'):format(run.class, run.cup, run.race - 1, run.races))
+  K.data.run = nil
+  K.save()
+end
+-- the next race of the cup in progress, as a launchable event
+function K.nextRace()
+  local run = K.data.run
+  local cup = run and K.cup(run.cup)
+  local r = cup and cup.races[run.race]
+  if not r then return nil end
+  return { path = r.path, title = r.title, kind = r.kind, cup = run.cup, race = run.race, class = run.class }
+end
+function K.best(classKey, cupKey) return (K.data.best[classKey] or {})[cupKey] end
+
+local function names(rows)
+  local p = {}
+  for _, r in ipairs(rows) do p[#p + 1] = ('%d %s%s'):format(r.place, r.key, r.dnf and ' (DNF)' or '') end
+  return table.concat(p, ', ')
+end
+
+-- a finished race: counted, and added to the cup when it's the cup's next race. field = every racer (race.lua).
+-- Returns { ev, pos, rows (this race, with points), cupOver, rank, trophy, run (a copy of the cup's state) }.
+function K.record(ev, pos, field)
   K.data.races = K.data.races + 1
   K.data.last = { title = ev.title, pos = pos, class = ev.class, cup = ev.cup, at = os.date('%Y-%m-%d %H:%M') }
+  local out = { ev = ev, pos = pos }
+  local run = K.data.run
+  if run and ev.cup == run.cup and ev.race == run.race and ev.class == run.class then
+    out.rows = CU.addRace(run, field, cfg.Points)
+    log(('cup %s race %d: %s'):format(run.cup, run.race - 1, names(out.rows)))
+    out.run = run
+    if CU.finished(run) then
+      local rank, pts = CU.yourRank(run)
+      out.cupOver, out.rank, out.pts, out.trophy = true, rank, pts, CU.trophy(rank)
+      K.data.best[run.class] = K.data.best[run.class] or {}
+      local was = K.data.best[run.class][run.cup]
+      if rank and (not was or rank < was) then K.data.best[run.class][run.cup] = rank; out.newBest = true end
+      K.data.cups = K.data.cups + 1
+      log(('cup over: %s %s - you %s with %d points%s'):format(run.class, run.cup, C.ordinal(rank), pts,
+        out.trophy and (', ' .. out.trophy .. ' trophy') or ''))
+      K.data.run = nil
+    end
+  end
   K.save()
-  return { ev = ev, pos = pos }
+  return out
 end
 
 return K
