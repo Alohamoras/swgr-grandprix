@@ -25,8 +25,9 @@ One git tag per chunk; push after each tag.
 - [x] GRAND PRIX tab (F6) → class → cup → START (race 1) or any race tile, parts at the class level; VEHICLE tile
       cycles landspeeder / bike / skimmer; result screen → back to the cup.
 - [x] Tests (`test/all.sh`: flow, vehicles, offline guard + crash put-back; 28 checks); tag v0.1.0.
-- [ ] In game: the tab appears, a race launches with the class's parts (check `grandprix.log`), the build is put
-      back, the result screen opens.
+- [x] In game (owner, 2026-11-09): War Fields at 50cc, 2nd; parts 3 in, put back after; result page logged.
+      To watch: after the race the screen looked empty in a screenshot (no tab bar), and B on the result page
+      logged nothing. Owner: not a bug (they backed out with B). Check again with the v0.2 cup flow.
 
 ## 3. v0.2 Cup flow and points
 - [ ] Results for all 12 racers (R1) → points; standings screen; Continue launches the next race.
