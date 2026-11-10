@@ -153,15 +153,15 @@ The game ends your race after too many crashes (wrecked). Two memory-only contro
 Recon R3 picks the one that works; set before launch, put back at the menu. Crashing still costs time.
 
 ## 8. Progression and unlocks (owner asked for it, 2026-11-09)
-- 50cc is open from the start, with its five planet cups.
-- **Each class opens with a trophy (bronze or better) in all five planet cups of the class below** (50 → 100 →
+- **50cc and 100cc are open from the start** (owner, 2026-11-10), with their five planet cups.
+- **150cc and 200cc each open with a trophy (bronze or better) in all five planet cups of the class below** (100 →
   150 → 200cc)
   (proposal; the first draft said gold in every cup, which is 20 races of perfect play per class). The rule is a
   setting (`Unlock = 'trophy' | 'gold'`), so it can be made stricter.
 - Outer Rim and Galactic cups: gold in all five planet cups at that class.
 - Reverse cups: after the 150cc cups.
 - Champion Showdown: gold in every 200cc cup.
-- Best trophy per cup and class saved, shown on the cup tiles. No money, no shop, no upgrades.
+- Best trophy per cup and class saved, shown on the cup tiles (a visible marker on the tile, owner 2026-11-10). No money, no shop, no upgrades.
 - Unlocks are worked out from the saved best finishes, so trophies won before this is built count (e.g. the owner's
   50cc Jakku gold). Locked classes / cups show what opens them.
 - Save: `Mods/GalacticGrandPrix/save.lua` (the Underground's save code), never the game's save.

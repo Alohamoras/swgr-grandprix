@@ -68,6 +68,8 @@ One git tag per chunk; push after each tag.
 
 - [x] v0.3.9 (2026-11-10): real cause found - every lookup by path is a full sweep in this game (UE4SS has no object
       hash tables). No lookups while racing; one sweep every 2 s. In game: check the PERF "our tick" numbers.
+- [x] v0.3.9 in game (owner, 2026-11-10, Lantaana 200cc): "better so far". Race watch average 0.95 ms (was 11.7),
+      worst 21 ms; our ticks 100+ ms late 2 a race.
 - [ ] Menu: the main-menu poll (`C.cached('FrontEndGameMode')`, every 200 ms) is a lookup by path too = a sweep 5x a
       second at the menu. Not felt so far; make it cheaper (notification + rare checks) if the menus ever hitch.
 
@@ -79,10 +81,20 @@ One git tag per chunk; push after each tag.
 - [ ] MODS screen next to ABILITIES: slots and rarity by class; kept for the cup; written at race load.
 - [ ] Tests; tag v0.4.0.
 
+## 5b. Trophy display (owner, 2026-11-10)
+- Owner saw a gold cup trophy after winning one race. Checked: not a bug. That race was race 4 of the Jakku cup
+  left in progress the night before (races 1-3 on 2026-11-09; 15+12+10+15 = 54 points), carried into 150cc by the
+  save conversion. Trophies are only written at the end of race 4 (`gp.lua` cupOver). The 200cc Jakku gold was a
+  full cup (1st, 2nd, 3rd, 1st = 52).
+- [ ] Make "race N of 4" impossible to miss: on the cup screen, on CONTINUE CUP, and on the standings before
+      launching, so race 4 of an old cup doesn't look like a one-off race.
+- [ ] Trophy marker on the cup tile itself (not only the "Best:" line): e.g. a gold / silver / bronze title colour or
+      a trophy tag in the title, per class. Class tiles could show the count by colour too.
+
 ## 6. v0.5 Progression (owner asked for it, 2026-11-09; DESIGN.md §8)
-- [ ] Class unlocks: 50cc open; each class after a trophy in all five planet cups of the class below (50 → 100 →
-      150 → 200cc; setting
-      `Unlock = 'trophy' | 'gold'`; owner to confirm). Locked tiles say what opens them.
+- [ ] Class unlocks (owner, 2026-11-10): **50cc and 100cc open from the start**; 150cc after a trophy in all five
+      planet cups at 100cc; 200cc after the same at 150cc (setting `Unlock = 'trophy' | 'gold'`). Locked tiles say
+      what opens them. Trophies already won count.
 - [ ] Outer Rim / Galactic cups after gold in all five planet cups at the class; reverse cups after 150cc;
       Champion Showdown after gold in every 200cc cup.
 - [ ] Worked out from the saved best finishes (trophies already won count).
