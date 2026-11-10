@@ -37,9 +37,7 @@ One git tag per chunk; push after each tag.
 - [x] Tests (`test_cup` scoring, `test_flow` a whole cup, `test_vehicles` bike / DNF / forfeit); tag v0.2.0.
 - [x] In game (owner, 2026-11-09): whole Jakku Cup at 50cc, GOLD (54 points); all 12 racers read every race;
       standings and trophy screens worked.
-- [ ] Polish: after each race the game's main menu shows for ~3 s before the standings (the tab waits for the
-      rebuilt menu to settle). Cover it with the game's loading screen (`WBP_LoadingScreen_C`, StreamlineCampaign
-      CONTEXT.md) or shorten the wait.
+- [ ] (moved to v0.6 Polish) the ~3 s main-menu flash before the standings.
 
 ## 4. v0.3 Abilities (moved ahead of the AI difficulty, owner 2026-11-09)
 - [x] Pick screens: ABILITIES on the cup screen → OFFENSIVE / DEFENSIVE (Shield) / UTILITY / WILDCARD (mines or any
@@ -61,32 +59,32 @@ One git tag per chunk; push after each tag.
       (89 ms); Fallen Empire average 10.3 ms, worst 14 ms. No stutter in the numbers. (The "our tick" time was
       meaningless under Proton and is gone in v0.3.3.)
 
-## 5. v0.4 Speed classes: AI difficulty (owner after the first cups: "difficult but fun" - may need little)
-- [ ] AI pressure per class (`ai.lua`, the rubber band) on top of the class's part levels (3 / 6 / 10 for everyone).
-- [ ] Tag v0.4.0. Play one cup per class (owner) to tune.
-
-## 5b. v0.5 Mods: the vehicle's affixes (owner, 2026-11-09; DESIGN.md §5b)
+## 5. v0.4 Mods: the vehicle's affixes (owner, 2026-11-09; DESIGN.md §5b)
 - [ ] **Recon M1:** at race load, write one affix with an obvious effect into your race copy's `AffixSlots`
       (`PrimaryAffix`); does it show in the HUD / build and change the car? Also read the copy's affix slot count.
       If it's too late at load, try earlier (launch) or another route.
 - [ ] Catalogue in config from the recon dump (name, description, rarity, group by effect, I/II/III steps).
 - [ ] MODS screen next to ABILITIES: slots and rarity by class; kept for the cup; written at race load.
-- [ ] Tests; tag.
+- [ ] Tests; tag v0.4.0.
 
-## 6. v0.6 No crash limit
-- [ ] The R3 control, set before each race, put back at the menu. Tag v0.6.0.
-
-## 7. v0.7 Progression (owner asked for it, 2026-11-09; DESIGN.md §8)
+## 6. v0.5 Progression (owner asked for it, 2026-11-09; DESIGN.md §8)
 - [ ] Class unlocks: 50cc open; 100cc after a trophy in all five 50cc planet cups, 150cc likewise (setting
       `Unlock = 'trophy' | 'gold'`; owner to confirm). Locked tiles say what opens them.
 - [ ] Outer Rim / Galactic cups after gold in all five planet cups at the class; reverse cups after 150cc;
       Champion Showdown after gold in every 150cc cup.
-- [ ] Worked out from the saved best finishes (trophies already won count). Small: can move ahead of v0.5 mods.
-- [ ] Tag v0.7.0.
+- [ ] Worked out from the saved best finishes (trophies already won count).
+- [ ] Tag v0.5.0.
 
-## 8. v0.8 Polish
+## 7. v0.6 Polish
 - [ ] Tile art per cup (planet art), standings layout, short intro text, controller check (owner's pad).
-- [ ] Tag v0.8.0.
+- [ ] Hide the ~3 s main-menu flash between a race and the standings (loading screen, or a shorter wait).
+- [ ] Tag v0.6.0.
+
+## 8. Maybe (moved to the end by the owner, 2026-11-09: might not be needed)
+- [ ] **AI difficulty per class:** AI pressure (`ai.lua`, the rubber band) on top of the class's part levels.
+      Owner after the first cups: "difficult but fun" as it is.
+- [ ] **No crash limit:** pick the working control (GPRecon `health=def|state|tune`), set before each race, put back
+      at the menu.
 
 ## 9. v1.0 Tuning
 - [ ] Owner plays every cup at every class; tune parts per class, AI pressure, AI kits, points.
