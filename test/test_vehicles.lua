@@ -1,0 +1,17 @@
+-- 150cc maxes every part; the VEHICLE tile switches to the bike, which launches with the bike's build.
+local M = require('mock')
+local W = require('world')
+local T = require('util')
+T.boot()
+M.press('F6'); M.tick(6)
+T.clickTitle('150CC'); M.tick(3)
+T.clickTitle('CRAIT CUP'); M.tick(3)
+T.clickTitle('VEHICLE'); M.tick(3)
+T.check(T.save().vehicle == 'bike', 'VEHICLE switches to the speeder bike (saved)')
+T.clickTitle('2. FORGIL CANYON')
+local args = M.lastCall('LaunchQuickRace').args
+T.check(rawget(args[1], '__name') == 'VA_Bike', 'launched with the bike')
+T.check(rawget(args[2], '__name'):find('EVT_SPA_Loop_B_FWD', 1, true) ~= nil, 'the race tile picked')
+T.check(T.levels('VBD_Bike_Base') == '0=10 1=10 2=10 3=10 4=10 5=10', '150cc: every part at 10')
+T.check(T.levels('VBD_Car_Base') == '0=0 1=0 2=0 3=0 4=0 5=0', 'the landspeeder build untouched')
+T.finish()

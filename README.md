@@ -3,4 +3,9 @@
 Kart-racer-style cups for STAR WARS Galactic Racer: speed classes (50cc / 100cc / 150cc), cups of 4 campaign tracks,
 points and trophies, four abilities instead of upgrades, no crash limit. Offline only.
 
-Status: design only. See DESIGN.md (the design) and TASKS.md (the work plan).
+Status: v0.1 (skeleton: class → cup → one race). See DESIGN.md (the design), TASKS.md (the work plan), CHANGELOG.md.
+
+## Install / test
+- `./deploy.sh` installs the newest tagged version into the game (game closed); `./deploy.sh HEAD` the work in progress.
+- `test/all.sh` runs every test against a fake game (no game needed).
+- In game: the GRAND PRIX tab on the main menu, or F6. Log: `Mods/GalacticGrandPrix/grandprix.log`.

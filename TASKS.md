@@ -20,10 +20,13 @@ One git tag per chunk; push after each tag.
   - R7 AI Shields: seen in playtests once the AI has its four.
 
 ## 2. v0.1 Skeleton: a race from the GRAND PRIX tab
-- [ ] Copy from the Underground: `core`, `tab`, `ui`, `race` (launch, results, put-back, multiplayer guard), test
-      harness. Rename everything, strip the career, shop, garage and leagues.
-- [ ] GRAND PRIX tab → class → cup → launch race 1 with a fixed build (parts at the class level), back to the tab.
-- [ ] Tests; tag v0.1.0.
+- [x] Copy from the Underground: `core`, `tab`, `ui`, `race` (launch, results, put-back, multiplayer guard), test
+      harness. Rename everything, strip the career, shop, garage and leagues. (`gp.lua` = save, classes, cups.)
+- [x] GRAND PRIX tab (F6) → class → cup → START (race 1) or any race tile, parts at the class level; VEHICLE tile
+      cycles landspeeder / bike / skimmer; result screen → back to the cup.
+- [x] Tests (`test/all.sh`: flow, vehicles, offline guard + crash put-back; 28 checks); tag v0.1.0.
+- [ ] In game: the tab appears, a race launches with the class's parts (check `grandprix.log`), the build is put
+      back, the result screen opens. Disable GPRecon's plan launching is not needed (it only launches on go.txt).
 
 ## 3. v0.2 Cup flow and points
 - [ ] Results for all 12 racers (R1) → points; standings screen; Continue launches the next race.
