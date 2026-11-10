@@ -45,6 +45,7 @@ function W.frontEnd()
   W.fe = M.add('FrontEndGameMode', M.new('FrontEndGameMode_' .. M.nextAddr, {
     LaunchQuickRace = function(self, arch, ev, build) table.insert(M.calls, { name = 'LaunchQuickRace', args = { arch, ev, build } }) end,
   }))
+  if M.fireNew then M.fireNew('/Script/Griffin.FrontEndGameMode', W.fe) end
   W.mm = M.add('WBP_FE_MainMenu_C', M.new('WBP_FE_MainMenu_C_' .. M.nextAddr, {}, 'WBP_FE_MainMenu_C'))
   local mp = rawget(W.mm, '__props')
   mp.__vis = 4

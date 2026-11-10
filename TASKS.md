@@ -66,6 +66,11 @@ One git tag per chunk; push after each tag.
       1 / 1 / 2 / 3. Save v2: trophies and the cup in progress move up one class (backup kept).
 - [ ] Put the save's race count back (211 -> 13) with the game closed (the file has Windows line endings).
 
+- [x] v0.3.9 (2026-11-10): real cause found - every lookup by path is a full sweep in this game (UE4SS has no object
+      hash tables). No lookups while racing; one sweep every 2 s. In game: check the PERF "our tick" numbers.
+- [ ] Menu: the main-menu poll (`C.cached('FrontEndGameMode')`, every 200 ms) is a lookup by path too = a sweep 5x a
+      second at the menu. Not felt so far; make it cheaper (notification + rare checks) if the menus ever hitch.
+
 ## 5. v0.4 Mods: the vehicle's affixes (owner, 2026-11-09; DESIGN.md §5b)
 - [ ] **Recon M1:** at race load, write one affix with an obvious effect into your race copy's `AffixSlots`
       (`PrimaryAffix`); does it show in the HUD / build and change the car? Also read the copy's affix slot count.

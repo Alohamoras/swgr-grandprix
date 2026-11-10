@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.3.9 (2026-11-10): the stutter's real cause
+- The v0.3.7 real-clock timing showed our race check taking 11.7 ms on average (worst 74 ms) every 100 ms. Cause, in
+  UE4SS.log: "Failed to find FUObjectHashTables::Get()" - UE4SS has no object hash tables in this game, so every
+  lookup by name or path (StaticFindObject, so C.deref / C.asset / C.cached) is a full scan of the object list
+  (~10 ms). v0.3.1-0.3.8 looked race objects up by path several times a second, believing it cheap.
+- Now no lookups at all while racing: one sweep of the player states every 2 s reads all 12 racers (your position,
+  finish and speed included); the main menu is noticed by a notification (NotifyOnNewObject on
+  /Script/Griffin.FrontEndGameMode) or when a read finds no racers, then confirmed with one sweep.
+- PERF: tick gaps and our tick time from the game's clock (no world lookup); the frame-time sample is gone.
+- `test_perf` now also fails on any lookup by path during a race.
+
 ## v0.3.8 (2026-11-10): the ranking screen
 - Owner: fewer screens; after the game's race results, one screen with the ranking by points. The STANDINGS page is
   now a table of all 12: place, racer, points this race (or DNF), total, places moved since the race before (green

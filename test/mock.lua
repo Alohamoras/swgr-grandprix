@@ -132,11 +132,15 @@ function M.install()
   _G.LoopInGameThreadWithDelay = function(ms, fn) M.loops[#M.loops + 1] = { ms = ms, fn = function() fn() end, live = true }; return #M.loops end
   _G.ExecuteInGameThread = function(fn) record('ExecuteInGameThread'); fn() end
   _G.ExecuteWithDelay = function(ms, fn) fn() end
+  -- NotifyOnNewObject(class path, fn): M.fireNew(path, obj) calls them (world.lua does for the main menu)
+  M.notifies = {}
+  _G.NotifyOnNewObject = function(path, fn) M.notifies[path] = M.notifies[path] or {}; table.insert(M.notifies[path], fn) end
   _G.print = function(s) M.log[#M.log + 1] = s end
   M.hooks = {}
   _G.RegisterHook = function(name, fn) M.hooks[name] = M.hooks[name] or {}; table.insert(M.hooks[name], fn) end
 end
 
+function M.fireNew(path, obj) for _, fn in ipairs(M.notifies[path] or {}) do fn(obj) end end
 function M.fire(name, ctx) for _, fn in ipairs(M.hooks[name] or {}) do fn(ctx) end end
 -- press a bound key (no modifiers)
 function M.press(key)

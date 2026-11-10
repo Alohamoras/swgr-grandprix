@@ -1,4 +1,5 @@
--- v0.3.1: no full object sweeps (FindAllOf) every tick during a race - they made the race stutter. Count them.
+-- No full object sweeps every tick during a race - they made the race stutter (v0.3.1). v0.3.9: lookups by path are
+-- sweeps too in this game, so none at all: one sweep of the player states every 2 s, the menu by notification.
 local M = require('mock')
 local W = require('world')
 local T = require('util')
@@ -24,16 +25,22 @@ _G.FindAllOf = real
 local parts, total = {}, 0
 for cls, n in pairs(count) do parts[#parts + 1] = cls .. '=' .. n; total = total + n end
 table.sort(parts)
-T.check(total <= 6, 'at most 6 sweeps in 10 s of racing (was ~250): ' .. table.concat(parts, ' '))
-T.check((count.RacingGameState or 0) == 0, 'the race state is never swept for while racing')
-T.check((count.GfnPlayerState or 0) <= 1, 'the racers: found once (+1 sweep at 5 s for late joiners)')
-W.finish(1); M.tick(3)
+T.check(total <= 6, 'at most 6 sweeps in 10 s of racing (v0.3.0: ~250): ' .. table.concat(parts, ' '))
+T.check((count.RacingGameState or 0) == 0 and (count.FrontEndGameMode or 0) == 0, 'no sweeps for the race state or the menu while racing')
+T.check((count.GfnPlayerState or 0) >= 4 and (count.GfnPlayerState or 0) <= 6, 'the racers: one sweep every 2 s (' .. tostring(count.GfnPlayerState) .. ')')
+local lookups = 0
+local realSFO = _G.StaticFindObject
+_G.StaticFindObject = function(p) if not p:find('Default__', 1, true) then lookups = lookups + 1 end; return realSFO(p) end
+M.tick(50)
+_G.StaticFindObject = realSFO
+T.check(lookups == 0, 'no lookups by path while racing (they are full sweeps here): ' .. lookups)
+W.finish(1); M.tick(25)
 local t0 = os.time(); while os.time() - t0 < 3 do end
 W.backToMenu(); M.tick(45)
 local results = 0
 for _, l in ipairs(M.log) do if l:find('RESULT THE WAR FIELDS', 1, true) then results = results + 1 end end
 T.check(results == 1, 'the race is recorded exactly once (' .. results .. ')')
-T.check(T.logHas('PERF THE WAR FIELDS: frames:') and T.logHas('Lua memory: start'), 'PERF line written, with Lua memory')
-T.check(T.logHas('our tick (real clock):') and T.logHas('race watch average 0.30 ms'), 'our tick timed with the real clock')
+T.check(T.logHas('PERF THE WAR FIELDS: tick gaps') and T.logHas('Lua memory: start'), 'PERF line written, with Lua memory')
+T.check(T.logHas('our tick (real clock):'), 'our tick timed with the real clock')
 T.check(T.save().races == 1, 'races = 1')
 T.finish()

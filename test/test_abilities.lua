@@ -46,7 +46,7 @@ local leak = false
 for _, b in ipairs(W.bots) do if W.slots(b):find('Autopilot') then leak = true end end
 T.check(not leak, 'no bot keeps Autopilot / your copied build')
 
-W.finish(1); M.tick(3)
+W.finish(1); M.tick(25)
 local t0 = os.time(); while os.time() - t0 < 3 do end
 W.backToMenu(); M.tick(45)
 T.check(names(slots) == '-,-,-,-', 'build slots put back after the race (' .. names(slots) .. ')')

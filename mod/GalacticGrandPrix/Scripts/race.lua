@@ -201,6 +201,7 @@ function R.launch(ev, classKey, vehKey, picks)
   log(('LAUNCH %s (%s - %s) class=%s vehicle=%s tag=%s mode=%s'):format(ev.path:match('([^/]+)$'), ev.title, ev.kind or '',
     tostring(classKey), veh.key, tostring(tag), C.idname(try(function() return e.EventMode end))))
   R.run = { ev = ev, at = C.clock, oldGs = addr(oldGs), oldFe = addr(fe), phase = 'loading', top = 0, field = {}, ticks = 0 }
+  R.menuSeen = false
   local ok3, lo = pcall(LO.begin, classKey)
   if ok3 then R.run.lo = lo else log('[loadout] ' .. tostring(lo)) end
   return true
@@ -208,24 +209,6 @@ end
 
 ---------------------------------------------------------------------------------------------------------------------
 -- watching: returns the result once the race is over and we're back at the main menu
-
-local function playerRow(r)
-  -- the player state is kept as path + address (C.ref), never as the object: it's freed with the race world
-  local me = C.deref(r.psRef)
-  if not me then
-    r.psRef = nil
-    for _, ps in ipairs(C.find('GfnPlayerState')) do
-      if try(function() return ps.bIsABot end) == false then me = ps; r.psRef = C.ref(ps); break end
-    end
-    if not me then return nil end
-  end
-  local rec = try(function() return me.RaceEventComponent end)
-  if not alive(rec) then return nil end
-  local pawn = try(function() return me.PawnPrivate end)
-  local kph = alive(pawn) and try(function() local v = pawn:GetVelocity(); return math.sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z) * 0.036 end) or 0
-  return { pos = try(function() return tonumber(rec.EventPosition) end),
-    done = try(function() return rec.bHasFinishedEvent end) == true, kph = kph or 0 }
-end
 
 -- every racer's name, position and finished flag (v0.2, the cup's points). Strings and numbers only, read again each
 -- time: a racer's position is kept once they've finished. Returns the number of racers seen.
@@ -235,19 +218,15 @@ local function pilotName(ps)
   if not n then n = try(function() return ps:GetPlayerName():ToString() end) end
   return (type(n) == 'string' and n ~= '') and n or nil
 end
+-- every racer, read from ONE sweep of the player states (v0.3.9). Lookups by name or path are full object sweeps in
+-- this game under UE4SS (its object hash tables weren't found: "Failed to find FUObjectHashTables::Get()" in UE4SS.log),
+-- so nothing is kept or looked up between reads; all values come from objects found in this same call. You too:
+-- position, finished, speed (for the top speed). Returns the number of racers seen.
 local function readField(r)
-  -- (v0.3.1: the racers are found once with a full object sweep, then looked up by path + address - cheap - so the
-  -- race isn't swept every half second; a second sweep 5 s later catches anyone who joined late)
-  if not r.psRefs or (not r.psSwept2 and C.clock - (r.psAt or 0) > 5000) then
-    if r.psRefs then r.psSwept2 = true end
-    r.psRefs, r.psAt = {}, C.clock
-    for _, ps in ipairs(C.find('GfnPlayerState')) do r.psRefs[#r.psRefs + 1] = C.ref(ps) end
-  end
   local n, seen = 0, {}
-  for _, ref in ipairs(r.psRefs) do
-    local ps = C.deref(ref)
-    local rec = ps and try(function() return ps.RaceEventComponent end)
-    local name = ps and pilotName(ps)
+  for _, ps in ipairs(C.find('GfnPlayerState')) do
+    local rec = try(function() return ps.RaceEventComponent end)
+    local name = pilotName(ps)
     if alive(rec) and name then
       local you = try(function() return ps.bIsABot end) == false
       local key = you and '@you' or name
@@ -266,6 +245,16 @@ local function readField(r)
         if pos and pos > 0 then f.pos = pos end
         if try(function() return rec.bHasFinishedEvent end) == true then f.finished = true end
       end
+      if you then
+        local pawn = try(function() return ps.PawnPrivate end)
+        local kph = alive(pawn) and try(function() local v = pawn:GetVelocity(); return math.sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z) * 0.036 end) or 0
+        if kph > r.top then r.top = kph end
+        if f.pos then r.lastPos = f.pos end
+        if f.finished and not r.finished then
+          r.finished, r.pos = true, f.pos
+          log(('finished %s'):format(C.ordinal(f.pos)))
+        end
+      end
       n = n + 1
     end
   end
@@ -278,22 +267,18 @@ local function fieldList(r)
 end
 R.fieldList = fieldList
 
--- frame times (v0.3.2, stutter hunt): the game's frame time sampled every tick (100 ms) while racing, plus how long
--- our own tick took. Summarised in the log when the race ends. Numbers only.
--- v0.3.3: also the real time between our own ticks (they're asked for every 100 ms). A hitch anywhere - ours
--- included, which the frame-time sample can't see (it reads the frame before ours) - makes that gap longer.
+-- PERF (stutter hunt): the real time between our ticks (asked for every 100 ms; a hitch anywhere makes a gap longer)
+-- and Lua memory. v0.3.9: from the game's clock (KismetMathLibrary:Now) - no world lookup (the frame-time sample
+-- needed one, and lookups are full sweeps here).
 function R.perf(r)
-  local p = r.perf or { n = 0, sum = 0, max = 0, over33 = 0, over50 = 0, over100 = 0, ourMax = 0, ourSum = 0,
-    gaps = 0, gapMax = 0, late40 = 0, late100 = 0, kb0 = collectgarbage('count'), kbMax = 0 }
+  local p = r.perf or { gaps = 0, gapMax = 0, late40 = 0, late100 = 0, kb0 = collectgarbage('count'), kbMax = 0 }
   r.perf = p
   local kb = collectgarbage('count')
   if kb > p.kbMax then p.kbMax = kb end
-  local gsl = C.lib('GameplayStatics')
-  local w = C.deref(r.gsRef)
-  local now = (gsl and w) and try(function() return gsl:GetRealTimeSeconds(w) end)
-  if type(now) == 'number' then
+  local now = R.nowMs()
+  if now then
     if p.lastReal then
-      local gap = (now - p.lastReal) * 1000
+      local gap = now - p.lastReal
       if gap > 0 and gap < 2000 then -- (a pause or a long load isn't a hitch)
         p.gaps = p.gaps + 1
         if gap > p.gapMax then p.gapMax = gap end
@@ -302,15 +287,6 @@ function R.perf(r)
       end
     end
     p.lastReal = now
-  end
-  local dt = (gsl and w) and try(function() return gsl:GetWorldDeltaSeconds(w) end)
-  if type(dt) == 'number' and dt > 0 then
-    local ms = dt * 1000
-    p.n, p.sum = p.n + 1, p.sum + ms
-    if ms > p.max then p.max = ms end
-    if ms > 33 then p.over33 = p.over33 + 1 end
-    if ms > 50 then p.over50 = p.over50 + 1 end
-    if ms > 100 then p.over100 = p.over100 + 1 end
   end
 end
 -- v0.3.6: a real clock for timing our own tick - the game's KismetMathLibrary:Now() (FDateTime, 100 ns ticks).
@@ -341,16 +317,17 @@ function R.perfTick(watchMs, gcMs)
 end
 local function perfLine(r)
   local p = r.perf
-  if not p or p.n == 0 then return 'frames: no samples' end
-  -- (v0.3.3: no "our tick" time any more - os.clock under Proton counts the whole game's CPU time, not ours, so it
-  -- read 15-25 ms a tick while the frames were 10 ms)
-  return ('frames: %d samples, average %.1f ms, worst %.0f ms, over 33 ms %d (%.0f%%), over 50 ms %d, over 100 ms %d | tick gaps (asked 100 ms): %d, worst %.0f ms, 40+ ms late %d (%.1f%%), 100+ ms late %d'):format(
-    p.n, p.sum / p.n, p.max, p.over33, 100 * p.over33 / p.n, p.over50, p.over100,
+  if not p then return 'no data' end
+  return ('tick gaps (asked 100 ms): %d, worst %.0f ms, 40+ ms late %d (%.1f%%), 100+ ms late %d'):format(
     p.gaps, p.gapMax, p.late40, 100 * p.late40 / math.max(1, p.gaps), p.late100)
     .. (' | Lua memory: start %.0f KB, peak %.0f KB, end %.0f KB'):format(p.kb0, p.kbMax, collectgarbage('count'))
     .. ((p.tN or 0) > 0 and (' | our tick (real clock): %d ticks, race watch average %.2f ms / worst %.1f ms, garbage step average %.2f ms / worst %.1f ms, ticks over 5 ms %d, over 20 ms %d'):format(
       p.tN, p.wSum / p.tN, p.wMax, p.gSum / p.tN, p.gMax, p.over5 or 0, p.over20 or 0) or ' | our tick: not measured')
 end
+
+-- the main menu coming back (v0.3.9): a notification when its game mode is created - no polling, no sweeps
+R.menuSeen = false
+pcall(NotifyOnNewObject, '/Script/Griffin.FrontEndGameMode', function() R.menuSeen = true end)
 
 function R.watch()
   local r = R.run
@@ -367,7 +344,7 @@ function R.watch()
           log('NOT an offline race - Grand Prix stops here, build put back')
           R.restoreBuild('not offline'); R.run = nil; return { failed = 'not offline' }
         end
-        r.gs, r.gsRef, r.phase = addr(gs), C.ref(gs), 'racing'
+        r.gs, r.phase = addr(gs), 'racing'
         local ok, err = pcall(LO.apply, r.lo)
         if not ok then log('[loadout] apply failed: ' .. tostring(err)); r.lo = nil end
         return nil
@@ -381,65 +358,48 @@ function R.watch()
     return nil
   end
 
-  -- racing (v0.3.1-2): every 250 ms, no full object sweeps - the race state is looked up by path + address (cheap);
-  -- only once it's gone is the main menu searched for (at most every 500 ms). Sweeping the whole object list made
-  -- the race stutter.
+  -- racing (v0.3.9): no lookups at all between reads. Every 2 s one sweep reads all 12 racers (readField); the main
+  -- menu is noticed by its notification (R.menuSeen) or when a read finds no racers any more (the world is gone), and
+  -- only then confirmed with one sweep. (v0.3.1-0.3.8 looked objects up by path several times a second, believing it
+  -- cheap; here every such lookup is a full sweep - ~10 ms each, the stutter.)
   if r.lo and not r.lo.done then
     local ok, err = pcall(LO.apply, r.lo)
     if not ok then log('[loadout] apply failed: ' .. tostring(err)); r.lo = nil end
   end
   R.perf(r)
-  if C.clock - (r.lastWatch or -1e9) < 250 then return nil end
-  r.lastWatch = C.clock
-  local gs = C.deref(r.gsRef)
-  local fe
-  if not gs and C.clock - (r.lastFe or -1e9) >= 500 then
-    r.lastFe = C.clock
-    fe = C.first('FrontEndGameMode')
-  end
-  if alive(fe) and (not gs or addr(fe) ~= r.oldFe) then
-    R.restoreBuild('main menu')
-    local fl = fieldList(r)
-    -- your finish counts as read at the moment you crossed the line; you're always in the result (even if you quit
-    -- before the racers were first read)
-    local me
-    for _, f in ipairs(fl) do if f.you then me = f end end
-    if not me then me = { name = 'YOU', you = true }; fl[#fl + 1] = me end
-    me.finished = r.finished; me.pos = r.finished and r.pos or me.pos
-    -- (v0.3.5: the race is marked over BEFORE anything that could fail - v0.3.4's PERF line had a format error, the
-    -- race was never marked over, and it was recorded again every tick)
-    R.run = nil
-    local out = K.record(r.ev, r.finished and r.pos or nil, fl)
-    pcall(function()
-      log(('RESULT %s: %s (top speed %d kph, last position seen %s)'):format(r.ev.title,
-        r.finished and C.ordinal(r.pos) or 'DNF', math.floor(r.top), tostring(r.lastPos)))
-    end)
-    local okP, line = pcall(perfLine, r)
-    log('PERF ' .. r.ev.title .. ': ' .. (okP and line or ('(error: ' .. tostring(line) .. ')')))
-    return out
-  end
-  if not gs then return nil end
-  local started = try(function() return gs.bIsRaceStarted end) == true
-  if not started then return nil end
-  -- the field: every 4th check (~1 s; v0.3.4, fewer object wrappers), and right away when you finish (the bots
-  -- behind you keep racing a while)
-  r.ticks = r.ticks + 1
-  if r.ticks % 4 == 1 then
-    local n = readField(r)
-    if not r.fieldLogged and n > 0 then r.fieldLogged = true; log(('field: %d racers'):format(n)) end
-  end
-  if r.finished then return nil end
-  local row = playerRow(r)
-  if row then
-    if row.kph > r.top then r.top = row.kph end
-    if row.pos ~= r.lastPos then r.lastPos = row.pos end
-    if row.done then
-      r.finished, r.pos = true, row.pos
-      readField(r)
-      log(('finished %s'):format(C.ordinal(row.pos)))
+  local due = C.clock - (r.lastRead or -1e9) >= 2000
+  if not (R.menuSeen or due or r.gone) then return nil end
+  local n = 0
+  if not R.menuSeen and due then
+    r.lastRead = C.clock
+    n = readField(r)
+    if n > 0 then
+      if not r.fieldLogged then r.fieldLogged = true; log(('field: %d racers'):format(n)) end
+      return nil
     end
   end
-  return nil
+  -- no racers (or the menu notified): the race world is gone; is the main menu back? (one sweep, at most every 500 ms)
+  if C.clock - (r.lastFe or -1e9) < 500 then return nil end
+  r.lastFe, r.gone = C.clock, true
+  local fe = C.first('FrontEndGameMode')
+  if not (alive(fe) and addr(fe) ~= r.oldFe) then return nil end
+  R.restoreBuild('main menu')
+  local fl = fieldList(r)
+  -- you're always in the result (even if you quit before the racers were first read)
+  local me
+  for _, f in ipairs(fl) do if f.you then me = f end end
+  if not me then me = { name = 'YOU', you = true }; fl[#fl + 1] = me end
+  me.finished = r.finished; me.pos = r.finished and r.pos or me.pos
+  -- (v0.3.5: the race is marked over BEFORE anything that could fail)
+  R.run = nil
+  local out = K.record(r.ev, r.finished and r.pos or nil, fl)
+  pcall(function()
+    log(('RESULT %s: %s (top speed %d kph, last position seen %s)'):format(r.ev.title,
+      r.finished and C.ordinal(r.pos) or 'DNF', math.floor(r.top), tostring(r.lastPos)))
+  end)
+  local okP, line = pcall(perfLine, r)
+  log('PERF ' .. r.ev.title .. ': ' .. (okP and line or ('(error: ' .. tostring(line) .. ')')))
+  return out
 end
 
 return R

@@ -21,7 +21,7 @@ local function race(n, you)
     rec.bHasFinishedEvent = true
   end
   M.tick(5)
-  W.finish(you); M.tick(3)
+  W.finish(you); M.tick(25)
   local t0 = os.time(); while os.time() - t0 < 3 do end
   W.backToMenu(); M.tick(45)
 end
