@@ -109,7 +109,46 @@ function W.setup()
   end
   local ksl = StaticFindObject('/Script/Engine.Default__KismetSystemLibrary')
   rawget(ksl, '__props').IsStandalone = function() return true end
+  W.characterList()
   W.frontEnd()
+end
+
+-- the game instance's character list (v0.8, menu dump 2026-11-10): the 16 racer defs as loaded assets, Player = Shade,
+-- Opponents = the 11 of every quick-race grid in the game's order. Objects are named by their full path, as
+-- GetFullName gives it in game ('RacerDef /Game/.../DA_Racer_X.DA_Racer_X').
+local RACERS = '/Game/Griffin/Narrative/CharacterDefs/Racers/DA_Racer_'
+W.RACER_NAMES = { Antagonist = 'Kestar Bool', DarkEnigma = 'Shade', ElegantProfessional = 'Katja Mox', Ghost = 'Goli & 02-R0',
+  InnerHonour = 'Soren Zaks', Mentor = 'Sebulba', Mercenary = 'Malis Vazosk', Nomad = 'Fola Kanjen', Protege = 'Ary Quill',
+  QuietStrength = 'Nik Skandaro', Rager = 'Biddy Blas', Star = 'Lyren Shok', Thrall = 'Sen Fira', Veteran = 'Griff Halloran',
+  TestPilot = 'Autopilot', MentorBossRace = 'Sebulba' }
+W.OPPONENTS = { 'Mercenary', 'ElegantProfessional', 'Star', 'InnerHonour', 'Thrall', 'Ghost', 'Rager', 'Nomad', 'Veteran',
+  'QuietStrength', 'Protege' }
+function W.racerDef(key)
+  local full = RACERS .. key .. '.DA_Racer_' .. key
+  if not M.assets[full] then
+    M.assets[full] = M.new(full, { CharacterName = FText(W.RACER_NAMES[key] or key), PreferredVehicleType = 0 }, 'RacerDef')
+  end
+  return M.assets[full]
+end
+function W.characterList()
+  M.clear('CharacterList')
+  for key in pairs(W.RACER_NAMES) do W.racerDef(key) end
+  local opp = {}
+  for i, key in ipairs(W.OPPONENTS) do opp[i] = W.racerDef(key) end
+  W.opponents = opp
+  local path = '/Game/Griffin/Narrative/CharacterDefs/DA_CharacterList'
+  W.chars = M.new(path .. '.DA_CharacterList', { Player = W.racerDef('DarkEnigma'), Opponents = M.tarr(opp) }, 'CharacterList')
+  M.assets[path .. '.DA_CharacterList'] = W.chars
+  M.add('CharacterList', W.chars)
+  return W.chars
+end
+-- the list as text for checks: 'Player=DarkEnigma Opp=Mercenary,ElegantProfessional,...'
+function W.charsText()
+  local p = rawget(W.chars, '__props')
+  local function key(o) return (o and not rawget(o, '__dead')) and (rawget(o, '__name'):match('DA_Racer_([%w_]+)$') or '?') or '-' end
+  local l = {}
+  for i = 1, p.Opponents:GetArrayNum() do l[i] = key(p.Opponents[i]) end
+  return 'Player=' .. key(p.Player) .. ' Opp=' .. table.concat(l, ',')
 end
 
 -- a build asset with a slot map
