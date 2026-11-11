@@ -17,34 +17,34 @@ Things only a real play can answer. Tick them off (or note what felt wrong) as y
 - [ ] **Free ability pick and trophy badges:** do they read clearly?
 - [ ] **AI abilities (R7):** do the AI racers fire their abilities, Shields included? Watch for it in races.
 
-## v0.8: to see in game (built 2026-11-10 from the research; nothing checked in the real game yet)
+## v0.8: to see in game (built 2026-11-10 from the research; v0.8.1 checked by Claude in game, see CHANGELOG)
 Research: https://claude.ai/artifact/7VSJrJnpopuMcBFQ2WyTV8 (copy docs/research-2026-11-10.md). Everything below has
 tests against the fake game; the game was in use when the in-game checks were due. Install: `./deploy.sh v0.8.0`.
 First load drops the old catalogue mod keys from the save (logged `[tune-ups] dropped from the save`); your trophies,
 records-to-be, abilities and vehicle are kept.
-- [ ] **Menus:** HOME (classes, GARAGE, RESET; CONTINUE / QUIT CUP while a cup runs), the CUPS page (5 x 4 grid: do
+- [x] (Claude, 2026-11-10) **Menus:** HOME (classes, GARAGE, RESET; CONTINUE / QUIT CUP while a cup runs), the CUPS page (5 x 4 grid: do
       18 smaller tiles fit without scrolling, is the text readable, do the info lines show the four races and
       records when a cup is focused), GARAGE (Select cycles each tile). B goes back everywhere. Take screenshots.
-- [ ] **A cup from the cups page:** Select on a cup launches race 1 straight away; the tile says IN PROGRESS; Select
+- [x] (Claude: a 150cc Jakku race, 3rd, NEW RECORD) **A cup from the cups page:** Select on a cup launches race 1 straight away; the tile says IN PROGRESS; Select
       on it launches the next race; standings unchanged; NEW RECORD line after a finished race; the class tile's
       gold count.
-- [ ] **AI profile** (grandprix.log): at launch `[ai] class 150: pressure 0.50 ...` and `[ai] ... AI config
+- [x] (Claude: all lines seen, no FAILED; the feel is yours to judge) **AI profile** (grandprix.log): at launch `[ai] class 150: pressure 0.50 ...` and `[ai] ... AI config
       (DA_AIConfig) DefaultPacingSettings.MaxAiSlowdownScale 0.75 -> 1, ForcedErrorChance 15 -> 7.5` (no FAILED);
       while loading `[ai] applied to N tune objects`; at the menu `[ai] put back ...` and `AI config put back`.
       Then the feel: at 150cc / 200cc the AI should not wait for you when you are ahead.
-- [ ] **Racer:** pick Kestar Bool in the garage; the HUD and results show his name; `[racer] ... CharacterList.Player
+- [ ] (Claude: the log lines seen; the HUD / results name not seen) **Racer:** pick Kestar Bool in the garage; the HUD and results show his name; `[racer] ... CharacterList.Player
       set (was Shade)` then `Shade put back` ~10 s into the race; the standings still show YOU. Pick an opponent
       (Katja Mox): the grid has Shade instead of a second Katja.
-- [ ] **Tune-ups:** 150cc with REDLINER: your passives = its two affixes only; Biddy Blas, Sen Fira, Lyren Shok carry
+- [ ] (Claude: HEAT SHIELD + Elite HEAT SHIELD seen in the log, 64 bot slots cleared; the 'cleared from your copy' case not seen) **Tune-ups:** 150cc with REDLINER: your passives = its two affixes only; Biddy Blas, Sen Fira, Lyren Shok carry
       Burn + Frost Protection; everyone else none (`[loadout] mods: you=... Elite=... (N bot slots cleared)`, no
       FAILED); `mods put back (main menu): VBD_Car_Base (0)` after. Unknown: whether clearing YOUR race copy at
       load really removes the AI's extras from your car (fallback `TuneUps.AIExtra = false`).
-- [ ] **Title race:** TITLE RACE tile (locked until a trophy in all five planet cups at the class; VS KESTAR BOOL);
+- [x] (Claude, v0.8.1: won it; the Showdown's story cinematic had to be taken off the event, see CHANGELOG) **Title race:** TITLE RACE tile (locked until a trophy in all five planet cups at the class; VS KESTAR BOOL);
       the Showdown launches with the class's parts; the result screen (win = CHAMPION, the class tile says
       "Champion: YOU"; a loss can be rerun); `TITLE RACE 100: ...` in the log. 1 v 1 field of 2 read correctly.
 - [ ] **Conditions cups:** open with gold in the planet cup; every event launches (paths were checked against the
       event dump, not in game); art (the other vehicle's poster).
-- [ ] **Class spacing:** one 150cc race at parts 7 - the RESULT line's top speed (was ~620 kph at parts 6).
+- [x] (Claude: 653 kph at parts 7 on The War Fields; was ~620 at parts 6) **Class spacing.**
 - [ ] Later (research spikes): the class leader as the title-race opponent (two-car grid + Opponents list); bot
       rename; per-racer pacing; podracer launch; the rival 1 v 1 ladder.
 

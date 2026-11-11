@@ -76,7 +76,7 @@ local function writeLevels(build, want)
   end
 end
 
-function R.pendingRestore() return next(K.data.restores) ~= nil or next(K.data.abilityRestores) ~= nil or RC.pending() or AI.pending() end
+function R.pendingRestore() return next(K.data.restores) ~= nil or next(K.data.abilityRestores) ~= nil or RC.pending() or AI.pending() or require('title').pending() end
 
 -- ability slots (v0.3): a class object -> its path ('' = empty)
 local function slotPath(c)
@@ -187,6 +187,9 @@ function R.restoreBuild(why)
   local okA, nA = pcall(AI.restoreConfig, why)
   if not okA then log('[ai] restore error: ' .. tostring(nA)) elseif nA > 0 then done[#done + 1] = AI.CONFIG end
   if #done > 0 then K.save() end
+  -- v0.8: the title race's event gets its story cinematics back (title.lua)
+  local okT, errT = pcall(function() return require('title').restore(why) end)
+  if not okT then log('[title] put back failed: ' .. tostring(errT)) end
   -- v0.8: your pilot (CharacterList.Player) back, if the race never settled it (quit early, crash, failed launch)
   local okR, errR = pcall(RC.restore, why)
   if not okR then log('[racer] put back failed: ' .. tostring(errR)) end
@@ -259,6 +262,10 @@ function R.launch(ev, classKey, vehKey, picks, mods)
   local okI, ai = pcall(function() AI.launch(classKey); return AI.begin(classKey) end)
   if not okI then log('[ai] ' .. tostring(ai)); ai = nil end
   -- v0.8: your pilot into the character list (the save holds what to put back; a failed launch puts it back below)
+  if ev.titleRace then
+    local okT, errT = pcall(function() return require('title').prepare(e, ev.path) end)
+    if not okT then log('[title] prepare failed: ' .. tostring(errT)) end
+  end
   local okR, errR = pcall(RC.begin, RC.current().key)
   if not okR then log('[racer] not set: ' .. tostring(errR)) end
   local oldGs = C.first('RacingGameState')

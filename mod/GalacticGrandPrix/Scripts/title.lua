@@ -33,6 +33,51 @@ function T.event(classKey)
   return { path = conf().Event, title = conf().Name or 'TITLE RACE', kind = '1 v 1', class = classKey, titleRace = true }
 end
 
+-- The Showdown event carries the campaign's story cinematics: EventCompleteCinematicChain = the Act 2 victory scene,
+-- which outside the campaign leads to a black screen (seen in game, 2026-11-10: the race finished, the cutscene
+-- was skipped by Streamline, then nothing). So before a title race these chains are taken off the event (memory
+-- only) and put back at the menu; the originals' paths live in the save (titleRestore) so a crash is put right too.
+T.CHAINS = { 'EventCompleteCinematicChain', 'EventFailedCinematicChain' }
+local try, alive = C.try, C.alive
+function T.prepare(e, path)
+  local rec = { path = path, fields = {} }
+  local n = 0
+  for _, f in ipairs(T.CHAINS) do
+    local o = try(function() return e[f] end)
+    if alive(o) then
+      local full = try(function() return o:GetFullName() end)
+      if type(full) == 'string' then
+        local obj = full:match('^%S+%s+(.+)$') or full
+        rec.fields[f] = obj:match('^(.*)%.[^./]+$') or obj -- the package path (C.asset adds the object name)
+        if pcall(function() e[f] = CreateInvalidObject() end) then n = n + 1 end
+      end
+    end
+  end
+  if n > 0 then
+    K.data.titleRestore = rec
+    K.save()
+    local names = {}
+    for f, p in pairs(rec.fields) do names[#names + 1] = f .. '=' .. p:match('([^/.]+)$') end
+    log(('[title] story cinematics taken off %s for this race: %s'):format(path:match('([^/]+)$'), table.concat(names, ', ')))
+  end
+  return n
+end
+function T.pending() return type(K.data.titleRestore) == 'table' end
+function T.restore(why)
+  local rec = K.data.titleRestore
+  if type(rec) ~= 'table' then return 0 end
+  local e = C.asset(rec.path)
+  local n = 0
+  for f, p in pairs(rec.fields or {}) do
+    local o = C.asset(p)
+    if e and o and pcall(function() e[f] = o end) then n = n + 1 end
+  end
+  K.data.titleRestore = nil
+  K.save()
+  log(('[title] story cinematics put back (%s): %d'):format(why or '?', n))
+  return n
+end
+
 -- a finished title race (called from K.record): won = 1st of the two. Returns what the result screen shows.
 function T.record(ev, pos)
   local cls = ev.class

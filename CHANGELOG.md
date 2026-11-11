@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.8.1 (2026-11-10): v0.8 seen in game; the title race comes back to the menu
+- Seen in game (test copy of the owner's save, TestAutopilot driving): HOME, the 18-tile CUPS page (5 x 4, no
+  scrolling, the focused cup's four races and records in the info lines, steady height), GARAGE (vehicle, racer,
+  abilities and tune-ups cycle in place), a 150cc cup race (AI config written `MaxAiSlowdownScale 0.75 -> 1,
+  ForcedErrorChance 15 -> 7.5` and put back; pressure applied to the one shared tune object and put back; racer swap
+  to Kestar Bool and Shade put back 10 s in; tune-ups in the launch build, 64 bot slots cleared; 3rd, NEW RECORD
+  1:48.63, top speed 653 kph at parts 7), the standings with the NEW RECORD line, and the title race (won, result
+  screen, CHAMPION badge, "Champion: YOU").
+- **Fix:** the Stadium Showdown's EventCompleteCinematicChain is the campaign's Act 2 victory scene: outside the
+  campaign the win led to a black screen (Streamline skipped the cutscene, then nothing). The title race now takes
+  that chain and the failed-race chain off the event at launch (memory only, originals' paths in the save as
+  `titleRestore`) and puts them back at the menu or the next start. Seen: `story cinematics taken off ... / put back
+  (main menu): 2`, the game's own results, our result screen.
+- TestAutopilot v1.4 (separate repo): puts Autopilot into your race copy's slot 1 while the race loads, since the
+  Grand Prix writes the launch build's ability slots at launch.
+- Not seen: the HUD / results name while racing as another pilot (the log shows the swap and the put-back); a cup
+  with tune-ups the AI doesn't share (the "cleared from your race copy" path); conditions cup events launching.
+
 ## v0.8.0 (2026-11-10): the research round built - two-level menu, title race, your racer, AI profiles, records, tune-ups, conditions cups (NOT yet seen in game)
 Built from the research doc (docs/research-2026-11-10.md) by five parallel subagents in worktrees plus the
 integrator; every piece has tests against the fake game; nothing has been checked in the real game yet (the owner was
