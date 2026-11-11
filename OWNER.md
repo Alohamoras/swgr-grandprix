@@ -4,6 +4,9 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
+- [ ] **Tell me when you're away from the desktop** so I can check v0.20.0 in game before you play it (it changes the
+  tiles, HOME, the cup result screen and the standings; built and tested, not yet seen). Until then v0.19.1 stays
+  installed.
 - [ ] **Kestar and the title race.** Should the title race become a 1 v 1 against your rival (or the class leader) on a
   normal track? This is proven to work (TASKS B6). Kestar Bool would then stay as the final boss in the stadium, for
   example at 150cc only, or after every class. Or should Kestar stay the opponent in every title race?
@@ -18,6 +21,9 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - [ ] **Ideas from your Google Doc** (realism mode, a podracer cup): send the details when you want them on the list.
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.20 menus** (after Claude's check): the rival marked in light blue on the standings, the new cup result
+  screen (big medal, top 3, what's next), the "Next:" line on HOME, tile labels readable when selected, and the game's
+  footer (with "Restart Campaign") gone from our pages. If tiles look odd: `TileLabelStrip = false` in config.lua.
 - [ ] **A cup at 100cc and a cup at 150cc on v0.18.1** (the new AI: no catch-up anywhere). Does a clean race win by a
   few seconds and a messy one lose? Is it consistent race to race? Too easy / too hard? Your `[gaps]` lines are logged.
 - [ ] **NEXT RACE on the results screen** (v0.19.1): does the pad's **A** press it? Does the next race start without
