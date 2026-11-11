@@ -71,6 +71,10 @@ owner's own play, and the offline half of B7.)
    error, but the pawn's CstCustomisationComponent wasn't found (K2_GetComponentsByClass), so whether the look
    changed is unproven; screenshot autotest/shots/g-biddy.png for the owner to judge. Next: find the look component
    another way, or set the recipe while the race loads (FreeRace's Server_UpdateVehicleRecipe).)
+   (LookSpike v2 built 2026-11-11, not yet run: four routes, one per race, as Nik Skandaro on the landspeeder with
+   PRE_Car_Hammerhead_QuietStrength: C = the race recipe's Racers[] entry, B = the car's look component found
+   another way + SetActiveVehicleRecipeFromPreset, A = Server_UpdateVehicleRecipe with a struct built from the
+   preset, O = the override call at load. Install, log lines and crash risk: tools/recon/LookSpike/README.md.)
    (offline half done 2026-11-11: docs/racer-vehicles-2026-11-11.md. Every racer has one preset, none a
    podracer: Kestar = landspeeder PRE_Car_Antagonist, Sebulba = skimmer. The race itself is still to do.)
    Spike for A6 (owner agreed 2026-11-10): find where each racer's own vehicle lives (racer def, AI build, livery)
