@@ -173,7 +173,11 @@ From the afternoon's findings (docs/ai-study-2026-11-11.md, docs/menu-review-202
    0.3), speed matching off, forced errors off from 100cc (50cc keeps them). Then the owner races one cup at 100cc and
    one at 150cc; read their `[gaps]` lines. Target: a good race wins by a few seconds, a messy one loses, the best bot
    steady from race to race.
-2. [x] (2026-11-11 17:35, v0.19.0 in game: the panel showed, but NEXT RACE by RequestResetRace to another layout
+2. [x] (2026-11-11 18:08 in game, v0.19.1: a whole 150cc Jakku cup chained: the standings panel on the game's results
+   screen (opaque, NEXT RACE left of CONTINUE), N -> the next race launched from the menu under the cover 5-6 s after
+   the results, 12 racers, no standings page between races; cup result at the menu, put-backs once. Pad A on NEXT
+   RACE is the owner's to check.)
+   (2026-11-11 17:35, v0.19.0 in game: the panel showed, but NEXT RACE by RequestResetRace to another layout
    (Mastiff/Loop_A -> P2P_A) hung on PLEASE WAIT for good - the reset only re-uses the loaded map; the game's table
    showed through the panel; NEXT RACE overlapped CONTINUE. **v0.19.1** (built, tested, NOT yet seen in game): NEXT
    RACE now goes via the main menu under the cover and launches the next race by itself (every cup); the reset route
