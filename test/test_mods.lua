@@ -1,4 +1,4 @@
--- v0.8: your tune-ups. Picked on MODS (slot -> group -> package, the v0.6 screens until the garage tile), written into
+-- v0.8: your tune-ups. Picked in place on the GARAGE's TUNE-UP tiles (Select cycles the package), written into
 -- the launch build's Affixes at launch together with the AI tiers' packages; at load every racer's race copy loses
 -- what isn't theirs (the Elite keep theirs, you keep yours); put back at the menu. 50cc: no mods at all.
 local M = require('mock')
@@ -7,31 +7,28 @@ local T = require('util')
 -- an old (v0.6) save holding catalogue keys: dropped with a log line
 T.boot({ version = 2, mods = { 'Conditions_FreezeProtection', 'Cooled_GainWhileSlipstream', false, false } }, { Progression = { On = false } })
 M.press('F6'); M.tick(6)
-T.clickTitle('150CC'); M.tick(3)
-T.clickTitle('JAKKU CUP'); M.tick(3)
-T.clickTitle('MODS'); M.tick(3)
-T.check(T.titles() == 'EMPTY SLOT|EMPTY SLOT|DONE', '150cc: two empty tune-up slots, the old catalogue keys gone (' .. T.titles() .. ')')
+T.clickTitle('GARAGE'); M.tick(3)
+T.check(T.titles():find('|NONE|NONE$') ~= nil, 'garage: two empty tune-up slots, the old catalogue keys gone (' .. T.titles() .. ')')
+T.check(T.badges():find('TUNE%-UP 1  %- FROM 100CC|TUNE%-UP 2  %- FROM 150CC') ~= nil, 'the slots say which class opens them (' .. T.badges() .. ')')
 T.check(T.logHas('[tune-ups] dropped from the save (not tune-ups): Conditions_FreezeProtection, Cooled_GainWhileSlipstream'), 'the old keys logged')
-T.clickTitle('EMPTY SLOT'); M.tick(3)
-T.check(T.titles():find('^STATUS PROTECTION|SHIELDS, SURGES & SLIPSTREAM|') ~= nil and T.titles():find('BACK$') ~= nil, 'the groups the packages use (' .. T.titles() .. ')')
-T.clickTitle('STATUS PROTECTION'); M.tick(3)
-T.check(T.titles() == 'HEAT SHIELD|TENACIOUS|BACK', 'Status protection: HEAT SHIELD and TENACIOUS (' .. T.titles() .. ')')
-T.clickTitle('HEAT SHIELD'); M.tick(3)
-T.check(T.titles() == 'HEAT SHIELD|EMPTY SLOT|DONE', 'slot 1 fitted (' .. T.titles() .. ')')
-T.check(T.badges():find('^PROTECTION|SLOT 2') ~= nil, 'badges: PROTECTION, SLOT 2 (' .. T.badges() .. ')')
-T.click(2); M.tick(3)
-T.clickTitle('STATUS PROTECTION'); M.tick(3)
-T.check(T.titles() == 'TENACIOUS|BACK', 'slot 2: HEAT SHIELD not offered again')
-T.clickTitle('BACK'); M.tick(3)
-T.clickTitle('SHIELDS, SURGES & SLIPSTREAM'); M.tick(3)
-T.clickTitle('SLIPSTREAMER'); M.tick(3)
-T.check(T.titles() == 'HEAT SHIELD|SLIPSTREAMER|DONE', 'slot 2 fitted (' .. T.titles() .. ')')
+local n = T.ntiles()
+T.click(n - 1); M.tick(5)
+T.check(T.titles():find('|HEAT SHIELD|NONE$') ~= nil, 'Select on slot 1: the first package, HEAT SHIELD (' .. T.titles() .. ')')
+T.click(n); M.tick(5)
+T.check(T.titles():find('|HEAT SHIELD|ARMOUR$') ~= nil, 'slot 2 skips HEAT SHIELD (in slot 1): ARMOUR (' .. T.titles() .. ')')
+local all = require('modsel').all()
+for _ = 1, #all do
+  if T.titles():find('|HEAT SHIELD|SLIPSTREAMER$') then break end
+  T.click(n); M.tick(5)
+end
+T.check(T.titles():find('|HEAT SHIELD|SLIPSTREAMER$') ~= nil, 'cycling slot 2 reaches SLIPSTREAMER (' .. T.titles() .. ')')
 local sv = T.save().mods
 T.check(sv[1] == 'heat_shield' and sv[2] == 'slipstreamer' and sv[3] == nil, 'tune-up keys saved')
+M.press('BACKSPACE'); M.tick(3)
+T.clickTitle('150CC'); M.tick(3)
 
 -- 150cc: the Elite carry HEAT SHIELD too (the launch build = yours, nothing extra: you have it)
-T.clickTitle('DONE'); M.tick(3)
-T.clickTitle('START CUP')
+T.clickTitle('JAKKU CUP')
 local aff = W.buildAffixes.VBD_Car_Base
 local function names(l) local o = {}; for i, a in ipairs(l) do o[i] = rawget(a, '__name') end; return table.concat(o, ',') end
 T.check(names(aff) == 'AFX_Conditions_BurningProtection,AFX_Conditions_FreezeProtection,AFX_Slipstream_gainSurging_v3,AFX_Cooled_GainWhileSlipstream',
@@ -56,20 +53,19 @@ T.check(next(T.save().modRestores) == nil, 'nothing left to put back')
 
 -- 200cc with different packages: the launch build carries yours + the AI's extras; each racer keeps only theirs
 T.clickTitle('LATER'); M.tick(3)
+M.press('BACKSPACE'); M.tick(3)
 T.clickTitle('QUIT CUP'); M.tick(3)
 T.clickTitle('YES'); M.tick(3)
-T.clickTitle('BACK'); M.tick(3)
+T.clickTitle('GARAGE'); M.tick(3)
+n = T.ntiles()
+for _ = 1, #all + 1 do
+  if T.titles():find('|REDLINER|SLIPSTREAMER$') then break end
+  T.click(n - 1); M.tick(5)
+end
+T.check(T.titles():find('|REDLINER|SLIPSTREAMER$') ~= nil, 'slot 1 cycled on to REDLINER (' .. T.titles() .. ')')
+M.press('BACKSPACE'); M.tick(3)
 T.clickTitle('200CC'); M.tick(3)
-T.clickTitle('JAKKU CUP'); M.tick(3)
-T.clickTitle('MODS'); M.tick(3)
-T.clickTitle('HEAT SHIELD'); M.tick(3)
-T.clickTitle('REMOVE'); M.tick(3)
-T.check(T.titles() == 'EMPTY SLOT|SLIPSTREAMER|DONE', 'HEAT SHIELD removed (' .. T.titles() .. ')')
-T.clickTitle('EMPTY SLOT'); M.tick(3)
-T.clickTitle('RAMJET'); M.tick(3)
-T.clickTitle('REDLINER'); M.tick(3)
-T.clickTitle('DONE'); M.tick(3)
-T.clickTitle('START CUP')
+T.clickTitle('JAKKU CUP')
 T.check(names(aff) == 'AFX_Ramjet_TempCanDropWhileBoosting,AFX_Ramjet_CooledWhenCritical_v3,AFX_Slipstream_gainSurging_v3,AFX_Cooled_GainWhileSlipstream,'
   .. 'AFX_Conditions_BurningProtection,AFX_Conditions_FreezeProtection,AFX_Conditions_DisruptedProtection,AFX_Shielded_GainOnRaceStart',
   'launch build: yours first, then the Elite\'s HEAT SHIELD + ARMOUR (Challenger\'s is among them) = 8 (' .. names(aff) .. ')')
@@ -92,15 +88,12 @@ T.check(#aff == 0 and rawget(b, '__props').UnlockedAffixSlots == 4, 'launch buil
 
 -- 50cc: pure driving (and no AI packages at 50cc: the launch build stays empty)
 T.clickTitle('LATER'); M.tick(3)
+M.press('BACKSPACE'); M.tick(3)
 T.clickTitle('QUIT CUP'); M.tick(3)
 T.clickTitle('YES'); M.tick(3)
-T.clickTitle('BACK'); M.tick(3)
 T.clickTitle('50CC'); M.tick(3)
-T.clickTitle('JAKKU CUP'); M.tick(3)
-T.clickTitle('MODS'); M.tick(3)
-T.check(T.titles():find('^START CUP') ~= nil, '50cc: MODS doesn\'t open (no slots)')
 local mark = T.mark()
-T.clickTitle('START CUP')
+T.clickTitle('JAKKU CUP')
 T.check(#aff == 0 and not T.logHas('mods in the launch build', mark), '50cc: no mods on the build, none logged')
 W.race(11); M.tick(5)
 T.check(not T.logHas('[loadout] mods:', mark) and W.affixes(W.bots[1]) == '-,-,-,-', '50cc: nothing to sort out, the Elite race clean')

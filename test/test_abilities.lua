@@ -5,26 +5,39 @@ local W = require('world')
 local T = require('util')
 T.boot(nil, { Progression = { On = false } }) -- (unlocks: test_prog, test_unlocks)
 M.press('F6'); M.tick(6)
-T.clickTitle('150CC'); M.tick(3)
-T.clickTitle('JAKKU CUP'); M.tick(3)
-T.clickTitle('ABILITIES'); M.tick(3)
-T.check(T.titles() == 'CONCUSSIVE BOLT|IMPACT SHIELD|IMPACT SURGE|CONCUSSION MINE II|DONE', 'free pick: your four by name, defaults at 150cc (' .. T.titles() .. ')')
-T.clickTitle('CONCUSSIVE BOLT'); M.tick(3)
-T.check(T.titles() == 'CONCUSSIVE BOLT|MULTI-BOLT|MAGNETIC SHOCKWAVE|VECTORED SHOCKWAVE|AUTO-SCRUBBER|MULTI-SCRUBBER|VENT II|FLAME VENT|BACK',
-  'slot 1: every family the other three slots don\'t hold, level-2 branches (' .. T.titles() .. ')')
-T.clickTitle('VECTORED SHOCKWAVE'); M.tick(3)
-T.clickTitle('IMPACT SURGE'); M.tick(3)
-T.clickTitle('FLAME VENT'); M.tick(3)
-T.clickTitle('CONCUSSION MINE II'); M.tick(3)
-T.check(not T.titles():find('SHIELD') and not T.titles():find('SHOCKWAVE') and not T.titles():find('VENT'),
-  'slot 4: no Shield / Shockwave / Vent on offer (' .. T.titles() .. ')')
-T.clickTitle('MULTI-BOLT'); M.tick(3)
-T.check(T.titles() == 'VECTORED SHOCKWAVE|IMPACT SHIELD|FLAME VENT|MULTI-BOLT|DONE', 'your four now (' .. T.titles() .. ')')
+T.clickTitle('150CC'); M.tick(3)   -- (the garage shows the picks at the level of the class picked last)
+M.press('BACKSPACE'); M.tick(3)
+T.clickTitle('GARAGE'); M.tick(5)
+T.check(T.titles():find('CONCUSSIVE BOLT|IMPACT SHIELD|IMPACT SURGE|CONCUSSION MINE II', 1, true) ~= nil, 'free pick: your four by name, defaults at 150cc (' .. T.titles() .. ')')
+-- Select cycles a slot through every ability the other three slots' families don't hold (level-2 branches), in the
+-- families' order, wrapping. cycleTo presses the slot's tile until it shows `want`.
+local function cycleTo(tileNo, want)
+  for _ = 1, 16 do
+    if T.titles():find('|' .. want .. '|', 1, true) or T.titles():find('|' .. want .. '$') then return true end
+    T.click(tileNo); M.tick(5)
+  end
+  return false
+end
+T.clickTitle('CONCUSSIVE BOLT'); M.tick(5)
+T.check(T.titles():find('|MULTI-BOLT|IMPACT SHIELD|', 1, true) ~= nil, 'slot 1: Select -> MULTI-BOLT (' .. T.titles() .. ')')
+T.clickTitle('MULTI-BOLT'); M.tick(5)
+T.check(T.titles():find('|MAGNETIC SHOCKWAVE|IMPACT SHIELD|', 1, true) ~= nil, 'slot 1 -> MAGNETIC SHOCKWAVE (' .. T.titles() .. ')')
+T.check(cycleTo(3, 'VECTORED SHOCKWAVE'), 'slot 1 -> VECTORED SHOCKWAVE (' .. T.titles() .. ')')
+T.clickTitle('IMPACT SURGE'); M.tick(5)
+T.check(T.titles():find('|OVERTAKING SURGE|', 1, true) ~= nil, 'slot 3 -> OVERTAKING SURGE (' .. T.titles() .. ')')
+T.clickTitle('OVERTAKING SURGE'); M.tick(5)
+T.check(T.titles():find('|CONCUSSIVE BOLT|CONCUSSION', 1, true) ~= nil, 'slot 3 wraps to CONCUSSIVE BOLT (no Shockwave / Shield: held by slots 1 and 2) (' .. T.titles() .. ')')
+T.check(cycleTo(5, 'FLAME VENT'), 'slot 3 -> FLAME VENT (' .. T.titles() .. ')')
+T.clickTitle('CONCUSSION MINE II'); M.tick(5)
+T.check(T.titles():find('|FREEZING MINE', 1, true) ~= nil, 'slot 4 -> FREEZING MINE (' .. T.titles() .. ')')
+T.check(cycleTo(6, 'MULTI-BOLT'), 'slot 4 -> MULTI-BOLT (' .. T.titles() .. ')')
+T.check(T.titles():find('VECTORED SHOCKWAVE|IMPACT SHIELD|FLAME VENT|MULTI-BOLT', 1, true) ~= nil, 'your four now (' .. T.titles() .. ')')
 local p = T.save().picks
 T.check(p[1] == 'shockwave.vectored' and p[2] == 'shield.impact' and p[3] == 'vent.flame' and p[4] == 'bolt.multi', 'picks saved as a list')
 
-T.clickTitle('DONE'); M.tick(3)
-T.clickTitle('START CUP')
+M.press('BACKSPACE'); M.tick(3)
+T.clickTitle('150CC'); M.tick(3)
+T.clickTitle('JAKKU CUP')
 local slots = W.buildSlots['VBD_Car_Base']
 local function names(list) local t = {}; for i = 1, 4 do t[i] = rawget(list[i], '__dead') and '-' or rawget(list[i], '__name') end; return table.concat(t, ',') end
 T.check(names(slots) == 'BP_Ability_Shockwave_Punch_C,BP_Ability_Shield_Charged_C,BP_Ability_Vent_Flame_C,BP_Ability_Disruptor_Multi_C',
