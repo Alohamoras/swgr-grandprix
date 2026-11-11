@@ -7,7 +7,7 @@
 -- v0.11: one cup per planet with a race list per class (classic / reverse / conditions), the Galactic Cup, the title race.
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.15.0'
+local VERSION = '0.15.1'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'

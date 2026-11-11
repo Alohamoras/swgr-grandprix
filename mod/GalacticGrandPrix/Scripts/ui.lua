@@ -25,6 +25,7 @@ U.setLayout()
 -- (AUTOMATION.md), so one screen build looks each picture up once (memo cleared at every build; nothing kept
 -- between ticks).
 local memo = {}
+local function ARTDIM(path) local ok, A = pcall(require, 'art'); return ok and A.dim and A.dim(path) or nil end
 local function texture(name)
   if not name then return nil end
   local path = name:sub(1, 1) == '/' and name or (ART .. name)
@@ -145,6 +146,9 @@ local function makeTile(lib, pc, it)
       if sy * sc > U.TILE_H * 1.2 then try(function() t.ImageYOffset = 0.3 end) end
       try(function() t:PreConstruct(false) end)
     end
+    -- v0.15.1: the brightest pictures drawn darker so the white title reads on a focused tile (art.lua A.DIM)
+    local d = it.dim or ARTDIM(it.art)
+    if d then try(function() t.Img_TileArt:SetColorAndOpacity({ R = d, G = d, B = d, A = 1 }) end) end
   else try(function() t.Img_TileArt:SetVisibility(1) end) end
   -- v0.7: a picture in the tile's icon slot (the trophy medal), else the slot stays hidden
   local icon = texture(it.icon)

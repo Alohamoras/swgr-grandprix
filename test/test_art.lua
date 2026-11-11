@@ -36,4 +36,15 @@ check(ART.cup({ key = 'nowhere' }, 'car') == nil and ART.medal(4) == nil and ART
 local seen, dup = {}, false
 for _, c in ipairs(cfg.Classes) do if seen[ART.class(c.key)] then dup = true end; seen[ART.class(c.key)] = true end
 check(not dup, 'each class its own banner')
+-- v0.15.1: the brightest pictures are drawn darker (seen in game: a white title on a focused bright tile)
+check(ART.dim(ART.class('50')) == 0.75 and ART.dim(ART.class('100')) == 0.8, '50cc and 100cc banners dimmed')
+check(ART.dim(ART.class('150')) == nil and ART.dim(ART.class('200')) == nil, '150cc and 200cc banners left alone')
+check(ART.dim(ART.SHOWDOWN) == 0.7, "Kestar's portrait dimmed")
+local unknown = {}
+for base in pairs(ART.DIM) do
+  local hit = false
+  for p in pairs(have) do if p:match('([^/.]+)$') == base then hit = true; break end end
+  if not hit then unknown[#unknown + 1] = base end
+end
+check(#unknown == 0, 'every dimmed picture is a real texture (' .. table.concat(unknown, ', ') .. ')')
 if failed then os.exit(1) end

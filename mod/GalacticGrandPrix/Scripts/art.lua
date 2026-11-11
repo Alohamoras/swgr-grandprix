@@ -80,4 +80,19 @@ A.SHOWDOWN = A.style('Antagonist')
 -- behind the points table (dark, so the text stays readable)
 A.BACKDROP = TEX .. 'Backgrounds/T_UI_Scenario_Bg'
 
+-- v0.15.1 (seen in game 2026-11-11): the game brightens a FOCUSED tile's picture, and the white title on the
+-- brightest pictures became hard to read (the 50cc / 100cc banners, Kestar's portrait). Those pictures are drawn
+-- darker (the tile's picture tinted grey). Brightness under the title, 0-255, measured on the textures
+-- (tools/art/iotex.py previews): 50cc 136, 100cc 130, Kestar 151; 150cc 104 and 200cc 112 read fine in game, so the
+-- factor brings each to about 100.
+A.DIM = {
+  T_UI_DifficultySettings01_Bg = 0.75,
+  T_UI_DifficultySettings02_Bg = 0.8,
+  T_UI_RacerStyle_Antagonist_Bg = 0.7,
+}
+function A.dim(path)
+  local base = path and tostring(path):match('([^/.]+)$')
+  return base and A.DIM[base] or nil
+end
+
 return A

@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.15.1 (2026-11-11): bright tile pictures drawn darker
+Seen in game: the game brightens a focused tile's picture, and the white name was hard to read on the brightest
+ones. The 50cc banner (75%), the 100cc banner (80%) and Kestar Bool's portrait (70%) are now tinted darker
+(art.lua `A.DIM`, ui.lua tints the tile's picture). Factors from the textures' brightness under the title
+(136 / 130 / 151, against 104 / 112 for the 150cc / 200cc banners that read fine). Not yet seen in game: whether
+the game's focus highlight keeps the tint.
+
 ## v0.15.0 (2026-11-11): the racer decides the vehicle
 Queue item A6 (TASKS.md, owner-decided). Built and tested, not yet seen in game.
 - **Your racer's vehicle**: config `Racers[].vehicle` (car / bike / skimmer) is the source of truth, the same as the
