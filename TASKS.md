@@ -17,6 +17,34 @@ Things only a real play can answer. Tick them off (or note what felt wrong) as y
 - [ ] **Free ability pick and trophy badges:** do they read clearly?
 - [ ] **AI abilities (R7):** do the AI racers fire their abilities, Shields included? Watch for it in races.
 
+## Proposed (needs your call) - from the research of 2026-11-10
+Full write-up with the reasoning: https://claude.ai/artifact/7VSJrJnpopuMcBFQ2WyTV8 (copy: docs/research-2026-11-10.md).
+In build order; sizes are build time, each ends with your check in game. Nothing here is started.
+- [ ] **Two-level menu** (1-2 days): classes + GARAGE + CONTINUE on level 1; cups on level 2 (track list with planet,
+      kind and laps on focus; START on select; 12 cups fit one page); garage picks (vehicle, abilities, mods, racer)
+      cycle in place. Drop EXIT / BACK / DONE tiles and the points line (B already goes back).
+- [ ] **Mods: tune-ups or cut** (half a day): ~12 named packages chosen in place, or no MODS tile at all. Decide before
+      the menu rework. Either way the Elite AI can carry mods from 150cc (per-bot control is proven).
+- [ ] **Class spacing and gates** (an hour + one test race): parts 0 / 3 / 7 / 10 (100cc and 150cc are ~50 kph apart
+      today, 200cc is 120 kph above 150cc); remix cups and the title race open from 150cc, 200cc gates nothing.
+- [ ] **AI profile per class** (1 day + a cup per class): 50cc Cadet (rubber band x0.65 / -3 s), 100cc the game's own,
+      150cc honest pacing (no slowdown when ahead, errors halved, abilities x1.25), 200cc Champion (catch-up x1.3,
+      aggression x1.5, abilities x1.5). Through ai.lua (already in the repo); hidden `AI` knob in config.lua.
+- [ ] **Track records and progress marks** (1 day): best time and best lap per track and class in our save; NEW RECORD
+      on the standings; golds count on the class tile; a perfect-cup mark.
+- [ ] **Title races** (2 days + race tests): the Showdown vs Kestar at each class first (proven launch; needs the 1 v 1
+      result read); then the class's points leader as the opponent via a two-car grid on a normal event (grid makeup
+      + CharacterList.Opponents, as FreeRace does for pods; unproven on cars). Champion's name on the class tile.
+      Fixed fallback champions: 50cc Griff Halloran, 100cc Lyren Shok, 150cc Biddy Blas, 200cc Kestar Bool.
+- [ ] **Your racer** (1 day + a race test): a RACER tile cycling the game's 16 pilots (CharacterList.Player swapped at
+      launch, put back once the race starts). No free-text names, no vehicle cosmetics.
+- [ ] **Conditions cups** (1 day): night / wet / snow / scorching / mines line-ups from the ~45 unused 12-car events
+      (plus Dhunkri River Circuit and Mineral Loop, never raced) as a third row per class, opened by the planet cup's gold.
+- [ ] **Intro line per class and planet flavour line on the cup page** (half a day): the game's own texts
+      (PlanetDef.GameDescriptionText; "Home of the Galactic League").
+- Later / spikes: rival 1 v 1 ladder (11 EVT_RIV events); per-racer pacing probe at race load (true tiers?); bot rename
+  test (HUD / results); podracer launch test. Dropped: cosmetics, credits / shop, ghosts, a difficulty menu.
+
 ## 0. Repo and design (2026-11-09)
 - [x] Repo, DESIGN.md, this plan.
 - [x] Owner answers: mines = wildcard, AI follows the four-category rule, 150cc maxed, quit = forfeit.

@@ -1,0 +1,222 @@
+20:11:52 dump: at menu = true
+== asset /Game/Griffin/Gameplay/Campaign/Difficulty/Favour_Diff_Easy
+  asset RacerFavour /Game/Griffin/Gameplay/Campaign/Difficulty/Favour_Diff_Easy.Favour_Diff_Easy
+  [RacerFavour]
+    InternalName (Name) = "None"
+    StickerbookIcon (SoftObject) = <SoftObject>
+    UnlocksRequired (Struct) = {GameplayTags=[Struct x0: ], ParentTags=[Struct x0: ]} (GameplayTagContainer)
+    bIsNegative (Bool) = false
+    bIsHidden (Bool) = true
+    bIsHiddenInRunSummary (Bool) = true
+    NextRank (Object) = UObject: 000000006F90D5E8
+    BaseRacerFavour (Object) = UObject: 000000006F90DCE8
+    Rank (Int) = 1
+    UnlockDescription (Text) = ""
+    UnlockDescriptionOverrideTag (Struct) = {TagName="None"} (GameplayTag)
+    PlayerFacingRestrictedDescription (Text) = ""
+    PlayerFacingFinishCreditsMultiplierContribution (Text) = ""
+    DescriptionPercentParameters (Map) = <Map>
+    DescriptionIntParameters (Map) = <Map>
+  [PassiveConfig]
+    PlayerFacingName (Text) = ""
+    PlayerFacingDescription (Text) = ""
+    Icon (SoftObject) = <SoftObject>
+    LargeIcon (SoftObject) = <SoftObject>
+    PassiveRule (Array) = [Struct x1: {UseOnce=false, Requirements=[Object x0: ], OneTimeEffects=[Object x1: <ApplyTunesetToRandomTargetFromListPassiveEffectConfig /Game/Griffin/Gameplay/Campaign/Difficulty/Favour_Diff_Easy.Favour_Diff_Easy:ApplyTunesetToRandomTargetFromListPassiveEffectConfig_0>], TrackedEffects=[Object x0: ], TuneSetsToApply=[Object x3: <TuneSet /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_Diff_AiEasy.TNS_Diff_AiEasy>, <TuneSet /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_CrashesPlusOne.TNS_CrashesPlusOne>, <TuneSet /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_CrashesPlusOne.TNS_CrashesPlusOne>], RemoveTuneSetsWhenDestroyed=true} (PassiveRuleConfig)]
+  [DataAsset]
+    NativeClass (Class) = <Class /Script/Griffin.RacerFavour>
+
+
+== asset /Game/Griffin/Gameplay/Campaign/Difficulty/Favour_Diff_Hard
+  asset RacerFavour /Game/Griffin/Gameplay/Campaign/Difficulty/Favour_Diff_Hard.Favour_Diff_Hard
+  [RacerFavour]
+    InternalName (Name) = "None"
+    StickerbookIcon (SoftObject) = <SoftObject>
+    UnlocksRequired (Struct) = {GameplayTags=[Struct x0: ], ParentTags=[Struct x0: ]} (GameplayTagContainer)
+    bIsNegative (Bool) = false
+    bIsHidden (Bool) = true
+    bIsHiddenInRunSummary (Bool) = true
+    NextRank (Object) = UObject: 00000000D49D6478
+    BaseRacerFavour (Object) = UObject: 00000000D49D6B78
+    Rank (Int) = 1
+    UnlockDescription (Text) = ""
+    UnlockDescriptionOverrideTag (Struct) = {TagName="None"} (GameplayTag)
+    PlayerFacingRestrictedDescription (Text) = ""
+    PlayerFacingFinishCreditsMultiplierContribution (Text) = ""
+    DescriptionPercentParameters (Map) = <Map>
+    DescriptionIntParameters (Map) = <Map>
+  [PassiveConfig]
+    PlayerFacingName (Text) = ""
+    PlayerFacingDescription (Text) = ""
+    Icon (SoftObject) = <SoftObject>
+    LargeIcon (SoftObject) = <SoftObject>
+    PassiveRule (Array) = [Struct x1: {UseOnce=false, Requirements=[Object x0: ], OneTimeEffects=[Object x0: ], TrackedEffects=[Object x0: ], TuneSetsToApply=[Object x2: <TuneSet /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_Diff_AiHard.TNS_Diff_AiHard>, <TuneSet /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_CrashesMinusOne.TNS_CrashesMinusOne>], RemoveTuneSetsWhenDestroyed=true} (PassiveRuleConfig)]
+  [DataAsset]
+    NativeClass (Class) = <Class /Script/Griffin.RacerFavour>
+
+
+== asset /Game/Griffin/Gameplay/Campaign/Difficulty/Favour_Diff_Nightmare
+  asset RacerFavour /Game/Griffin/Gameplay/Campaign/Difficulty/Favour_Diff_Nightmare.Favour_Diff_Nightmare
+  [RacerFavour]
+    InternalName (Name) = "None"
+    StickerbookIcon (SoftObject) = <SoftObject>
+    UnlocksRequired (Struct) = {GameplayTags=[Struct x0: ], ParentTags=[Struct x0: ]} (GameplayTagContainer)
+    bIsNegative (Bool) = false
+    bIsHidden (Bool) = true
+    bIsHiddenInRunSummary (Bool) = true
+    NextRank (Object) = UObject: 00000000D49F0E78
+    BaseRacerFavour (Object) = UObject: 00000000D49F1578
+    Rank (Int) = 1
+    UnlockDescription (Text) = ""
+    UnlockDescriptionOverrideTag (Struct) = {TagName="None"} (GameplayTag)
+    PlayerFacingRestrictedDescription (Text) = ""
+    PlayerFacingFinishCreditsMultiplierContribution (Text) = ""
+    DescriptionPercentParameters (Map) = <Map>
+    DescriptionIntParameters (Map) = <Map>
+  [PassiveConfig]
+    PlayerFacingName (Text) = ""
+    PlayerFacingDescription (Text) = ""
+    Icon (SoftObject) = <SoftObject>
+    LargeIcon (SoftObject) = <SoftObject>
+    PassiveRule (Array) = [Struct x1: {UseOnce=false, Requirements=[Object x0: ], OneTimeEffects=[Object x0: ], TrackedEffects=[Object x0: ], TuneSetsToApply=[Object x3: <TuneSet /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_Diff_AiNightmare.TNS_Diff_AiNightmare>, <TuneSet /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_CrashesPlusOne.TNS_CrashesPlusOne>, <TuneSet /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_CrashesPlusOne.TNS_CrashesPlusOne>], RemoveTuneSetsWhenDestroyed=true} (PassiveRuleConfig)]
+  [DataAsset]
+    NativeClass (Class) = <Class /Script/Griffin.RacerFavour>
+
+
+== asset /Game/Griffin/Gameplay/Campaign/Difficulty/Favour_Diff_Nightmare_Tour1
+  asset RacerFavour /Game/Griffin/Gameplay/Campaign/Difficulty/Favour_Diff_Nightmare_Tour1.Favour_Diff_Nightmare_Tour1
+  [RacerFavour]
+    InternalName (Name) = "None"
+    StickerbookIcon (SoftObject) = <SoftObject>
+    UnlocksRequired (Struct) = {GameplayTags=[Struct x0: ], ParentTags=[Struct x0: ]} (GameplayTagContainer)
+    bIsNegative (Bool) = false
+    bIsHidden (Bool) = true
+    bIsHiddenInRunSummary (Bool) = true
+    NextRank (Object) = UObject: 000000006F393158
+    BaseRacerFavour (Object) = UObject: 000000006F393858
+    Rank (Int) = 1
+    UnlockDescription (Text) = ""
+    UnlockDescriptionOverrideTag (Struct) = {TagName="None"} (GameplayTag)
+    PlayerFacingRestrictedDescription (Text) = ""
+    PlayerFacingFinishCreditsMultiplierContribution (Text) = ""
+    DescriptionPercentParameters (Map) = <Map>
+    DescriptionIntParameters (Map) = <Map>
+  [PassiveConfig]
+    PlayerFacingName (Text) = ""
+    PlayerFacingDescription (Text) = ""
+    Icon (SoftObject) = <SoftObject>
+    LargeIcon (SoftObject) = <SoftObject>
+    PassiveRule (Array) = [Struct x1: {UseOnce=false, Requirements=[Object x0: ], OneTimeEffects=[Object x0: ], TrackedEffects=[Object x0: ], TuneSetsToApply=[Object x1: <TuneSet /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_Diff_AiNightmare_Tour1.TNS_Diff_AiNightmare_Tour1>], RemoveTuneSetsWhenDestroyed=true} (PassiveRuleConfig)]
+  [DataAsset]
+    NativeClass (Class) = <Class /Script/Griffin.RacerFavour>
+
+
+== asset /Game/Griffin/Gameplay/Campaign/Difficulty/Favour_Diff_Nightmare_Tour3
+  asset RacerFavour /Game/Griffin/Gameplay/Campaign/Difficulty/Favour_Diff_Nightmare_Tour3.Favour_Diff_Nightmare_Tour3
+  [RacerFavour]
+    InternalName (Name) = "None"
+    StickerbookIcon (SoftObject) = <SoftObject>
+    UnlocksRequired (Struct) = {GameplayTags=[Struct x0: ], ParentTags=[Struct x0: ]} (GameplayTagContainer)
+    bIsNegative (Bool) = false
+    bIsHidden (Bool) = true
+    bIsHiddenInRunSummary (Bool) = true
+    NextRank (Object) = UObject: 00000000D4A0ACC8
+    BaseRacerFavour (Object) = UObject: 00000000D4A0B3C8
+    Rank (Int) = 1
+    UnlockDescription (Text) = ""
+    UnlockDescriptionOverrideTag (Struct) = {TagName="None"} (GameplayTag)
+    PlayerFacingRestrictedDescription (Text) = ""
+    PlayerFacingFinishCreditsMultiplierContribution (Text) = ""
+    DescriptionPercentParameters (Map) = <Map>
+    DescriptionIntParameters (Map) = <Map>
+  [PassiveConfig]
+    PlayerFacingName (Text) = ""
+    PlayerFacingDescription (Text) = ""
+    Icon (SoftObject) = <SoftObject>
+    LargeIcon (SoftObject) = <SoftObject>
+    PassiveRule (Array) = [Struct x1: {UseOnce=false, Requirements=[Object x0: ], OneTimeEffects=[Object x0: ], TrackedEffects=[Object x0: ], TuneSetsToApply=[Object x1: <TuneSet /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_Diff_AiNightmare_Tour3.TNS_Diff_AiNightmare_Tour3>], RemoveTuneSetsWhenDestroyed=true} (PassiveRuleConfig)]
+  [DataAsset]
+    NativeClass (Class) = <Class /Script/Griffin.RacerFavour>
+
+
+== asset /Game/Griffin/Gameplay/Campaign/Difficulty/Favour_Diff_Easy_Opponent: not found
+== asset /Game/Griffin/Gameplay/Campaign/Difficulty/Favour_Diff_Hard_Opponent: not found
+== asset /Game/Griffin/Gameplay/Campaign/Difficulty/Favour_Diff_Nightmare_Opponent: not found
+== asset /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_Diff_AiEasy
+  asset TuneSet /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_Diff_AiEasy.TNS_Diff_AiEasy
+  [TuneSet]
+    Operations (Array) = [Struct x3: {Priority=3, FloatParam=0.650, IntParam=1, Vector2DParam={X=0.0, Y=0.0} (Vector2D), VectorParam={X=0.0, Y=0.0, Z=0.0} (Vector), Operation=7, Category="RaceTuneConfig", Property="AiMaxTimeAheadMultiplier"} (TuneOperation), {Priority=0, FloatParam=3.0, IntParam=1, Vector2DParam={X=0.0, Y=0.0} (Vector2D), VectorParam={X=0.0, Y=0.0, Z=0.0} (Vector), Operation=4, Category="RaceTuneConfig", Property="AiMinTimeAheadModifier"} (TuneOperation), {Priority=0, FloatParam=7.0, IntParam=0, Vector2DParam={X=0.0, Y=0.0} (Vector2D), VectorParam={X=0.0, Y=0.0, Z=0.0} (Vector), Operation=4, Category="CampaignTuneConfig", Property="AiPowerLevelModifier"} (TuneOperation)]
+    PlaneOperations (Array) = [Struct x0: ]
+    CoreVehicleOperations (Array) = [Struct x0: ]
+  [DataAsset]
+    NativeClass (Class) = <Class /Script/Griffin.TuneSet>
+
+
+== asset /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_Diff_AiHard
+  asset TuneSet /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_Diff_AiHard.TNS_Diff_AiHard
+  [TuneSet]
+    Operations (Array) = [Struct x1: {Priority=0, FloatParam=4.0, IntParam=0, Vector2DParam={X=0.0, Y=0.0} (Vector2D), VectorParam={X=0.0, Y=0.0, Z=0.0} (Vector), Operation=3, Category="CampaignTuneConfig", Property="AiPowerLevelModifier"} (TuneOperation)]
+    PlaneOperations (Array) = [Struct x0: ]
+    CoreVehicleOperations (Array) = [Struct x0: ]
+  [DataAsset]
+    NativeClass (Class) = <Class /Script/Griffin.TuneSet>
+
+
+== asset /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_Diff_AiNightmare
+  asset TuneSet /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_Diff_AiNightmare.TNS_Diff_AiNightmare
+  [TuneSet]
+    Operations (Array) = [Struct x1: {Priority=0, FloatParam=0.0, IntParam=0, Vector2DParam={X=0.0, Y=0.0} (Vector2D), VectorParam={X=0.0, Y=0.0, Z=0.0} (Vector), Operation=2, Category="RaceTuneConfig", Property="ResetToFullHealthAtRaceStart"} (TuneOperation)]
+    PlaneOperations (Array) = [Struct x0: ]
+    CoreVehicleOperations (Array) = [Struct x0: ]
+  [DataAsset]
+    NativeClass (Class) = <Class /Script/Griffin.TuneSet>
+
+
+== asset /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_Diff_AiNightmare_Tour3
+  asset TuneSet /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_Diff_AiNightmare_Tour3.TNS_Diff_AiNightmare_Tour3
+  [TuneSet]
+    Operations (Array) = [Struct x2: {Priority=0, FloatParam=0.100, IntParam=0, Vector2DParam={X=0.0, Y=0.0} (Vector2D), VectorParam={X=0.0, Y=0.0, Z=0.0} (Vector), Operation=3, Category="CampaignTuneConfig", Property="AiPowerLevelMultiplier"} (TuneOperation), {Priority=1, FloatParam=12.0, IntParam=0, Vector2DParam={X=0.0, Y=0.0} (Vector2D), VectorParam={X=0.0, Y=0.0, Z=0.0} (Vector), Operation=3, Category="CampaignTuneConfig", Property="AiPowerLevelModifier"} (TuneOperation)]
+    PlaneOperations (Array) = [Struct x0: ]
+    CoreVehicleOperations (Array) = [Struct x0: ]
+  [DataAsset]
+    NativeClass (Class) = <Class /Script/Griffin.TuneSet>
+
+
+== asset /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_Diff_AiEasy_Opponent: not found
+== asset /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_Diff_AiHard_Opponent: not found
+== asset /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_Diff_AiNightmare_Opponent: not found
+== asset /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_CrashesPlusOne
+  asset TuneSet /Game/Griffin/Gameplay/Campaign/Difficulty/TNS_CrashesPlusOne.TNS_CrashesPlusOne
+  [TuneSet]
+    Operations (Array) = [Struct x1: {Priority=0, FloatParam=0.600, IntParam=1, Vector2DParam={X=0.0, Y=0.0} (Vector2D), VectorParam={X=0.0, Y=0.0, Z=0.0} (Vector), Operation=13, Category="RaceTuneConfig", Property="TotalCrashAllowance"} (TuneOperation)]
+    PlaneOperations (Array) = [Struct x0: ]
+    CoreVehicleOperations (Array) = [Struct x0: ]
+  [DataAsset]
+    NativeClass (Class) = <Class /Script/Griffin.TuneSet>
+
+
+== asset /Game/Griffin/Gameplay/Campaign/GameModes/GMV_HeadToHead
+  asset GameModeVariantDef /Game/Griffin/Gameplay/Campaign/GameModes/GMV_HeadToHead.GMV_HeadToHead
+  [GameModeVariantDef]
+    PlayerFacingName (Text) = "Head to Head"
+    GameMode (Enum) = 1
+    GridMakeup (Struct) = {PlayerFacingName="Head to Head", Entries=[Struct x2: {EntryType=3, NumEntrants=1} (RaceGridMakeupEntry), {EntryType=4, NumEntrants=1} (RaceGridMakeupEntry)]} (RaceGridMakeup)
+    IntroDialogueTriggerOverride (Struct) = {TagName="None"} (GameplayTag)
+    DialogueModeName (Name) = "HeadToHead"
+  [DataAsset]
+    NativeClass (Class) = <Class /Script/Griffin.GameModeVariantDef>
+
+
+== asset /Game/Griffin/Gameplay/Campaign/GameModes/GMV_FullGridRace
+  asset GameModeVariantDef /Game/Griffin/Gameplay/Campaign/GameModes/GMV_FullGridRace.GMV_FullGridRace
+  [GameModeVariantDef]
+    PlayerFacingName (Text) = "Race [FULL GRID]"
+    GameMode (Enum) = 1
+    GridMakeup (Struct) = {PlayerFacingName="", Entries=[Struct x1: {EntryType=4, NumEntrants=12} (RaceGridMakeupEntry)]} (RaceGridMakeup)
+    IntroDialogueTriggerOverride (Struct) = {TagName="None"} (GameplayTag)
+    DialogueModeName (Name) = "None"
+  [DataAsset]
+    NativeClass (Class) = <Class /Script/Griffin.GameModeVariantDef>
+
+
+20:11:52 dump done
