@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.17.0 (2026-11-11): boot straight into the Grand Prix
+TASKS.md 11 (owner: "i want the game to launch and go directly to the grand prix menu, pressing b would still back
+out to the main menu"). Built and tested, not yet seen in game.
+- **At the first main menu after the game starts, the GRAND PRIX tab opens by itself on HOME** (`[boot] opening the
+  GRAND PRIX tab (BootToGrandPrix)`). Same path as the menu key (main.lua `openPage` -> `show` -> `TB.select`: our
+  tab picked by its id; never by stepping through the game's tabs, so never MULTIPLAYER). It waits for our tab on a
+  settled menu (after `[tab] GRAND PRIX tab added`), for every put-back to be done (parts, abilities, tune-ups, AI
+  config, racer, title: `R.pendingRestore`) and no cup (an old one is dropped at load as before), then 1 s more.
+  2-3 s later one line says whether the tab stayed up (`[boot] the GRAND PRIX tab is up` / `did not stay selected`;
+  not retried).
+- **Once per launch**: a flag set the moment it opens (or gives up) and never cleared, so B, a race, leaving the tab
+  or a rebuilt menu never reopen it. B on HOME goes back to the game's first tab as before; the standings after a
+  cup race still open as before (their own flow).
+- Not opened (and logged) when: `BootToGrandPrix = false` (new, config.lua next to MenuKey, on by default); a study
+  with jobs pending (study.lua; `[boot] not opening the GRAND PRIX tab: study mode has jobs pending ...` - the study
+  needs the plain menu; studymode.lua `ST.pending`); the page already open or a race under way; the tab could not be
+  added.
+- Tests: test_boot (new; four scenarios each in its own Lua: opens once at the first menu after the drop and the put
+  back, B / a rebuilt menu / a cup race + B don't reopen it, the standings still come after the race, only our tab
+  and the first tab are ever picked; switch off; study pending; study all done). The harness (test/util.lua) sets
+  `BootToGrandPrix = false` unless a test asks for it, so the other scenarios start from the game's menu as before.
+
 ## v0.16.1 (2026-11-11): AI study Phase 0 logging
 For the AI tuning study's Phase 0 (TASKS.md B10, docs/ai-tuning-research-2026-11-11.md (c)). Built and tested, not
 yet run in game.

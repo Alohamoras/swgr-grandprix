@@ -197,6 +197,13 @@ end
 
 function ST.on() return s.jobs ~= nil end
 function ST.running() return s.running ~= nil end
+-- v0.17: study.lua there with jobs still to run (main.lua: no boot into the GRAND PRIX tab - the study needs the plain
+-- menu). Uses what ST.boot / ST.poll already read; no file access here.
+function ST.pending()
+  if not s.jobs then return false end
+  local st = s.state or { next = 1 }
+  return (tonumber(st.next) or 1) <= #s.jobs
+end
 -- a race result (or failure) that belongs to a study job
 function ST.owns(out) return type(out) == 'table' and type(out.ev) == 'table' and out.ev.study ~= nil end
 

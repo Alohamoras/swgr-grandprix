@@ -11,4 +11,5 @@ See DESIGN.md (the design), TASKS.md (the work plan), CHANGELOG.md.
 ## Install / test
 - `./deploy.sh` installs the newest tagged version into the game (game closed); `./deploy.sh HEAD` the work in progress.
 - `test/all.sh` runs every test against a fake game (no game needed).
-- In game: the GRAND PRIX tab on the main menu, or F6. Log: `Mods/GalacticGrandPrix/grandprix.log`.
+- In game: the GRAND PRIX tab on the main menu, or F6 (v0.17: the game starts on it, once per launch; config
+  `BootToGrandPrix = false` turns that off). Log: `Mods/GalacticGrandPrix/grandprix.log`.
