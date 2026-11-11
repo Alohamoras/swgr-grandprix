@@ -210,14 +210,15 @@ local seen = {}
 function T.discover()
   if T.failed then return end
   local now = {}
-  for _, mm in ipairs(C.find('WBP_FE_MainMenu_C')) do
+  local menus = C.find('WBP_FE_MainMenu_C') -- (one sweep for both passes below, v0.13.1; same tick, nothing kept)
+  for _, mm in ipairs(menus) do
     local key = C.addr(mm)
     if key and not T.screens[key] and inView(mm) and isActive(mm) then
       now[key] = (seen[key] or 0) + 1
     end
   end
   seen = now
-  for _, mm in ipairs(C.find('WBP_FE_MainMenu_C')) do
+  for _, mm in ipairs(menus) do
     local key = C.addr(mm)
     if key and (seen[key] or 0) == 1 then step('main menu ' .. idname(mm) .. ' on screen - waiting for it to settle') end
     if key and not T.screens[key] and (seen[key] or 0) >= SETTLE then

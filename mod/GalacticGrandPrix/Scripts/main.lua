@@ -7,7 +7,7 @@
 -- v0.11: one cup per planet with a race list per class (classic / reverse / conditions), the Galactic Cup, the title race.
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.13.0'
+local VERSION = '0.13.1'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -682,7 +682,8 @@ local function busy() return #keys > 0 or S.ui ~= nil or R.run ~= nil or S.openA
 
 local function tick()
   C.clock = C.clock + TICK_MS
-  if R.pendingRestore() and not R.run and alive(C.first('FrontEndGameMode')) then R.restoreBuild('left over from an earlier race') end
+  -- (v0.13.1: R.menuUp() is a flag, not a lookup - race.lua)
+  if R.pendingRestore() and not R.run and R.menuUp() then R.restoreBuild('left over from an earlier race') end
   while #keys > 0 do
     local k = table.remove(keys, 1)
     local ok, err = pcall(handle, k)
@@ -691,7 +692,7 @@ local function tick()
   -- tab page: its widgets live in the main menu's tree; check the menu is still there before touching any of them
   if S.ui and not TB.isShown() then S.ui = nil end
   if S.ui then
-    if not alive(S.ui.w) or not alive(C.first('FrontEndGameMode')) then S.ui = nil
+    if not alive(S.ui.w) or not R.menuUp() then S.ui = nil
     else
       local ok, err = pcall(syncGameUI)
       if not ok then log('[menu] sync error: ' .. tostring(err)) end
@@ -770,14 +771,15 @@ TB.onLeave = function() if S.ui then close('tab left') end end
 TB.onGone = function() S.ui = nil; log('[menu] closed (menu gone)') end
 TB.onFail = function() S.ui = nil end
 
--- main menu poll (front end only, 200 ms): finds the menu and keeps our tab on it
+-- main menu poll (front end only, 200 ms): finds the menu and keeps our tab on it. v0.13.1: the menu's game mode
+-- comes from R.menuPoll (a notification, and a sweep every 2-3 s at most) - it was a lookup every poll (a sweep 5x a
+-- second, plus 10x a second from the tick while our page was up)
 do
   local seenMenu, ticks = false, 0
   local POLL_MS = 200
   C.gameLoop(POLL_MS, function()
     if R.run then return end
-    local fe = C.cached('FrontEndGameMode', 2)
-    if not alive(fe) then return end
+    if not R.menuPoll(POLL_MS) then return end
     if not seenMenu then seenMenu = true end
     ticks = ticks + 1
     if tabMode() then

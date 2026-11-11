@@ -280,6 +280,7 @@ function R.launch(ev, classKey, vehKey, picks, mods)
     tostring(classKey), veh.key, tostring(tag), C.idname(try(function() return e.EventMode end))))
   R.run = { ev = ev, at = C.clock, oldGs = addr(oldGs), oldFe = addr(fe), phase = 'loading', top = 0, field = {}, ticks = 0, ai = ai }
   R.menuSeen = false
+  R.menuGone()
   local ok3, lo = pcall(LO.begin, classKey, modNames, yourKeys)
   if ok3 then R.run.lo = lo else log('[loadout] ' .. tostring(lo)) end
   return true
@@ -429,7 +430,35 @@ end
 
 -- the main menu coming back (v0.3.9): a notification when its game mode is created - no polling, no sweeps
 R.menuSeen = false
-pcall(NotifyOnNewObject, '/Script/Griffin.FrontEndGameMode', function() R.menuSeen = true end)
+
+-- v0.13.1: is the main menu (its FrontEndGameMode) there? Answered without a lookup (every lookup is a full sweep of
+-- the object list here, ~10 ms; the menu used to look it up ~15 times a second). The menu is learned of by the
+-- notification below (a new FrontEndGameMode), and its going away by our race launch (R.launch); a real sweep at most
+-- every MENU_UP_MS while it is thought up (it can also go when the game's own modes load a race) and every
+-- MENU_DOWN_MS while it is not (the mod loaded at the menu: no notification). Nothing is kept but a flag.
+-- The clock is the main-menu poll's (R.menuPoll, main.lua), which stops while one of our races runs.
+local MENU_UP_MS, MENU_DOWN_MS = 3000, 2000
+local menu = { up = false, checkedAt = -1e9, ms = 0 }
+R.menuState = menu -- (tests)
+pcall(NotifyOnNewObject, '/Script/Griffin.FrontEndGameMode', function()
+  R.menuSeen = true
+  menu.up, menu.checkedAt = true, menu.ms
+end)
+-- the menu's gone with our race (R.launch); the next poll after the race sweeps again unless the notification came
+function R.menuGone() menu.up, menu.checkedAt = false, -1e9 end
+-- every main-menu poll (dt: ms since the last): the safety-net sweep when due; returns R.menuUp()
+function R.menuPoll(dt)
+  menu.ms = menu.ms + (dt or 0)
+  if menu.ms - menu.checkedAt >= (menu.up and MENU_UP_MS or MENU_DOWN_MS) then
+    menu.checkedAt = menu.ms
+    local was = menu.up
+    menu.up = alive(C.first('FrontEndGameMode'))
+    if was and not menu.up then log('[menu] the main menu went away') end
+  end
+  return menu.up
+end
+-- cheap: no lookup (see above)
+function R.menuUp() return menu.up end
 
 function R.watch()
   local r = R.run

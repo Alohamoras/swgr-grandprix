@@ -19,7 +19,8 @@ next starts (they all touch main.lua and config.lua); game sessions one at a tim
    it changes the unlocks). Tag v0.12.0. (Built 2026-11-11; see CHANGELOG v0.12.0.)
 4. [x] v0.13 the rival rule and the standings call-out (not the title-race spike). Tag v0.13.0. (Built 2026-11-11;
    see CHANGELOG v0.13.0.)
-5. The main-menu poll made cheaper (section 4, one sweep 5x a second at the menu).
+5. [x] The main-menu poll made cheaper (section 4, one sweep 5x a second at the menu). (Built 2026-11-11 as v0.13.1;
+   see CHANGELOG v0.13.1.)
 6. Racer = vehicle build (after B7 proves it, and after v0.11): picking a racer gives you their own vehicle and
    looks; VEHICLE leaves the garage; Shade drives the base landspeeder (no bike / skimmer choice, owner
    2026-11-10); each racer tile names the vehicle type; class parts go on the racer's build and are put back after.
@@ -239,8 +240,10 @@ records-to-be, abilities and vehicle are kept.
       hash tables). No lookups while racing; one sweep every 2 s. In game: check the PERF "our tick" numbers.
 - [x] v0.3.9 in game (owner, 2026-11-10, Lantaana 200cc): "better so far". Race watch average 0.95 ms (was 11.7),
       worst 21 ms; our ticks 100+ ms late 2 a race.
-- [ ] Menu: the main-menu poll (`C.cached('FrontEndGameMode')`, every 200 ms) is a lookup by path too = a sweep 5x a
+- [x] Menu: the main-menu poll (`C.cached('FrontEndGameMode')`, every 200 ms) is a lookup by path too = a sweep 5x a
       second at the menu. Not felt so far; make it cheaper (notification + rare checks) if the menus ever hitch.
+      (v0.13.1: notification + a sweep every 2-3 s; the tick's own 10x a second went too. Still left: the tab's
+      checks that the menu widget is alive, ~12 sweeps a second while our page is up - see CHANGELOG v0.13.1.)
 
 ## 5. v0.4 Mods: the vehicle's affixes (built as v0.6.0) (owner, 2026-11-09; DESIGN.md §5b)
 - [x] **Recon M1 (2026-11-10):** works. Affixes in the launch build's `Affixes` (direct pointers) become active

@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.13.1 (2026-11-11): a cheaper main-menu poll
+Queue item A5 (TASKS.md, and the section 4 item). Built and tested, not yet seen in game. Every lookup by class,
+name or path is a full sweep of the object list here (~10 ms; AUTOMATION.md §3).
+- **The menu's game mode without lookups** (race.lua `R.menuPoll` / `R.menuUp`): a new FrontEndGameMode is learned of
+  from the existing `NotifyOnNewObject` notification, the menu's going away from our race launch; one real sweep every
+  3 s while the menu is thought up (it can also go when the game's own modes load a race: logged `[menu] the main
+  menu went away`) and every 2 s while it is not (the mod loaded at the menu). Nothing is kept but a flag.
+- Gone: the poll's `C.cached('FrontEndGameMode')` (a lookup by path 5x a second) and the tick's
+  `C.first('FrontEndGameMode')` while our page is up or a build waits to be put back (10x a second). The tab's
+  discovery sweeps the main menus once a second instead of twice.
+- Idle on HOME, 10 s: menu game-mode sweeps 100 -> 3; every sweep 230 -> 123. **Still left:** the tab's checks that
+  the menu widget it is drawn in is still alive (`C.deref`, ~12 a second while our page is up). They are what keeps
+  us off a freed menu (v0.9.2), and the game can rebuild its menu without a notification we can catch, so they stay
+  until a cheaper safe signal is found.
+- Tests: test_menupoll (sweeps counted by the mock: `M.sweeps`, `M.sweepCount`); 28 tests.
+
 ## v0.13.0 (2026-11-11): a rival per class
 Queue item A4 (TASKS.md), from docs/PHILOSOPHY.md point 3. Built and tested, not yet seen in game. Not the title-race
 opponent: that is still Kestar Bool until the two-car grid spike (B6).

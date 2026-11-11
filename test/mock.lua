@@ -90,15 +90,29 @@ function M.add(cls, obj) M.objects[cls] = M.objects[cls] or {}; table.insert(M.o
 function M.clear(cls) M.objects[cls] = {} end
 function M.kill(obj) rawset(obj, '__dead', true) end
 M.assets = {}
+-- sweeps (v0.13.1): in this game every FindAllOf / FindFirstOf / StaticFindObject (by name or path) is a full sweep of
+-- the object list (~10 ms; AUTOMATION.md). Counted here by what was looked for ('FindAllOf FrontEndGameMode',
+-- 'StaticFindObject <path>'); default objects (Default__) are found once by the mod and not counted.
+M.sweeps = {}
+local function swept(key) M.sweeps[key] = (M.sweeps[key] or 0) + 1 end
+function M.resetSweeps() M.sweeps = {} end
+-- sweeps whose key contains `s` (all when nil)
+function M.sweepCount(s)
+  local n = 0
+  for k, c in pairs(M.sweeps) do if not s or k:find(s, 1, true) then n = n + c end end
+  return n
+end
 
 function M.install()
-  _G.FindAllOf = function(cls)
+  local function all(cls)
     local out = {}
     for _, o in ipairs(M.objects[cls] or {}) do if rawget(o, '__dead') ~= true then out[#out + 1] = o end end
     return #out > 0 and out or nil
   end
-  _G.FindFirstOf = function(cls) local l = FindAllOf(cls); return l and l[1] end
+  _G.FindAllOf = function(cls) swept('FindAllOf ' .. tostring(cls)); return all(cls) end
+  _G.FindFirstOf = function(cls) swept('FindFirstOf ' .. tostring(cls)); local l = all(cls); return l and l[1] end
   _G.StaticFindObject = function(path)
+    if not tostring(path):find('Default__', 1, true) then swept('StaticFindObject ' .. tostring(path)) end
     -- a live registered object by its name (what C.ref / C.deref look up); dead ones are gone, like after a GC
     local deadMatch = false
     for _, list in pairs(M.objects) do
