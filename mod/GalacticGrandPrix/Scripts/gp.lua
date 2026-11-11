@@ -42,6 +42,7 @@ local function fill(d)
   d.modRestores = type(d.modRestores) == 'table' and d.modRestores or {}
   d.class = type(d.class) == 'string' and d.class or nil -- the class picked last
   d.vehicle = type(d.vehicle) == 'string' and d.vehicle or 'car'
+  d.racer = type(d.racer) == 'string' and d.racer or nil -- v0.8: your pilot (racer.lua, config Racers key); nil = the game's own. racerRestore = the list to put back
   -- v0.2: the cup in progress (nil = none) and best finishes
   d.run = type(d.run) == 'table' and d.run or nil
   d.best = type(d.best) == 'table' and d.best or {}

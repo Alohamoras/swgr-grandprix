@@ -5,6 +5,7 @@ local K = require('gp')
 local AB = require('abil')
 local LO = require('loadout')
 local MS = require('modsel')
+local RC = require('racer')
 local try, alive, addr, log = C.try, C.alive, C.addr, C.log
 
 local R = { run = nil }
@@ -74,7 +75,7 @@ local function writeLevels(build, want)
   end
 end
 
-function R.pendingRestore() return next(K.data.restores) ~= nil or next(K.data.abilityRestores) ~= nil end
+function R.pendingRestore() return next(K.data.restores) ~= nil or next(K.data.abilityRestores) ~= nil or RC.pending() end
 
 -- ability slots (v0.3): a class object -> its path ('' = empty)
 local function slotPath(c)
@@ -182,6 +183,9 @@ function R.restoreBuild(why)
     done[#done + 1] = path
   end
   if #done > 0 then K.save() end
+  -- v0.8: your pilot (CharacterList.Player) back, if the race never settled it (quit early, crash, failed launch)
+  local okR, errR = pcall(RC.restore, why)
+  if not okR then log('[racer] put back failed: ' .. tostring(errR)) end
 end
 
 local function applyBuild(path, b, levels)
@@ -244,6 +248,9 @@ function R.launch(ev, classKey, vehKey, picks, mods)
       if okM then modNames = got else log('mods not set: ' .. tostring(got)) end
     end
   end
+  -- v0.8: your pilot into the character list (the save holds what to put back; a failed launch puts it back below)
+  local okR, errR = pcall(RC.begin, RC.current().key)
+  if not okR then log('[racer] not set: ' .. tostring(errR)) end
   local oldGs = C.first('RacingGameState')
   local ok, err = try(function() fe:LaunchQuickRace(arch, e, build); return true end)
   if not ok then
@@ -408,7 +415,7 @@ function R.watch()
           log('NOT an offline race - Grand Prix stops here, build put back')
           R.restoreBuild('not offline'); R.run = nil; return { failed = 'not offline' }
         end
-        r.gs, r.phase = addr(gs), 'racing'
+        r.gs, r.phase, r.racingAt = addr(gs), 'racing', C.clock
         local ok, err = pcall(LO.apply, r.lo)
         if not ok then log('[loadout] apply failed: ' .. tostring(err)); r.lo = nil end
         return nil
@@ -439,6 +446,12 @@ function R.watch()
     n = readField(r)
     if n > 0 then
       if not r.fieldLogged then r.fieldLogged = true; log(('field: %d racers'):format(n)) end
+      -- v0.8: the race is under way with its own copy of your pilot: the character list goes back (once, in this
+      -- read; a sweep for the list, nothing kept)
+      if RC.pending() and C.clock - (r.racingAt or r.at) >= RC.SETTLE_MS then
+        local okS, errS = pcall(RC.settle)
+        if not okS then log('[racer] settle failed: ' .. tostring(errS)) end
+      end
       return nil
     end
   end

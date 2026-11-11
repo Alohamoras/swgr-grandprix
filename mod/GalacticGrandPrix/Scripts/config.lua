@@ -208,4 +208,26 @@ return {
         { key = 'bike', arch = 2, name = 'SPEEDER BIKE', build = '/Game/Griffin/Gameplay/Campaign/Builds/VBD_Bike_Base' },
         { key = 'skimmer', arch = 3, name = 'SKIM SPEEDER', build = '/Game/Griffin/Gameplay/Campaign/Builds/VBD_Skimmer_Base' },
     },
+
+    -- Your racer (v0.8, racer.lua): any of the game's named pilots. key = the racer def DA_Racer_<key>
+    -- (/Game/Griffin/Narrative/CharacterDefs/Racers/); name = the game's CharacterName (what the HUD and the standings
+    -- show); line = one line for the RACER tile (from the game's bios). The first entry is the default and the game's
+    -- own pilot (CharacterList.Player = Shade); the pick is kept in the save (racer). A pilot who is one of the 11
+    -- opponents takes Shade's place on the grid for the race, so the field stays 12. Keys are the game's: don't change.
+    Racers = {
+        { key = 'DarkEnigma',          name = 'Shade',          line = 'The campaign\'s racer' },
+        { key = 'Protege',             name = 'Ary Quill',      line = 'Audacious heir to the Quill racing legacy' },
+        { key = 'Mercenary',           name = 'Malis Vazosk',   line = 'Racing and mercenary work are one and the same' },
+        { key = 'QuietStrength',       name = 'Nik Skandaro',   line = 'The Bools\' former enforcer, racing for solace' },
+        { key = 'Veteran',             name = 'Griff Halloran', line = 'Still in his Imperial Navy armour; flying is what he knows' },
+        { key = 'Ghost',               name = 'Goli & 02-R0',   line = 'A meek prodigy from Polis Massa and their companion droid' },
+        { key = 'InnerHonour',         name = 'Soren Zaks',     line = 'A former smuggler redeeming his life on the racetrack' },
+        { key = 'Nomad',               name = 'Fola Kanjen',    line = 'From racing farmers\' cattle to the Galactic League' },
+        { key = 'ElegantProfessional', name = 'Katja Mox',      line = 'Forging her own destiny apart from the disgraced MoxCorp' },
+        { key = 'Thrall',              name = 'Sen Fira',       line = 'Races for Kestar until her debt to the Bools is repaid' },
+        { key = 'Rager',               name = 'Biddy Blas',     line = 'Hot-headed; his last shot at a face on a cereal box' },
+        { key = 'Star',                name = 'Lyren Shok',     line = 'Celebrity waveskimmer racer after a new start and fans' },
+        { key = 'Mentor',              name = 'Sebulba',        line = 'The legend himself, never on the League\'s grid' },
+        { key = 'Antagonist',          name = 'Kestar Bool',    line = 'Galactic League Champion, proud son of the Bool family' },
+    },
 }
