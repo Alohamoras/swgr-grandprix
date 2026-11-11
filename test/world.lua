@@ -109,7 +109,34 @@ function W.setup()
   end
   local ksl = StaticFindObject('/Script/Engine.Default__KismetSystemLibrary')
   rawget(ksl, '__props').IsStandalone = function() return true end
+  W.aiConfig()
   W.frontEnd()
+end
+
+-- the AI config asset DA_AIConfig with the game's own values (MenuRecon 2026-11-10); W.ai = its fields (plain tables,
+-- as UE4SS hands structs back by reference). The mod's ai.lua writes it at launch and puts it back at the menu.
+function W.aiConfig()
+  W.ai = {
+    DefaultPacingSettings = { RacePacingLowestSpeedMph = 150, MaxAiCatchupScale = 1.3, MaxAiSlowdownScale = 0.75,
+      AiAheadTimeToMaxSlowdown = 1.5, AiBehindTimeToMaxCatchup = 2, AiSlowdownDuringCrash = 0.5 },
+    ForcedErrorChance = 15, ForcedErrorDuration = 8, DefaultPercentageChancePerfectStart = 75,
+    AggressionConfig = { VersusAI = { Cooldown = 4, Chance = 100 }, VersusPlayer = { Cooldown = 2, Chance = 50 } },
+  }
+  M.assets['/Game/Griffin/AI/DA_AIConfig.DA_AIConfig'] = M.new('DA_AIConfig', W.ai, 'RaceAIComponentConfig')
+  return W.ai
+end
+-- n race tune objects (a GameTuneComponent each, its RaceTuneData.Config with the game's own rubber-band values);
+-- returns the configs and the tune data objects
+function W.tune(n)
+  local confs, rtds = {}, {}
+  for i = 1, n or 1 do
+    confs[i] = { TotalCrashAllowance = 3, AiMaxTimeAheadModifier = 0, AiMinTimeAheadModifier = 0, AiMaxTimeAheadMultiplier = 1,
+      AiMinTimeAheadMultiplier = 1, AiTimeAheadSlowdownModifier = 0, AiAggressionVPlayerCooldownMultiplier = 1,
+      AiAggressionVPlayerChanceMultiplier = 1, AiCountdownToSlamPlayerModifier = 0, AiAbilityChanceMultiplier = 1 }
+    rtds[i] = M.add('RaceTuneData', M.new('rtd' .. M.nextAddr, { Config = confs[i] }))
+    M.add('GameTuneComponent', M.new('tc' .. M.nextAddr, { RaceTuneData = rtds[i] }))
+  end
+  return confs, rtds
 end
 
 -- a build asset with a slot map

@@ -208,4 +208,33 @@ return {
         { key = 'bike', arch = 2, name = 'SPEEDER BIKE', build = '/Game/Griffin/Gameplay/Campaign/Builds/VBD_Bike_Base' },
         { key = 'skimmer', arch = 3, name = 'SKIM SPEEDER', build = '/Game/Griffin/Gameplay/Campaign/Builds/VBD_Skimmer_Base' },
     },
+
+    -- AI strength per class (ai.lua; DESIGN.md §4, docs/research-2026-11-10.md "Difficulty"). Everything is
+    -- memory-only and put back at the menu. Enabled = false switches all of it off.
+    AI = {
+        Enabled = true,
+        -- Hidden tuning dial: added to every class's pressure (e.g. 0.25 = every class a notch harder). Keep 0.
+        Adjust = 0,
+        -- One profile per class key. pressure (-1..2): the rubber band on the game's race tune data, the way its own
+        -- difficulties set it - -1 = Cadet (AI max time ahead x0.65 / min -3 s, abilities -0.25, aggression -0.35,
+        -- slam countdown +0.8 s), 0 = the game's own, 1 = Nightmare (+2.5 s / +1.5 s, abilities +0.5, aggression +1,
+        -- cooldown x0.75), 2 = Champion (+5 s / +3 s, abilities +1.25, aggression +2.5, cooldown x0.5); in between is
+        -- interpolated. ops = { AiField = { add, mul } }: an explicit extra op on one tune field, after the pressure's.
+        -- The rest write the AI config asset (DA_AIConfig) at launch and put it back at the menu:
+        --   pacing = { field = value }: its DefaultPacingSettings (the game's: RacePacingLowestSpeedMph 150,
+        --     MaxAiCatchupScale 1.3, MaxAiSlowdownScale 0.75, AiAheadTimeToMaxSlowdown 1.5, AiBehindTimeToMaxCatchup
+        --     2, AiSlowdownDuringCrash 0.5). MaxAiSlowdownScale = 1.0 is "honest pacing": the AI never slows down for
+        --     you when it's ahead, so "fail now, win later" is real.
+        --   catchup = multiplier on MaxAiCatchupScale (how much faster the AI goes when behind; 1.3 x 1.15 = 1.5).
+        --   errors = multiplier on ForcedErrorChance (the game's 15 %/s near you; 0.5 = half the mistakes).
+        --   perfectStart = the AI's chance of a perfect start, % (the game's 75).
+        --   aggression = { chance = multiplier, cooldown = multiplier } on AggressionConfig.VersusPlayer (50 %, 2 s).
+        --   config = { ['Field'] = value, ['Struct.Field'] = value }: any other number on the asset, by path.
+        Profiles = {
+            ['50'] = { pressure = -1 },
+            ['100'] = { pressure = 0 },
+            ['150'] = { pressure = 0.5, pacing = { MaxAiSlowdownScale = 1.0 }, errors = 0.5 },
+            ['200'] = { pressure = 1.2, pacing = { MaxAiSlowdownScale = 1.0 }, catchup = 1.15, errors = 0.5, perfectStart = 90 },
+        },
+    },
 }
