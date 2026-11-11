@@ -343,7 +343,11 @@ SCREENS.garage = function()
     local r = RC.current() or {}
     items[#items + 1] = { title = (r.name or 'RACER'):upper(), art = (r.key == 'Antagonist') and ART.SHOWDOWN or 'T_UI_FE_Tile_01', badge = 'RACER',
       desc = (r.line or '') .. '\nSelect: next racer', info = (r.name or '?') .. ':  ' .. (r.line or '') .. '  (the pilot you race as; name, look and voice come with the pilot)',
-      act = function() local n = RC.cycle(1); S.message = 'Racing as ' .. tostring((n and n.name) or '?'); return true end }
+      act = function()
+        local n, why = RC.cycle(1)
+        S.message = n and ('Racing as ' .. n.name) or ('The cup in progress keeps its racer (' .. tostring(why) .. ')')
+        return true
+      end }
   end
   for i = 1, 4 do
     local lab = AB.label(picks[i], level)

@@ -45,8 +45,7 @@ for _ = 1, 12 do if RC.current().key ~= 'Antagonist' then RC.cycle(1) end end
 T.check(RC.current().key == 'Antagonist', 'Kestar picked')
 M.press('F6'); M.tick(6)
 T.clickTitle('150CC'); M.tick(3)
-T.clickTitle('JAKKU CUP'); M.tick(3)
-T.clickTitle('START CUP')
+T.clickTitle('JAKKU CUP')
 T.check(M.called('LaunchQuickRace') == 1, 'START CUP launches race 1')
 T.check(W.charsText() == 'Player=Antagonist Opp=Mercenary,ElegantProfessional,Star,InnerHonour,Thrall,Ghost,Rager,Nomad,Veteran,QuietStrength,Protege',
   'at launch: Player = Kestar, the 11 opponents as they were (' .. W.charsText() .. ')')
