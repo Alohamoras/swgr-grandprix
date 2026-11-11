@@ -3,6 +3,21 @@
 Design: DESIGN.md. Shared playbook and house rules: ~/Projects/swgr-underground/AUTOMATION.md.
 One git tag per chunk; push after each tag.
 
+## v0.9: cups are not resumable (owner, 2026-11-10; built, NOT yet seen in game)
+Design rule (DESIGN.md §13): like Mario Kart, leaving a Grand Prix loses it. A cup exists only from its first
+race's launch to the standings of its last race.
+- [x] HOME loses CONTINUE CUP / QUIT CUP (always the four classes, GARAGE, RESET PROGRESS); the cups page loses the
+      IN PROGRESS tile, the "finish or quit first" block and the next-race launch; the standings lose LATER.
+- [x] B on the standings after races 1-3: "Leave the cup? Your points are lost." YES (first) forfeits and goes HOME,
+      NO returns. After race 4 unchanged. F6 on the standings reopens the standings, not HOME.
+- [x] A run in the save at boot is dropped and logged (`[cup] jakku 150cc dropped at boot (race 3 of 4): cups cannot
+      be resumed`); one still alive when HOME is shown too. Quitting a race from the pause menu is still a DNF and
+      the cup goes on.
+- [x] The garage's racer lock while a cup runs removed (dead: the garage can't be reached mid-cup).
+- [x] Tests updated and added (B -> NO / YES, F6, the boot drop, the HOME drop); 22 tests, 511 checks.
+- [ ] In game: the standings' one tile and the B question (pad B through the hidden Back screen); a restart mid-cup
+      logs the drop and HOME shows no cup; a pause-menu quit still moves the cup on. Tag v0.9.0 after.
+
 ## Waiting on the owner's playtest (v0.8.1 installed, 2026-11-10)
 Things only a real play can answer. Tick them off (or note what felt wrong) as you go.
 - [x] (moot in v0.8: the mods became twelve tune-ups without the "check" ones) **Mods:** which feel good, which feel too strong - the 23 "check" ones especially
@@ -22,10 +37,10 @@ Research: https://claude.ai/artifact/7VSJrJnpopuMcBFQ2WyTV8 (copy docs/research-
 tests against the fake game; the game was in use when the in-game checks were due. Install: `./deploy.sh v0.8.0`.
 First load drops the old catalogue mod keys from the save (logged `[tune-ups] dropped from the save`); your trophies,
 records-to-be, abilities and vehicle are kept.
-- [x] (Claude, 2026-11-10) **Menus:** HOME (classes, GARAGE, RESET; CONTINUE / QUIT CUP while a cup runs), the CUPS page (5 x 4 grid: do
+- [x] (Claude, 2026-11-10; v0.9: CONTINUE / QUIT CUP are gone) **Menus:** HOME (classes, GARAGE, RESET; CONTINUE / QUIT CUP while a cup runs), the CUPS page (5 x 4 grid: do
       18 smaller tiles fit without scrolling, is the text readable, do the info lines show the four races and
       records when a cup is focused), GARAGE (Select cycles each tile). B goes back everywhere. Take screenshots.
-- [x] (Claude: a 150cc Jakku race, 3rd, NEW RECORD) **A cup from the cups page:** Select on a cup launches race 1 straight away; the tile says IN PROGRESS; Select
+- [x] (Claude: a 150cc Jakku race, 3rd, NEW RECORD; v0.9: no IN PROGRESS tile, no next-race launch from the page) **A cup from the cups page:** Select on a cup launches race 1 straight away; the tile says IN PROGRESS; Select
       on it launches the next race; standings unchanged; NEW RECORD line after a finished race; the class tile's
       gold count.
 - [x] (Claude: all lines seen, no FAILED; the feel is yours to judge) **AI profile** (grandprix.log): at launch `[ai] class 150: pressure 0.50 ...` and `[ai] ... AI config
@@ -78,7 +93,8 @@ records-to-be, abilities and vehicle are kept.
 - [x] Results for all 12 racers (R1) → points; standings screen; NEXT RACE launches the next race.
 - [x] After race 4: final standings, trophy, best finish per cup and class (own save file).
 - [x] QUIT CUP forfeits the cup (owner). The cup in progress is kept in the save (LATER / CONTINUE CUP), so it
-      also survives a restart; one cup at a time.
+      also survives a restart; one cup at a time. (v0.9: the resume is gone - cups cannot be resumed; B on the
+      standings asks and forfeits.)
 - [x] Tests (`test_cup` scoring, `test_flow` a whole cup, `test_vehicles` bike / DNF / forfeit); tag v0.2.0.
 - [x] In game (owner, 2026-11-09): whole Jakku Cup at 50cc, GOLD (54 points); all 12 racers read every race;
       standings and trophy screens worked.
@@ -150,12 +166,12 @@ records-to-be, abilities and vehicle are kept.
   save conversion. Trophies are only written at the end of race 4 (`gp.lua` cupOver). The 200cc Jakku gold was a
   full cup (1st, 2nd, 3rd, 1st = 52).
 - [x] v0.3.11: "race N of 4" on CONTINUE CUP, the cup screen, NEXT RACE (badge "RACE 4 / 4", "the final race")
-      and CONTINUE CUP shows your place and points so far.
+      and CONTINUE CUP shows your place and points so far. (v0.9: only NEXT RACE's badge is left.)
 - [x] v0.3.11: trophy badge on the cup tiles (the tile's own small extra line: GOLD / SILVER / BRONZE TROPHY, or
-      IN PROGRESS 3 / 4); class tiles show "3 / 7 TROPHIES".
+      IN PROGRESS 3 / 4 - gone in v0.9); class tiles show "3 / 7 TROPHIES".
 - [x] v0.3.11: RESET PROGRESS (owner): last tile on the class screen; confirm with NO first; clears trophies, best
-      finishes, the cup in progress and the cups count; keeps abilities, vehicle, race count; backup first
-      (`save.backup-reset-<date>.lua`).
+      finishes, the cup in progress (v0.9: none can be alive at HOME) and the cups count; keeps abilities, vehicle,
+      race count; backup first (`save.backup-reset-<date>.lua`).
 - [x] In game (2026-11-10): the badges show at the top of the tiles ("3 / 7 TROPHIES", "RACE 3 / 4"). The ranking
       table reads well. Fixed in v0.5.0: two tiles sat two columns apart (LATER); the class tile text was cut off.
 

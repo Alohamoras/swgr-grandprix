@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.9.0 (2026-11-10): cups are not resumable
+Owner's rule: like Mario Kart, leaving a Grand Prix loses it. A cup exists only from its first race's launch to the
+standings screen of its last race; quitting mid-cup just loses that cup's progress. (Not yet seen in game.)
+- **Gone:** the CONTINUE CUP and QUIT CUP tiles on HOME (HOME = 50CC, 100CC, 150CC, 200CC, GARAGE, RESET PROGRESS,
+  always); the IN PROGRESS cup tile, the "finish or quit the cup first" block on the other cups and on the title
+  race, and the "Select launches the next race" path on the cups page; LATER on the standings; the garage's racer
+  lock while a cup runs (`RC.locked`: the garage can't be reached mid-cup any more); "and the cup in progress" in
+  the RESET PROGRESS question.
+- **Standings after races 1-3:** NEXT RACE only. B there asks "Leave the cup? Your points are lost." - YES first
+  (forfeits, goes HOME), NO second (back to the standings). After race 4 nothing changed (CONTINUE / B go to the
+  cups). The menu key (F6) while on the standings closes the page and reopens the standings, not HOME.
+- **Boot:** a cup found in the save when the mod loads (the game was restarted or crashed mid-cup) is dropped:
+  `[cup] jakku 150cc dropped at boot (race 3 of 4): cups cannot be resumed` (`K.drop`). The run still lives in the
+  save between the races of a cup (race.lua / racer.lua read it across a race load); only the resume paths went.
+  Safety net: a run still alive when HOME is shown (a next race that never loaded lands on the cups page; B from
+  there) is dropped the same way, `... dropped at the home screen ...`; `K.startCup` forfeits any such leftover.
+- Kept: quitting a race from the game's pause menu is a DNF and the cup goes on (test_vehicles); the cup's own copy
+  of vehicle / picks / tune-ups (`run.vehicle` / `run.picks` / `run.mods`, race.lua launches with them); the save
+  conversion still moves an old run's class up (it is then dropped at boot, logged under the new class).
+- Tests: test_flow (NEXT RACE only; B -> NO; F6 twice keeps the cup; B after race 4 = the cups), test_vehicles (B ->
+  YES forfeits; a timed-out launch's leftover dropped at HOME), test_trophies / test_unlocks / test_convert /
+  test_oldpicks (a run in the save dropped at boot, logged; the Sentinel cup now raced whole), test_racer (no lock),
+  test_mods / test_ai (leave the cup through B -> YES). 22 tests, 511 checks.
+
 ## v0.8.1 (2026-11-10): v0.8 seen in game; the title race comes back to the menu
 - Seen in game (test copy of the owner's save, TestAutopilot driving): HOME, the 18-tile CUPS page (5 x 4, no
   scrolling, the focused cup's four races and records in the info lines, steady height), GARAGE (vehicle, racer,

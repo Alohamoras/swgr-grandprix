@@ -53,8 +53,12 @@ local sv = T.save()
 T.check(sv.racerRestore and sv.racerRestore.key == 'Antagonist' and sv.racerRestore.player == RACERS .. 'DarkEnigma' and sv.racerRestore.opp == nil,
   'the save holds what to put back (Shade), no opponent swap')
 T.check(T.logHas('[racer] racing as Kestar Bool (DA_Racer_Antagonist): CharacterList.Player set (was Shade)'), 'launch logged')
-local r, why = RC.cycle(1)
-T.check(r == nil and why == 'cup in progress' and RC.current().key == 'Antagonist', 'no change while a cup is in progress')
+-- v0.9: no lock while a cup runs (the garage can't be reached mid-cup without leaving the cup); the race keeps the
+-- pilot it launched with (the save's restore record)
+local r = RC.cycle(1)
+T.check(r ~= nil and RC.current().key ~= 'Antagonist' and T.save().racerRestore.key == 'Antagonist', 'the pick can change mid-cup; the race keeps Kestar')
+RC.cycle(-1)
+T.check(RC.current().key == 'Antagonist', 'and back to Kestar')
 
 -- the race world: the list stays swapped until the settle time (past the grid and the countdown), then goes back
 W.race(11); M.tick(5)

@@ -161,7 +161,8 @@ Earlier proposal (to confirm with the owner; 50cc stays mod-free - owner, 2026-1
 2. Race 1 launches straight away (quick race; StreamlineCampaign skips the intros).
 3. Results come back: **points for all 12 racers**, then a standings screen with the cup so far.
 4. Continue → the next race launches. Quitting gives up the cup (owner: start with whatever is easier to code; a
-   forfeit is). Resume can come later.
+   forfeit is). v0.2-v0.8 kept the cup in the save to resume later; v0.9 took that out for good (owner: like Mario
+   Kart, leaving a Grand Prix loses it - §13).
 5. After race 4: the final standings, the trophy (1st gold, 2nd silver, 3rd bronze), and unlocks.
 
 **Points:** 15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1. Ties on points: the better finish in the last race wins.
@@ -242,15 +243,25 @@ circuits 4-8. First race in game (v0.1): The War Fields, 2 laps, about 2 min 20 
 | 2026-11-09 | Abilities built before the AI difficulty (v0.3); AI difficulty per class becomes v0.4. |
 | 2026-11-10 | Abilities: free pick, any four, one per family (owner). The AI keeps its category fours. Points 15-12-10-...-1 kept ("works well"). 50cc and 100cc open from the start. |
 | 2026-11-09 | Mines only as the Wildcard. The AI follows the four-category rule too. 150cc fully maxed. Quitting a cup forfeits it (easiest to build). |
+| 2026-11-10 | v0.9 (owner): cups are not resumable - like Mario Kart, leaving a Grand Prix loses it. No CONTINUE / QUIT CUP, no LATER, no IN PROGRESS; B on the standings asks; a run in the save at boot is dropped. |
 
 ## 13. v0.8 (2026-11-10): the research round
 Built from docs/research-2026-11-10.md (the owner's 13 questions; the Claude Doc has the reasoning). Not yet seen in
 game. Summary of what changed in the design:
 - **Menu, two levels** (owner's rules: never more than two deep, no words you don't need, no scrolling, simple).
-  HOME = the cup in progress (CONTINUE / QUIT), the four classes, GARAGE, RESET PROGRESS. CUPS (per class) = every
-  cup on one 5 x 4 page: planet / remix / conditions cups, the bonus cups, the TITLE RACE; the focused cup shows its
-  races (planet, kind, laps) and your records; Select starts it. GARAGE = VEHICLE, RACER, ABILITY 1-4, TUNE-UP 1-2,
-  each cycled in place with Select. No cup page, no pick screens, no BACK / EXIT / DONE tiles (B goes back).
+  HOME = the four classes, GARAGE, RESET PROGRESS (always these six; v0.9 took the CONTINUE / QUIT CUP tiles off).
+  CUPS (per class) = every cup on one 5 x 4 page: planet / remix / conditions cups, the bonus cups, the TITLE RACE;
+  the focused cup shows its races (planet, kind, laps) and your records; Select starts it. GARAGE = VEHICLE, RACER,
+  ABILITY 1-4, TUNE-UP 1-2, each cycled in place with Select. No cup page, no pick screens, no BACK / EXIT / DONE
+  tiles (B goes back).
+- **Cups are not resumable (v0.9, owner, 2026-11-10): like Mario Kart, leaving a Grand Prix loses it.** A cup
+  exists only from its first race's launch to the standings screen of its last race. The standings after races 1-3
+  offer NEXT RACE only; B there asks "Leave the cup? Your points are lost." (YES first: forfeit and HOME; NO: the
+  standings). After race 4: CONTINUE / B to the cups. Quitting a race from the game's pause menu is a DNF and the
+  cup goes on. A cup found in the save at boot (restart or crash mid-cup) is dropped and logged (`[cup] ... dropped
+  at boot ...: cups cannot be resumed`); so is one still alive when HOME is shown. No IN PROGRESS tile, no LATER, no
+  lock on the garage while a cup runs. The run stays in the save between the races of a cup (race.lua / racer.lua
+  read it across a race load) and keeps the vehicle, picks and tune-ups it started with.
 - **The Galactic League frame**: classes = divisions with one intro line each; a season = the five planet cups; the
   **title race** = the Stadium Showdown against Kestar Bool at every class (he copies your build), open with a trophy
   in all five planet cups at the class; a win = the class champion (shown on the class tile). The class points

@@ -43,7 +43,7 @@ local function fill(d)
   d.class = type(d.class) == 'string' and d.class or nil -- the class picked last
   d.vehicle = type(d.vehicle) == 'string' and d.vehicle or 'car'
   d.racer = type(d.racer) == 'string' and d.racer or nil -- v0.8: your pilot (racer.lua, config Racers key); nil = the game's own. racerRestore = the list to put back
-  -- v0.2: the cup in progress (nil = none) and best finishes
+  -- v0.2: the cup in progress (nil = none; v0.9: dropped at boot, K.drop - cups cannot be resumed) and best finishes
   d.run = type(d.run) == 'table' and d.run or nil
   d.best = type(d.best) == 'table' and d.best or {}
   d.cups = tonumber(d.cups) or 0
@@ -177,7 +177,22 @@ end
 -- the cup in progress
 
 function K.run() return K.data.run end
+-- v0.9 (owner): cups cannot be resumed - like Mario Kart, leaving a Grand Prix loses it. A run only lives from its
+-- first race's launch to the standings of its last race; it stays in the save between races (race.lua / racer.lua
+-- read it across a race load). One left in the save at boot (the game closed or crashed mid-cup), or still there
+-- when HOME is shown, is dropped. where = 'at boot' / 'at the home screen'. Returns true when one was dropped.
+function K.drop(where)
+  local run = K.data.run
+  if not run then return false end
+  local c = K.class(run.class)
+  log(('[cup] %s %s dropped %s (race %d of %d): cups cannot be resumed'):format(run.cup, c and c.name or run.class,
+    where or '?', run.race, run.races))
+  K.data.run = nil
+  K.save()
+  return true
+end
 function K.startCup(classKey, cupKey, vehicleKey, picks, mods)
+  if K.data.run then K.forfeit() end -- (v0.9: a run left over from a race that never loaded; nothing can resume it)
   local cup = K.cup(cupKey)
   K.data.run = CU.new(classKey, cupKey, vehicleKey, cup and #cup.races or 4)
   K.data.run.picks = picks

@@ -52,9 +52,7 @@ T.check(T.logHas('mods put back (main menu): VBD_Car_Base (0)'), 'put back logge
 T.check(next(T.save().modRestores) == nil, 'nothing left to put back')
 
 -- 200cc with different packages: the launch build carries yours + the AI's extras; each racer keeps only theirs
-T.clickTitle('LATER'); M.tick(3)
-M.press('BACKSPACE'); M.tick(3)
-T.clickTitle('QUIT CUP'); M.tick(3)
+M.press('BACKSPACE'); M.tick(3) -- leave the cup (v0.9: B on the standings asks; YES first)
 T.clickTitle('YES'); M.tick(3)
 T.clickTitle('GARAGE'); M.tick(3)
 n = T.ntiles()
@@ -87,9 +85,7 @@ W.backToMenu(); M.tick(45)
 T.check(#aff == 0 and rawget(b, '__props').UnlockedAffixSlots == 4, 'launch build and its slot count put back (' .. #aff .. ', ' .. tostring(rawget(b, '__props').UnlockedAffixSlots) .. ')')
 
 -- 50cc: pure driving (and no AI packages at 50cc: the launch build stays empty)
-T.clickTitle('LATER'); M.tick(3)
-M.press('BACKSPACE'); M.tick(3)
-T.clickTitle('QUIT CUP'); M.tick(3)
+M.press('BACKSPACE'); M.tick(3) -- leave the cup (v0.9: B on the standings asks; YES first)
 T.clickTitle('YES'); M.tick(3)
 T.clickTitle('50CC'); M.tick(3)
 local mark = T.mark()

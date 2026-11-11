@@ -85,9 +85,7 @@ T.check(next(T.save().aiRestores) == nil, 'nothing left to put back')
 T.check(T.levels('VBD_Car_Base') == '0=0 1=0 2=0 3=0 4=0 5=0', 'the build put back too')
 
 -- 50cc: Cadet pressure, the AI config untouched
-T.clickTitle('LATER'); M.tick(3)
-M.press('BACKSPACE'); M.tick(3)
-T.clickTitle('QUIT CUP'); M.tick(3)
+M.press('BACKSPACE'); M.tick(3) -- leave the cup (v0.9: B on the standings asks; YES first)
 T.clickTitle('YES'); M.tick(3)
 T.clickTitle('50CC'); M.tick(3)
 mark = T.mark()

@@ -42,17 +42,22 @@ T.check(T.logHas('[menu] standings'), 'standings after race 1')
 T.check(T.logHas('[cover] on') and T.logHas('[cover] off'), 'the menu is covered while it is rebuilt, and uncovered for the ranking')
 local sv = T.save()
 T.check(sv.run.race == 2 and sv.run.points.YOU == 12 and sv.run.points['Biddy Blas'] == 15, 'points: you 12, Biddy 15')
+-- v0.9: the standings offer NEXT RACE only (no LATER: cups cannot be resumed); B asks "Leave the cup?", YES first
+T.check(T.titles() == 'NEXT RACE' and T.badges() == 'RACE 2 / 4', 'standings: NEXT RACE only, badge RACE 2 / 4 (' .. T.titles() .. ')')
+M.press('BACKSPACE'); M.tick(5)
+T.check(T.logHas('[menu] confirm') and T.titles() == 'YES|NO', 'B on the standings asks to leave the cup, YES first (' .. T.titles() .. ')')
+local mark = T.mark()
+T.clickTitle('NO'); M.tick(3)
+T.check(T.logHas('[menu] standings', mark) and T.titles() == 'NEXT RACE' and T.save().run.race == 2, 'NO: back to the standings, the cup still on')
+-- the menu key closes the page and reopens the standings, not HOME (HOME would drop the cup)
+M.press('F6'); M.tick(3)
+T.check(T.logHas('[menu] closed (menu key)', mark), 'F6 closes the page')
+M.press('F6'); M.tick(6)
+T.check(T.titles() == 'NEXT RACE' and T.save().run ~= nil and not T.logHas('dropped', mark), 'F6 again: the standings come back, the cup kept')
 
 local launches = { 'EVT_MAS_P2P_FWD', 'EVT_MAS_LOOP_B_FWD', 'EVT_MAS_LOOP_A_SHORT_02' }
 for i, you in ipairs({ 1, 1, 3 }) do
-  if i == 2 then
-    -- from the cups page: the cup in progress launches its next race on Select
-    T.clickTitle('LATER'); M.tick(3)
-    T.check(T.badges():find('IN PROGRESS  3 / 4', 1, true) ~= nil, 'the cup tile says IN PROGRESS 3 / 4 (' .. T.badges() .. ')')
-    T.clickTitle('JAKKU CUP')
-  else
-    T.clickTitle('NEXT RACE')
-  end
+  T.clickTitle('NEXT RACE')
   T.check(rawget(M.lastCall('LaunchQuickRace').args[2], '__name'):find(launches[i], 1, true) ~= nil, 'race ' .. (i + 1) .. ' = ' .. launches[i])
   race(i + 1, you)
 end
@@ -62,10 +67,14 @@ T.check(T.logHas('[menu] standings (1 tiles)'), 'after race 4: the one ranking s
 sv = T.save()
 T.check(sv.run == nil, 'no cup in progress any more')
 T.check(sv.best['150'].jakku == 2 and sv.cups == 1 and sv.races == 4, 'best = 2nd saved; 1 cup, 4 races')
-T.clickTitle('CONTINUE'); M.tick(3)
-T.check(T.titles():find('JAKKU CUP', 1, true) ~= nil, 'CONTINUE -> the cups')
+-- after the last race B goes to the cups (no cup to leave), like CONTINUE
+mark = T.mark()
+M.press('BACKSPACE'); M.tick(5)
+T.check(T.logHas('[menu] cups', mark) and not T.logHas('[menu] confirm', mark), 'B on the cup result goes to the cups, no question')
+T.check(T.titles():find('JAKKU CUP', 1, true) ~= nil, 'the cups page')
 T.check(T.badges():find('^SILVER TROPHY|') ~= nil, 'Jakku shows its silver (' .. T.badges() .. ')')
 M.press('BACKSPACE'); M.tick(3)
-T.check(T.logHas('[menu] home'), 'B from the cups goes home')
+T.check(T.logHas('[menu] home', mark), 'B from the cups goes home')
+T.check(not T.logHas('[cup]', mark), 'nothing dropped at home: no cup was alive')
 T.check(T.badges():find('1 / ' .. #require('config').Cups .. ' TROPHIES', 1, true) ~= nil, '150cc shows its trophy count (' .. T.badges() .. ')')
 T.finish()

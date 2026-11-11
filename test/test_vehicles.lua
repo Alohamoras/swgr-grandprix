@@ -1,5 +1,6 @@
--- 200cc maxes every part; the GARAGE's vehicle tile cycles to the bike, and the cup races with it. Quitting a cup
--- forfeits it (QUIT CUP on the home page); a second cup can't start while one is in progress.
+-- 200cc maxes every part; the GARAGE's vehicle tile cycles to the bike, and the cup races with it. Quitting a race
+-- from the game's pause menu is a DNF and the cup goes on; leaving the cup (B on the standings, YES) forfeits it
+-- (v0.9: cups cannot be resumed); a cup left on the page when HOME is shown is dropped.
 local M = require('mock')
 local W = require('world')
 local T = require('util')
@@ -25,16 +26,34 @@ W.backToMenu(); M.tick(45)
 T.check(T.logHas('RESULT CRIMSON MINES: DNF'), 'quitting the race = DNF')
 T.check(T.save().run.points.YOU == 0 and T.save().run.race == 2, 'DNF: no points, on to race 2')
 T.check(T.logHas('[menu] standings'), 'standings shown')
-T.clickTitle('LATER'); M.tick(3)
-local n = M.called('LaunchQuickRace')
-T.clickTitle('ANDO CUP'); M.tick(3)
-T.check(M.called('LaunchQuickRace') == n and T.titles():find('ANDO CUP', 1, true) ~= nil, 'another cup: nothing launches, finish or quit the one in progress first')
-M.press('BACKSPACE'); M.tick(3)
-T.check(T.titles():find('^CONTINUE CUP|QUIT CUP|') ~= nil, 'home shows CONTINUE CUP and QUIT CUP (' .. T.titles() .. ')')
-T.clickTitle('QUIT CUP'); M.tick(3)
+T.check(T.titles() == 'NEXT RACE', 'the standings offer NEXT RACE only (' .. T.titles() .. ')')
+M.press('BACKSPACE'); M.tick(5)
+T.check(T.titles() == 'YES|NO', 'B: "Leave the cup?", YES first (' .. T.titles() .. ')')
+-- B on the question goes back to the standings too
+M.press('BACKSPACE'); M.tick(5)
+T.check(T.titles() == 'NEXT RACE' and T.save().run ~= nil, 'B on the question: the standings again, the cup kept')
+M.press('BACKSPACE'); M.tick(5)
 T.clickTitle('YES'); M.tick(3)
-T.check(T.save().run == nil, 'QUIT CUP + YES forfeits it')
+T.check(T.save().run == nil, 'YES forfeits it')
 T.check(T.logHas('cup forfeited: 200 crait after 1 of 4 races'), 'forfeit logged')
 T.check(T.save().best['200'] == nil, 'no trophy saved')
-T.check(T.titles():find('^50CC|') ~= nil, 'home without the cup tiles (' .. T.titles() .. ')')
+T.check(T.logHas('[menu] home') and T.titles() == '50CC|100CC|150CC|200CC|GARAGE|RESET PROGRESS', 'YES goes HOME: the classes, GARAGE, RESET (' .. T.titles() .. ')')
+
+-- a cup alive when HOME is shown (here: the launch of race 2 timed out, which lands on the cups page) is dropped
+T.clickTitle('200CC'); M.tick(3)
+T.clickTitle('ANDO CUP')
+T.check(T.save().run and T.save().run.cup == 'ando', 'a second cup starts (Ando)')
+W.race(11); M.tick(10)
+local t0 = os.time(); while os.time() - t0 < 3 do end
+W.backToMenu(); M.tick(45)
+T.clickTitle('NEXT RACE')
+local R = require('race')
+T.check(R.run ~= nil and R.run.phase == 'loading', 'race 2 launched, loading')
+local mark = T.mark()
+M.tick(1210) -- 121 s: no race world
+T.check(T.logHas('no race world after 120 s - giving up', mark) and T.logHas('[menu] cups', mark), 'the launch timed out: back on the cups page')
+T.check(T.save().run ~= nil, 'the cup is still in the save there')
+M.press('BACKSPACE'); M.tick(3)
+T.check(T.logHas('[cup] ando 200cc dropped at the home screen (race 2 of 4): cups cannot be resumed', mark) and T.save().run == nil,
+  'B to HOME: the cup is dropped and logged')
 T.finish()

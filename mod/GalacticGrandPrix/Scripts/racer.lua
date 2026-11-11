@@ -36,11 +36,9 @@ function RC.get(key)
 end
 function RC.current() return RC.get(K.data.racer) or RC.list()[1] end
 function RC.path(key) return RACERS .. key end
--- a cup keeps the pilot it started with (like its vehicle and abilities): no change while one is in progress
-function RC.locked() return K.data.run ~= nil end
--- the next (dir = 1) or previous (-1) pilot, saved. Returns the entry, or nil + why.
+-- the next (dir = 1) or previous (-1) pilot, saved. Returns the entry. (v0.9: no lock while a cup runs - the garage
+-- can't be reached mid-cup without leaving the cup, since cups cannot be resumed.)
 function RC.cycle(dir)
-  if RC.locked() then return nil, 'cup in progress' end
   local list = RC.list()
   local cur, at = RC.current(), 1
   for i, r in ipairs(list) do if r.key == cur.key then at = i end end

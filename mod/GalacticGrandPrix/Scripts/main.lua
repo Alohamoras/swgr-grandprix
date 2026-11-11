@@ -3,9 +3,10 @@
 -- the game's offline quick race (FrontEndGameMode:LaunchQuickRace) with every part at the class's level.
 -- v0.2: cups of 4 races with points for all 12 racers, standings after each race, a trophy at the end.
 -- v0.3: your four abilities (v0.3.10: free pick, one per family), the AI racers' four, levels by class.
+-- v0.9: cups cannot be resumed (owner): leaving a cup before its last standings loses it.
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.8.1'
+local VERSION = '0.9.0'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -24,6 +25,7 @@ local TB = require('tab')
 local try, alive, log, ordinal = C.try, C.alive, C.log, C.ordinal
 
 K.load()
+K.drop('at boot') -- v0.9: a cup left in the save by a restart or a crash is lost (cups cannot be resumed)
 
 local function tabMode() return not TB.failed end
 U.setLayout('tab')
@@ -104,12 +106,6 @@ end
 local function raceOf(run)
   return ('Race %d of %d%s'):format(run.race, run.races, run.race == run.races and ' - the final race' or '')
 end
--- the cup in progress: your place and points so far
-local function soFar(run)
-  if #(run.history or {}) == 0 then return 'No races run yet' end
-  local rank, pts = CU.yourRank(run)
-  return ('You are %s with %d points'):format(ordinal(rank or 0), pts or 0)
-end
 local function shortName(key) return key == CU.YOU and 'YOU' or key end
 
 -- launch the cup's next race (the cup's own vehicle and class)
@@ -144,10 +140,13 @@ end
 local SCREENS = {}
 
 -- v0.8 (owner's menu rules, 2026-11-10): never more than two levels deep, no words you don't need, no scrolling.
---   Level 1 HOME: the cup in progress (CONTINUE / QUIT), the four classes, GARAGE, RESET PROGRESS. B leaves the tab.
+--   Level 1 HOME: the four classes, GARAGE, RESET PROGRESS. B leaves the tab.
 --   Level 2 CUPS (a class): every cup on one page (5 columns x 4 rows); focusing a cup shows its races, planets and
---     your records; Select starts it (or launches its next race). No cup page.
+--     your records; Select starts it. No cup page.
 --   Level 2 GARAGE: vehicle, racer, four abilities, tune-ups - Select cycles the option in place. No pick screens.
+-- v0.9: a cup lives from its first race's launch to the standings of its last race, and nowhere else: the standings
+--   after races 1-3 offer NEXT RACE only; B there asks "Leave the cup?" (YES forfeits and goes HOME). No CONTINUE /
+--   QUIT CUP tiles, no IN PROGRESS cup tile, no LATER. HOME never shows with a cup alive (K.drop).
 
 local function classStats(classKey)
   local golds, trophies, total = 0, 0, 0
@@ -192,8 +191,6 @@ local function titleTile(cls)
     desc = (st and st.won) and ('You hold the title\n(defend it: select)') or ('1 v 1 against ' .. vs .. '\nSelect to race'),
     info = padInfo(('1 v 1, 6 laps, no points: win and you are the %s champion.%s'):format(cls.name, st and (('  Tries: %d.'):format(st.tries or 0)) or '')),
     act = function()
-      local run = K.run()
-      if run then S.message = 'Finish or quit the cup in progress first'; return true end
       local ev = TI.event(cls.key)
       local ok, why2 = R.launch(ev, cls.key, K.data.vehicle, picksFor(cls.key), modsFor())
       if ok then S.message = nil; return 'launched' end
@@ -203,23 +200,10 @@ local function titleTile(cls)
 end
 
 SCREENS.home = function()
-  local items, run = {}, K.run()
-  if run then
-    local cup, cls = K.cup(run.cup), K.class(run.class)
-    local ev = K.nextRace()
-    items[#items + 1] = { title = 'CONTINUE CUP', art = ART.cup(cup, run.vehicle) or 'T_UI_FE_Tile_02',
-      badge = ('RACE %d / %d'):format(run.race, run.races),
-      desc = ('%s  %s\n%s'):format(cup and cup.name or run.cup, cls and cls.name or run.class, ev and ('Next: ' .. ev.title) or ''),
-      info = ('%s  -  %s  -  %s.  Select: launch the next race.'):format(raceOf(run), ev and ev.title or '?', soFar(run)),
-      act = launchNext }
-    items[#items + 1] = { title = 'QUIT CUP', art = 'T_UI_FE_Tile_03', desc = 'Give up the cup\n(no trophy, asks first)',
-      info = 'Quitting loses the points so far. The cup can be raced again from the start.',
-      act = function()
-        S.confirm = { text = ('Quit the %s? Your points so far are lost.'):format(cup and cup.name or 'cup'), back = 'home',
-          yes = function() K.forfeit(); S.message = 'Cup abandoned' end, after = 'home' }
-        return go('confirm')
-      end }
-  end
+  local items = {}
+  -- v0.9: no cup is alive at HOME (one still here was left by a race that never loaded, or the page closed on the
+  -- standings): it is dropped, logged
+  K.drop('at the home screen')
   for _, c in ipairs(K.classes()) do
     local golds, trophies, total = classStats(c.key)
     local open, why = PR.classOpen(K.data, c.key)
@@ -246,8 +230,7 @@ SCREENS.home = function()
   items[#items + 1] = { title = 'RESET PROGRESS', art = 'T_UI_FE_Tile_02', desc = 'Start over\n(asks first)',
     info = 'Clears every trophy, record and best finish. Your garage is kept. A backup of the save is made first.',
     act = function()
-      S.confirm = { text = 'Reset all progress? Every trophy and best finish' .. (run and ', and the cup in progress,' or '')
-          .. ' will be cleared. Your garage is kept. (A backup of the save is made first.)',
+      S.confirm = { text = 'Reset all progress? Every trophy and best finish will be cleared. Your garage is kept. (A backup of the save is made first.)',
         back = 'home', noFirst = true,
         yes = function()
           local b = K.reset()
@@ -296,22 +279,14 @@ end
 
 SCREENS.cups = function()
   local cls = K.class(S.class) or K.classes()[1]
-  local run = K.run()
   local items = {}
   for _, cup in ipairs(cupsInOrder()) do
-    local here = run and run.cup == cup.key and run.class == cls.key
     local open, why = PR.cupOpen(K.data, cls.key, cup.key)
     local info = cupInfo(cup, cls.key)
     if not open then
       items[#items + 1] = { title = cup.name, art = ART.cup(cup, K.data.vehicle) or cup.art, badge = 'LOCKED', disabled = true,
         desc = 'To open: ' .. why, info = padInfo('To open: ' .. why .. '\n' .. info),
         act = function() S.message = cup.name .. ' is locked at ' .. cls.name .. '. To open it: ' .. why; return true end }
-    elseif here then
-      local ev = K.nextRace()
-      items[#items + 1] = { title = cup.name, art = ART.cup(cup, run.vehicle) or cup.art,
-        badge = ('IN PROGRESS  %d / %d'):format(run.race, run.races),
-        desc = ('Select: race %d, %s'):format(run.race, ev and ev.title or '?') .. '\n' .. soFar(run),
-        info = padInfo(raceOf(run) .. '  -  ' .. soFar(run) .. '\n' .. info), act = launchNext }
     else
       local mIcon, mColor = medal(cls.key, cup.key)
       local perfect = K.perfect and K.perfect(cls.key, cup.key)
@@ -320,11 +295,6 @@ SCREENS.cups = function()
         desc = bestText(cls.key, cup.key) .. (perfect and '  -  PERFECT' or '') .. '\n' .. (cup.races[1] and cup.races[1].title or ''),
         info = padInfo(info),
         act = function()
-          if run then
-            local other = K.cup(run.cup)
-            S.message = ('Finish or quit the %s first (CONTINUE CUP / QUIT CUP on the first page)'):format(other and other.name or 'cup in progress')
-            return true
-          end
           local veh = K.vehicle(K.data.vehicle)
           K.startCup(cls.key, cup.key, veh.key, picksFor(cls.key), modsFor())
           local res = launchNext()
@@ -379,8 +349,8 @@ SCREENS.garage = function()
     items[#items + 1] = { title = (r.name or 'RACER'):upper(), art = (r.key == 'Antagonist') and ART.SHOWDOWN or 'T_UI_FE_Tile_01', badge = 'RACER',
       desc = (r.line or '') .. '\nSelect: next racer', info = (r.name or '?') .. ':  ' .. (r.line or '') .. '  (the pilot you race as; name, look and voice come with the pilot)',
       act = function()
-        local n, why = RC.cycle(1)
-        S.message = n and ('Racing as ' .. n.name) or ('The cup in progress keeps its racer (' .. tostring(why) .. ')')
+        local n = RC.cycle(1)
+        S.message = n and ('Racing as ' .. n.name) or nil
         return true
       end }
   end
@@ -472,11 +442,11 @@ SCREENS.standings = function()
   end
   local items = {}
   if K.run() then
+    -- v0.9: NEXT RACE only (no LATER: cups cannot be resumed; B asks "Leave the cup?" - handle, below)
     local nxt = K.nextRace()
     local run2 = K.run()
     items[#items + 1] = { title = 'NEXT RACE', art = ART.cup(K.cup(run2.cup), run2.vehicle) or 'T_UI_FE_Tile_Campaign_Hero', badge = ('RACE %d / %d'):format(run2.race, run2.races),
       desc = ('%s\n%s (%s)'):format(raceOf(run2), nxt.title, nxt.kind or ''), act = launchNext }
-    items[#items + 1] = { title = 'LATER', art = 'T_UI_FE_Tile_03', desc = 'Back to the cups\n(the cup stays in progress)', act = function() return go('cups') end }
   else
     items[#items + 1] = { title = 'CONTINUE', art = ART.cup(cup, run and run.vehicle) or 'T_UI_FE_Tile_Campaign_Hero', desc = 'Back to the cups',
       icon = r.trophy and ART.medal(TROPHY_INDEX[r.trophy]) or nil, iconColor = r.trophy and ART.medalColor(TROPHY_INDEX[r.trophy]) or nil, act = function() return go('cups') end }
@@ -578,9 +548,19 @@ end
 -- input
 
 local BACK = { cups = 'home', garage = 'home', standings = 'cups', titleResult = 'cups' }
+-- v0.9: B on the standings while the cup runs (races 1-3) - one confirm: YES forfeits and goes HOME, NO = the standings
+local function leaveCup()
+  S.confirm = { text = 'Leave the cup? Your points are lost.', back = 'standings',
+    yes = function() K.forfeit(); S.message = 'Cup abandoned' end, after = 'home' }
+  go('confirm')
+  show()
+end
+-- the page is on the cup's standings (or its "Leave the cup?" question) with the cup alive
+local function onCup() return K.run() ~= nil and (S.screen == 'standings' or (S.screen == 'confirm' and S.confirm and S.confirm.back == 'standings')) end
 local function handle(name)
   if name == 'menu' then
-    if S.ui then close('menu key') else S.message = nil; S.screen = 'home'; show() end
+    -- (v0.9: the menu key reopens the standings rather than HOME while a cup is alive - HOME would drop the cup)
+    if S.ui then close('menu key') else S.message = nil; if not onCup() then S.screen = 'home' end; show() end
     return
   end
   if not S.ui or C.clock - S.shownAt < 350 then return end
@@ -601,6 +581,7 @@ local function handle(name)
   elseif name == 'back' then
     if S.blocked then close('back')
     elseif S.screen == 'confirm' then S.screen = (S.confirm and S.confirm.back) or 'home'; S.confirm = nil; show()
+    elseif S.screen == 'standings' and K.run() then leaveCup()
     elseif BACK[S.screen] then go(BACK[S.screen]); show() else close('back') end
   elseif name == 'click' then
     for i, it in ipairs(S.ui.items) do
