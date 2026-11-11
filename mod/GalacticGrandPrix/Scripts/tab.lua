@@ -67,7 +67,7 @@ local function applySlot(slot, p)
   if p.v then try(function() slot:SetVerticalAlignment(p.v) end) end
 end
 local function children(panel)
-  local out, n = {}, tonumber(try(function() return panel:GetChildrenCount() end)) or 0
+  local out, n = {}, tonumber((try(function() return panel:GetChildrenCount() end))) or 0
   for i = 0, n - 1 do
     local c = try(function() return panel:GetChildAt(i) end)
     if alive(c) then out[#out + 1] = c end
@@ -83,7 +83,7 @@ local function place(sc, panel)
   step('content switcher sits in ' .. kind)
   if kind:find('VerticalBox', 1, true) then
     local like = slotOf(sc.ws)
-    local at = tonumber(try(function() return parent:GetChildIndex(sc.ws) end))
+    local at = tonumber((try(function() return parent:GetChildIndex(sc.ws) end)))
     if at and at >= 0 then
       local slot = try(function() return parent:InsertChildAt(at + 1, panel) end)
       if not alive(slot) then
@@ -124,7 +124,7 @@ end
 
 local function tabButton(sc) return try(function() return sc.tl:GetTabButtonBaseByID(FName(T.ID)) end) end
 local function tabIds(sc)
-  local ids, n = {}, tonumber(try(function() return sc.tl:GetTabCount() end)) or 0
+  local ids, n = {}, tonumber((try(function() return sc.tl:GetTabCount() end))) or 0
   for i = 0, n - 1 do ids[#ids + 1] = str(try(function() return sc.tl:GetTabIdAtIndex(i) end)) or '?' end
   return ids, n
 end
@@ -164,7 +164,7 @@ local function open(mm)
     return nil, ('menu parts missing: tab bar=%s content=%s widget tree=%s'):format(tostring(alive(sc.tl)),
       tostring(alive(sc.ws)), tostring(alive(sc.tree)))
   end
-  sc.wsVis = tonumber(try(function() return sc.ws:GetVisibility() end)) or VIS.selfHitInvisible
+  sc.wsVis = tonumber((try(function() return sc.ws:GetVisibility() end))) or VIS.selfHitInvisible
   step('making the page panel')
   sc.panel = T.plain(sc, '/Script/UMG.VerticalBox')
   if not alive(sc.panel) then return nil, 'could not make the page panel' end
@@ -305,7 +305,7 @@ local function footer(sc, hide)
     return
   end
   if hide then
-    local vis = tonumber(try(function() return w:GetVisibility() end))
+    local vis = tonumber((try(function() return w:GetVisibility() end)))
     if footerSaid < 3 then
       footerSaid = footerSaid + 1
       log(('[footer] found %s (%s) at depth %d (%d widgets looked at), visibility %s; %s'):format(idname(w), clsname(w),
@@ -378,7 +378,7 @@ function T.update(dt)
         if want then enter(sc) else leave(sc, sel) end
       end
       -- something (an animation, another mod) may show the game's page again under ours
-      if sc.shown and tonumber(try(function() return sc.ws:GetVisibility() end)) ~= VIS.collapsed then
+      if sc.shown and tonumber((try(function() return sc.ws:GetVisibility() end))) ~= VIS.collapsed then
         try(function() sc.ws:SetVisibility(VIS.collapsed) end)
       end
       if sc.leftAt then settle(sc) end

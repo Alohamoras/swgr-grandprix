@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.20.1 (2026-11-11): footer fix
+- In game v0.20.0 logged `[footer] error: tab.lua:71: bad argument #2 to 'tonumber'`: `C.try` returns `nil, error` when
+  a call fails (here GetChildrenCount on a widget that isn't a panel), and `tonumber(nil, 'message')` raises. Every
+  `tonumber(try(...))` now keeps only the first value (tab.lua, chain.lua).
+
 ## v0.20.0 (2026-11-11): the rival you can see, and the menu polish
 TASKS.md "Next" 3 (the rival part; the title race waits for the owner) and 4, from docs/menu-review-2026-11-11.md.
 Built and tested against the fake game, **not yet seen in game**. DESIGN.md §16.

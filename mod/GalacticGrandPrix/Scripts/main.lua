@@ -13,7 +13,7 @@
 -- the game's footer hidden on our tab; a dark strip behind tile labels (TASKS "Next" 3 and 4, docs/menu-review).
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.20.0'
+local VERSION = '0.20.1'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'

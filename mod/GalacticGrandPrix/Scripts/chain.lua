@@ -111,7 +111,7 @@ end
 
 -- the active stage of a recipe holder (FEventRecipe: .EventStages) for an ActiveStage index (0-based) -> 1-based index
 local function stageIx(recipe, active)
-  local n = tonumber(try(function() return recipe.EventStages:GetArrayNum() end)) or 0
+  local n = tonumber((try(function() return recipe.EventStages:GetArrayNum() end))) or 0
   if n == 0 then return nil, 0 end
   return math.max(1, math.min(n, (tonumber(active) or 0) + 1)), n
 end
@@ -122,7 +122,7 @@ end
 -- one stage's four fields as text, read one by one (never the whole struct)
 local function stageText(get)
   return ('event %s, track %s, laps %s, conditions %s'):format(C.idname(try(function() return get().AuthoredEvent end)),
-    C.idname(try(function() return get().TrackDef end)), tostring(tonumber(try(function() return get().LapCount end))),
+    C.idname(try(function() return get().TrackDef end)), tostring(tonumber((try(function() return get().LapCount end)))),
     tostring(C.tag(try(function() return get().trackConditions end)) or 'none'))
 end
 -- write the four fields of one stage (get() reaches the struct each time: no wrapper kept), then read them back
@@ -134,7 +134,7 @@ local function writeStage(get, w)
   local bad = {}
   if C.idname(try(function() return get().AuthoredEvent end)) ~= w.ev then bad[#bad + 1] = 'AuthoredEvent' end
   if C.idname(try(function() return get().TrackDef end)) ~= w.trackName then bad[#bad + 1] = 'TrackDef' end
-  if tonumber(try(function() return get().LapCount end)) ~= w.laps then bad[#bad + 1] = 'LapCount' end
+  if tonumber((try(function() return get().LapCount end))) ~= w.laps then bad[#bad + 1] = 'LapCount' end
   if C.tag(try(function() return get().trackConditions end)) ~= w.tag then bad[#bad + 1] = 'trackConditions' end
   return #bad == 0, bad
 end
@@ -147,7 +147,7 @@ function CH.writeRecipe(gs, e)
   local w = { e = e, ev = C.idname(e) }
   w.track = try(function() return e.TrackDef end)
   w.trackName = C.idname(w.track)
-  w.laps = tonumber(try(function() return e.LapCount end))
+  w.laps = tonumber((try(function() return e.LapCount end)))
   w.tagName = try(function() return e.TrackConditionTag.TagName end)
   w.tag = C.tag(try(function() return e.TrackConditionTag end))
   if w.ev == '' or w.trackName == '' or not w.laps then
@@ -162,7 +162,7 @@ function CH.writeRecipe(gs, e)
   if not CH.undo then
     -- the originals, once per cup: what the menu launch put there (paths and plain values only)
     CH.undo = { inst = C.ref(inst), ix = ix, ev = pathOf(try(function() return subStage().AuthoredEvent end)),
-      track = pathOf(try(function() return subStage().TrackDef end)), laps = tonumber(try(function() return subStage().LapCount end)),
+      track = pathOf(try(function() return subStage().TrackDef end)), laps = tonumber((try(function() return subStage().LapCount end))),
       tag = C.tag(try(function() return subStage().trackConditions end)), text = stageText(subStage) }
   end
   local ok1, bad1 = writeStage(subStage, w)
