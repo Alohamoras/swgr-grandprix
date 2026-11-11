@@ -43,7 +43,7 @@ playing when the checks were due). First v0.8 load: a v0.6/v0.7 save's catalogue
   12-car events, plus Dhunkri River Circuit and Mineral Loop, never raced before), one per planet, opened by gold
   in that planet's cup at the class. Laps per race in the config; planet names and flavour lines (`Planets`).
 - Tests: every flow test rewritten for the new screens; new test_records, test_ai, test_ai_restore, test_racer,
-  test_title, (test_conditions). `autotest/race.sh` drives a Grand Prix race with TestAutopilot.
+  test_title, test_config. `autotest/race.sh` drives a Grand Prix race with TestAutopilot.
 
 ## v0.7.1 (2026-11-10): the art fitted to the tiles (seen in game)
 - The tile draws its art through the game's own material, which zooms by `ImageScale` (default 0.44, made for the
