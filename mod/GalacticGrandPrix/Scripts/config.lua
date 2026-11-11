@@ -266,4 +266,49 @@ return {
             ['200'] = { pressure = 1.2, pacing = { MaxAiSlowdownScale = 1.0 }, catchup = 1.15, errors = 0.5, perfectStart = 90 },
         },
     },
+
+    -- Tune-ups (v0.8, research 2026-11-10 "Vehicle mods"): the vehicle's mods trimmed to twelve named packages, picked
+    -- in place on the garage tile (modsel.lua). Each bundles one to three of the catalogue's affixes (mods.lua keys:
+    -- protection and plain playstyle effects only - nothing tagged "check", no pure-speed ones) at their top step;
+    -- the class sets how many you fit (Classes[].mods). key is used in the save: never change it. line = the one line
+    -- shown on the tile (60 characters at most); group = the catalogue group whose picture the tile shows (art.lua).
+    TuneUps = {
+        { key = 'heat_shield', name = 'HEAT SHIELD', group = 'Status protection', line = 'Immune to Burning and Frozen',
+          mods = { 'Conditions_BurningProtection', 'Conditions_FreezeProtection' } },
+        { key = 'armour', name = 'ARMOUR', group = 'Shields, surges & slipstream', line = 'Immune to Disrupted; Shielded for the first 10 s',
+          mods = { 'Conditions_DisruptedProtection', 'Shielded_GainOnRaceStart' } },
+        { key = 'ice_cold', name = 'ICE COLD', group = 'Cooling & heat', line = 'Cooled while airborne; Cooled blocks Corroded',
+          mods = { 'Cooled_GainWhileAirborne', 'Cooled_CorrodeProtection' } },
+        { key = 'redliner', name = 'REDLINER', group = 'Ramjet', line = 'Ramjet cools while active; Cooled 20 s when Redlining',
+          mods = { 'Ramjet_TempCanDropWhileBoosting', 'Ramjet_CooledWhenCritical' } },
+        { key = 'ramjet_rider', name = 'RAMJET RIDER', group = 'Ramjet', line = 'No Ramjet heat in the air; 90% resets, no blow-up',
+          mods = { 'Ramjet_NoHeatWhileAirborne', 'Ramjet_CriticalResetChance' } },
+        { key = 'afterburner', name = 'AFTERBURNER', group = 'Afterburner', line = 'No fuel used in the air; a full tank on landing',
+          mods = { 'Afterburner_BetterWhileAirborne', 'Afterburner_RefillOnLanding' } },
+        { key = 'brawler', name = 'BRAWLER', group = 'Takedowns', line = 'Takedowns ready the Ramjet and give 4 Energy',
+          mods = { 'Takedown_ResetHeat', 'Energy_GainOnTakedown' } },
+        { key = 'survivor', name = 'SURVIVOR', group = 'Crashes & recovery', line = 'After a crash: Shielded and Surging for 30 s',
+          mods = { 'Crash_ReturnWithShield', 'Crash_ReturnWithSurge' } },
+        { key = 'slipstreamer', name = 'SLIPSTREAMER', group = 'Shields, surges & slipstream', line = 'Slipstreaming cools you; 5 s of it starts a Surge',
+          mods = { 'Slipstream_gainSurging', 'Cooled_GainWhileSlipstream' } },
+        { key = 'firebug', name = 'FIREBUG', group = 'Cooling & heat', line = 'Burning makes 90% less heat and Overcharges you',
+          mods = { 'Burning_GainOvercharged', 'Conditions_DecreaseBurningPotency' } },
+        { key = 'engineer', name = 'ENGINEER', group = 'Crashes & recovery', line = 'Malfunctions end 200% sooner; a perfect fix restores a Crash',
+          mods = { 'SysMalf_ShorterMalfunction', 'CritMalf_PerfectRecoversCrash' } },
+        { key = 'tenacious', name = 'TENACIOUS', group = 'Status protection', line = 'Corroded crashes you 200% slower and never chokes you',
+          mods = { 'Conditions_CorrodeResistance', 'Corrode_NoLongerChokes' } },
+
+        -- The AI's tune-ups (loadout.lua): per class, per tier, the packages those bots race with; a bot in no tier
+        -- (or at a class not listed) gets none. Tiers = the campaign's own ranking (research 2026-11-10: Elite = Sen
+        -- Fira, Biddy Blas, Lyren Shok; Challenger = Goli & 02-R0), as DA_Racer_<key> keys (Abilities.Racers).
+        -- The bots copy the launch build, so it carries your packages plus theirs at launch and each racer's race
+        -- copy loses what isn't theirs at load (yours included). AIExtra = false: the AI only keeps what you also
+        -- carry (the launch build = yours only) - the fallback if clearing your own race copy turns out not to work.
+        AI = {
+            ['150'] = { Elite = { 'heat_shield' } },
+            ['200'] = { Elite = { 'heat_shield', 'armour' }, Challenger = { 'heat_shield' } },
+        },
+        Tiers = { Elite = { 'Thrall', 'Rager', 'Star' }, Challenger = { 'Ghost' } },
+        AIExtra = true,
+    },
 }

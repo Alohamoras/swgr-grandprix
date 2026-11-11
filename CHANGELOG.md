@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased (branch gp-tuneups, 2026-11-10): tune-ups and the Elite AI's mods (not seen in game yet)
+- Mods trimmed to twelve named **tune-ups** (config `TuneUps`; research 2026-11-10 "Vehicle mods"): HEAT SHIELD,
+  ARMOUR, ICE COLD, REDLINER, RAMJET RIDER, AFTERBURNER, BRAWLER, SURVIVOR, SLIPSTREAMER, FIREBUG, ENGINEER,
+  TENACIOUS, each two catalogue affixes (protection / plain playstyle only, none of the 23 "check" ones). Two slots
+  at most (`modsel.lua`: `MS.cycle` / `MS.line` for a tile that picks in place; the v0.6 MODS screens still run on the
+  packages until the garage tile replaces them). A v0.6 save's catalogue keys are dropped with a log line.
+- The AI's Elite (Sen Fira, Biddy Blas, Lyren Shok) race with HEAT SHIELD from 150cc and HEAT SHIELD + ARMOUR at
+  200cc, the Challenger (Goli & 02-R0) with HEAT SHIELD at 200cc (`TuneUps.AI` / `Tiers`). The launch build carries
+  yours plus theirs; at load each racer's race copy (yours included) loses what isn't theirs (`loadout.lua`, one
+  log line `[loadout] mods: you=... Elite=... (N bot slots cleared)`). `TuneUps.AIExtra = false` = the old behaviour
+  (the launch build yours only, the AI keeps only what you also carry).
+
 ## v0.7.1 (2026-11-10): the art fitted to the tiles (seen in game)
 - The tile draws its art through the game's own material, which zooms by `ImageScale` (default 0.44, made for the
   game's big tiles). Ours showed only the top-left corner. Now each texture is scaled to just cover the tile, and

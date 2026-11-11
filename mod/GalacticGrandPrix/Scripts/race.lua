@@ -144,7 +144,7 @@ local function applyMods(path, b, paths)
   if not setAffixes(b, objs) then log('mods: the build\'s list did not take them all') end
   local unl = try(function() return b.UnlockedAffixSlots end) or 0
   if unl < #objs then pcall(function() b.UnlockedAffixSlots = #objs end) end
-  log('your mods for this race: ' .. (#names > 0 and table.concat(names, ', ') or 'none'))
+  log('mods in the launch build for this race: ' .. (#names > 0 and table.concat(names, ', ') or 'none'))
   return names
 end
 
@@ -244,9 +244,11 @@ function R.launch(ev, classKey, vehKey, picks, mods)
     local okA, errA = pcall(applyAbilities, veh.build, build, AB.classPaths(picks, AB.levelFor(classKey)))
     if not okA then log('abilities not set: ' .. tostring(errA)) end
   end
-  local modNames = {}
+  local modNames, yourKeys = {}, nil
   if mods then
-    local paths = MS.paths(mods, classKey)
+    -- v0.8: your tune-ups plus the AI tiers' (loadout.lua sorts them out between the racers at load)
+    yourKeys = MS.fitted(mods, classKey)
+    local paths = LO.launchPaths(MS.paths(mods, classKey), classKey)
     if #paths > 0 or K.data.modRestores[veh.build] then
       local okM, got = pcall(applyMods, veh.build, build, paths)
       if okM then modNames = got else log('mods not set: ' .. tostring(got)) end
@@ -271,7 +273,7 @@ function R.launch(ev, classKey, vehKey, picks, mods)
     tostring(classKey), veh.key, tostring(tag), C.idname(try(function() return e.EventMode end))))
   R.run = { ev = ev, at = C.clock, oldGs = addr(oldGs), oldFe = addr(fe), phase = 'loading', top = 0, field = {}, ticks = 0, ai = ai }
   R.menuSeen = false
-  local ok3, lo = pcall(LO.begin, classKey, modNames)
+  local ok3, lo = pcall(LO.begin, classKey, modNames, yourKeys)
   if ok3 then R.run.lo = lo else log('[loadout] ' .. tostring(lo)) end
   return true
 end

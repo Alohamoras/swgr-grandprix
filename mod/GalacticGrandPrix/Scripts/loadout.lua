@@ -7,6 +7,7 @@
 local C = require('core')
 local cfg = require('config')
 local AB = require('abil')
+local MS = require('modsel')
 local try, alive, log = C.try, C.alive, C.log
 
 local L = {}
@@ -14,6 +15,7 @@ local RACERS = '/Game/Griffin/Narrative/CharacterDefs/Racers/DA_Racer_'
 local GIVE_UP_MS = 20000
 
 local function conf() return cfg.Abilities or {} end
+local function tconf() return cfg.TuneUps or {} end
 function L.enabled() return conf().AI ~= false end
 
 -- racer display name -> config key (the game's own CharacterName, read once; English fallback from config)
@@ -38,37 +40,90 @@ function L.kitFor(racerName, classKey)
 end
 
 ---------------------------------------------------------------------------------------------------------------------
+-- the AI's tune-ups (v0.8, config TuneUps.AI / Tiers): per class, per tier, the packages those bots race with
+
+-- tier -> package keys at a class ({} when the class has none)
+function L.aiPackages(classKey)
+  local ai = tconf().AI
+  return (type(ai) == 'table' and ai[tostring(classKey)]) or {}
+end
+-- the tiers at a class, the strongest first (the campaign's ranking; anything else after, by name)
+local RANK = { Ace = 1, Elite = 2, Challenger = 3, ['Riff-Raff'] = 4, Loser = 5 }
+local function tierNames(classKey)
+  local out = {}
+  for tier in pairs(L.aiPackages(classKey)) do out[#out + 1] = tier end
+  table.sort(out, function(a, b)
+    local ra, rb = RANK[a] or 99, RANK[b] or 99
+    if ra ~= rb then return ra < rb end
+    return a < b
+  end)
+  return out
+end
+-- a racer's tier (racer config key -> Tiers), or nil
+local function tierOf(racerKey)
+  for tier, keys in pairs(tconf().Tiers or {}) do
+    for _, k in ipairs(keys) do if k == racerKey then return tier end end
+  end
+  return nil
+end
+L.tierOf = tierOf
+
+-- the affix paths the launch build carries for a race: yours, then the AI tiers' extras (the bots copy the launch
+-- build; at load each racer's race copy loses what isn't theirs, yours included). TuneUps.AIExtra = false: the AI only
+-- keeps what you also carry, so the launch build is yours only.
+function L.launchPaths(yours, classKey)
+  local out, seen = {}, {}
+  local function add(p) if not seen[p] then seen[p] = true; out[#out + 1] = p end end
+  for _, p in ipairs(yours or {}) do add(p) end
+  if tconf().AIExtra ~= false then
+    local ai = L.aiPackages(classKey)
+    for _, tier in ipairs(tierNames(classKey)) do for _, p in ipairs(MS.pathsOf(ai[tier])) do add(p) end end
+  end
+  return out
+end
+
+---------------------------------------------------------------------------------------------------------------------
 -- during the race load (called every tick from race.watch until it's done)
 
--- modNames: your mods' affix asset names (race.lua, v0.4) - the bots copy them from the launch build, so they're
--- cleared from the bots' copies at load (recon 2026-11-10: the bots' passives aren't made yet at that point).
-function L.begin(classKey, modNames)
-  local mods = {}
-  for _, n in ipairs(modNames or {}) do mods[n] = true end
-  local hasMods = next(mods) ~= nil
+-- modNames: every affix asset name in the launch build (race.lua); yourKeys: your fitted packages (nil = every one of
+-- them is yours). The bots copy the launch build, so at load each racer's race copy is cleared of the affixes that
+-- aren't theirs (recon 2026-11-10: the bots' passives aren't made yet at that point): a bot keeps its tier's packages
+-- (TuneUps.AI), you keep yours.
+function L.begin(classKey, modNames, yourKeys)
+  local all = {}
+  for _, n in ipairs(modNames or {}) do all[n] = true end
+  local hasMods = next(all) ~= nil
   if not L.enabled() and not hasMods then return nil end
   if L.enabled() then
     local n, bad = L.preload(classKey)
     log(('[loadout] class %s: AI racers get their four abilities at load (%d abilities ready%s)'):format(tostring(classKey), n - bad,
       bad > 0 and (', ' .. bad .. ' missing') or ''))
   end
-  return { class = classKey, at = C.clock, done = false, abil = L.enabled(), mods = hasMods and mods or nil }
+  local mods
+  if hasMods then
+    mods = { all = all, you = yourKeys and MS.assetNames(yourKeys) or all, youLabel = yourKeys and MS.label(yourKeys) or 'all',
+      tiers = {}, order = tierNames(classKey) }
+    local ai = L.aiPackages(classKey)
+    for _, tier in ipairs(mods.order) do
+      mods.tiers[tier] = { keep = MS.assetNames(ai[tier]), label = MS.label(ai[tier]), who = {} }
+    end
+  end
+  return { class = classKey, at = C.clock, done = false, abil = L.enabled(), mods = mods }
 end
 
--- your mods out of every bot's race copies (AffixSlots[].PrimaryAffix). Returns cleared, failed.
-local function stripMods(bots, mods)
+-- one racer's race copies (AffixSlots[].PrimaryAffix): every launch-build affix not in `keep` is cleared.
+-- Returns cleared, failed.
+local function stripOne(ps, all, keep)
   local cleared, failed = 0, 0
-  for _, ps in ipairs(bots) do
-    local vb = ps.RacerBuildState.VehicleBuilds
-    for b = 1, vb:GetArrayNum() do
-      local slots = try(function() return vb[b].AffixSlots end)
-      for j = 1, (slots and slots:GetArrayNum() or 0) do
-        local a = try(function() return slots[j].PrimaryAffix end)
-        local n = alive(a) and try(function() return a:GetFName():ToString() end)
-        if n and mods[n] then
-          local ok = pcall(function() slots[j].PrimaryAffix = CreateInvalidObject(); slots[j].Status = 0 end)
-          if ok and not alive(try(function() return slots[j].PrimaryAffix end)) then cleared = cleared + 1 else failed = failed + 1 end
-        end
+  local vb = ps.RacerBuildState.VehicleBuilds
+  for b = 1, vb:GetArrayNum() do
+    local slots = try(function() return vb[b].AffixSlots end)
+    for j = 1, (slots and slots:GetArrayNum() or 0) do
+      local a = try(function() return slots[j].PrimaryAffix end)
+      local n = alive(a) and try(function() return a:GetFName():ToString() end)
+      if n and all[n] and not keep[n] then
+        local ok = pcall(function() slots[j].PrimaryAffix = CreateInvalidObject(); slots[j].Status = 0 end)
+        if ok and not alive(try(function() return slots[j].PrimaryAffix end)) then cleared = cleared + 1 else failed = failed + 1 end
       end
     end
   end
@@ -79,6 +134,31 @@ local function psName(ps)
   return C.text(ps, 'PlayerNamePrivate') or try(function() return ps:GetPlayerName():ToString() end)
 end
 local function isBot(ps) return try(function() return ps.bIsABot end) == true end
+
+-- the launch build's affixes sorted out at load: each bot keeps its tier's packages, you keep yours. Logs one line:
+-- '[loadout] mods: you=... Elite=... (N bot slots cleared)'.
+local function sortMods(bots, me, mods)
+  local cleared, failed, mine, parts = 0, 0, 0, {}
+  for _, ps in ipairs(bots) do
+    local key = nameIndex()[psName(ps) or ''] or ''
+    local tier = tierOf(key)
+    local t = tier and mods.tiers[tier] -- (a tier with no packages at this class keeps nothing)
+    local c, f = stripOne(ps, mods.all, t and t.keep or {})
+    cleared, failed = cleared + c, failed + f
+    if t then t.who[#t.who + 1] = psName(ps) or key end
+  end
+  if me then
+    local c, f = stripOne(me, mods.all, mods.you)
+    mine, failed = c, failed + f
+  end
+  parts[#parts + 1] = 'you=' .. mods.youLabel
+  for _, tier in ipairs(mods.order) do
+    local t = mods.tiers[tier]
+    parts[#parts + 1] = ('%s=%s (%s)'):format(tier, t.label, #t.who > 0 and table.concat(t.who, ', ') or 'nobody in this race')
+  end
+  log(('[loadout] mods: %s (%d bot slots cleared%s%s)'):format(table.concat(parts, ' '), cleared,
+    mine > 0 and (', ' .. mine .. ' cleared from your race copy') or '', failed > 0 and (', ' .. failed .. ' FAILED') or ''))
+end
 
 -- an ability actor already owned by a bot = too late (the game spawned them from the copied build)
 local function botAbilitySpawned()
@@ -153,20 +233,21 @@ function L.apply(st)
     log('[loadout] gave up: the AI racers never appeared (the game\'s abilities stay)')
     return
   end
-  local bots = {}
+  local bots, me = {}, nil
   for _, ps in ipairs(C.find('GfnPlayerState')) do
+    local n = try(function() return ps.RacerBuildState.VehicleBuilds:GetArrayNum() end) or 0
     if isBot(ps) then
-      local n = try(function() return ps.RacerBuildState.VehicleBuilds:GetArrayNum() end) or 0
       if n == 0 then return end -- a bot without its build yet: wait
       bots[#bots + 1] = ps
+    elseif n > 0 and try(function() return ps.bIsABot end) == false then
+      me = me or ps -- your race copy (the same kind of copy; its extras are cleared the same way)
     end
   end
   if #bots == 0 then return end
   st.done = true
   if st.mods then
-    local okS, cleared, failed = pcall(stripMods, bots, st.mods)
-    if okS then log(('[loadout] your mods cleared from the AI racers\' copies: %d slots%s'):format(cleared, failed > 0 and (', ' .. failed .. ' FAILED') or ''))
-    else log('[loadout] could not clear your mods from the AI: ' .. tostring(cleared)) end
+    local okS, err = pcall(sortMods, bots, me, st.mods)
+    if not okS then log('[loadout] could not sort the mods out between the racers: ' .. tostring(err)) end
   end
   if not st.abil then return end
   if botAbilitySpawned() then

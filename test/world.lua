@@ -203,8 +203,9 @@ function W.event(path, tag)
   return e
 end
 
--- a racer's build copies (one per vehicle type) with 4 ability slots each, starting as `slots`, and 4 affix slots
--- holding the launch build's Affixes (the game copies them to every racer, bots included: recon 2026-11-10)
+-- a racer's build copies (one per vehicle type) with 4 ability slots each, starting as `slots`, and affix slots (4, or
+-- as many as the launch build carries) holding the launch build's Affixes (the game copies them to every racer, bots
+-- included: recon 2026-11-10)
 local function buildCopies(slots)
   local copies = {}
   local mods = (W.buildAffixes or {}).VBD_Car_Base or {}
@@ -212,7 +213,7 @@ local function buildCopies(slots)
     local list = {}
     for j = 1, 4 do list[j] = slots[j] or CreateInvalidObject() end
     local aff = {}
-    for j = 1, 4 do aff[j] = { PrimaryAffix = mods[j] or CreateInvalidObject(), Status = mods[j] and 1 or 0 } end
+    for j = 1, math.max(4, #mods) do aff[j] = { PrimaryAffix = mods[j] or CreateInvalidObject(), Status = mods[j] and 1 or 0 } end
     copies[i] = { AbilitySlots = M.tarr(list), AffixSlots = M.tarr(aff) }
   end
   return M.tarr(copies)
