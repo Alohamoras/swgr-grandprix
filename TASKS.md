@@ -23,6 +23,10 @@ next starts (they all touch main.lua and config.lua); game sessions one at a tim
    Kestar Bool is locked until you win the 150cc title race (`titles['150'].won`; the tile says how to unlock him);
    he and Sebulba (podracers) are left out or on a stand-in until a pod launches. Old saves: the vehicle pick is
    dropped, a Shade pick stays Shade.
+7. Tile text that doesn't fit (owner 2026-11-10: can't fully read the tune-up tiles in the garage). Go through
+   every screen and make every tile's title, badge and description fit: shorter wording in config, a length limit
+   per tile size checked by a test (every string the menus can show, at every tile size), and long text (the
+   tune-up's effect line) moved to the focused tile's info area instead of the tile. Check with B8.
    Tag as its own version.
 
 **B. In game with TestAutopilot (game closed, test save, owner's save restored after)**
@@ -38,6 +42,9 @@ next starts (they all touch main.lua and config.lua); game sessions one at a tim
 7. Spike for A6 (owner agreed 2026-11-10): find where each racer's own vehicle lives (racer def, AI build, livery)
    in the dumps, then one race as Biddy Blas in his own vehicle with the class parts set on that build and put back
    after (log + screenshot). Report what launches, what the looks are, and what Kestar / Sebulba fly.
+8. Screenshots of every menu screen (HOME, CUPS at each class, GARAGE with every tune-up and racer focused,
+   standings, title result, the confirms) before and after A7; crop each tile and list any text cut off or
+   overflowing. Hand the owner the before / after pair.
 
 **C. Only the owner can do these (left for you)**
 - The v0.10 rubber band feel at 100cc and 150cc (decides the profile numbers from B2).
