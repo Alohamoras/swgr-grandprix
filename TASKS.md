@@ -56,6 +56,13 @@ owner's own play, and the offline half of B7.)
    standings, title result, the confirms) before and after A7; crop each tile and list any text cut off or
    overflowing. Hand the owner the before / after pair.
 
+9. Spike (owner 2026-11-11): the standings at the end of the race, then straight into the next race with no main
+   menu. Two parts: (a) draw the standings over the game's results screen in the race world; (b) start the next race
+   from there: first try swapping the event in the race's recipe (UEventRecipeInstance.RecipeState /
+   EventRecipeState) before the pause menu's restart, then other routes. Fallback if (b) fails: after the standings,
+   the next race launches by itself after a short countdown, the menu hidden under the cover. Report only.
+   Needs the desktop to Claude alone (the owner away).
+
 **C. Only the owner can do these (left for you)**
 - The v0.10 rubber band feel at 100cc and 150cc (decides the profile numbers from B2).
 - The pad: B on the standings, the v0.8 menus with a controller.
