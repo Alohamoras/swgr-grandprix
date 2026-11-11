@@ -357,13 +357,20 @@ return {
         --   perfectStart = the AI's chance of a perfect start, % (the game's 75).
         --   aggression = { chance = multiplier, cooldown = multiplier } on AggressionConfig.VersusPlayer (50 %, 2 s).
         --   config = { ['Field'] = value, ['Struct.Field'] = value }: any other number on the asset, by path.
+        -- v0.18 (AI study 2026-11-11, docs/ai-study-2026-11-11.md): the race reads its pacing from RP_Default, whose
+        -- default slowdown (0.3) is what held the field back; with the band off the bots are as quick as a clean
+        -- autopilot and steady. So: no catch-up anywhere (a lead you build is yours), speed matching off, and a
+        -- "mercy" slowdown for bots ahead of you that shrinks with the class. Forced errors stay at 50cc only.
         Profiles = {
-            ['50'] = { pressure = -1 },
-            ['100'] = { pressure = 0 },
-            ['150'] = { pressure = 0.5, pacing = { MaxAiSlowdownScale = 1.0 }, errors = 0.5 },
-            -- v0.10: 200cc races the 150cc profile (the extra is about speed, not a harsher field; was pressure 1.2,
-            -- catch-up x1.15, perfect start 90). Kept as its own line so it can be tuned apart after the owner races it.
-            ['200'] = { pressure = 0.5, pacing = { MaxAiSlowdownScale = 1.0 }, errors = 0.5 },
+            ['50'] = { pressure = -1, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.5 },
+                       config = { SpeedMatchingMaxMatchers = 0 } },
+            ['100'] = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.7 }, errors = 0,
+                        config = { SpeedMatchingMaxMatchers = 0 } },
+            ['150'] = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.85 }, errors = 0,
+                        config = { SpeedMatchingMaxMatchers = 0 } },
+            -- 200cc: the 150cc profile (the extra is about speed, not a harsher field); its own line to tune apart.
+            ['200'] = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.85 }, errors = 0,
+                        config = { SpeedMatchingMaxMatchers = 0 } },
         },
     },
 

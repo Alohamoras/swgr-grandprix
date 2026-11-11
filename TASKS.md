@@ -168,7 +168,7 @@ owner's own play, and the offline half of B7.)
 
 ## Next (owner 2026-11-11 evening: "make sure these are added to the task list, then go ahead")
 From the afternoon's findings (docs/ai-study-2026-11-11.md, docs/menu-review-2026-11-11.md, B6 / B9 spikes), in order:
-1. **v0.18 AI profiles from the study** (config only): catch-up off at every class (MaxAiCatchupScale 1.0, all three
+1. [x] (Built 2026-11-11 as v0.18.0, installed; waiting on the owner's two cups.) **v0.18 AI profiles from the study** (config only): catch-up off at every class (MaxAiCatchupScale 1.0, all three
    pacing assets), the mercy slowdown shrinking by class (50cc 0.5, 100cc 0.7, 150cc 0.85, 200cc 0.85; game default
    0.3), speed matching off, forced errors off from 100cc (50cc keeps them). Then the owner races one cup at 100cc and
    one at 150cc; read their `[gaps]` lines. Target: a good race wins by a few seconds, a messy one loses, the best bot

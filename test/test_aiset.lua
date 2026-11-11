@@ -9,6 +9,8 @@ local A = require('ai')
 local R = require('race')
 local K = require('gp')
 local cfg = require('config')
+-- the writes below are checked against the v0.10-v0.17 150cc profile (v0.18 changed the real one; test_ai checks it)
+cfg.AI.Profiles['150'] = { pressure = 0.5, pacing = { MaxAiSlowdownScale = 1.0 }, errors = 0.5 }
 M.tick(5)
 
 local function count(s, from)

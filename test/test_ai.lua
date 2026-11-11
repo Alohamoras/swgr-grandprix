@@ -6,6 +6,15 @@ local T = require('util')
 T.boot(nil, { Progression = { On = false } })
 local A = require('ai')
 local cfg = require('config')
+-- v0.18: this test drives the mechanism with the v0.10-v0.17 profiles (pinned here); the real v0.18 profiles are
+-- checked at the end
+local REAL = cfg.AI.Profiles
+cfg.AI.Profiles = {
+  ['50'] = { pressure = -1 },
+  ['100'] = { pressure = 0 },
+  ['150'] = { pressure = 0.5, pacing = { MaxAiSlowdownScale = 1.0 }, errors = 0.5 },
+  ['200'] = { pressure = 0.5, pacing = { MaxAiSlowdownScale = 1.0 }, errors = 0.5 },
+}
 
 -- pressure -> ops
 local o = A.opFor(0.5, 'AiMaxTimeAheadModifier')
@@ -129,5 +138,16 @@ T.check(ok == false and W.ai.DefaultPacingSettings.MaxAiSlowdownScale == 0.75 an
 cfg.AI.Profiles['200'] = PRO200
 p = A.plan('200')
 T.check(p['DefaultPacingSettings.MaxAiSlowdownScale'].set == 1 and p.ForcedErrorChance.mul == 0.5 and p['DefaultPacingSettings.MaxAiCatchupScale'] == nil
-  and p.DefaultPercentageChancePerfectStart == nil, 'v0.10: the real 200cc plan = 150cc\'s (honest, errors x0.5, no catch-up or perfect-start change)')
+  and p.DefaultPercentageChancePerfectStart == nil, 'v0.10: the 200cc plan = 150cc\'s (honest, errors x0.5, no catch-up or perfect-start change)')
+-- v0.18: the study's profiles - no catch-up anywhere, speed matching off, the mercy slowdown shrinking by class,
+-- forced errors kept at 50cc only
+cfg.AI.Profiles = REAL
+local want = { ['50'] = 0.5, ['100'] = 0.7, ['150'] = 0.85, ['200'] = 0.85 }
+for cls, slow in pairs(want) do
+  local q = A.plan(cls)
+  T.check(q['DefaultPacingSettings.MaxAiCatchupScale'].set == 1 and math.abs(q['DefaultPacingSettings.MaxAiSlowdownScale'].set - slow) < 1e-9
+    and q.SpeedMatchingMaxMatchers.set == 0, 'v0.18 ' .. cls .. 'cc: catch-up 1.0, slowdown ' .. slow .. ', speed matching off')
+  T.check((cls == '50') == (q.ForcedErrorChance == nil), 'v0.18 ' .. cls .. 'cc: forced errors ' .. (cls == '50' and 'kept' or 'off'))
+end
+T.check(A.pressure('50') == -1 and A.pressure('100') == 0 and A.pressure('150') == 0 and A.pressure('200') == 0, 'v0.18 pressures -1 / 0 / 0 / 0')
 T.finish()

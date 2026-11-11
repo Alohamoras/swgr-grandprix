@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.18.0 (2026-11-11): AI profiles from the study
+TASKS "Next" 1. From the AI study (docs/ai-study-2026-11-11.md, 36 autopilot races): races read their pacing from
+RP_Default, whose default slowdown 0.3 is what held the field back; with the band off the bots are as quick as a
+clean autopilot and steady. New profiles (config AI.Profiles), written to DA_AIConfig, RP_Default and RP_Honest:
+| Class | pressure | catch-up | slowdown when a bot leads you | speed matching | forced errors |
+|---|---|---|---|---|---|
+| 50cc | -1 (Cadet) | off (1.0) | 0.5 | off | the game's |
+| 100cc | 0 | off | 0.7 | off | off |
+| 150cc | 0 (was 0.5) | off | 0.85 (was 1.0, never reached the race) | off | off (was x0.5) |
+| 200cc | as 150cc | | | | |
+- No catch-up anywhere: a lead you build is yours. The slowdown is the mercy rule: it lets you catch a leader back,
+  less of it as the class goes up.
+- Not yet raced by the owner: one cup at 100cc and one at 150cc decide the numbers (`[gaps]` lines).
+- Tests: test_ai checks the v0.18 profiles; it and test_aiset drive the mechanism with the old profiles pinned.
+
 ## v0.17.0 (2026-11-11): boot straight into the Grand Prix
 TASKS.md 11 (owner: "i want the game to launch and go directly to the grand prix menu, pressing b would still back
 out to the main menu"). Built and tested, not yet seen in game.
