@@ -195,6 +195,13 @@ function W.slots(ps, copy)
   end
   return table.concat(out, ',')
 end
-function W.finish(pos) W.rec.EventPosition = pos; W.rec.bHasFinishedEvent = true end
+-- you finish in `pos`; time / lap (seconds) = the race time and best lap the component then shows (v0.8 records)
+function W.finish(pos, time, lap)
+  W.rec.EventPosition = pos; W.rec.bHasFinishedEvent = true
+  if time then W.rec.EventFinishTime = time end
+  if lap then W.rec.BestLapTime = lap end
+end
+-- a lap done: the best lap so far and the lap you're on
+function W.lap(best, n) W.rec.BestLapTime = best; if n then W.rec.CurrentLapNumber = n end end
 function W.backToMenu() M.kill(W.gs); W.frontEnd(); if W.tabbed then W.tabMenu() end end
 return W
