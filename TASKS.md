@@ -3,9 +3,9 @@
 Design: DESIGN.md. Shared playbook and house rules: ~/Projects/swgr-underground/AUTOMATION.md.
 One git tag per chunk; push after each tag.
 
-## Waiting on the owner's playtest (v0.6.3 installed, 2026-11-10)
+## Waiting on the owner's playtest (v0.8.1 installed, 2026-11-10)
 Things only a real play can answer. Tick them off (or note what felt wrong) as you go.
-- [ ] **Mods:** which feel good, which feel too strong - the 23 "check" ones especially
+- [x] (moot in v0.8: the mods became twelve tune-ups without the "check" ones) **Mods:** which feel good, which feel too strong - the 23 "check" ones especially
       (catalogue page: https://claude.ai/artifact/4nFmiUyn62CRY21JBZRgx9).
 - [ ] **Remix cups:** race them (open at every class now). Name the Ando short track if you like
       (shown as "ANDO SHORT CIRCUIT" for now).
@@ -82,7 +82,7 @@ records-to-be, abilities and vehicle are kept.
 - [x] Tests (`test_cup` scoring, `test_flow` a whole cup, `test_vehicles` bike / DNF / forfeit); tag v0.2.0.
 - [x] In game (owner, 2026-11-09): whole Jakku Cup at 50cc, GOLD (54 points); all 12 racers read every race;
       standings and trophy screens worked.
-- [ ] (moved to v0.6 Polish) the ~3 s main-menu flash before the standings.
+- [x] (v0.3.8: the loading-screen cover hides it; owner to confirm it stays hidden) the ~3 s main-menu flash before the standings.
 
 ## 4. v0.3 Abilities (moved ahead of the AI difficulty, owner 2026-11-09)
 - [x] Pick screens: ABILITIES on the cup screen → OFFENSIVE / DEFENSIVE (Shield) / UTILITY / WILDCARD (mines or any
@@ -140,7 +140,7 @@ records-to-be, abilities and vehicle are kept.
       list, PROTECTION badges, a fitted mod not offered again); Frost + Burn Protection on your car's passives, all 11
       AI cars none ("88 slots cleared"); "mods put back (main menu): VBD_Car_Base (0)" - `Empty()` works.
 - [x] v0.6.1: tile descriptions were cut after two lines -> a gold info line with the focused mod's full text.
-- [ ] Owner: play with mods; which ones feel good / too strong (the 23 "check" ones especially).
+- [x] (moot: tune-ups, v0.8) Owner: play with mods; which ones feel good / too strong (the 23 "check" ones especially).
 - [x] MODS screen next to ABILITIES: slots by class; kept for the cup; written at race load (v0.6.0).
 - [x] Tests; tagged as v0.6.0.
 
@@ -185,7 +185,7 @@ records-to-be, abilities and vehicle are kept.
 - [x] (old note, replaced by the remix cups) **Reverse cups (v0.5.x):** the five planet cups on reverse (or night / weather) variants. Needs the event paths
       (Underground config `Planets`) and a launch check in game for each. When do they open: after 150cc (DESIGN §3)
       or after the top class (owner's earlier note)? Ask the owner.
-- [ ] **Champion Showdown (v0.5.x):** the 1 v 1 against Kestar Bool (`EVT_WHP_SHORTBOSS_FAIR`) as a single bonus race
+- [x] (built as the title race, v0.8 / v0.8.1) **Champion Showdown (v0.5.x):** the 1 v 1 against Kestar Bool (`EVT_WHP_SHORTBOSS_FAIR`) as a single bonus race
       (win / lose, no points), after gold in every 200cc cup. Needs a 1 v 1 result read in game.
 
 ## 6b. Points ranking after each race (owner, 2026-11-10)
@@ -198,7 +198,7 @@ records-to-be, abilities and vehicle are kept.
       `HideMenuFlash = false`).
 
 ## 7. v0.7 Polish (was v0.6)
-- [ ] Tile art per cup (planet art), standings layout, short intro text, controller check (owner's pad).
+- [ ] (art v0.7, intro lines v0.8 done) Controller check with the owner's pad on the v0.8 menus (cycling tiles with A, B to go back, the 5 x 4 cups page).
 - [x] Art research (2026-11-10): textures pulled from the paks (`tools/art/iotex.py`); page with previews and paths:
       https://claude.ai/artifact/6mLfAbAs7k8NeCqvpU8yML. All under `/Game/Griffin/UI/Library/Textures/`:
   - Classes: `Backgrounds/T_UI_DifficultySettings01..04_Bg` (sage / gold / blue / red = 50 / 100 / 150 / 200cc).
@@ -215,15 +215,15 @@ records-to-be, abilities and vehicle are kept.
 - [x] Owner (2026-11-10): "I like all of those, just go for it". Built as **v0.7.0** (`art.lua`, test_art).
 - [x] In game (Claude, 2026-11-10): art cropped to its top-left corner -> fitted per texture (v0.7.1); medals moved
       and coloured; MODS art darker. Classes, cups, cup page, mods, groups, cup in progress all checked.
-- [ ] Still to see: the standings / cup result backdrop (`T_UI_Scenario_Bg`) after a race; the 50cc banner is light,
+- [x] (backdrop seen 2026-11-10: dark stripes, readable) Still to see: the standings / cup result backdrop (`T_UI_Scenario_Bg`) after a race; the 50cc banner is light,
       so its white title is harder to read when focused (darker art or a crop if it bothers the owner).
-- [ ] (was) In game: screenshots of every screen; fix anything that crops or stretches badly. Was: pick from the art page; then `ui.lua` `texture()` takes full paths (today only `Content/MainMenu/`),
+- [x] (v0.7.1) (was) In game: screenshots of every screen; fix anything that crops or stretches badly. Was: pick from the art page; then `ui.lua` `texture()` takes full paths (today only `Content/MainMenu/`),
       cups get `art` per vehicle, won cups show their medal icon.
-- [ ] Hide the ~3 s main-menu flash between a race and the standings (loading screen, or a shorter wait).
-- [ ] Tag v0.7.0.
+- [x] (the cover, v0.3.8; owner to confirm) Hide the ~3 s main-menu flash between a race and the standings (loading screen, or a shorter wait).
+- [x] Tag v0.7.0 (and v0.7.1, v0.8.0, v0.8.1).
 
 ## 8. Maybe (moved to the end by the owner, 2026-11-09: might not be needed)
-- [ ] **AI difficulty per class:** AI pressure (`ai.lua`, the rubber band) on top of the class's part levels.
+- [x] (built in v0.8: ai.lua profiles per class; tuning is v1.0) **AI difficulty per class:** AI pressure (`ai.lua`, the rubber band) on top of the class's part levels.
       Owner after the first cups: "difficult but fun" as it is.
 - [ ] **No crash limit:** pick the working control (GPRecon `health=def|state|tune`), set before each race, put back
       at the menu.
