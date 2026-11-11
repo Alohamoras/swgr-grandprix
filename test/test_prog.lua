@@ -109,4 +109,18 @@ do
   local tried = d({ ['100'] = { jakku = 1 } }); tried.titles = { ['100'] = { tries = 1 } }
   check(P.titleOpen(tried, '100'), 'once tried it stays open')
 end
+-- v0.10: 200cc is an optional extra - nothing outside 200cc opens from its results (owner, docs/PHILOSOPHY.md)
+do
+  local base = { ['50'] = five(1), ['100'] = five(1), ['150'] = five(4) }
+  local with200 = {}
+  for k, v in pairs(base) do with200[k] = v end
+  local all200 = five(1); all200.outerrim, all200.galactic = 1, 1
+  with200['200'] = all200
+  with200 = d(with200); with200.titles = { ['200'] = { tries = 1, won = true } }
+  local a, b = P.openSet(d(base)), P.openSet(with200)
+  local diff = {}
+  for k in pairs(b) do if not a[k] and not k:find('200cc', 1, true) then diff[#diff + 1] = k end end
+  check(#diff == 0 and not b['REMIX CUPS'], 'golds and the title at 200cc open nothing outside 200cc (' .. table.concat(diff, ', ') .. ')')
+  check(not P.titleOpen(with200, '150'), '... the 150cc title race still needs the 150cc trophies')
+end
 if failed then os.exit(1) end

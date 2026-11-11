@@ -6,7 +6,7 @@
 -- v0.9: cups cannot be resumed (owner): leaving a cup before its last standings loses it.
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.9.0'
+local VERSION = '0.10.0'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'

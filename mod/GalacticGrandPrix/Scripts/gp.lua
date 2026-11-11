@@ -335,6 +335,64 @@ local function updateRecord(ev, out, extra, vehicle)
   end
 end
 
+-- v0.10: the time gaps of a race, for the owner to set next to how the race felt (DESIGN.md §4, docs/PHILOSOPHY.md
+-- point 1). field = every racer (race.lua: name, you, pos, finished, time = EventFinishTime in s once finished).
+-- Racers without a finish time (DNF, or not read before the race world went) are skipped. Gaps are in seconds,
+-- signed against you: negative = that racer finished before you. Returns nil when no racer has a time, else
+-- { you = your time or nil, place = your place among the timed racers, pos = your finishing position, n = timed racers, spread = last - first,
+--   winner = { name, gap }, ahead = { name, gap }, behind = { name, gap } (each nil when there is none) }.
+function K.gaps(field)
+  local timed = {}
+  for _, f in ipairs(field or {}) do
+    local t = tonumber(f.time)
+    if f.finished and t and t > 0 then timed[#timed + 1] = { name = f.you and 'YOU' or f.name, you = f.you, t = t, pos = f.pos } end
+  end
+  if #timed == 0 then return nil end
+  table.sort(timed, function(a, b)
+    if a.t ~= b.t then return a.t < b.t end
+    return (a.pos or 99) < (b.pos or 99)
+  end)
+  local g = { n = #timed, spread = timed[#timed].t - timed[1].t }
+  local i
+  for k, f in ipairs(timed) do if f.you then i = k end end
+  local function at(k, base) local f = timed[k]; return f and { name = f.name, gap = f.t - base } or nil end
+  if i then
+    local mine = timed[i].t
+    g.you, g.place, g.pos = mine, i, timed[i].pos
+    if i > 1 then g.winner = at(1, mine) end
+    if i > 2 then g.ahead = at(i - 1, mine) end
+    g.behind = at(i + 1, mine)
+  else
+    g.winner = { name = timed[1].name, time = timed[1].t }
+  end
+  return g
+end
+-- the log line of K.gaps: 'THE WAR FIELDS 150cc: you 1st 1:42.39; next behind Goli & 02-R0 +1.84 s; winner -;
+-- field spread 1st-12th 14.2 s' (not 1st: 'winner X -2.31 s; next ahead Y -0.42 s; next behind Z +0.80 s')
+function K.gapsLine(ev, g)
+  local c = ev and ev.class and K.class(ev.class)
+  local head = ('%s %s: '):format(ev and ev.title or '?', c and c.name or tostring(ev and ev.class or '?'))
+  if not g then return head .. 'no finish times read' end
+  local function gap(x) return x and ('%s %+.2f s'):format(x.name, x.gap) or '-' end
+  local p = {}
+  if g.you then
+    p[#p + 1] = ('you %s %s'):format(C.ordinal(g.pos or g.place), K.fmtTime(g.you))
+    if g.place == 1 then
+      p[#p + 1] = 'next behind ' .. gap(g.behind)
+      p[#p + 1] = 'winner -'
+    else
+      p[#p + 1] = 'winner ' .. gap(g.winner)
+      if g.ahead then p[#p + 1] = 'next ahead ' .. gap(g.ahead) end
+      p[#p + 1] = 'next behind ' .. gap(g.behind)
+    end
+  else
+    p[#p + 1] = 'you no time (DNF)'
+    p[#p + 1] = ('winner %s %s'):format(g.winner.name, K.fmtTime(g.winner.time))
+  end
+  p[#p + 1] = ('field spread 1st-%s %.1f s'):format(C.ordinal(g.n), g.spread)
+  return head .. table.concat(p, '; ')
+end
+
 -- a finished race: counted, and added to the cup when it's the cup's next race. field = every racer (race.lua).
 -- extra (v0.8) = { time = your race time in s (nil unless you finished), lap = your best lap in s, top = kph }.
 -- Returns { ev, pos, rows (this race, with points), cupOver, rank, trophy, run (a copy of the cup's state),
@@ -345,6 +403,9 @@ function K.record(ev, pos, field, extra)
   K.data.last = { title = ev.title, pos = pos, class = ev.class, cup = ev.cup, at = os.date('%Y-%m-%d %H:%M'),
     time = extra.time, lap = extra.lap }
   local out = { ev = ev, pos = pos }
+  -- v0.10: the time gaps (race.lua logs them); the most recent race's kept in the save with the rest of `last`
+  local okG, g = pcall(K.gaps, field)
+  if okG then out.gaps, K.data.last.gaps = g, g else log('gaps not worked out: ' .. tostring(g)) end
   local run = K.data.run
   updateRecord(ev, out, extra, run and run.vehicle or K.data.vehicle)
   -- v0.8: a title race (1 v 1 against the class champion) is never part of a cup

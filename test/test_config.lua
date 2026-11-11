@@ -1,4 +1,4 @@
--- config.lua and gp.lua's read helpers on their own: the classes (parts 0 / 3 / 7 / 10, mods 0 / 1 / 2 / 2), the
+-- config.lua and gp.lua's read helpers on their own: the classes (parts 0 / 3 / 7 / 9, mods 0 / 1 / 2 / 2), the
 -- 17 cups in order, every race's laps and planet, the Planets table, planetOf / raceLine / cupPlanets.
 local here = arg[0]:match('^(.*)/test/[^/]+$') or '.'
 package.path = here .. '/mod/GalacticGrandPrix/Scripts/?.lua;' .. package.path
@@ -12,7 +12,16 @@ local function keys(list, field) local out = {}; for _, x in ipairs(list) do out
 
 -- classes
 check(keys(cfg.Classes) == '50,100,150,200', 'class keys unchanged (used in the save)')
-check(keys(cfg.Classes, 'parts') == '0,3,7,10', 'parts 0 / 3 / 7 / 10 (' .. keys(cfg.Classes, 'parts') .. ')')
+check(keys(cfg.Classes, 'parts') == '0,3,7,9', 'parts 0 / 3 / 7 / 9 (v0.10: 200cc the extra at 9) (' .. keys(cfg.Classes, 'parts') .. ')')
+-- v0.10: 200cc races the 150cc AI profile (a deep compare, so tuning one apart later shows up here)
+local function same(a, b)
+  if type(a) ~= 'table' or type(b) ~= 'table' then return a == b end
+  for k, v in pairs(a) do if not same(v, b[k]) then return false end end
+  for k in pairs(b) do if a[k] == nil then return false end end
+  return true
+end
+check(same(cfg.AI.Profiles['200'], cfg.AI.Profiles['150']), '200cc AI profile = the 150cc one')
+check(cfg.Classes[4].blurb:find('extra', 1, true) ~= nil and #cfg.Classes[4].blurb <= 40, '200cc blurb says it is the extra, short (' .. cfg.Classes[4].blurb .. ')')
 check(keys(cfg.Classes, 'mods') == '0,1,2,2', 'mod slots 0 / 1 / 2 / 2 (' .. keys(cfg.Classes, 'mods') .. ')')
 check(keys(cfg.Classes, 'abilities') == '1,1,2,3', 'ability levels 1 / 1 / 2 / 3')
 local blurbs = true

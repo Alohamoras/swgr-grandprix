@@ -17,7 +17,7 @@ T.clickTitle('200CC'); M.tick(3)
 T.clickTitle('CRAIT CUP')
 local args = M.lastCall('LaunchQuickRace').args
 T.check(rawget(args[1], '__name') == 'VA_Bike', 'the cup races with the bike')
-T.check(T.levels('VBD_Bike_Base') == '0=10 1=10 2=10 3=10 4=10 5=10', '200cc: every part at 10')
+T.check(T.levels('VBD_Bike_Base') == '0=9 1=9 2=9 3=9 4=9 5=9', '200cc: every part at 9 (v0.10: the extra, not maxed)')
 T.check(T.levels('VBD_Car_Base') == '0=0 1=0 2=0 3=0 4=0 5=0', 'the landspeeder build untouched')
 -- you quit the race from the pause menu: back at the menu without finishing = DNF, 0 points
 W.race(11); M.tick(10)

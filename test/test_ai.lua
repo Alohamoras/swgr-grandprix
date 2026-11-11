@@ -16,12 +16,12 @@ o = A.opFor(1.5, 'AiAggressionVPlayerCooldownMultiplier')
 T.check(math.abs(o[2] - 0.625) < 1e-9, 'between Nightmare and Champion the cooldown multiplier blends')
 o = A.opFor(3, 'AiMaxTimeAheadModifier')
 T.check(o[1] == 5, 'pressure above 2 is held at Champion')
-T.check(A.pressure('50') == -1 and A.pressure('100') == 0 and A.pressure('150') == 0.5 and math.abs(A.pressure('200') - 1.2) < 1e-9,
-  'class pressures -1 / 0 / 0.5 / 1.2')
+T.check(A.pressure('50') == -1 and A.pressure('100') == 0 and A.pressure('150') == 0.5 and A.pressure('200') == 0.5,
+  'class pressures -1 / 0 / 0.5 / 0.5 (v0.10: 200cc races the 150cc profile)')
 T.check(A.pressure('nope') == 0, 'an unknown class: the game\'s own')
 cfg.AI.Adjust = 0.5
-T.check(A.pressure('150') == 1 and A.pressure('200') == 1.7 and A.pressure('50') == -0.5, 'Adjust 0.5 moves every class up')
-cfg.AI.Adjust = 1
+T.check(A.pressure('150') == 1 and A.pressure('200') == 1 and A.pressure('50') == -0.5, 'Adjust 0.5 moves every class up')
+cfg.AI.Adjust = 2
 T.check(A.pressure('200') == 2, 'Adjust never takes a class past 2')
 cfg.AI.Adjust = 0
 T.check(math.abs(A.tuneValue('150', 'AiAbilityChanceMultiplier', 1) - 1.25) < 1e-9, '150cc: ability chance 1 -> 1.25')
@@ -31,7 +31,10 @@ T.check(math.abs(A.tuneValue('150', 'AiAbilityChanceMultiplier', 1) - 3) < 1e-9,
 cfg.AI.Profiles['150'].ops = nil
 T.check(A.label(-1) == 'RELAXED' and A.label(0) == 'NORMAL' and A.label(0.5) == 'TOUGH' and A.label(1.2) == 'HARD' and A.label(2) == 'CHAMPION', 'labels')
 
--- the AI config plan
+-- the AI config plan. v0.10: 200cc races the 150cc profile; the catch-up and perfect-start levers are still
+-- tested here on a stand-in 200cc profile (the one it had up to v0.9), put back at the end of the test
+local PRO200 = cfg.AI.Profiles['200']
+cfg.AI.Profiles['200'] = { pressure = 1.2, pacing = { MaxAiSlowdownScale = 1.0 }, catchup = 1.15, errors = 0.5, perfectStart = 90 }
 local p = A.plan('200')
 T.check(p['DefaultPacingSettings.MaxAiSlowdownScale'].set == 1 and math.abs(p['DefaultPacingSettings.MaxAiCatchupScale'].mul - 1.15) < 1e-9
   and p.ForcedErrorChance.mul == 0.5 and p.DefaultPercentageChancePerfectStart.set == 90, '200cc plan: honest, catch-up x1.15, errors x0.5, perfect start 90')
@@ -104,7 +107,7 @@ t0 = os.time(); while os.time() - t0 < 3 do end
 W.backToMenu(); M.tick(45)
 T.check(c.AiMaxTimeAheadMultiplier == 1 and c.AiMinTimeAheadModifier == 0, '50cc tune put back')
 
--- 200cc through the API (the class is locked in the menu flow): catch-up and perfect start too
+-- 200cc (stand-in profile) through the API (the class is locked in the menu flow): catch-up and perfect start too
 local R = require('race')
 local K = require('gp')
 local ok = R.launch({ path = cfg.Cups[1].races[1].path, title = 'X', kind = 'Circuit' }, '200', 'car')
@@ -123,4 +126,8 @@ T.check(W.ai.DefaultPacingSettings.MaxAiCatchupScale == 1.3 and W.ai.DefaultPerc
 rawget(W.fe, '__props').LaunchQuickRace = function() error('boom') end
 ok = R.launch({ path = cfg.Cups[1].races[1].path, title = 'X', kind = 'Circuit' }, '200', 'car')
 T.check(ok == false and W.ai.DefaultPacingSettings.MaxAiSlowdownScale == 0.75 and next(K.data.aiRestores) == nil, 'a failed launch puts the AI config straight back')
+cfg.AI.Profiles['200'] = PRO200
+p = A.plan('200')
+T.check(p['DefaultPacingSettings.MaxAiSlowdownScale'].set == 1 and p.ForcedErrorChance.mul == 0.5 and p['DefaultPacingSettings.MaxAiCatchupScale'] == nil
+  and p.DefaultPercentageChancePerfectStart == nil, 'v0.10: the real 200cc plan = 150cc\'s (honest, errors x0.5, no catch-up or perfect-start change)')
 T.finish()

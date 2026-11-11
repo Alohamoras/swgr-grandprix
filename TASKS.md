@@ -10,8 +10,9 @@ session and restore it after (md5 check); the code chunks go in order, one workt
 next starts (they all touch main.lua and config.lua); game sessions one at a time; push after each tag.
 
 **A. Code and tests, no game needed**
-1. v0.10 code: the gap log after each race; 200cc at parts 9 with the 150cc AI profile, gated on nothing. Tag
-   v0.10.0. The rubber band numbers stay as they are until B2 and the owner's play.
+1. [x] v0.10 code: the gap log after each race; 200cc at parts 9 with the 150cc AI profile, gated on nothing. Tag
+   v0.10.0. The rubber band numbers stay as they are until B2 and the owner's play. (Built 2026-11-11, branch
+   worktree-agent-a055e2119ffd4ab7f; see CHANGELOG v0.10.0.)
 2. v0.11 conditions folded into the cups: the whole section except its in-game line. Tag v0.11.0.
 3. v0.12 stakes and near-miss lines on the standings; the unlock pacing check on a fresh save (after v0.11, since
    it changes the unlocks). Tag v0.12.0.
@@ -74,14 +75,15 @@ The why behind each chunk is in docs/PHILOSOPHY.md. Order: rubber band first (on
 the cups, then the rival. One tag per chunk.
 
 ### v0.10: rubber band per class, 200cc as an extra
-- [ ] Log the gaps after each race: your time against the winner's and the next car's, behind and ahead, so "did my
+- [x] Log the gaps after each race: your time against the winner's and the next car's, behind and ahead, so "did my
       clean race pull away?" has a number next to the owner's feel.
 - [ ] Read what each field in the AI profile does to a lead (pressure, MaxAiSlowdownScale, MaxAiCatchupScale) on the
       dump and in one autopilot race per class; write it in DESIGN.md §4.
 - [ ] Profiles: generous at 50cc (the AI waits for you), less and less up the classes; at 150cc a clean lead holds
       (catch-up lower than the game's own). Keep `AI.Adjust` as the one dial.
-- [ ] 200cc: parts 9 instead of 10, the 150cc AI profile, nothing gated on it (check prog.lua and the title race).
-      Blurb says it is the extra.
+- [x] 200cc: parts 9 instead of 10, the 150cc AI profile, nothing gated on it (check prog.lua and the title race).
+      Blurb says it is the extra. (Nothing was gated on 200cc: prog.lua's remix class is 150cc, the title race
+      and bonus cups go by their own class; a test in test_prog checks it.)
 - [ ] Owner plays a few cups at 100cc and 150cc and says whether a clean race shows. Retune, then tag.
 
 ### v0.11: conditions folded into the cups

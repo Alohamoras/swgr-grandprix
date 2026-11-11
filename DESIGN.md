@@ -79,14 +79,25 @@ band.
 
 | | 50cc | 100cc | 150cc | 200cc |
 |---|---|---|---|---|
-| Your parts (all 6 slots) | 0 (no upgrades) | 3 | 7 (v0.8; was 6) | 10 (maxed) |
-| AI pressure (rubber band) | the game's own (tuning later, maybe) | | | |
+| Your parts (all 6 slots) | 0 (no upgrades) | 3 | 7 (v0.8; was 6) | 9 (v0.10; was 10, maxed) |
+| AI profile (ai.lua, config `AI.Profiles`) | pressure -1 (Cadet) | 0 (the game's own) | 0.5, honest pacing, errors x0.5 | the 150cc one (v0.10; was 1.2, catch-up x1.15, perfect start 90) |
+| Role | open | open | opens from 100cc | the optional extra: opens from 150cc, opens nothing |
 | Abilities (yours and the AI's) | level 1 | level 1 | level 2 | level 3 |
 
 (v0.3.6, owner: four classes, a no-upgrades 50cc up to a maxed 200cc. The first layout was 50 / 100 / 150cc with
 parts 3 / 6 / 10; saves were converted, every class moved up one.)
 
-Values are a starting point to tune; 200cc is fully maxed. AI pressure and AI abilities use the
+Values are a starting point to tune. v0.10 (owner, docs/PHILOSOPHY.md "200cc"): 200cc is an optional extra like
+Mario Kart's: nothing depends on it (no class, cup, remix or title race opens from its results; prog.lua checked),
+parts 9 instead of 10, the 150cc AI profile, no harsher conditions than 150cc. Tune it after the owner races it; cut
+it if it still feels silly. (Still harsher than 150cc: ability level 3, and the AI tiers' tune-ups at 200cc -
+Elite HEAT SHIELD + ARMOUR, Challenger HEAT SHIELD.)
+
+The gap log (v0.10): after every race grandprix.log has one `[gaps]` line next to RESULT, e.g. `[gaps] THE WAR
+FIELDS 150cc: you 3rd 1:42.50; winner Biddy Blas -1.50 s; next ahead Kestar Bool -0.50 s; next behind Katja Mox
++0.50 s; field spread 1st-11th 9.0 s` (each racer's `EventFinishTime`, read in the same 2 s field read as the
+positions; racers without a time are skipped). The most recent race's numbers are in the save as `last.gaps`.
+This is the number to put next to "did my clean race pull away?" when tuning the profiles. AI pressure and AI abilities use the
 Underground's `ai.lua` and `loadout.lua` (proven: every bot gets its own abilities at race load, the same every race).
 How often the AI uses them: `AiAbilityChanceMultiplier` (rubber-band tune data).
 
@@ -278,7 +289,7 @@ game. Summary of what changed in the design:
 - **Records**: best time and lap per track and class, perfect cups, every cup's final points, golds per class.
 - **Tune-ups**: the mods trimmed to twelve named packages (two affixes each, protection / plain playstyle), slots
   0 / 1 / 2 / 2; the AI's Elite tier carries HEAT SHIELD from 150cc (+ ARMOUR at 200cc), the Challenger at 200cc.
-- **Classes**: parts 0 / 3 / 7 / 10; remix cups and the title race open from 150cc; 200cc gates nothing (the
+- **Classes**: parts 0 / 3 / 7 / 10 (v0.10: 200cc at 9, see §4); remix cups and the title race open from 150cc; 200cc gates nothing (the
   optional summit).
 - **Conditions cups**: five more (night / wet / snow / scorching / mines line-ups from the game's unused 12-car
   events, two never-raced tracks), opened by gold in the planet's cup at the class.

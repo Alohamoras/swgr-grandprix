@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.10.0 (2026-11-11): gap log, 200cc as an extra
+Queue item A1 (TASKS.md), from docs/PHILOSOPHY.md: put a number next to "did my clean race pull away?", and make
+200cc the optional extra. Built and tested, not yet seen in game. The rubber band numbers are unchanged.
+- **Gap log:** after every race one line in grandprix.log right after RESULT, e.g. `[gaps] THE WAR FIELDS 150cc: you
+  3rd 1:42.50; winner Biddy Blas -1.50 s; next ahead Kestar Bool -0.50 s; next behind Katja Mox +0.50 s; field
+  spread 1st-11th 9.0 s` (1st: `next behind X +1.84 s; winner -`; you DNF: the winner's time and the spread).
+  Every racer's `EventFinishTime` is read from its RaceEventComponent in the field read race.lua already does
+  every 2 s (once per racer, after it finishes; no new lookups or sweeps). Racers with no time (DNF, or not yet
+  finished when the race world went) are skipped. The most recent race's numbers are in the save as `last.gaps`
+  (`gp.lua K.gaps` / `K.gapsLine`).
+- **200cc, the extra:** parts 9 (was 10), the 150cc AI profile (was pressure 1.2, catch-up x1.15, perfect start 90),
+  blurb "The extra: raw speed for the brave". Nothing was gated on 200cc results (prog.lua: remix cups open from
+  150cc, the title race and bonus cups go by their own class); now a test says so. Still harsher than 150cc:
+  ability level 3 and the AI tiers' extra tune-ups at 200cc (left as they were).
+- Tests: test_gaps (new: you 1st, 2nd, 4th, last, DNF; a DNF bot and a 0 time skipped; a race read through
+  race.lua, the line right after RESULT, `last.gaps` saved), test_prog (200cc opens nothing elsewhere), test_config
+  (parts 0 / 3 / 7 / 9, the 200cc profile = 150cc's, the blurb), test_vehicles (200cc at 9), test_ai (pressures;
+  the catch-up and perfect-start levers tested on a stand-in profile). world.lua: `W.botFinish` (a bot's place and
+  time). 23 tests, 528 checks.
+
 ## v0.9.0 (2026-11-10): cups are not resumable
 Owner's rule: like Mario Kart, leaving a Grand Prix loses it. A cup exists only from its first race's launch to the
 standings screen of its last race; quitting mid-cup just loses that cup's progress. (Not yet seen in game.)

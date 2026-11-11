@@ -268,6 +268,14 @@ function W.finish(pos, time, lap)
   if time then W.rec.EventFinishTime = time end
   if lap then W.rec.BestLapTime = lap end
 end
+-- bot i finishes in `pos` with race time `time` (seconds, EventFinishTime on its RaceEventComponent; v0.10 gap log).
+-- No time = finished but no time shown (the gap log skips it); finished = false = still racing / DNF.
+function W.botFinish(i, pos, time, finished)
+  local rec = rawget(rawget(W.bots[i], '__props').RaceEventComponent, '__props')
+  rec.EventPosition = pos
+  rec.bHasFinishedEvent = finished ~= false
+  rec.EventFinishTime = time or 0
+end
 -- a lap done: the best lap so far and the lap you're on
 function W.lap(best, n) W.rec.BestLapTime = best; if n then W.rec.CurrentLapNumber = n end end
 function W.backToMenu() M.kill(W.gs); W.frontEnd(); if W.tabbed then W.tabMenu() end end

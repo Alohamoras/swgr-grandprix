@@ -41,11 +41,13 @@ return {
         -- (v0.3.6, owner: four classes - 50cc with no upgrades at all, up to a maxed 200cc. Keys are used in the
         -- save: never change them; the save was converted from the three-class layout, every class moved up one.)
         -- Parts 0 / 3 / 7 / 10 (research 2026-11-10 §200cc: parts are back-loaded, 6 -> 10 was +120 kph; 7 spreads the
-        -- top two classes). blurb = the one-line intro in the Galactic League's voice (shown on the class tile).
+        -- top two classes). v0.10 (owner, docs/PHILOSOPHY.md "200cc"): 200cc is an optional extra like Mario Kart's -
+        -- parts 9 (was 10), the 150cc AI profile, nothing opens from it. blurb = the one-line intro in the Galactic
+        -- League's voice (shown on the class tile).
         { key = '50', name = '50cc', parts = 0, mods = 0, abilities = 1, open = true, blurb = "The feeder division: stock vehicles, no mods, the rookies' field" },
         { key = '100', name = '100cc', parts = 3, mods = 1, abilities = 1, open = true, blurb = 'The League proper: tuned vehicles, one mod, honest rivals' },
         { key = '150', name = '150cc', parts = 7, mods = 2, abilities = 2, blurb = 'The pro division: the field no longer waits for you' },
-        { key = '200', name = '200cc', parts = 10, mods = 2, abilities = 3, blurb = 'The summit: everything maxed, only clean laps win' },
+        { key = '200', name = '200cc', parts = 9, mods = 2, abilities = 3, blurb = 'The extra: raw speed for the brave' },
     },
 
     -- Points by place in each race (1st first); a racer who doesn't finish scores 0
@@ -322,7 +324,9 @@ return {
             ['50'] = { pressure = -1 },
             ['100'] = { pressure = 0 },
             ['150'] = { pressure = 0.5, pacing = { MaxAiSlowdownScale = 1.0 }, errors = 0.5 },
-            ['200'] = { pressure = 1.2, pacing = { MaxAiSlowdownScale = 1.0 }, catchup = 1.15, errors = 0.5, perfectStart = 90 },
+            -- v0.10: 200cc races the 150cc profile (the extra is about speed, not a harsher field; was pressure 1.2,
+            -- catch-up x1.15, perfect start 90). Kept as its own line so it can be tuned apart after the owner races it.
+            ['200'] = { pressure = 0.5, pacing = { MaxAiSlowdownScale = 1.0 }, errors = 0.5 },
         },
     },
 

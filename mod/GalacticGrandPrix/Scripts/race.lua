@@ -323,6 +323,12 @@ local function readField(r)
         if pos and pos > 0 then f.pos = pos end
         if try(function() return rec.bHasFinishedEvent end) == true then f.finished = true end
       end
+      -- v0.10 (gap log): every racer's race time, from the same component as yours (EventFinishTime, 0 until they
+      -- finish); read once per racer, numbers only, no lookups
+      if f.finished and not f.time then
+        local t = try(function() return tonumber(rec.EventFinishTime) end)
+        if t and t > 0 then f.time = t end
+      end
       if you then
         local pawn = try(function() return ps.PawnPrivate end)
         local kph = alive(pawn) and try(function() local v = pawn:GetVelocity(); return math.sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z) * 0.036 end) or 0
@@ -350,7 +356,7 @@ local function readField(r)
 end
 local function fieldList(r)
   local out = {}
-  for _, f in pairs(r.field) do out[#out + 1] = { name = f.name, you = f.you, pos = f.pos, finished = f.finished } end
+  for _, f in pairs(r.field) do out[#out + 1] = { name = f.name, you = f.you, pos = f.pos, finished = f.finished, time = f.time } end
   return out
 end
 R.fieldList = fieldList
@@ -507,6 +513,7 @@ function R.watch()
   for _, f in ipairs(fl) do if f.you then me = f end end
   if not me then me = { name = 'YOU', you = true }; fl[#fl + 1] = me end
   me.finished = r.finished; me.pos = r.finished and r.pos or me.pos
+  me.time = r.finished and r.time or nil
   -- (v0.3.5: the race is marked over BEFORE anything that could fail)
   R.run = nil
   -- (v0.8: the race time only once you finished; the best lap whenever one was read)
@@ -516,6 +523,8 @@ function R.watch()
       r.finished and C.ordinal(r.pos) or 'DNF', K.fmtTime(r.finished and r.time or nil), K.fmtTime(r.lap),
       math.floor(r.top), tostring(r.lastPos)))
   end)
+  -- v0.10: the time gaps (gp.lua K.gaps, worked out in K.record from the field read above)
+  pcall(function() log('[gaps] ' .. K.gapsLine(r.ev, out.gaps)) end)
   local okP, line = pcall(perfLine, r)
   log('PERF ' .. r.ev.title .. ': ' .. (okP and line or ('(error: ' .. tostring(line) .. ')')))
   return out
