@@ -49,19 +49,48 @@ check(P.classOpen(d({}, { class = '150', cup = 'ando', race = 1, races = 4 }), '
 local before = P.openSet(d({ ['100'] = { jakku = 1, lantaana = 1, ando = 1, crait = 1 } }))
 local after = P.openSet(d({ ['100'] = five(1) }))
 local nw = P.newlyOpen(before, after)
-check(table.concat(nw, ', ') == '150cc, OUTER RIM CUP at 100cc, GALACTIC CUP at 100cc', 'newly open after the fifth gold (' .. table.concat(nw, ', ') .. ')')
+check(table.concat(nw, ', ') == '150cc, OUTER RIM CUP at 100cc, GALACTIC CUP at 100cc, SENTINEL CONDITIONS at 100cc',
+  'newly open after the fifth gold (' .. table.concat(nw, ', ') .. ')')
 
--- remix cups (v0.6.2): a trophy in every planet cup at the top class, then open at every open class
+-- remix cups (v0.6.2; owner 2026-11-10: from Progression.RemixClass = 150cc, the summit gates nothing): a trophy in
+-- every planet cup at 150cc, then open at every open class
+check(P.remixClass().key == '150', 'RemixClass is 150cc')
 ok, why = P.cupOpen(d({ ['100'] = five(1) }), '100', 'jakku_remix')
-check(not ok and why == 'A trophy in all 5 planet cups at 200cc (0 / 5)', 'remix locked until the top class is done (' .. tostring(why) .. ')')
-local top = d({ ['100'] = five(1), ['150'] = five(1), ['200'] = five(3) })
-check(P.cupOpen(top, '200', 'sentinel_remix') and P.cupOpen(top, '100', 'jakku_remix') and P.cupOpen(top, '50', 'crait_remix'),
-  'a trophy in all five at 200cc opens the remix cups at every class')
-check(not P.cupOpen(d({ ['200'] = five(3) }), '150', 'jakku_remix'), '... but not in a class that is still locked')
+check(not ok and why == 'A trophy in all 5 planet cups at 150cc (0 / 5)', 'remix locked until 150cc is done (' .. tostring(why) .. ')')
+local top = d({ ['100'] = five(1), ['150'] = five(3) })
+check(P.cupOpen(top, '150', 'sentinel_remix') and P.cupOpen(top, '100', 'jakku_remix') and P.cupOpen(top, '50', 'crait_remix')
+  and P.cupOpen(top, '200', 'ando_remix'), 'a trophy in all five at 150cc opens the remix cups at every class (200cc opens with them)')
+cfg.Progression.Unlock = 'gold'
+ok, why = P.cupOpen(top, '150', 'jakku_remix')
+check(not ok and why == 'Gold in all 5 planet cups at 150cc (0 / 5)', 'Unlock = gold: five 150cc bronzes leave the remix cups locked (' .. tostring(why) .. ')')
+cfg.Progression.Unlock = 'trophy'
+check(not P.remixOpen(d({ ['100'] = five(1), ['150'] = { jakku = 1, lantaana = 1, ando = 1, crait = 1 }, ['200'] = five(1) })),
+  '200cc gates nothing: five 200cc golds without the fifth 150cc trophy leave the remix cups locked')
 check(P.cupOpen(d({ ['100'] = { jakku_remix = 2 } }), '100', 'jakku_remix'), 'kept: a remix cup already raced')
-local nb = P.newlyOpen(P.openSet(d({ ['100'] = five(1), ['150'] = five(1), ['200'] = { jakku = 1, lantaana = 1, ando = 1, crait = 1 } })), P.openSet(top))
-check(table.concat(nb, ', ') == 'REMIX CUPS', 'the fifth 200cc trophy says REMIX CUPS once (' .. table.concat(nb, ', ') .. ')')
-check(select(2, P.classOpen(new, '150')) == 'A trophy in all 5 planet cups at 100cc (0 / 5)', 'remix cups don\'t count as planet cups')
+local nb = P.newlyOpen(P.openSet(d({ ['100'] = five(1), ['150'] = { jakku = 1, lantaana = 1, ando = 1, crait = 1 } })),
+  P.openSet(d({ ['100'] = five(1), ['150'] = { jakku = 1, lantaana = 1, ando = 1, crait = 1, sentinel = 3 } })))
+check(table.concat(nb, ', ') == '200cc, REMIX CUPS', 'the fifth 150cc trophy says 200cc and REMIX CUPS once (' .. table.concat(nb, ', ') .. ')')
+check(select(2, P.classOpen(new, '150')) == 'A trophy in all 5 planet cups at 100cc (0 / 5)', 'remix and conditions cups don\'t count as planet cups')
+cfg.Progression.RemixClass = nil
+check(P.remixClass().key == '150', 'RemixClass unset: the class before the top one')
+cfg.Progression.RemixClass = '200'
+check(select(2, P.remixOpen(new)) == 'A trophy in all 5 planet cups at 200cc (0 / 5)', 'RemixClass = 200: the old rule')
+cfg.Progression.RemixClass = '150'
+
+-- conditions cups: gold in that planet's cup at that class, per cup and per class
+ok, why = P.cupOpen(new, '50', 'jakku_cond')
+check(not ok and why == 'Gold in the JAKKU CUP at 50cc', 'Jakku Conditions locked, says what opens it (' .. tostring(why) .. ')')
+local jg = d({ ['50'] = { jakku = 1, lantaana = 2 } })
+check(P.cupOpen(jg, '50', 'jakku_cond'), 'gold in the Jakku Cup at 50cc opens Jakku Conditions at 50cc')
+check(not P.cupOpen(jg, '50', 'lantaana_cond'), 'silver in the Lantaana Cup does not open Lantaana Conditions')
+check(not P.cupOpen(jg, '100', 'jakku_cond'), '... only at that class')
+check(P.cupOpen(d({ ['100'] = { ando_cond = 4 } }), '100', 'ando_cond'), 'kept: a conditions cup already raced')
+local s = P.openSet(jg)
+check(s['JAKKU CONDITIONS at 50cc'] and not s['LANTAANA CONDITIONS at 50cc'] and not s['JAKKU CONDITIONS at 100cc'], 'openSet lists the open conditions cups per class')
+local nc = P.newlyOpen(P.openSet(d({ ['100'] = { jakku = 2 } })), P.openSet(d({ ['100'] = { jakku = 1 } })))
+check(table.concat(nc, ', ') == 'JAKKU CONDITIONS at 100cc', 'a planet gold says which conditions cup it opened (' .. table.concat(nc, ', ') .. ')')
+ok, why = P.cupOpen(new, '150', 'crait_cond')
+check(not ok and why:find('100cc', 1, true), 'a conditions cup in a locked class: the class lock is the reason (' .. why .. ')')
 
 cfg.Progression.On = false
 check(P.classOpen(new, '200') and P.cupOpen(new, '200', 'galactic'), 'On = false: everything open')

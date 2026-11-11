@@ -135,6 +135,35 @@ function K.vehicle(key)
   return K.vehicles()[1]
 end
 
+-- the planet of an event (config Planets, by the codename folder in Events/Planets/<codename>/...) -> { key, name,
+-- line } or nil
+function K.planetOf(path)
+  local code = type(path) == 'string' and path:match('/Planets/([^/]+)/')
+  return code and (cfg.Planets or {})[code] or nil
+end
+-- one line of a cup's track list: 'THE WAR FIELDS  -  Jakku  -  circuit, 2 laps' ('sprint' for one lap)
+function K.raceLine(r)
+  local planet = K.planetOf(r.path)
+  local kind = (r.kind or 'race'):lower()
+  local laps = tonumber(r.laps)
+  local what
+  if laps == 1 or kind == 'sprint' then what = 'sprint'
+  elseif laps then what = ('%s, %d laps'):format(kind, laps)
+  else what = kind end
+  return ('%s  -  %s  -  %s'):format(r.title, planet and planet.name or '?', what)
+end
+-- the distinct planet names of a cup's races, in race order: { 'Jakku' } or { 'Lantaana', 'Ando Prime', ... }
+-- (for a tile badge: one name, or 'N PLANETS')
+function K.cupPlanets(cup)
+  local out, seen = {}, {}
+  for _, r in ipairs(cup and cup.races or {}) do
+    local p = K.planetOf(r.path)
+    local name = p and p.name or '?'
+    if not seen[name] then seen[name] = true; out[#out + 1] = name end
+  end
+  return out
+end
+
 -- every part slot (0-5) at the class's level
 function K.levelsFor(classKey)
   local c = K.class(classKey)
@@ -186,7 +215,7 @@ function K.nextRace()
   local cup = run and K.cup(run.cup)
   local r = cup and cup.races[run.race]
   if not r then return nil end
-  return { path = r.path, title = r.title, kind = r.kind, cup = run.cup, race = run.race, class = run.class }
+  return { path = r.path, title = r.title, kind = r.kind, laps = r.laps, cup = run.cup, race = run.race, class = run.class }
 end
 function K.best(classKey, cupKey) return (K.data.best[classKey] or {})[cupKey] end
 

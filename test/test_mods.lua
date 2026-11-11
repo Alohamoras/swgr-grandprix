@@ -9,7 +9,7 @@ T.boot({ version = 2, mods = { 'Conditions_FreezeProtection', 'Cooled_GainWhileS
 M.press('F6'); M.tick(6)
 T.clickTitle('GARAGE'); M.tick(3)
 T.check(T.titles():find('|NONE|NONE$') ~= nil, 'garage: two empty tune-up slots, the old catalogue keys gone (' .. T.titles() .. ')')
-T.check(T.badges():find('TUNE%-UP 1  %- FROM 100CC|TUNE%-UP 2  %- FROM 150CC') ~= nil, 'the slots say which class opens them (' .. T.badges() .. ')')
+T.check(T.badges():find('TUNE%-UP 1  %-  FROM 100CC|TUNE%-UP 2  %-  FROM 150CC') ~= nil, 'the slots say which class opens them (' .. T.badges() .. ')')
 T.check(T.logHas('[tune-ups] dropped from the save (not tune-ups): Conditions_FreezeProtection, Cooled_GainWhileSlipstream'), 'the old keys logged')
 local n = T.ntiles()
 T.click(n - 1); M.tick(5)

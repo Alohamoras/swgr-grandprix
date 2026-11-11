@@ -17,7 +17,9 @@ local function each(p, what) if not real(p) then bad[#bad + 1] = what .. ' -> ' 
 for _, c in ipairs(cfg.Classes) do each(ART.class(c.key), 'class ' .. c.key) end
 local cups = 0
 for _, cup in ipairs(cfg.Cups) do
-  for _, v in ipairs(cfg.Vehicles) do each(ART.cup(cup, v.key), cup.key .. ' / ' .. v.key) end
+  -- the conditions cups have no picture of their own yet (art.lua knows planet, bonus and remix cups): the tile
+  -- shows what main.lua falls back to, the cup's own `art`, and that must exist too
+  for _, v in ipairs(cfg.Vehicles) do each(ART.cup(cup, v.key) or (cup.conditions and cup.art) or nil, cup.key .. ' / ' .. v.key) end
   cups = cups + 1
 end
 for b = 1, 3 do each(ART.medal(b), 'medal ' .. b) end

@@ -126,7 +126,7 @@ T.check(K.champion('200') == nil, 'no planet cup finished at 200cc: no champion'
 -- counts for the class tile
 local g, of = K.golds('100')
 local tr = K.trophies('100')
-T.check(g == 2 and of == #K.cups() and of == 12, 'golds: 2 of 12 cups (' .. g .. ' / ' .. of .. ')')
+T.check(g == 2 and of == #K.cups() and of == 17, 'golds: 2 of 17 cups (' .. g .. ' / ' .. of .. ')')
 T.check(tr == 2, 'trophies: 2')
 K.data.best['100'].jakku = 3
 T.check(K.golds('100') == 2 and K.trophies('100') == 3, 'a bronze counts as a trophy, not a gold')
