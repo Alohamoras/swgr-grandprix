@@ -52,7 +52,8 @@ owner's own play, and the offline half of B7.)
    class, so it can't stand in for the owner: the profile numbers need the owner's own races with the gap log. The
    lowered-catch-up run was skipped for that reason.) Rubber band research: one autopilot race per class with the gap log, plus one with MaxAiCatchupScale lowered;
    write what each AI field does to a lead into DESIGN.md §4 and propose profile numbers (not applied).
-3. (2026-11-11: the four never-launched events all launch and finish: Moro Kehn reversed, Ice Field reversed,
+3. [x] (2026-11-11 afternoon: Dhunkri River Circuit clear launches and finishes (100cc Lantaana race 3).)
+   (2026-11-11: the four never-launched events all launch and finish: Moro Kehn reversed, Ice Field reversed,
    Monastery Mountains reversed (100cc), plus Geothermal Tour; also Ice Field night (150/200cc), The War Fields
    dawn (150cc), Ice Field (50cc). Dhunkri River Circuit in the clear not yet raced. The rest were checked against
    the dump only.) v0.11 events: every new race in every class launches and finishes (a long run: about 60 events; sprints and the
@@ -90,7 +91,11 @@ owner's own play, and the offline half of B7.)
    the next race launches by itself after a short countdown, the menu hidden under the cover. Report only.
    Needs the desktop to Claude alone (the owner away).
 
-10. AI tuning study (owner 2026-11-11: "run a bunch of races with autopilot at different CC's ... tune the AI so it's
+10. (2026-11-11, two batches, 36 races: docs/ai-study-2026-11-11.md, data in docs/data/. Races read pacing from
+   RP_Default (slowdown 0.3), not only DA_AIConfig; with the band off the bots are as fast as a clean autopilot or
+   faster, and steady (best bot within 1 s across 4 runs). Proposal in the doc: catch-up off everywhere, mercy
+   slowdown 0.5 / 0.7 / 0.85 / 0.85 by class, errors off from 100cc. Waiting on the owner's OK and races.)
+   AI tuning study (owner 2026-11-11: "run a bunch of races with autopilot at different CC's ... tune the AI so it's
    challenging and consistent and we can lower the rubber band value as much as possible"). The autopilot is a
    fixed benchmark driver (it beats today's AI by 3-13 s); the owner's records map its pace to theirs (The War
    Fields 150cc: owner 1:42.39, autopilot 1:43.35 on the dawn version). Batches of races on a few fixed tracks per
@@ -101,14 +106,16 @@ owner's own play, and the offline half of B7.)
    study_results.csv; DESIGN.md §14). Not yet run in game.
    v0.16.1: Phase 0 logging built (`[aiset]` read-back; pacing written to RP_Default / RP_Honest too). Not yet run in game.
 
-11. [x] (Built 2026-11-11 as v0.17.0, see CHANGELOG; not yet seen in game: check the tab opens on HOME at the first
+11. [x] (2026-11-11 in game: opened HOME 1 s after the tab was added, B went back to the game's menu, no reopen.
+   The pad's B is the owner's to check.) (Built 2026-11-11 as v0.17.0, see CHANGELOG; not yet seen in game: check the tab opens on HOME at the first
    menu, stays up, B goes back, nothing reopens after a race.) Boot straight into the Grand Prix (owner 2026-11-11: "i want the game to launch and go directly to the grand
    prix menu, pressing b would still back out to the main menu"). At the first main menu after launch, open the
    GRAND PRIX tab by itself (HOME page). B on HOME goes back to the game's main menu as today. Only once per launch:
    coming back from a race or backing out must not reopen it. A config switch (`BootToGrandPrix`, on by default).
    Never pick the MULTIPLAYER tab on the way. Check the boot-drop of an old cup run still happens first.
 
-12. Menu review, whole-mod (owner 2026-11-11: "go through all the menus in grand prix and think holistically about
+12. [x] (2026-11-11: docs/menu-review-2026-11-11.md, 11 findings ranked; the owner picks what to build.)
+   Menu review, whole-mod (owner 2026-11-11: "go through all the menus in grand prix and think holistically about
    them. How they are laid out, how engaging they are to use, think about what would make them better or more
    engaging"). Walk every screen in order (HOME, CUPS at each class, GARAGE, standings, leave question, title race,
    results, RESET) with screenshots, then judge them as one flow, not tile by tile: what you see first, how many
