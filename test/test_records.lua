@@ -4,7 +4,7 @@ local M = require('mock')
 local W = require('world')
 local T = require('util')
 local EV = '/Game/Griffin/Gameplay/Events/Planets/'
-local WAR = EV .. 'Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD'
+local WAR = EV .. 'Mastiff/Loop_A/EVT_MAS_LOOP_A_REV' -- (v0.11: the Jakku Cup at 100cc opens on The War Fields reversed)
 T.boot({ version = 2, races = 3, cups = 0, class = '100', vehicle = 'bike',
   run = { class = '100', cup = 'jakku', vehicle = 'bike', race = 1, races = 4, points = {}, last = {}, history = {} },
   restores = {}, abilityRestores = {} })
@@ -26,7 +26,7 @@ T.check(not T.logHas('save converted'), 'no save conversion')
 T.check(K.recordFor('100', WAR) == nil and K.champion('100') == nil and K.perfect('100', 'jakku') == false,
   'no record, no champion, no perfect cup yet')
 local text, lines = K.recordsText('jakku', '100')
-T.check(#lines == 4 and lines[1] == 'THE WAR FIELDS  no time yet' and text:find('\n', 1, true) ~= nil, 'recordsText: no time yet per race (' .. lines[1] .. ')')
+T.check(#lines == 4 and lines[1] == 'THE WAR FIELDS (REVERSE)  no time yet' and text:find('\n', 1, true) ~= nil, 'recordsText: no time yet per race (' .. lines[1] .. ')')
 
 -- race 1 of the cup through the menu: the time and lap come from the race read
 M.press('F6'); M.tick(6)
@@ -47,12 +47,12 @@ sv = T.save()
 local rec = sv.records['100'] and sv.records['100'][WAR]
 T.check(rec and rec.time == 124.31 and rec.lap == 58.1, 'record written from the race: time 2:04.31, lap 0:58.10')
 T.check(rec and rec.vehicle == 'bike' and rec.at == os.date('%Y-%m-%d'), 'with the cup\'s vehicle and today\'s date')
-T.check(T.logHas('NEW RECORD THE WAR FIELDS 100cc: 2:04.31') and not T.logHas('(was '), 'NEW RECORD logged, no "was" the first time')
-T.check(T.logHas('RESULT THE WAR FIELDS: 1st (time 2:04.31, best lap 0:58.10'), 'RESULT line shows the time and lap')
+T.check(T.logHas('NEW RECORD THE WAR FIELDS (REVERSE) 100cc: 2:04.31') and not T.logHas('(was '), 'NEW RECORD logged, no "was" the first time')
+T.check(T.logHas('RESULT THE WAR FIELDS (REVERSE): 1st (time 2:04.31, best lap 0:58.10'), 'RESULT line shows the time and lap')
 T.check(sv.last.time == 124.31 and sv.last.lap == 58.1, 'last race keeps its time and lap')
 T.check(sv.run and sv.run.race == 2 and sv.run.points.YOU == 15, 'the cup went on: race 2 next, you 15 points')
 text, lines = K.recordsText(K.cup('jakku'), '100')
-T.check(lines[1] == 'THE WAR FIELDS  2:04.31 / lap 0:58.10' and lines[2] == "THE GIANTS' GRAVEYARD  no time yet", 'recordsText after the record (' .. lines[1] .. ')')
+T.check(lines[1] == 'THE WAR FIELDS (REVERSE)  2:04.31 / lap 0:58.10' and lines[2] == "THE GIANTS' GRAVEYARD  no time yet", 'recordsText after the record (' .. lines[1] .. ')')
 
 -- the same track again, outside the cup (no cup / race in ev): slower -> the record stays; a better lap counts
 local ev = { path = WAR, title = 'THE WAR FIELDS', class = '100' }
@@ -87,8 +87,8 @@ local function won(i)
   return f
 end
 local function cupEv(cupKey, i, class)
-  local c = K.cup(cupKey)
-  return { path = c.races[i].path, title = c.races[i].title, cup = cupKey, race = i, class = class or '100' }
+  local r = K.races(cupKey, class or '100')[i]
+  return { path = r.path, title = r.title, cup = cupKey, race = i, class = class or '100' }
 end
 K.startCup('100', 'ando', 'car')
 for i = 1, 4 do out = K.record(cupEv('ando', i), 1, won(i), { time = 100 + i, lap = 40 }) end
@@ -98,8 +98,8 @@ T.check(T.logHas('cup over: 100 ando - you 1st with 60 points, GOLD trophy - PER
 local st = K.standings('100', 'ando')
 T.check(st and st.YOU == 60 and st['Kestar Bool'] == 48 and st['Sen Fira'] == 36, 'final standings saved: YOU 60, Kestar 48, Sen Fira 36')
 T.check(T.save().standings['100'].ando.YOU == 60, 'in the save file')
-T.check(K.recordFor('100', K.cup('ando').races[3].path).time == 103, 'each race of the cup set its track record')
-T.check(K.recordFor('100', K.cup('ando').races[3].path).vehicle == 'car', 'with the cup\'s vehicle')
+T.check(K.recordFor('100', K.races('ando', '100')[3].path).time == 103, 'each race of the cup set its track record')
+T.check(K.recordFor('100', K.races('ando', '100')[3].path).vehicle == 'car', 'with the cup\'s vehicle')
 
 -- a cup won but not perfectly (2nd in one race): gold, not perfect; standings saved
 K.startCup('100', 'crait', 'car')
@@ -112,12 +112,12 @@ T.check(out.cupOver and out.rank == 1 and out.trophy == 'GOLD' and out.perfect =
 T.check(K.perfect('100', 'crait') == false and (T.save().perfect['100'] or {}).crait == nil, 'not marked perfect')
 T.check(CU.perfect({ races = 4, history = { { { key = 'YOU', place = 1 } } } }) == false, 'CU.perfect: not every race run yet -> false')
 
--- champion: the racer with the most points over the saved planet cups (YOU left out, bonus cups too)
+-- champion: the racer with the most points over the saved planet cups (YOU left out, the Galactic Cup too)
 local name, pts = K.champion('100')
 T.check(name == 'Kestar Bool' and pts == 48 + 51, 'champion at 100cc from two cups: Kestar Bool, 99 points (' .. tostring(name) .. ', ' .. tostring(pts) .. ')')
-K.data.standings['100'].outerrim = { YOU = 10, ['Katja Mox'] = 999 }
-K.data.standings['100'].jakku_remix = { ['Katja Mox'] = 999 }
-T.check(K.champion('100') == 'Kestar Bool', 'bonus and remix cups don\'t count')
+K.data.standings['100'].galactic = { YOU = 10, ['Katja Mox'] = 999 }
+K.data.standings['100'].jakku_remix = { ['Katja Mox'] = 999 } -- (a cup no longer in the config)
+T.check(K.champion('100') == 'Kestar Bool', 'the Galactic Cup and unknown cups don\'t count')
 K.data.standings['100'].jakku = { YOU = 200, ['Katja Mox'] = 60 }
 name, pts = K.champion('100')
 T.check(name == 'Katja Mox' and pts == 40 + 40 + 60, 'a third cup turns it: Katja Mox, 140 (' .. tostring(name) .. ', ' .. tostring(pts) .. ')')
@@ -126,7 +126,7 @@ T.check(K.champion('200') == nil, 'no planet cup finished at 200cc: no champion'
 -- counts for the class tile
 local g, of = K.golds('100')
 local tr = K.trophies('100')
-T.check(g == 2 and of == #K.cups() and of == 17, 'golds: 2 of 17 cups (' .. g .. ' / ' .. of .. ')')
+T.check(g == 2 and of == #K.cups() and of == 6, 'golds: 2 of 6 cups (5 planets + Galactic) (' .. g .. ' / ' .. of .. ')')
 T.check(tr == 2, 'trophies: 2')
 K.data.best['100'].jakku = 3
 T.check(K.golds('100') == 2 and K.trophies('100') == 3, 'a bronze counts as a trophy, not a gold')

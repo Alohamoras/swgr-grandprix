@@ -9,8 +9,12 @@ M.press('F6'); M.tick(6)
 T.check(T.logHas('[menu] home'), 'F6 opens the home screen')
 T.check(T.titles() == '50CC|100CC|150CC|200CC|GARAGE|RESET PROGRESS', 'home: the four classes, GARAGE, RESET (no EXIT) (' .. T.titles() .. ')')
 T.clickTitle('150CC'); M.tick(3)
-T.check(T.ntiles() == #require('config').Cups + 1, 'every cup of the class plus the title race on one page, no BACK (' .. T.ntiles() .. ')')
-T.check(T.titles():find('^JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|') ~= nil, 'planet cups first (' .. T.titles() .. ')')
+T.check(T.ntiles() == 7 and T.ntiles() == #require('config').Cups + 1, 'v0.11: 7 tiles - every cup of the class plus the title race on one page, no BACK (' .. T.ntiles() .. ')')
+T.check(T.titles() == 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|TITLE RACE', 'the five planet cups, the Galactic Cup, the title race (' .. T.titles() .. ')')
+local L = require('config').CupsLayout
+T.check(L.cols * L.rows >= 7 and L.cols * (L.rows - 1) < 7 and L.w >= 400 and L.w <= 520 and L.h >= 270 and L.h <= 350,
+  'the cups layout fits 7 tiles with no empty row, tiles between the old cups size and the home size (' .. L.cols .. ' x ' .. L.rows .. ', ' .. L.w .. ' x ' .. L.h .. ')')
+T.check(T.logHas('[menu] cups (7 tiles)'), 'cups page built with 7 tiles')
 T.check(T.logHas('[menu] cups'), 'cups page')
 
 -- one race: bots finish around you; you finish `you`
@@ -29,7 +33,7 @@ end
 
 T.clickTitle('JAKKU CUP')
 T.check(M.called('LaunchQuickRace') == 1, 'Select on a cup launches race 1 straight away')
-T.check(rawget(M.lastCall('LaunchQuickRace').args[2], '__name'):find('EVT_MAS_LOOP_A_FWD', 1, true) ~= nil, 'race 1 = The War Fields')
+T.check(rawget(M.lastCall('LaunchQuickRace').args[2], '__name'):find('EVT_MAS_LOOP_A_FWD_DAWN$') ~= nil, 'race 1 at 150cc = The War Fields at dawn')
 local parts = require('config').Classes[3].parts
 T.check(T.levels('VBD_Car_Base') == ('0=%d 1=%d 2=%d 3=%d 4=%d 5=%d'):format(parts, parts, parts, parts, parts, parts), '150cc: every part at ' .. parts)
 T.check(T.save().run and T.save().run.race == 1, 'the cup is in the save (race 1)')
@@ -55,10 +59,10 @@ T.check(T.logHas('[menu] closed (menu key)', mark), 'F6 closes the page')
 M.press('F6'); M.tick(6)
 T.check(T.titles() == 'NEXT RACE' and T.save().run ~= nil and not T.logHas('dropped', mark), 'F6 again: the standings come back, the cup kept')
 
-local launches = { 'EVT_MAS_P2P_FWD', 'EVT_MAS_LOOP_B_FWD', 'EVT_MAS_LOOP_A_SHORT_02' }
+local launches = { 'EVT_MAS_P2P_FWD', 'EVT_MAS_LOOP_B_FWD_HARD', 'EVT_MAS_LOOP_A_SHORT_02_HARD' } -- (v0.11: the 150cc list)
 for i, you in ipairs({ 1, 1, 3 }) do
   T.clickTitle('NEXT RACE')
-  T.check(rawget(M.lastCall('LaunchQuickRace').args[2], '__name'):find(launches[i], 1, true) ~= nil, 'race ' .. (i + 1) .. ' = ' .. launches[i])
+  T.check(rawget(M.lastCall('LaunchQuickRace').args[2], '__name'):find(launches[i] .. '$') ~= nil, 'race ' .. (i + 1) .. ' = ' .. launches[i])
   race(i + 1, you)
 end
 -- you: 12 + 15 + 15 + 10 = 52; Biddy: 15 + 12 + 12 + 15 = 54

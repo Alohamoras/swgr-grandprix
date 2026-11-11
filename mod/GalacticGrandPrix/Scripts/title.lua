@@ -1,7 +1,7 @@
 -- Galactic Grand Prix: the title race (v0.8, research doc 2026-11-10 §"Rosters per class and the champion race").
 -- One 1 v 1 at the end of each class against the class's champion: today the game's Stadium Showdown against Kestar
--- Bool (a proven launch; he copies your build, so he scales with the class). Opens with a trophy in every planet cup
--- at the class (prog.lua P.titleOpen). Winning it makes you the class champion (saved: titles[class]); the class tile
+-- Bool (a proven launch; he copies your build, so he scales with the class). Opens with a trophy in the Galactic Cup
+-- at the class (v0.11; prog.lua P.titleOpen). Winning it makes you the class champion (saved: titles[class]); the class tile
 -- says so. Config: Title. Pure logic here; the launch goes through race.lua like any race (ev.titleRace = true).
 local C = require('core')
 local cfg = require('config')

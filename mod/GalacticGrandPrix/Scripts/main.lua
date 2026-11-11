@@ -4,9 +4,10 @@
 -- v0.2: cups of 4 races with points for all 12 racers, standings after each race, a trophy at the end.
 -- v0.3: your four abilities (v0.3.10: free pick, one per family), the AI racers' four, levels by class.
 -- v0.9: cups cannot be resumed (owner): leaving a cup before its last standings loses it.
+-- v0.11: one cup per planet with a race list per class (classic / reverse / conditions), the Galactic Cup, the title race.
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.10.0'
+local VERSION = '0.11.0'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -141,8 +142,8 @@ local SCREENS = {}
 
 -- v0.8 (owner's menu rules, 2026-11-10): never more than two levels deep, no words you don't need, no scrolling.
 --   Level 1 HOME: the four classes, GARAGE, RESET PROGRESS. B leaves the tab.
---   Level 2 CUPS (a class): every cup on one page (5 columns x 4 rows); focusing a cup shows its races, planets and
---     your records; Select starts it. No cup page.
+--   Level 2 CUPS (a class): the five planet cups, the GALACTIC CUP and the TITLE RACE on one page (4 + 3, v0.11);
+--     focusing a cup shows its races at that class (conditions named) and your records; Select starts it. No cup page.
 --   Level 2 GARAGE: vehicle, racer, four abilities, tune-ups - Select cycles the option in place. No pick screens.
 -- v0.9: a cup lives from its first race's launch to the standings of its last race, and nowhere else: the standings
 --   after races 1-3 offer NEXT RACE only; B there asks "Leave the cup?" (YES forfeits and goes HOME). No CONTINUE /
@@ -174,7 +175,7 @@ local function championLine(classKey)
   local name = TI.champion(classKey)
   return name and ('Champion: ' .. tostring(name):upper()) or nil
 end
--- the title race tile on the cups page: locked until a trophy in every planet cup at the class; won = CHAMPION
+-- the title race tile on the cups page: locked until a trophy in the Galactic Cup at the class; won = CHAMPION
 local function titleTile(cls)
   if not (TI.on() and TI.event(cls.key)) then return nil end
   local st = TI.status(cls.key)
@@ -244,31 +245,34 @@ SCREENS.home = function()
     items = items, info = true }
 end
 
--- the cups of a class, on one page: planet cups, remix cups, conditions cups, then the finals (bonus cups, title race)
-local KIND_ORDER = { planet = 1, remix = 2, conditions = 3, bonus = 4 }
-local function cupKind(cup) return cup.remix and 'remix' or cup.conditions and 'conditions' or cup.bonus and 'bonus' or 'planet' end
+-- the cups of a class, on one page (v0.11): the five planet cups, then the finale (the Galactic Cup), then the
+-- title race
 local function cupsInOrder()
-  local list = {}
-  for i, c in ipairs(K.cups()) do list[#list + 1] = { c = c, i = i } end
-  table.sort(list, function(a, b)
-    local ka, kb = KIND_ORDER[cupKind(a.c)], KIND_ORDER[cupKind(b.c)]
-    if ka ~= kb then return ka < kb end
-    return a.i < b.i
-  end)
   local out = {}
-  for _, e in ipairs(list) do out[#out + 1] = e.c end
+  for _, c in ipairs(K.cups()) do if not c.final then out[#out + 1] = c end end
+  for _, c in ipairs(K.cups()) do if c.final then out[#out + 1] = c end end
   return out
 end
-local function planetBadge(cup)
-  local ps = K.cupPlanets and K.cupPlanets(cup) or {}
+local function planetBadge(cup, classKey)
+  local ps = K.cupPlanets and K.cupPlanets(cup, classKey) or {}
   if #ps == 1 then return ps[1]:upper() end
   if #ps > 1 then return (#ps .. ' PLANETS') end
   return nil
 end
--- the focused cup's info: its races with planet, kind and laps, then your records at this class
+-- a cup's conditions at a class, for the tile and the info: 'Night, wet' (nil: none)
+local function condText(cup, classKey)
+  local list = K.cupConditions(cup, classKey)
+  if #list == 0 then return nil end
+  local s = table.concat(list, ', '):lower()
+  return s:sub(1, 1):upper() .. s:sub(2)
+end
+-- the focused cup's info: its races at this class with planet, kind and laps (the title names the conditions, and
+-- a first line sums them up, so a snow or scorching cup shows before Select), then your records at this class
 local function cupInfo(cup, classKey)
   local out = {}
-  for i, r in ipairs(cup.races) do
+  local cond = condText(cup, classKey)
+  if cond then out[1] = 'Conditions: ' .. cond end
+  for i, r in ipairs(K.races(cup, classKey)) do
     local line = K.raceLine and K.raceLine(r) or r.title
     local rec = K.recordFor and K.recordFor(classKey, r.path)
     if rec and K.fmtTime then line = line .. ('     best %s'):format(rec.time and K.fmtTime(rec.time) or 'no time yet') .. (rec.lap and (' / lap ' .. K.fmtTime(rec.lap)) or '') end
@@ -291,8 +295,9 @@ SCREENS.cups = function()
       local mIcon, mColor = medal(cls.key, cup.key)
       local perfect = K.perfect and K.perfect(cls.key, cup.key)
       items[#items + 1] = { title = cup.name, art = ART.cup(cup, K.data.vehicle) or cup.art,
-        badge = trophyBadge(cls.key, cup.key) or planetBadge(cup), icon = mIcon, iconColor = mColor,
-        desc = bestText(cls.key, cup.key) .. (perfect and '  -  PERFECT' or '') .. '\n' .. (cup.races[1] and cup.races[1].title or ''),
+        badge = trophyBadge(cls.key, cup.key) or planetBadge(cup, cls.key), icon = mIcon, iconColor = mColor,
+        desc = bestText(cls.key, cup.key) .. (perfect and '  -  PERFECT' or '') .. '\n' .. (condText(cup, cls.key)
+          or (K.races(cup, cls.key)[1] or {}).title or ''),
         info = padInfo(info),
         act = function()
           local veh = K.vehicle(K.data.vehicle)

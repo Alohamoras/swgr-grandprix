@@ -13,7 +13,8 @@ next starts (they all touch main.lua and config.lua); game sessions one at a tim
 1. [x] v0.10 code: the gap log after each race; 200cc at parts 9 with the 150cc AI profile, gated on nothing. Tag
    v0.10.0. The rubber band numbers stay as they are until B2 and the owner's play. (Built 2026-11-11, branch
    worktree-agent-a055e2119ffd4ab7f; see CHANGELOG v0.10.0.)
-2. v0.11 conditions folded into the cups: the whole section except its in-game line. Tag v0.11.0.
+2. [x] v0.11 conditions folded into the cups: the whole section except its in-game line. Tag v0.11.0. (Built
+   2026-11-11; see CHANGELOG v0.11.0.)
 3. v0.12 stakes and near-miss lines on the standings; the unlock pacing check on a fresh save (after v0.11, since
    it changes the unlocks). Tag v0.12.0.
 4. v0.13 the rival rule and the standings call-out (not the title-race spike). Tag v0.13.0.
@@ -87,16 +88,16 @@ the cups, then the rival. One tag per chunk.
 - [ ] Owner plays a few cups at 100cc and 150cc and says whether a clean race shows. Retune, then tag.
 
 ### v0.11: conditions folded into the cups
-- [ ] Config: one race list per class for each planet cup (50 classics, 100 reverse, 150 conditions, 200 = the 150
+- [x] Config: one race list per class for each planet cup (50 classics, 100 reverse, 150 conditions, 200 = the 150
       lists). Move the Outer Rim Cup's tracks into the planet lists. Every event used must already be in the
       events dump (12-car team race, any vehicle).
-- [ ] Test: no cup at any class races the same base layout twice; every cup has four races.
-- [ ] Remove the remix and conditions cups, their unlock rules, `Progression.RemixClass`, the conditions-cup art swap.
-- [ ] Galactic Cup opens with a trophy in the five planet cups at the class; the title race opens with a trophy in
+- [x] Test: no cup at any class races the same base layout twice; every cup has four races.
+- [x] Remove the remix and conditions cups, their unlock rules, `Progression.RemixClass`, the conditions-cup art swap.
+- [x] Galactic Cup opens with a trophy in the five planet cups at the class; the title race opens with a trophy in
       the Galactic Cup. Cups page = 7 tiles (layout to fit, no scrolling).
-- [ ] Save: old remix / conditions / Outer Rim trophies dropped at first load with a log line; records kept (stored
+- [x] Save: old remix / conditions / Outer Rim trophies dropped at first load with a log line; records kept (stored
       per event).
-- [ ] The cup's info lines name the conditions (SCORCHING, SNOW...) so the tune-up choice is visible before Select.
+- [x] The cup's info lines name the conditions (SCORCHING, SNOW...) so the tune-up choice is visible before Select.
 - [ ] In game with the autopilot: every new event launches and finishes. Name the Ando short track (owner).
 
 ### v0.12: stakes and near misses on the standings
@@ -118,8 +119,9 @@ the cups, then the rival. One tag per chunk.
 Things only a real play can answer. Tick them off (or note what felt wrong) as you go.
 - [x] (moot in v0.8: the mods became twelve tune-ups without the "check" ones) **Mods:** which feel good, which feel too strong - the 23 "check" ones especially
       (catalogue page: https://claude.ai/artifact/4nFmiUyn62CRY21JBZRgx9).
-- [ ] **Remix cups:** race them (open at every class now). Name the Ando short track if you like
-      (shown as "ANDO SHORT CIRCUIT" for now).
+- [x] (moot in v0.11: the remix cups were folded into the planet cups' 100cc / 150cc lists) **Remix cups:** race
+      them (open at every class now). Name the Ando short track if you like (shown as "ANDO SHORT CIRCUIT" for now;
+      it is in the Ando Cup at 100cc).
 - [ ] **Points table after each race:** lines up and reads well; the loading-screen cover appears and goes. If it ever
       sticks or blocks input: `HideMenuFlash = false` in config.lua.
 - [ ] **Unlock message:** a cup that opens something says "UNLOCKED: ..." on the result screen (gold in all five 100cc
@@ -153,7 +155,7 @@ records-to-be, abilities and vehicle are kept.
 - [x] (Claude, v0.8.1: won it; the Showdown's story cinematic had to be taken off the event, see CHANGELOG) **Title race:** TITLE RACE tile (locked until a trophy in all five planet cups at the class; VS KESTAR BOOL);
       the Showdown launches with the class's parts; the result screen (win = CHAMPION, the class tile says
       "Champion: YOU"; a loss can be rerun); `TITLE RACE 100: ...` in the log. 1 v 1 field of 2 read correctly.
-- [ ] **Conditions cups:** open with gold in the planet cup; every event launches (paths were checked against the
+- [x] (moot in v0.11: folded into the planet cups' 150cc lists; their events are checked by queue item B3) **Conditions cups:** open with gold in the planet cup; every event launches (paths were checked against the
       event dump, not in game); art (the other vehicle's poster).
 - [x] (Claude: 653 kph at parts 7 on The War Fields; was ~620 at parts 6) **Class spacing.**
 - [ ] Later (research spikes): the class leader as the title-race opponent (two-car grid + Opponents list); bot
@@ -293,7 +295,7 @@ records-to-be, abilities and vehicle are kept.
 - [x] In game (Claude, 2026-11-10, test copy of the save): remix cups open at 200cc; the Sentinel Remix launched
       (12 racers). Names read: Corrosion Hypersphere; the Ando short 01 has no player-facing name (finished-looking ice
       circuit, kept as ANDO SHORT CIRCUIT - owner may name it).
-- [ ] Owner: race the remix cups once unlocked.
+- [x] (moot in v0.11: no remix cups) Owner: race the remix cups once unlocked.
 - [x] (old note, replaced by the remix cups) **Reverse cups (v0.5.x):** the five planet cups on reverse (or night / weather) variants. Needs the event paths
       (Underground config `Planets`) and a launch check in game for each. When do they open: after 150cc (DESIGN §3)
       or after the top class (owner's earlier note)? Ask the owner.

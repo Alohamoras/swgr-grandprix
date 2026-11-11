@@ -27,6 +27,38 @@ function K.convert(d, from)
   return d
 end
 
+-- v0.11: the remix cups (*_remix), conditions cups (*_cond) and the Outer Rim Cup are gone (folded into the planet
+-- cups' per-class race lists). Their best finishes, perfect cups and final standings are dropped from the save, once,
+-- with one log line; track records stay (they are kept per event path, not per cup). Returns what was dropped.
+local GONE = { '_remix$', '_cond$', '^outerrim$' }
+local function gone(key)
+  if type(key) ~= 'string' then return false end
+  for _, pat in ipairs(GONE) do if key:find(pat) then return true end end
+  return false
+end
+function K.dropOldCups(d)
+  local out = {}
+  for _, field in ipairs({ 'best', 'perfect', 'standings' }) do
+    local byClass = type(d[field]) == 'table' and d[field] or {}
+    local classes = {}
+    for cls in pairs(byClass) do classes[#classes + 1] = cls end
+    table.sort(classes, function(a, b) return (tonumber(a) or 0) < (tonumber(b) or 0) end)
+    for _, cls in ipairs(classes) do
+      local t = byClass[cls]
+      if type(t) == 'table' then
+        local keys = {}
+        for k in pairs(t) do if gone(k) then keys[#keys + 1] = k end end
+        table.sort(keys)
+        for _, k in ipairs(keys) do
+          out[#out + 1] = ('%s %s %s'):format(field, cls, k)
+          t[k] = nil
+        end
+      end
+    end
+  end
+  return out
+end
+
 local function fill(d)
   d.version = tonumber(d.version) or K.SAVE_VERSION
   d.races = tonumber(d.races) or 0
@@ -92,6 +124,11 @@ function K.load()
       else
         K.data = fill(t)
       end
+      local dropped = K.dropOldCups(K.data)
+      if #dropped > 0 then
+        K.save()
+        log('[cups] dropped from the save (remix, conditions and Outer Rim cups are gone; records kept): ' .. table.concat(dropped, ', '))
+      end
       -- one-off fix: race_fix.txt in the mod folder holds a number to add to the race count, then is deleted
       -- (v0.3.7: the v0.3.4 bug recorded one race ~200 times)
       local fx = io.open(C.DIR .. '/race_fix.txt', 'r')
@@ -129,6 +166,32 @@ function K.cup(key)
   for _, c in ipairs(K.cups()) do if c.key == key then return c end end
   return nil
 end
+-- v0.11: a cup's races at a class. A planet cup has a list per class (races['50'] / ['100'] / ['150']; a class
+-- with raceList races that class's lists: 200cc -> 150cc); the Galactic Cup one list for every class. cup = a cup
+-- or its key; no class = the first class.
+function K.raceClass(classKey)
+  local c = K.class(classKey)
+  return c and c.raceList or classKey
+end
+function K.races(cup, classKey)
+  if type(cup) ~= 'table' then cup = K.cup(cup) end
+  local r = cup and cup.races
+  if type(r) ~= 'table' then return {} end
+  if r[1] ~= nil then return r end
+  local k = K.raceClass(classKey or (K.classes()[1] or {}).key)
+  return r[k] or {}
+end
+-- the distinct conditions of a cup's races at a class, in race order: { 'NIGHT', 'WET' } (empty: none)
+function K.cupConditions(cup, classKey)
+  local out, seen = {}, {}
+  for _, r in ipairs(K.races(cup, classKey)) do
+    for w in (r.cond or ''):gmatch('[^,]+') do
+      w = w:match('^%s*(.-)%s*$')
+      if not seen[w] then seen[w] = true; out[#out + 1] = w end
+    end
+  end
+  return out
+end
 function K.vehicles() return cfg.Vehicles or {} end
 function K.vehicle(key)
   for _, v in ipairs(K.vehicles()) do if v.key == key then return v end end
@@ -152,11 +215,11 @@ function K.raceLine(r)
   else what = kind end
   return ('%s  -  %s  -  %s'):format(r.title, planet and planet.name or '?', what)
 end
--- the distinct planet names of a cup's races, in race order: { 'Jakku' } or { 'Lantaana', 'Ando Prime', ... }
--- (for a tile badge: one name, or 'N PLANETS')
-function K.cupPlanets(cup)
+-- the distinct planet names of a cup's races (at a class), in race order: { 'Jakku' } or { 'Lantaana', 'Ando
+-- Prime', ... } (for a tile badge: one name, or 'N PLANETS')
+function K.cupPlanets(cup, classKey)
   local out, seen = {}, {}
-  for _, r in ipairs(cup and cup.races or {}) do
+  for _, r in ipairs(cup and K.races(cup, classKey) or {}) do
     local p = K.planetOf(r.path)
     local name = p and p.name or '?'
     if not seen[name] then seen[name] = true; out[#out + 1] = name end
@@ -194,7 +257,7 @@ end
 function K.startCup(classKey, cupKey, vehicleKey, picks, mods)
   if K.data.run then K.forfeit() end -- (v0.9: a run left over from a race that never loaded; nothing can resume it)
   local cup = K.cup(cupKey)
-  K.data.run = CU.new(classKey, cupKey, vehicleKey, cup and #cup.races or 4)
+  K.data.run = CU.new(classKey, cupKey, vehicleKey, cup and #K.races(cup, classKey) or 4)
   K.data.run.picks = picks
   K.data.run.mods = mods
   K.save()
@@ -228,7 +291,7 @@ end
 function K.nextRace()
   local run = K.data.run
   local cup = run and K.cup(run.cup)
-  local r = cup and cup.races[run.race]
+  local r = cup and K.races(cup, run.class)[run.race]
   if not r then return nil end
   return { path = r.path, title = r.title, kind = r.kind, laps = r.laps, cup = run.cup, race = run.race, class = run.class }
 end
@@ -256,7 +319,8 @@ function K.recordFor(classKey, path) return ((K.data.records or {})[classKey] or
 function K.standings(classKey, cupKey) return ((K.data.standings or {})[classKey] or {})[cupKey] end
 -- was the cup won with 1st place in every race at that class?
 function K.perfect(classKey, cupKey) return ((K.data.perfect or {})[classKey] or {})[cupKey] == true end
--- how many of the cups (every cup in the config: planet, bonus, remix, ...) have a best finish at least `need`
+-- how many of the cups (every cup in the config: the five planet cups and the Galactic Cup) have a best finish at
+-- least `need`
 local function countBest(classKey, need)
   local n = 0
   for _, c in ipairs(K.cups()) do
@@ -275,7 +339,7 @@ function K.trophies(classKey) return countBest(classKey, 3) end
 function K.recordsText(cup, classKey)
   if type(cup) ~= 'table' then cup = K.cup(cup) end
   local lines = {}
-  for _, r in ipairs(cup and cup.races or {}) do
+  for _, r in ipairs(cup and K.races(cup, classKey) or {}) do
     local rec = K.recordFor(classKey, r.path)
     local s = rec and rec.time and K.fmtTime(rec.time) or 'no time yet'
     if rec and rec.lap then s = s .. ' / lap ' .. K.fmtTime(rec.lap) end
@@ -283,12 +347,8 @@ function K.recordsText(cup, classKey)
   end
   return table.concat(lines, '\n'), lines
 end
--- a planet cup: neither bonus, remix nor conditions (by flag or key)
-local function planetCup(c)
-  if c.bonus or c.remix or c.conditions then return false end
-  local k = c.key or ''
-  return not (k:find('bonus', 1, true) or k:find('remix', 1, true) or k:find('conditions', 1, true))
-end
+-- a planet cup: not the Galactic Cup (final)
+local function planetCup(c) return not c.final end
 -- the class champion: the racer (never you) with the most points over the planet cups finished at that class
 -- -> name, points; nil when no planet cup has been finished there. Ties: the first name in alphabetical order.
 function K.champion(classKey)
@@ -440,7 +500,7 @@ function K.record(ev, pos, field, extra)
       log(('cup over: %s %s - you %s with %d points%s%s'):format(run.class, run.cup, C.ordinal(rank), pts,
         out.trophy and (', ' .. out.trophy .. ' trophy') or '', out.perfect and ' - PERFECT CUP' or ''))
       K.data.run = nil
-      -- v0.5: what this cup opened (a class, a bonus cup)
+      -- v0.5: what this cup opened (a class, the Galactic Cup, a title race)
       out.unlocked = PR.newlyOpen(before, PR.openSet(K.data))
       if #out.unlocked > 0 then log('unlocked: ' .. table.concat(out.unlocked, ', ')) end
     end

@@ -50,25 +50,33 @@ Variants: forward / reverse, `_HARD`, dawn / night / wet / snow / storm, Crait's
 Event paths are in the Underground config (`Planets`) and its TASKS.md lists. All proven to launch through quick race
 (`FrontEndGameMode:LaunchQuickRace`), including the 1 v 1 boss events.
 
-### Cups (draft)
+### Cups (v0.11, owner 2026-11-10: docs/PHILOSOPHY.md "Cups")
 Full 12-car grids only. Knockouts, eliminators and 1 v 1 races are left out of points cups (no fair points).
+One cup per planet, four races, always on that planet; the race list changes with the class, so the same cup gets
+harder in character as well as speed. A cup never races the same base track twice ("base" = the track name without
+its direction / conditions: THE WAR FIELDS, THE WAR FIELDS (REVERSE) and THE WAR FIELDS (SCORCHING) are one track).
+A cup is fixed per class, so records and golds keep meaning one thing.
 
-| Cup | Races |
-|---|---|
-| **Jakku Cup** | The War Fields · Giants' Graveyard · Debris Dunes · Fallen Empire |
-| **Lantaana Cup** | Griffin's Flight · Moro Kehn Tunnels · The Pyroducts · Ahlren Jungle Speedway |
-| **Ando Cup** | Ice Field Circuit · Monastery Mountains · Mountain to Sea · Vonium Pipeline |
-| **Crait Cup** | Crimson Mines · Forgil Canyon · Rhodochrosite Run · Salt Circle |
-| **Sentinel Cup** | Sentinel Lakes · Caustic Fields · Bool River Run · The Acid Ring |
-| **Outer Rim Cup** | Scrap Spiral · Geothermal Tour · Dai Bendu Ascension · Crystal Caverns |
-| **Galactic Cup** | Overflow Rally · Andobi Edge · Skakoan Gambit · The Galactic Gauntlet |
+- **50cc** the classic forward layouts; **100cc** the reverse layouts where the planet has them, filled up with the
+  planet's other plain tracks (the old Outer Rim Cup's four went here); **150cc** the conditions; **200cc** the 150cc
+  lists at the extra speed.
 
-- **Remix cups** (v0.6.2, owner 2026-11-10; replaces "reverse cups"): only ~10 of the 28 cup races have a true reverse
-  layout, so each planet cup gets a remix: reverse where it exists, else its night / wet / snow / mines / scorching
-  version, else another track from the planet. Open after a trophy in all five planet cups at the top class, then at
-  every open class. Line-ups in config.lua (`remix = true`).
-- **Champion Showdown**: a bonus race against Kestar Bool (`EVT_WHP_SHORTBOSS_FAIR`), unlocked with gold in every
-  150cc cup.
+| Cup | 50cc | 100cc | 150cc / 200cc |
+|---|---|---|---|
+| **Jakku** | The War Fields · Giants' Graveyard · Debris Dunes · Fallen Empire | War Fields (rev) · Giants' Graveyard · Debris Dunes (rev) · Scrap Spiral | War Fields (dawn) · Giants' Graveyard · Debris Dunes (scorching) · Fallen Empire (scorching) |
+| **Lantaana** | Griffin's Flight · Moro Kehn Tunnels · The Pyroducts · Ahlren Jungle Speedway | Moro Kehn (rev) · Geothermal Tour · Dhunkri River Circuit · Griffin's Flight | Griffin's Flight (night) · Moro Kehn (rev, wet) · Geothermal Tour (night) · Dhunkri River Circuit (wet) |
+| **Ando** | Ice Field Circuit · Monastery Mountains · Mountain to Sea · Vonium Pipeline | Ice Field (rev) · Monastery (rev) · Dai Bendu Ascension · Ando short circuit | Ice Field (night) · Monastery (snow) · Mountain to Sea (snow) · Vonium Pipeline (snow) |
+| **Crait** | Crimson Mines · Forgil Canyon · Rhodochrosite Run · Salt Circle | Crimson Mines (rev) · Crystal Caverns · Rhodochrosite Run · Forgil Canyon | Crimson Mines (mines, night) · Forgil Canyon (mines) · Rhodochrosite Run (mines) · Crystal Caverns (mines) |
+| **Sentinel** | Sentinel Lakes · Caustic Fields · Bool River Run · The Acid Ring (the game's default layouts are the reverse ones) | Sentinel Lakes (fwd, overcast) · Mineral Loop · Caustic Fields (fwd, overcast) · Corrosion Hypersphere | Caustic Fields (fwd, blue hour) · Bool River Run (fwd, overcast) · Mineral Loop (storm) · Corrosion Hypersphere (storm) |
+| **Galactic** (finale) | Overflow Rally · Andobi Edge · Skakoan Gambit · The Galactic Gauntlet | same | same |
+
+- Some planets have too few tracks to fill every class with new ones: Jakku has five tracks and only three with
+  conditions (Giants' Graveyard is in all three lists), Crait has five; Sentinel's forward layouts exist only
+  overcast. Twelve condition events the remix / conditions cups used are no longer raced (CHANGELOG v0.11.0).
+- The cups page shows the class's conditions on each cup tile and in the focused cup's info, so the tune-up choice
+  (HEAT SHIELD before a scorching cup...) is made before Select.
+- Gone in v0.11: the Outer Rim Cup, the remix cups (v0.6.2) and the conditions cups (v0.8).
+- **Title race** (v0.8): the Stadium Showdown against Kestar Bool (`EVT_WHP_SHORTBOSS_FAIR`), at every class.
 - Later: a podracer cup.
 
 ## 4. Speed classes
@@ -88,7 +96,7 @@ band.
 parts 3 / 6 / 10; saves were converted, every class moved up one.)
 
 Values are a starting point to tune. v0.10 (owner, docs/PHILOSOPHY.md "200cc"): 200cc is an optional extra like
-Mario Kart's: nothing depends on it (no class, cup, remix or title race opens from its results; prog.lua checked),
+Mario Kart's: nothing depends on it (no class, cup or title race opens from its results; prog.lua checked),
 parts 9 instead of 10, the 150cc AI profile, no harsher conditions than 150cc. Tune it after the owner races it; cut
 it if it still feels silly. (Still harsher than 150cc: ability level 3, and the AI tiers' tune-ups at 200cc -
 Elite HEAT SHIELD + ARMOUR, Challenger HEAT SHIELD.)
@@ -193,24 +201,27 @@ The game ends your race after too many crashes (wrecked). Two memory-only contro
   `ShouldNextCrashWreckVehicle()` on the player's race component).
 Recon R3 picks the one that works; set before launch, put back at the menu. Crashing still costs time.
 
-## 8. Progression and unlocks (owner asked for it, 2026-11-09)
+## 8. Progression and unlocks (owner asked for it, 2026-11-09; v0.11)
 - **50cc and 100cc are open from the start** (owner, 2026-11-10), with their five planet cups.
 - **150cc and 200cc each open with a trophy (bronze or better) in all five planet cups of the class below** (100 →
-  150 → 200cc)
-  (proposal; the first draft said gold in every cup, which is 20 races of perfect play per class). The rule is a
-  setting (`Unlock = 'trophy' | 'gold'`), so it can be made stricter.
-- Outer Rim and Galactic cups: gold in all five planet cups at that class.
-- Reverse cups: after the 150cc cups.
-- Champion Showdown: gold in every 200cc cup.
-- Best trophy per cup and class saved, shown on the cup tiles (a visible marker on the tile, owner 2026-11-10). No money, no shop, no upgrades.
-- Unlocks are worked out from the saved best finishes, so trophies won before this is built count (e.g. the owner's
-  50cc Jakku gold). Locked classes / cups show what opens them.
-- **Kept (v0.5.0):** a class or cup you've already raced through or have a cup in progress in stays open, so v0.5
-  never takes away what you were playing. `Progression.On = false` switches the locks off.
-- v0.5.0 = class and bonus-cup unlocks; then reverse cups and the Champion Showdown (each needs checks in game).
-- **Reset progress** (owner, 2026-11-10, v0.3.11): RESET PROGRESS, the last tile on the class screen, asks first
-  (NO selected first). Clears every trophy and best finish, the cup in progress and the cups count; keeps your
-  abilities, vehicle and race count. The save is copied to `save.backup-reset-<date>.lua` first. One full reset only.
+  150 → 200cc). The rule is a setting (`Progression.Unlock = 'trophy' | 'gold'`), so it can be made stricter.
+- **The Galactic Cup** (the finale, `final = true`) opens at a class with a trophy (any colour; gold with
+  `Unlock = 'gold'`) in all five planet cups at that class.
+- **The title race** opens at a class with a trophy in the Galactic Cup at that class. Winning it makes you the class
+  champion.
+- 200cc is the optional extra: nothing outside 200cc opens from its results.
+- Best trophy per cup and class saved, shown on the cup tiles. No money, no shop, no upgrades. The class tile counts
+  golds / trophies over the six cups (5 planets + Galactic).
+- Unlocks are worked out from the saved best finishes every time (nothing extra saved), so trophies won before
+  this was built count. Locked classes / cups / the title race show what opens them. The cup result says what it
+  unlocked ("UNLOCKED: 150cc - GALACTIC CUP at 100cc", "UNLOCKED: TITLE RACE at 100cc").
+- **Kept (v0.5.0):** a class or cup you've already raced through (or the title race once tried) stays open.
+  `Progression.On = false` switches the locks off.
+- **v0.11 save change:** the results of the removed cups (remix, conditions, Outer Rim) are dropped at the first
+  load, logged once; track records stay (per event path).
+- **Reset progress** (owner, 2026-11-10, v0.3.11): RESET PROGRESS on HOME asks first (NO selected first). Clears
+  every trophy and best finish, records, perfect cups, standings and the cups count; keeps your garage and race
+  count. The save is copied to `save.backup-reset-<date>.lua` first.
 - Save: `Mods/GalacticGrandPrix/save.lua` (the Underground's save code), never the game's save.
 
 ## 9. What we reuse from the Underground
@@ -265,8 +276,9 @@ Built from docs/research-2026-11-10.md (the owner's 13 questions; the Claude Doc
 game. Summary of what changed in the design:
 - **Menu, two levels** (owner's rules: never more than two deep, no words you don't need, no scrolling, simple).
   HOME = the four classes, GARAGE, RESET PROGRESS (always these six; v0.9 took the CONTINUE / QUIT CUP tiles off).
-  CUPS (per class) = every cup on one 5 x 4 page: planet / remix / conditions cups, the bonus cups, the TITLE RACE;
-  the focused cup shows its races (planet, kind, laps) and your records; Select starts it. GARAGE = VEHICLE, RACER,
+  CUPS (per class) = every cup on one page: v0.11 the five planet cups, the GALACTIC CUP and the TITLE RACE (7 tiles,
+  4 + 3; was 5 x 4 with the remix / conditions / bonus cups); the focused cup shows its races at that class (planet,
+  kind, laps, conditions) and your records; Select starts it. GARAGE = VEHICLE, RACER,
   ABILITY 1-4, TUNE-UP 1-2, each cycled in place with Select. No cup page, no pick screens, no BACK / EXIT / DONE
   tiles (B goes back).
 - **Cups are not resumable (v0.9, owner, 2026-11-10): like Mario Kart, leaving a Grand Prix loses it.** A cup
@@ -279,7 +291,7 @@ game. Summary of what changed in the design:
   read it across a race load) and keeps the vehicle, picks and tune-ups it started with.
 - **The Galactic League frame**: classes = divisions with one intro line each; a season = the five planet cups; the
   **title race** = the Stadium Showdown against Kestar Bool at every class (he copies your build), open with a trophy
-  in all five planet cups at the class; a win = the class champion (shown on the class tile). The class points
+  in the Galactic Cup at the class (v0.11; was all five planet cups); a win = the class champion (shown on the class tile). The class points
   leader as the opponent (two-car grid on a normal event) is a later step that needs an in-game check.
 - **Your racer**: any of the game's 14 named pilots (CharacterList.Player swapped at launch and put back). No
   free-text names, no vehicle cosmetics.
@@ -289,8 +301,7 @@ game. Summary of what changed in the design:
 - **Records**: best time and lap per track and class, perfect cups, every cup's final points, golds per class.
 - **Tune-ups**: the mods trimmed to twelve named packages (two affixes each, protection / plain playstyle), slots
   0 / 1 / 2 / 2; the AI's Elite tier carries HEAT SHIELD from 150cc (+ ARMOUR at 200cc), the Challenger at 200cc.
-- **Classes**: parts 0 / 3 / 7 / 10 (v0.10: 200cc at 9, see §4); remix cups and the title race open from 150cc; 200cc gates nothing (the
-  optional summit).
-- **Conditions cups**: five more (night / wet / snow / scorching / mines line-ups from the game's unused 12-car
-  events, two never-raced tracks), opened by gold in the planet's cup at the class.
+- **Classes**: parts 0 / 3 / 7 / 10 (v0.10: 200cc at 9, see §4); 200cc gates nothing (the optional summit).
+- **Conditions cups** (v0.8; folded into the planet cups' 150cc lists in v0.11, §3): five more cups of night / wet /
+  snow / scorching / mines line-ups, opened by gold in the planet's cup at the class. The remix cups went the same way.
 - Dropped for good: vehicle cosmetics, credits / shop, ghosts, a difficulty menu, free-text names.

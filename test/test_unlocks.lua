@@ -1,6 +1,7 @@
--- v0.5 / v0.8: unlocks in the menus. A save with four 100cc golds: 150cc / 200cc and the bonus cups are locked tiles
--- that say what opens them and can't be entered. Winning the fifth planet cup at 100cc opens 150cc and the 100cc bonus
--- cups, said on the cup result screen. (v0.9: the Sentinel cup left in the save is dropped at boot and raced whole.)
+-- v0.5 / v0.8 / v0.11: unlocks in the menus. A save with four 100cc golds: 150cc / 200cc, the Galactic Cup and the
+-- title race are locked tiles that say what opens them and can't be entered. Winning the fifth planet cup at 100cc
+-- opens 150cc and the 100cc Galactic Cup, said on the cup result screen; a Galactic Cup trophy opens the title race.
+-- (v0.9: the Sentinel cup left in the save is dropped at boot and raced whole.)
 local M = require('mock')
 local W = require('world')
 local T = require('util')
@@ -19,10 +20,10 @@ T.check(T.titles():find('^50CC|100CC') ~= nil, 'a locked class can\'t be entered
 T.clickTitle('100CC'); M.tick(3)
 local b = T.badges()
 T.check(b:find('^GOLD TROPHY|GOLD TROPHY|GOLD TROPHY|GOLD TROPHY|SENTINEL I|') ~= nil, '100cc: the four golds, Sentinel not raced (' .. b .. ')')
--- locked: the 2 bonus, 5 remix and Sentinel's conditions cup; the four golds opened their planets' conditions cups
-T.check(select(2, b:gsub('LOCKED', '')) == NCUPS - 8, 'every other cup locked until five golds, but the four conditions cups the golds opened; the title race locked too (' .. b .. ')')
+-- locked: the Galactic Cup and the title race
+T.check(select(2, b:gsub('LOCKED', '')) == 2 and b:find('|LOCKED|LOCKED$') ~= nil, 'the Galactic Cup and the title race locked until five trophies (' .. b .. ')')
 local n = M.called('LaunchQuickRace')
-T.clickTitle('OUTER RIM CUP'); M.tick(3)
+T.clickTitle('GALACTIC CUP'); M.tick(3)
 T.check(M.called('LaunchQuickRace') == n and T.titles():find('JAKKU CUP', 1, true) ~= nil, 'a locked cup can\'t be started')
 T.clickTitle('SENTINEL CUP')
 T.check(M.called('LaunchQuickRace') == n + 1, 'Select on the Sentinel cup launches its first race')
@@ -37,22 +38,35 @@ local function race()
   local t0 = os.time(); while os.time() - t0 < 3 do end
   W.backToMenu(); M.tick(45)
 end
-race()
-for i = 2, 4 do
-  T.check(T.titles() == 'NEXT RACE' and T.badges() == ('RACE %d / 4'):format(i), 'standings: NEXT RACE ' .. i .. ' / 4 (' .. T.badges() .. ')')
-  T.clickTitle('NEXT RACE')
+local function cup()
   race()
+  for i = 2, 4 do
+    T.check(T.titles() == 'NEXT RACE' and T.badges() == ('RACE %d / 4'):format(i), 'standings: NEXT RACE ' .. i .. ' / 4 (' .. T.badges() .. ')')
+    T.clickTitle('NEXT RACE')
+    race()
+  end
 end
-T.check(T.logHas('unlocked: 150cc, OUTER RIM CUP at 100cc, GALACTIC CUP at 100cc, SENTINEL CONDITIONS at 100cc'),
-  'the fifth gold unlocks 150cc, the 100cc bonus cups and Sentinel Conditions at 100cc')
+cup()
+T.check(T.logHas('unlocked: 150cc, GALACTIC CUP at 100cc'), 'the fifth gold unlocks 150cc and the 100cc Galactic Cup')
 T.check(T.save().best['100'].sentinel == 1, 'Sentinel gold saved')
 T.clickTitle('CONTINUE'); M.tick(3)
 b = T.badges()
 T.check(b:find('^GOLD TROPHY|GOLD TROPHY|GOLD TROPHY|GOLD TROPHY|GOLD TROPHY|') ~= nil, '100cc: five golds (' .. b .. ')')
-T.check(select(2, b:gsub('LOCKED', '')) == NCUPS - 12, '100cc: Outer Rim, Galactic and all five conditions cups open now, the remix cups still locked (' .. b .. ')')
+T.check(select(2, b:gsub('LOCKED', '')) == 1 and b:find('|LOCKED$') ~= nil, '100cc: the Galactic Cup open, the title race still locked (' .. b .. ')')
+-- the Galactic Cup: four races on four planets; a trophy opens the title race
+local mark = T.mark()
+T.clickTitle('GALACTIC CUP')
+T.check(T.logHas('LAUNCH EVT_DAL_LOOP_A_SHORT_06 (OVERFLOW RALLY', mark), 'the Galactic Cup starts on Overflow Rally')
+cup()
+T.check(T.logHas('unlocked: TITLE RACE at 100cc', mark), 'a Galactic Cup trophy unlocks the title race')
+T.check(T.save().best['100'].galactic == 1, 'Galactic gold saved')
+T.clickTitle('CONTINUE'); M.tick(3)
+b = T.badges()
+T.check(select(2, b:gsub('LOCKED', '')) == 0 and b:find('GOLD TROPHY|VS ', 1, true) ~= nil, '100cc: everything open, the title race names its opponent (' .. b .. ')')
 M.press('BACKSPACE'); M.tick(3)
-T.check(T.badges() == ('|5 / %d GOLD||LOCKED||'):format(NCUPS), 'home: 150cc open, 200cc still locked (' .. T.badges() .. ')')
+T.check(T.badges() == ('|6 / %d GOLD||LOCKED||'):format(NCUPS), 'home: 6 / 6 golds at 100cc, 150cc open, 200cc still locked (' .. T.badges() .. ')')
 T.clickTitle('150CC'); M.tick(3)
 b = T.badges()
-T.check(T.titles():find('JAKKU CUP', 1, true) ~= nil and select(2, b:gsub('LOCKED', '')) == NCUPS - 4, '150cc: planet cups open, its bonus, remix, conditions cups and title race locked (' .. b .. ')')
+T.check(T.titles() == 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|TITLE RACE' and select(2, b:gsub('LOCKED', '')) == 2,
+  '150cc: planet cups open, the Galactic Cup and title race locked (' .. b .. ')')
 T.finish()

@@ -39,7 +39,7 @@ T.check(line == 'THE WAR FIELDS 150cc: you no time (DNF); winner Biddy Blas 1:40
 -- no times at all
 T.check(K.gaps({ racer('YOU', 3, nil, false) }) == nil and K.gapsLine(ev, nil) == 'THE WAR FIELDS 150cc: no finish times read', 'no times: one short line')
 
--- through race.lua: 11 bots, bot 11 (Goli) a DNF; you 3rd
+-- through race.lua: 11 bots, bot 11 (Goli) a DNF; you 3rd (v0.11: the Jakku Cup at 150cc opens at dawn)
 M.press('F6'); M.tick(6)
 T.clickTitle('150CC'); M.tick(3)
 T.clickTitle('JAKKU CUP')
@@ -52,14 +52,14 @@ local mark = T.mark()
 W.finish(3, 102.5); M.tick(25)
 local t0 = os.time(); while os.time() - t0 < 3 do end
 W.backToMenu(); M.tick(45)
-local want = '[gaps] THE WAR FIELDS 150cc: you 3rd 1:42.50; winner Biddy Blas -1.50 s; next ahead Kestar Bool -0.50 s; next behind Katja Mox +0.50 s; field spread 1st-11th 9.0 s'
+local want = '[gaps] THE WAR FIELDS (DAWN) 150cc: you 3rd 1:42.50; winner Biddy Blas -1.50 s; next ahead Kestar Bool -0.50 s; next behind Katja Mox +0.50 s; field spread 1st-11th 9.0 s'
 T.check(T.logHas(want, mark), 'the gap line logged after the race, the DNF bot skipped')
 local got
 for i = mark, #M.log do if M.log[i]:find('[gaps]', 1, true) then got = M.log[i] end end
 if not T.logHas(want, mark) then print('  got: ' .. tostring(got)) end
 local r1, rg = 0, 0
 for i = mark, #M.log do
-  if M.log[i]:find('RESULT THE WAR FIELDS', 1, true) then r1 = i end
+  if M.log[i]:find('RESULT THE WAR FIELDS (DAWN)', 1, true) then r1 = i end
   if M.log[i]:find('[gaps]', 1, true) then rg = i end
 end
 T.check(r1 > 0 and rg == r1 + 1, 'right after the RESULT line')

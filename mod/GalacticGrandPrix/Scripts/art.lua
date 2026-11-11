@@ -40,18 +40,14 @@ function A.planet(planet, kind, vehicleKey)
   return pick and (ARCADE .. planet .. '_' .. pick .. '_' .. kind) or nil
 end
 
--- the cups: planet cups show the planet's poster, remix cups its dark scene (so they look different at a glance);
--- conditions cups (v0.8: night / wet / snow / scorching / mines) the poster of another vehicle, so the three rows differ
-local PLANET = { jakku = 'Mas', lantaana = 'Dal', ando = 'Cor', crait = 'Spa', sentinel = 'Hus', outerrim = 'Bgl', galactic = 'Whp' }
-local OTHER = { car = 'bike', bike = 'skimmer', skimmer = 'car' }
+-- the cups (v0.11: the five planet cups and the Galactic Cup): the planet's poster, your vehicle's version
+local PLANET = { jakku = 'Mas', lantaana = 'Dal', ando = 'Cor', crait = 'Spa', sentinel = 'Hus', galactic = 'Whp' }
 function A.cup(cup, vehicleKey)
   if not cup then return nil end
   if cup.artPath then return cup.artPath end
-  local base = cup.key and cup.key:gsub('_remix$', ''):gsub('_cond$', '')
-  local p = PLANET[base]
+  local p = PLANET[cup.key]
   if not p then return nil end
-  if cup.conditions then return A.planet(p, 'Tile', OTHER[vehicleKey or 'car'] or 'bike') end
-  return A.planet(p, cup.remix and 'Bg' or 'Tile', vehicleKey)
+  return A.planet(p, 'Tile', vehicleKey)
 end
 
 -- the trophy medals (best = 1 / 2 / 3)

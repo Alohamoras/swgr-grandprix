@@ -110,7 +110,7 @@ T.check(c.AiMaxTimeAheadMultiplier == 1 and c.AiMinTimeAheadModifier == 0, '50cc
 -- 200cc (stand-in profile) through the API (the class is locked in the menu flow): catch-up and perfect start too
 local R = require('race')
 local K = require('gp')
-local ok = R.launch({ path = cfg.Cups[1].races[1].path, title = 'X', kind = 'Circuit' }, '200', 'car')
+local ok = R.launch({ path = cfg.Cups[1].races['50'][1].path, title = 'X', kind = 'Circuit' }, '200', 'car')
 T.check(ok == true, 'launched at 200cc')
 T.check(W.ai.DefaultPacingSettings.MaxAiSlowdownScale == 1 and math.abs(W.ai.DefaultPacingSettings.MaxAiCatchupScale - 1.495) < 1e-9
   and W.ai.ForcedErrorChance == 7.5 and W.ai.DefaultPercentageChancePerfectStart == 90, '200cc: honest, catch-up 1.495, errors 7.5, perfect start 90')
@@ -124,7 +124,7 @@ t0 = os.time(); while os.time() - t0 < 3 do end
 W.backToMenu(); M.tick(45)
 T.check(W.ai.DefaultPacingSettings.MaxAiCatchupScale == 1.3 and W.ai.DefaultPercentageChancePerfectStart == 75 and next(K.data.aiRestores) == nil, '200cc put back')
 rawget(W.fe, '__props').LaunchQuickRace = function() error('boom') end
-ok = R.launch({ path = cfg.Cups[1].races[1].path, title = 'X', kind = 'Circuit' }, '200', 'car')
+ok = R.launch({ path = cfg.Cups[1].races['50'][1].path, title = 'X', kind = 'Circuit' }, '200', 'car')
 T.check(ok == false and W.ai.DefaultPacingSettings.MaxAiSlowdownScale == 0.75 and next(K.data.aiRestores) == nil, 'a failed launch puts the AI config straight back')
 cfg.AI.Profiles['200'] = PRO200
 p = A.plan('200')

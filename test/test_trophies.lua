@@ -7,7 +7,7 @@ local T = require('util')
 
 T.boot({ version = 2, races = 25, cups = 5, class = '200', vehicle = 'bike',
   picks = { 'bolt.multi', 'shield.surging', 'vent.flame', 'mine.frozen' },
-  best = { ['100'] = { jakku = 1, lantaana = 2, outerrim = 3 }, ['200'] = { jakku = 1, crait = 5 } },
+  best = { ['100'] = { jakku = 1, lantaana = 2, galactic = 3 }, ['200'] = { jakku = 1, crait = 5 } },
   run = { class = '200', cup = 'lantaana', vehicle = 'car', race = 4, races = 4,
     points = { YOU = 37, ['Katja Mox'] = 40 }, last = {}, history = { {}, {}, {} } },
   restores = {}, abilityRestores = {} })
@@ -22,7 +22,7 @@ T.check(T.badges() == ('|1 / %d GOLD|LOCKED|1 / %d GOLD||'):format(NCUPS, NCUPS)
 T.clickTitle('100CC'); M.tick(3)
 local b = T.badges()
 T.check(b:find('^GOLD TROPHY|SILVER TROPHY|') ~= nil, 'cups at 100cc: Jakku gold, Lantaana silver (' .. b .. ')')
-T.check(b:find('BRONZE TROPHY', 1, true) ~= nil, 'Outer Rim bronze')
+T.check(b:find('|BRONZE TROPHY|', 1, true) ~= nil and T.titles():find('|GALACTIC CUP|TITLE RACE$') ~= nil, 'Galactic Cup bronze, the sixth tile (' .. b .. ')')
 M.press('BACKSPACE'); M.tick(3)
 T.clickTitle('200CC'); M.tick(3)
 b = T.badges()

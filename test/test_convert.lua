@@ -9,8 +9,11 @@ T.boot({ version = 1, races = 211, cups = 3, class = '50', vehicle = 'car',
   restores = {}, abilityRestores = {} })
 local sv = T.save()
 T.check(sv.version == 2, 'save is version 2')
-T.check(sv.best['100'] and sv.best['100'].jakku == 1 and sv.best['100'].outerrim == 1 and sv.best['100'].lantaana == 1,
-  'the three 50cc golds (won with parts 3) are now 100cc golds')
+T.check(sv.best['100'] and sv.best['100'].jakku == 1 and sv.best['100'].lantaana == 1,
+  'the 50cc golds (won with parts 3) are now 100cc golds')
+-- (v0.11: the Outer Rim Cup is gone - its gold is dropped after the conversion, logged)
+T.check(sv.best['100'].outerrim == nil and T.logHas('[cups] dropped from the save (remix, conditions and Outer Rim cups are gone; records kept): best 100 outerrim'),
+  'the Outer Rim gold dropped, logged')
 T.check(sv.best['50'] == nil, 'nothing left under the new 50cc (no upgrades)')
 T.check(sv.best['200'] and sv.best['200'].crait == 2, 'old 150cc -> 200cc')
 -- (the cup in progress moves up too, then is dropped at boot: v0.9, cups cannot be resumed)

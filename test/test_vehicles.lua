@@ -23,7 +23,7 @@ T.check(T.levels('VBD_Car_Base') == '0=0 1=0 2=0 3=0 4=0 5=0', 'the landspeeder 
 W.race(11); M.tick(10)
 local t0 = os.time(); while os.time() - t0 < 3 do end
 W.backToMenu(); M.tick(45)
-T.check(T.logHas('RESULT CRIMSON MINES: DNF'), 'quitting the race = DNF')
+T.check(T.logHas('RESULT CRIMSON MINES (MINES, NIGHT): DNF'), 'quitting the race = DNF (200cc races the 150cc list)')
 T.check(T.save().run.points.YOU == 0 and T.save().run.race == 2, 'DNF: no points, on to race 2')
 T.check(T.logHas('[menu] standings'), 'standings shown')
 T.check(T.titles() == 'NEXT RACE', 'the standings offer NEXT RACE only (' .. T.titles() .. ')')

@@ -3,16 +3,27 @@ local EV = '/Game/Griffin/Gameplay/Events/Planets/'
 
 -- a race: path, the name shown, the kind, laps (the event's own lap count: events_dump.txt / GPRecon, 2026-11-10;
 -- a sprint is 1 lap). The planet comes from the path's first folder (Planets below, gp.lua planetOf).
-local function race(path, title, kind, laps) return { path = EV .. path, title = title, kind = kind, laps = laps } end
+-- v0.11: base = the track without its direction / conditions ('THE WAR FIELDS (REVERSE, SCORCHING)' -> 'THE WAR
+-- FIELDS'; a cup never races one twice), cond = the conditions in the title ('SCORCHING', 'MINES, NIGHT'; nil = none).
+local function race(path, title, kind, laps)
+    local base, inner = title:match('^(.-)%s*%((.*)%)$')
+    local cond = {}
+    for w in (inner or ''):gmatch('[^,]+') do
+        w = w:match('^%s*(.-)%s*$')
+        if w ~= 'REVERSE' and w ~= 'FORWARD' then cond[#cond + 1] = w end
+    end
+    return { path = EV .. path, title = title, kind = kind, laps = laps, base = base or title,
+        cond = #cond > 0 and table.concat(cond, ', ') or nil }
+end
 
 return {
     -- The tab on the game's main menu, next to the game's own tabs
     TabLabel = 'GRAND PRIX',
     -- Tile layout on the tab's page (at 4K one UI unit is about one pixel)
     TabLayout = { TileWidth = 520, TileHeight = 350, Columns = 4, VisibleRows = 3, TextScale = 1.6, FocusScale = 1.04, DimOthers = 0.72 },
-    -- The cups page (v0.8): every cup of a class on one page - 5 columns x 4 rows of smaller tiles (same page width
-    -- as 4 x 520). cols / rows / w / h (nil = the TabLayout grid, which scrolls past 12 tiles)
-    CupsLayout = { cols = 5, rows = 4, w = 412, h = 277 },
+    -- The cups page (v0.11): the five planet cups, the Galactic Cup and the title race - 7 tiles, 4 + 3 at the home
+    -- page's tile size, no scrolling. cols / rows / w / h (nil = the TabLayout grid)
+    CupsLayout = { cols = 4, rows = 2, w = 520, h = 350 },
     -- Key that selects the GRAND PRIX tab at the main menu (Backspace / B = back)
     MenuKey = 'F6',
 
@@ -25,14 +36,12 @@ return {
     GcStep = true,
     GcStepKB = 64,
 
-    -- Progression (v0.5, DESIGN.md §8). Classes with open = true are open from the start (50cc, 100cc); each other
-    -- class opens with a trophy in every planet cup of the class before it (Unlock = 'gold': gold in every one).
-    -- Bonus cups (bonus = true: Outer Rim, Galactic) open with gold in every planet cup at that class. Remix cups
-    -- open with a trophy (or gold) in every planet cup at RemixClass (owner 2026-11-10, research §200cc: the summit
-    -- gates nothing; nil = the class before the top one). Conditions cups (conditions = true) open with gold in their
-    -- planet's cup at that class. Anything you have already raced through stays open. On = false switches every
-    -- lock off.
-    Progression = { On = true, Unlock = 'trophy', RemixClass = '150' },
+    -- Progression (v0.5, v0.11; DESIGN.md §8). Classes with open = true are open from the start (50cc, 100cc); each
+    -- other class opens with a trophy in every planet cup of the class before it (Unlock = 'gold': gold in every one).
+    -- The Galactic Cup (final = true) opens at a class with a trophy (or gold) in every planet cup at that class; the
+    -- title race with a trophy (or gold) in the Galactic Cup at that class. Anything you have already raced through
+    -- stays open. On = false switches every lock off.
+    Progression = { On = true, Unlock = 'trophy' },
 
     -- Speed classes: every part of your vehicle at this level (the AI keeps pace through the game's rubber band)
     Classes = {
@@ -47,7 +56,8 @@ return {
         { key = '50', name = '50cc', parts = 0, mods = 0, abilities = 1, open = true, blurb = "The feeder division: stock vehicles, no mods, the rookies' field" },
         { key = '100', name = '100cc', parts = 3, mods = 1, abilities = 1, open = true, blurb = 'The League proper: tuned vehicles, one mod, honest rivals' },
         { key = '150', name = '150cc', parts = 7, mods = 2, abilities = 2, blurb = 'The pro division: the field no longer waits for you' },
-        { key = '200', name = '200cc', parts = 9, mods = 2, abilities = 3, blurb = 'The extra: raw speed for the brave' },
+        -- raceList (v0.11) = the class whose race lists this one races (200cc: the 150cc cups at the extra speed)
+        { key = '200', name = '200cc', parts = 9, mods = 2, abilities = 3, raceList = '150', blurb = 'The extra: raw speed for the brave' },
     },
 
     -- Points by place in each race (1st first); a racer who doesn't finish scores 0
@@ -55,14 +65,14 @@ return {
 
     -- The title race (v0.8, title.lua): one 1 v 1 at the end of each class against the class champion. The game's
     -- Stadium Showdown against Kestar Bool (6 laps, about 5 minutes; he copies your build, so he scales with the
-    -- class). Opens with a trophy in every planet cup at the class. Fallback = the champion named on the class tile
+    -- class). Opens with a trophy in the Galactic Cup at the class (v0.11). Fallback = the champion named on the class tile
     -- before any cup is finished there (the lore); after that the racer with most points across the planet cups.
     Title = { On = true, Event = EV .. 'Whippet/FINALBOSS/EVT_WHP_SHORTBOSS_FAIR', Name = 'TITLE RACE', Opponent = 'Kestar Bool',
         Fallback = { ['50'] = 'Griff Halloran', ['100'] = 'Lyren Shok', ['150'] = 'Biddy Blas', ['200'] = 'Kestar Bool' } },
 
     -- The planets, by the codename in the event paths (Events/Planets/<codename>/...). name and line are the game's
-    -- own (PlanetDef). key doubles as the planet cup's key (jakku ... sentinel): a conditions cup names its planet
-    -- by it. Derven has no cup of its own (the Galactic Cup ends there).
+    -- own (PlanetDef). key doubles as the planet cup's key (jakku ... sentinel). Derven has no cup of its own (the
+    -- Galactic Cup ends there).
     Planets = {
         Mastiff   = { key = 'jakku',    name = 'Jakku',       line = 'Starship wrecks boil under the scorching heat of this desert world' },
         Dalmatian = { key = 'lantaana', name = 'Lantaana',    line = 'Deadly lava contrasts cool waters on this lush jungle planet' },
@@ -73,122 +83,124 @@ return {
     },
 
     -- Cups of 4 races (full 12-car grids; no knockouts or 1 v 1s). key is used in the save: never change it.
-    -- Order: 5 planet cups, 2 bonus cups, 5 remix cups, 5 conditions cups (17; the UI pages them).
+    -- v0.11 (owner, docs/PHILOSOPHY.md "Cups"): one cup per planet, always that planet, with a race list per class -
+    --   ['50']  the classic forward layouts (the v0.2-v0.10 planet cups),
+    --   ['100'] the reverse layouts where the planet has them, filled up with the planet's other plain tracks (the
+    --           old Outer Rim Cup's four went here; Sentinel's own default is reverse, so its 100cc is forward),
+    --   ['150'] the conditions: night / wet / overcast / dawn / scorching / snow / mines / storm / blue hour.
+    -- 200cc races the 150cc lists (Classes raceList). A cup never races the same base track twice (race(): base).
+    -- Every event was in this file before v0.11 (planet, remix, conditions, Outer Rim cups: checked in game or against
+    -- the events dump) except four plain layouts read from the UndergroundProto events_dump.txt (2026-11-08:
+    -- TeamRaceConfig, grid 12, Vehicle.Standard, laps as below): EVT_DAL_LOOP_B_REV, EVT_DAL_LOOP_B_SHORT_03,
+    -- EVT_COR_Loop_A_REV, EVT_COR_Loop_B_REV. Sentinel's forward layouts exist only under an overcast sky.
+    -- The Galactic Cup (final = true) races the same four at every class.
     Cups = {
         { key = 'jakku', name = 'JAKKU CUP', art = 'T_UI_FE_Tile_01', races = {
-            race('Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD', 'THE WAR FIELDS', 'Circuit', 2),
-            race('Mastiff/P2P_A/EVT_MAS_P2P_FWD', "THE GIANTS' GRAVEYARD", 'Sprint', 1),
-            race('Mastiff/Loop_B/EVT_MAS_LOOP_B_FWD', 'DEBRIS DUNES', 'Circuit', 2),
-            race('Mastiff/Loop_A/EVT_MAS_LOOP_A_SHORT_02', 'FALLEN EMPIRE', 'Short circuit', 6),
+            ['50'] = {
+                race('Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD', 'THE WAR FIELDS', 'Circuit', 2),
+                race('Mastiff/P2P_A/EVT_MAS_P2P_FWD', "THE GIANTS' GRAVEYARD", 'Sprint', 1),
+                race('Mastiff/Loop_B/EVT_MAS_LOOP_B_FWD', 'DEBRIS DUNES', 'Circuit', 2),
+                race('Mastiff/Loop_A/EVT_MAS_LOOP_A_SHORT_02', 'FALLEN EMPIRE', 'Short circuit', 6),
+            },
+            ['100'] = {
+                race('Mastiff/Loop_A/EVT_MAS_LOOP_A_REV', 'THE WAR FIELDS (REVERSE)', 'Circuit', 2),
+                race('Mastiff/P2P_A/EVT_MAS_P2P_FWD', "THE GIANTS' GRAVEYARD", 'Sprint', 1),
+                race('Mastiff/Loop_B/EVT_MAS_LOOP_B_REV', 'DEBRIS DUNES (REVERSE)', 'Circuit', 2),
+                race('Mastiff/Loop_B/EVT_MAS_LOOP_B_SHORT_01', 'SCRAP SPIRAL', 'Short circuit', 6),
+            },
+            ['150'] = {
+                race('Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD_DAWN', 'THE WAR FIELDS (DAWN)', 'Circuit', 2),
+                race('Mastiff/P2P_A/EVT_MAS_P2P_FWD', "THE GIANTS' GRAVEYARD", 'Sprint', 1),
+                race('Mastiff/Loop_B/EVT_MAS_LOOP_B_FWD_HARD', 'DEBRIS DUNES (SCORCHING)', 'Circuit', 2),
+                race('Mastiff/Loop_A/EVT_MAS_LOOP_A_SHORT_02_HARD', 'FALLEN EMPIRE (SCORCHING)', 'Short circuit', 4),
+            },
         } },
         { key = 'lantaana', name = 'LANTAANA CUP', art = 'T_UI_FE_Tile_02', races = {
-            race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_FWD', "GRIFFIN'S FLIGHT", 'Circuit', 2),
-            race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_FWD', 'MORO KEHN TUNNELS', 'Circuit', 2),
-            race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_SHORT_01', 'THE PYRODUCTS', 'Short circuit', 5),
-            race('Dalmatian/P2P/EVT_DAL_P2P_SHORT_05', 'AHLREN JUNGLE SPEEDWAY', 'Short circuit', 5),
+            ['50'] = {
+                race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_FWD', "GRIFFIN'S FLIGHT", 'Circuit', 2),
+                race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_FWD', 'MORO KEHN TUNNELS', 'Circuit', 2),
+                race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_SHORT_01', 'THE PYRODUCTS', 'Short circuit', 5),
+                race('Dalmatian/P2P/EVT_DAL_P2P_SHORT_05', 'AHLREN JUNGLE SPEEDWAY', 'Short circuit', 5),
+            },
+            ['100'] = {
+                race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_REV', 'MORO KEHN TUNNELS (REVERSE)', 'Circuit', 2),
+                race('Dalmatian/P2P/EVT_DAL_P2P_FWD', 'GEOTHERMAL TOUR', 'Sprint', 1),
+                race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_SHORT_03', 'DHUNKRI RIVER CIRCUIT', 'Short circuit', 6),
+                race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_FWD', "GRIFFIN'S FLIGHT", 'Circuit', 2),
+            },
+            ['150'] = {
+                race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_FWD_Night', "GRIFFIN'S FLIGHT (NIGHT)", 'Circuit', 2),
+                race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_REV_Overcast_Wet', 'MORO KEHN TUNNELS (REVERSE, WET)', 'Circuit', 2),
+                race('Dalmatian/P2P/EVT_DAL_P2P_FWD_Night', 'GEOTHERMAL TOUR (NIGHT)', 'Sprint', 1),
+                race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_SHORT_03_Overcast_Wet', 'DHUNKRI RIVER CIRCUIT (WET)', 'Short circuit', 5),
+            },
         } },
         { key = 'ando', name = 'ANDO CUP', art = 'T_UI_FE_Tile_05', races = {
-            race('Corgi/Loop_A/EVT_COR_Loop_A_FWD', 'ICE FIELD CIRCUIT', 'Circuit', 2),
-            race('Corgi/Loop_B/EVT_COR_Loop_B_FWD', 'MONASTERY MOUNTAINS', 'Circuit', 3),
-            race('Corgi/P2P/EVT_COR_P2P_FWD', 'MOUNTAIN TO SEA', 'Sprint', 1),
-            race('Corgi/Loop_A/EVT_COR_Loop_A_SHORT_02', 'VONIUM PIPELINE', 'Short circuit', 4),
+            ['50'] = {
+                race('Corgi/Loop_A/EVT_COR_Loop_A_FWD', 'ICE FIELD CIRCUIT', 'Circuit', 2),
+                race('Corgi/Loop_B/EVT_COR_Loop_B_FWD', 'MONASTERY MOUNTAINS', 'Circuit', 3),
+                race('Corgi/P2P/EVT_COR_P2P_FWD', 'MOUNTAIN TO SEA', 'Sprint', 1),
+                race('Corgi/Loop_A/EVT_COR_Loop_A_SHORT_02', 'VONIUM PIPELINE', 'Short circuit', 4),
+            },
+            -- (the short 01 has no player-facing name, a developer label only; a finished, lit 5-lap ice circuit)
+            ['100'] = {
+                race('Corgi/Loop_A/EVT_COR_Loop_A_REV', 'ICE FIELD CIRCUIT (REVERSE)', 'Circuit', 2),
+                race('Corgi/Loop_B/EVT_COR_Loop_B_REV', 'MONASTERY MOUNTAINS (REVERSE)', 'Circuit', 3),
+                race('Corgi/P2P/EVT_COR_P2P_REV', 'DAI BENDU ASCENSION', 'Sprint', 1),
+                race('Corgi/Loop_B/EVT_COR_Loop_B_SHORT_01', 'ANDO SHORT CIRCUIT', 'Short circuit', 5),
+            },
+            ['150'] = {
+                race('Corgi/Loop_A/EVT_COR_Loop_A_FWD_Night', 'ICE FIELD CIRCUIT (NIGHT)', 'Circuit', 2),
+                race('Corgi/Loop_B/EVT_COR_Loop_B_FWD_Overcast_Snow', 'MONASTERY MOUNTAINS (SNOW)', 'Circuit', 3),
+                race('Corgi/P2P/EVT_COR_P2P_FWD_Overcast_Snow', 'MOUNTAIN TO SEA (SNOW)', 'Sprint', 1),
+                race('Corgi/Loop_A/EVT_COR_Loop_A_SHORT_02_Overcast_Snow', 'VONIUM PIPELINE (SNOW)', 'Short circuit', 4),
+            },
         } },
         { key = 'crait', name = 'CRAIT CUP', art = 'T_UI_FE_Tile_A', races = {
-            race('Spaniel/Loop_A/EVT_SPA_Loop_A_FWD', 'CRIMSON MINES', 'Circuit', 2),
-            race('Spaniel/Loop_B/EVT_SPA_Loop_B_FWD', 'FORGIL CANYON', 'Circuit', 2),
-            race('Spaniel/Loop_B/EVT_SPA_Loop_B_P2P', 'RHODOCHROSITE RUN', 'Sprint', 1),
-            race('Spaniel/Loop_A/EVT_SPA_Loop_A_SHORT_01', 'SALT CIRCLE', 'Short circuit', 8),
+            ['50'] = {
+                race('Spaniel/Loop_A/EVT_SPA_Loop_A_FWD', 'CRIMSON MINES', 'Circuit', 2),
+                race('Spaniel/Loop_B/EVT_SPA_Loop_B_FWD', 'FORGIL CANYON', 'Circuit', 2),
+                race('Spaniel/Loop_B/EVT_SPA_Loop_B_P2P', 'RHODOCHROSITE RUN', 'Sprint', 1),
+                race('Spaniel/Loop_A/EVT_SPA_Loop_A_SHORT_01', 'SALT CIRCLE', 'Short circuit', 8),
+            },
+            ['100'] = {
+                race('Spaniel/Loop_A/EVT_SPA_Loop_A_REV', 'CRIMSON MINES (REVERSE)', 'Circuit', 2),
+                race('Spaniel/Loop_B/EVT_SPA_Loop_B_SHORT_02', 'CRYSTAL CAVERNS', 'Short circuit', 5),
+                race('Spaniel/Loop_B/EVT_SPA_Loop_B_P2P', 'RHODOCHROSITE RUN', 'Sprint', 1),
+                race('Spaniel/Loop_B/EVT_SPA_Loop_B_FWD', 'FORGIL CANYON', 'Circuit', 2),
+            },
+            ['150'] = {
+                race('Spaniel/Loop_A/EVT_SPA_Loop_A_FWD_MINES_Night', 'CRIMSON MINES (MINES, NIGHT)', 'Circuit', 2),
+                race('Spaniel/Loop_B/EVT_SPA_Loop_B_FWD_MINES', 'FORGIL CANYON (MINES)', 'Circuit', 2),
+                race('Spaniel/Loop_B/EVT_SPA_Loop_B_P2P_MINES', 'RHODOCHROSITE RUN (MINES)', 'Sprint', 1),
+                race('Spaniel/Loop_B/EVT_SPA_Loop_B_SHORT_02_MINES', 'CRYSTAL CAVERNS (MINES)', 'Short circuit', 5),
+            },
         } },
         { key = 'sentinel', name = 'SENTINEL CUP', art = 'T_UI_FE_Tile_01', races = {
-            race('Husky/LOOP_A/EVT_HSK_LOOP_A_REV', 'SENTINEL LAKES', 'Circuit', 3),
-            race('Husky/LOOP_B/EVT_HSK_LOOP_B_REV', 'CAUSTIC FIELDS', 'Circuit', 3),
-            race('Husky/P2P/EVT_HSK_P2P_REV', 'BOOL RIVER RUN', 'Sprint', 1),
-            race('Husky/LOOP_B/EVT_HSK_LOOP_B_SHORT_02', 'THE ACID RING', 'Short circuit', 6),
+            ['50'] = {
+                race('Husky/LOOP_A/EVT_HSK_LOOP_A_REV', 'SENTINEL LAKES', 'Circuit', 3),
+                race('Husky/LOOP_B/EVT_HSK_LOOP_B_REV', 'CAUSTIC FIELDS', 'Circuit', 3),
+                race('Husky/P2P/EVT_HSK_P2P_REV', 'BOOL RIVER RUN', 'Sprint', 1),
+                race('Husky/LOOP_B/EVT_HSK_LOOP_B_SHORT_02', 'THE ACID RING', 'Short circuit', 6),
+            },
+            ['100'] = {
+                race('Husky/LOOP_A/EVT_HSK_LOOP_A_FWD_Overcast', 'SENTINEL LAKES (FORWARD, OVERCAST)', 'Circuit', 3),
+                race('Husky/P2P/EVT_HSK_P2P_SPEC_SHORT_01', 'MINERAL LOOP', 'Short circuit', 5),
+                race('Husky/LOOP_B/EVT_HSK_LOOP_B_FWD_Overcast', 'CAUSTIC FIELDS (FORWARD, OVERCAST)', 'Circuit', 3),
+                race('Husky/P2P/EVT_HSK_P2P_SPEC_SHORT_02', 'CORROSION HYPERSPHERE', 'Short circuit', 4),
+            },
+            ['150'] = {
+                race('Husky/LOOP_B/EVT_HSK_LOOP_B_FWD_BlueHour', 'CAUSTIC FIELDS (FORWARD, BLUE HOUR)', 'Circuit', 3),
+                race('Husky/P2P/EVT_HSK_P2P_FWD_Overcast', 'BOOL RIVER RUN (FORWARD, OVERCAST)', 'Sprint', 1),
+                race('Husky/P2P/EVT_HSK_P2P_SPEC_SHORT_01_ApproachingStorm', 'MINERAL LOOP (STORM)', 'Short circuit', 5),
+                race('Husky/P2P/EVT_HSK_P2P_SPEC_SHORT_02_ApproachingStorm', 'CORROSION HYPERSPHERE (STORM)', 'Short circuit', 4),
+            },
         } },
-        { key = 'outerrim', name = 'OUTER RIM CUP', art = 'T_UI_FE_Tile_02', bonus = true, races = {
-            race('Mastiff/Loop_B/EVT_MAS_LOOP_B_SHORT_01', 'SCRAP SPIRAL', 'Short circuit', 6),
-            race('Dalmatian/P2P/EVT_DAL_P2P_FWD', 'GEOTHERMAL TOUR', 'Sprint', 1),
-            race('Corgi/P2P/EVT_COR_P2P_REV', 'DAI BENDU ASCENSION', 'Sprint', 1),
-            race('Spaniel/Loop_B/EVT_SPA_Loop_B_SHORT_02', 'CRYSTAL CAVERNS', 'Short circuit', 5),
-        } },
-        { key = 'galactic', name = 'GALACTIC CUP', art = 'T_UI_FE_Tile_05', bonus = true, races = {
+        { key = 'galactic', name = 'GALACTIC CUP', art = 'T_UI_FE_Tile_05', final = true, races = {
             race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_SHORT_06', 'OVERFLOW RALLY', 'Short circuit', 4),
             race('Corgi/P2P/EVT_COR_P2P_SHORT_05', 'ANDOBI EDGE', 'Short circuit', 4),
             race('Husky/P2P/EVT_HSK_P2P_SHORT_01', 'SKAKOAN GAMBIT', 'Short circuit', 6),
             race('Whippet/KNOCKOUT/EVT_WHP_LOOP_A_FWD_RACE', 'THE GALACTIC GAUNTLET', 'Circuit', 2),
-        } },
-        -- Remix cups (v0.6.2, owner 2026-11-10): the five planet cups reversed where the game has a reverse layout,
-        -- else in their night / wet / snow / mines / scorching versions, else another track from the planet. Open
-        -- after a trophy in all five planet cups at Progression.RemixClass (prog.lua), then at any open class. Every
-        -- event read in game (GPRecon dump 2026-11-10): normal 12-car team races, any vehicle. Track names of the two
-        -- new tracks read in game: the Sentinel special short 02 is Corrosion Hypersphere; the Ando short 01 has no
-        -- player-facing name (a developer label only) but is a finished, lit 5-lap ice circuit (seen 2026-11-10).
-        { key = 'jakku_remix', name = 'JAKKU REMIX', art = 'T_UI_FE_Tile_01', remix = true, races = {
-            race('Mastiff/Loop_A/EVT_MAS_LOOP_A_REV', 'THE WAR FIELDS (REVERSE)', 'Circuit', 2),
-            race('Mastiff/Loop_B/EVT_MAS_LOOP_B_SHORT_01', 'SCRAP SPIRAL', 'Short circuit', 6),
-            race('Mastiff/Loop_B/EVT_MAS_LOOP_B_REV', 'DEBRIS DUNES (REVERSE)', 'Circuit', 2),
-            race('Mastiff/Loop_A/EVT_MAS_LOOP_A_SHORT_02_HARD', 'FALLEN EMPIRE (SCORCHING)', 'Short circuit', 4),
-        } },
-        { key = 'lantaana_remix', name = 'LANTAANA REMIX', art = 'T_UI_FE_Tile_02', remix = true, races = {
-            race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_FWD_Night', "GRIFFIN'S FLIGHT (NIGHT)", 'Circuit', 2),
-            race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_REV_Overcast_Wet', 'MORO KEHN TUNNELS (REVERSE, WET)', 'Circuit', 2),
-            race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_SHORT_01_Overcast_Wet', 'THE PYRODUCTS (WET)', 'Short circuit', 5),
-            race('Dalmatian/P2P/EVT_DAL_P2P_SHORT_05_Night', 'AHLREN JUNGLE SPEEDWAY (NIGHT)', 'Short circuit', 4),
-        } },
-        { key = 'ando_remix', name = 'ANDO REMIX', art = 'T_UI_FE_Tile_05', remix = true, races = {
-            race('Corgi/Loop_A/EVT_COR_Loop_A_REV_Overcast_Snow', 'ICE FIELD CIRCUIT (REVERSE, SNOW)', 'Circuit', 2),
-            race('Corgi/Loop_B/EVT_COR_Loop_B_REV_Overcast_Snow', 'MONASTERY MOUNTAINS (REVERSE, SNOW)', 'Circuit', 3),
-            race('Corgi/Loop_B/EVT_COR_Loop_B_SHORT_01', 'ANDO SHORT CIRCUIT', 'Short circuit', 5),
-            race('Corgi/Loop_A/EVT_COR_Loop_A_SHORT_02_Overcast_Snow', 'VONIUM PIPELINE (SNOW)', 'Short circuit', 4),
-        } },
-        { key = 'crait_remix', name = 'CRAIT REMIX', art = 'T_UI_FE_Tile_A', remix = true, races = {
-            race('Spaniel/Loop_A/EVT_SPA_Loop_A_REV_MINES', 'CRIMSON MINES (REVERSE, MINES)', 'Circuit', 2),
-            race('Spaniel/Loop_B/EVT_SPA_Loop_B_FWD_MINES', 'FORGIL CANYON (MINES)', 'Circuit', 2),
-            race('Spaniel/Loop_B/EVT_SPA_Loop_B_P2P_MINES', 'RHODOCHROSITE RUN (MINES)', 'Sprint', 1),
-            race('Spaniel/Loop_A/EVT_SPA_Loop_A_FWD_MINES_Night', 'CRIMSON MINES (MINES, NIGHT)', 'Circuit', 2),
-        } },
-        { key = 'sentinel_remix', name = 'SENTINEL REMIX', art = 'T_UI_FE_Tile_01', remix = true, races = {
-            race('Husky/LOOP_A/EVT_HSK_LOOP_A_FWD_Overcast', 'SENTINEL LAKES (FORWARD)', 'Circuit', 3),
-            race('Husky/LOOP_B/EVT_HSK_LOOP_B_FWD_BlueHour', 'CAUSTIC FIELDS (FORWARD, BLUE HOUR)', 'Circuit', 3),
-            race('Husky/P2P/EVT_HSK_P2P_FWD_Overcast', 'BOOL RIVER RUN (FORWARD)', 'Sprint', 1),
-            race('Husky/P2P/EVT_HSK_P2P_SPEC_SHORT_02_ApproachingStorm', 'CORROSION HYPERSPHERE (STORM)', 'Short circuit', 4),
-        } },
-        -- Conditions cups (research 2026-11-10 "What else"): one per planet, from the 12-car team races no other cup
-        -- uses - dawn / scorching, wet / night, snow / night, mines, overcast / storm, plus the two tracks never raced
-        -- (Dhunkri River Circuit, Mineral Loop). planet = the planet cup whose GOLD at that class opens the cup
-        -- (prog.lua). Every event checked against the UndergroundProto events_dump.txt (2026-11-10): TeamRaceConfig,
-        -- grid 12, Vehicle.Standard, laps as below. Crait and Sentinel have exactly four unused events each, so two
-        -- of their races are plain layouts (Crimson Mines reversed; Mineral Loop and Corrosion Hypersphere in the
-        -- clear): the storm on Mineral Loop is only in the event's path (its display name is the same as the clear one).
-        { key = 'jakku_cond', name = 'JAKKU CONDITIONS', art = 'T_UI_FE_Tile_01', conditions = true, planet = 'jakku', races = {
-            race('Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD_DAWN', 'THE WAR FIELDS (DAWN)', 'Circuit', 2),
-            race('Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD_HARD', 'THE WAR FIELDS (SCORCHING)', 'Circuit', 2),
-            race('Mastiff/Loop_B/EVT_MAS_LOOP_B_FWD_HARD', 'DEBRIS DUNES (SCORCHING)', 'Circuit', 2),
-            race('Mastiff/Loop_B/EVT_MAS_LOOP_B_REV_HARD', 'DEBRIS DUNES (REVERSE, SCORCHING)', 'Circuit', 2),
-        } },
-        { key = 'lantaana_cond', name = 'LANTAANA CONDITIONS', art = 'T_UI_FE_Tile_02', conditions = true, planet = 'lantaana', races = {
-            race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_FWD_Overcast_Wet', "GRIFFIN'S FLIGHT (WET)", 'Circuit', 2),
-            race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_FWD_Night', 'MORO KEHN TUNNELS (NIGHT)', 'Circuit', 2),
-            race('Dalmatian/P2P/EVT_DAL_P2P_FWD_Night', 'GEOTHERMAL TOUR (NIGHT)', 'Sprint', 1),
-            race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_SHORT_03_Overcast_Wet', 'DHUNKRI RIVER CIRCUIT (WET)', 'Short circuit', 5),
-        } },
-        { key = 'ando_cond', name = 'ANDO CONDITIONS', art = 'T_UI_FE_Tile_05', conditions = true, planet = 'ando', races = {
-            race('Corgi/Loop_A/EVT_COR_Loop_A_FWD_Night', 'ICE FIELD CIRCUIT (NIGHT)', 'Circuit', 2),
-            race('Corgi/Loop_B/EVT_COR_Loop_B_FWD_Overcast_Snow', 'MONASTERY MOUNTAINS (SNOW)', 'Circuit', 3),
-            race('Corgi/P2P/EVT_COR_P2P_FWD_Overcast_Snow', 'MOUNTAIN TO SEA (SNOW)', 'Sprint', 1),
-            race('Corgi/Loop_A/EVT_COR_Loop_A_SHORT_02_Night', 'VONIUM PIPELINE (NIGHT)', 'Short circuit', 4),
-        } },
-        { key = 'crait_cond', name = 'CRAIT CONDITIONS', art = 'T_UI_FE_Tile_A', conditions = true, planet = 'crait', races = {
-            race('Spaniel/Loop_A/EVT_SPA_Loop_A_FWD_MINES', 'CRIMSON MINES (MINES)', 'Circuit', 2),
-            race('Spaniel/Loop_A/EVT_SPA_Loop_A_REV', 'CRIMSON MINES (REVERSE)', 'Circuit', 2),
-            race('Spaniel/Loop_B/EVT_SPA_Loop_B_SHORT_02_MINES', 'CRYSTAL CAVERNS (MINES)', 'Short circuit', 5),
-            race('Spaniel/Loop_A/EVT_SPA_Loop_A_SHORT_01_MINES', 'SALT CIRCLE (MINES)', 'Short circuit', 8),
-        } },
-        { key = 'sentinel_cond', name = 'SENTINEL CONDITIONS', art = 'T_UI_FE_Tile_01', conditions = true, planet = 'sentinel', races = {
-            race('Husky/LOOP_B/EVT_HSK_LOOP_B_FWD_Overcast', 'CAUSTIC FIELDS (OVERCAST)', 'Circuit', 3),
-            race('Husky/P2P/EVT_HSK_P2P_SPEC_SHORT_01', 'MINERAL LOOP', 'Short circuit', 5),
-            race('Husky/P2P/EVT_HSK_P2P_SPEC_SHORT_02', 'CORROSION HYPERSPHERE', 'Short circuit', 4),
-            race('Husky/P2P/EVT_HSK_P2P_SPEC_SHORT_01_ApproachingStorm', 'MINERAL LOOP (STORM)', 'Short circuit', 5),
         } },
     },
 

@@ -1,5 +1,47 @@
 # Changelog
 
+## v0.11.0 (2026-11-11): conditions folded into the cups
+Queue item A2 (TASKS.md), from docs/PHILOSOPHY.md "Cups": one cup per planet, and the race list changes with the
+class, so the same cup gets harder in character as well as speed. Built and tested, not yet seen in game.
+- **Cups:** JAKKU, LANTAANA, ANDO, CRAIT, SENTINEL CUP, four races each, always on that planet; then the GALACTIC CUP
+  (the same four at every class) and the TITLE RACE. The cups page is 7 tiles, 4 + 3 at the home page's tile size
+  (`CupsLayout = { cols = 4, rows = 2, w = 520, h = 350 }`), no scrolling.
+- **Race lists per class** (config `races['50' / '100' / '150']`, `gp.lua K.races(cup, class)`): 50cc the classic
+  forward layouts (the old planet cups, unchanged); 100cc the reverse layouts, filled up with the planet's other plain
+  tracks (the Outer Rim Cup's four went here: Scrap Spiral - Jakku, Geothermal Tour - Lantaana, Dai Bendu Ascension -
+  Ando, Crystal Caverns - Crait); 150cc the conditions (dawn, scorching, night, wet, snow, mines, overcast, blue
+  hour, storm); 200cc races the 150cc lists (`Classes[200].raceList = '150'`). No cup at any class races the same base
+  track twice (each race has `base` = the title without its "(...)", and `cond` = its conditions). 59 distinct events;
+  four of them new to the mod, read from the events dump (12-car TeamRace, Vehicle.Standard): Moro Kehn Tunnels
+  reversed, Dhunkri River Circuit (clear), Ice Field Circuit reversed, Monastery Mountains reversed.
+- **No longer raced** (were in the remix / conditions cups): The War Fields (scorching), Debris Dunes (reverse,
+  scorching), Griffin's Flight (wet), Moro Kehn Tunnels (night), The Pyroducts (wet), Ahlren Jungle Speedway (night),
+  Ice Field Circuit (reverse, snow), Monastery Mountains (reverse, snow), Vonium Pipeline (night), Crimson Mines
+  (mines), Crimson Mines (reverse, mines), Salt Circle (mines). A planet has only four slots at 150cc.
+- **Conditions shown before Select:** the cup tile's second line names the class's conditions ("Dawn, scorching",
+  "Night, snow", "Mines, night"...), the focused cup's info starts with "Conditions: ..." and each race line's title
+  carries them ("MONASTERY MOUNTAINS (SNOW)"), so the tune-up choice is made knowing the cup.
+- **Unlocks:** the Galactic Cup opens at a class with a trophy (any colour; gold with `Unlock = 'gold'`) in all five
+  planet cups at that class (was gold); the title race with a trophy in the Galactic Cup at that class (was a trophy
+  in all five planet cups). The cup result says "UNLOCKED: TITLE RACE at 100cc". Classes unchanged.
+- **Gone:** the Outer Rim Cup, the five remix cups, the five conditions cups, `Progression.RemixClass`,
+  `P.remixClass` / `P.remixOpen` / `P.conditionsOpen`, the bonus / remix / conditions flags (the Galactic Cup is
+  `final = true`), art.lua's remix (dark scene) and conditions (other vehicle) posters.
+- **Save:** at the first load the best finishes, perfect cups and final standings of the removed cups (`*_remix`,
+  `*_cond`, `outerrim`) are dropped, with one log line: `[cups] dropped from the save (remix, conditions and Outer Rim
+  cups are gone; records kept): best 100 crait_remix, best 100 jakku_remix`. **What the owner loses:** the 100cc
+  Crait Remix gold and the Jakku Remix 4th place (and any other remix / conditions / Outer Rim trophies). Track
+  records stay (they are kept per event path). A planet cup's best at a class now means that class's list (the
+  planet-cup trophies already in the save were won on the 50cc list and are kept as they are).
+- Counts: "N / M GOLD" and the class info count 6 cups (5 planets + Galactic).
+- Tests: test_cups (new: the save migration with the owner's save shape, logged once, records kept; 7 tiles at every
+  class; the conditions on the tiles; Jakku at 100cc reversed; Ando at 200cc on the 150cc list); test_config (6 cups,
+  four races at every class, no base track twice, same planet, 200cc = 150cc, the Outer Rim tracks in the 100cc lists,
+  base / cond, cupConditions); test_prog (the Galactic Cup and title-race gates, Unlock = gold, newly open); test_unlocks
+  (the fifth trophy opens 150cc and the Galactic Cup; a Galactic Cup win opens the title race); test_flow (7 tiles, the
+  layout, the 150cc launches); test_remix removed; test_art, test_convert, test_records, test_trophies, test_gaps,
+  test_vehicles, test_ai updated. 23 tests, 557 checks.
+
 ## v0.10.0 (2026-11-11): gap log, 200cc as an extra
 Queue item A1 (TASKS.md), from docs/PHILOSOPHY.md: put a number next to "did my clean race pull away?", and make
 200cc the optional extra. Built and tested, not yet seen in game. The rubber band numbers are unchanged.

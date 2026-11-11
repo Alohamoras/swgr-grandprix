@@ -1,4 +1,4 @@
--- v0.8: the title race. Locked until a trophy in every planet cup at the class (when prog.lua has P.titleOpen);
+-- v0.8: the title race. Locked until a trophy in the Galactic Cup at the class (v0.11; test_prog, test_unlocks);
 -- Select launches the Showdown with the class's parts; a win makes you the class champion (saved, shown on the class
 -- tile and the TITLE RACE tile); a loss can be run again. Never part of a cup, no points.
 local M = require('mock')

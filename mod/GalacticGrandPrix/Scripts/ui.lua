@@ -350,8 +350,8 @@ function U.cover(on)
 end
 function U.coverAge() return coverAt and (C.clock - coverAt) or nil end
 
--- v0.8: a screen can ask for its own grid (spec.layout = { cols, rows, w, h }): the cups page shows 5 x 4 smaller tiles
--- so every cup of a class fits one page without scrolling. The layout is put back after the build.
+-- v0.8: a screen can ask for its own grid (spec.layout = { cols, rows, w, h }): the cups page (config CupsLayout;
+-- v0.11: 4 + 3 tiles) fits one page without scrolling. The layout is put back after the build.
 function U.build(spec, host)
   local saved = { U.TILE_W, U.TILE_H, U.COLS, U.ROWS }
   local L = spec and spec.layout
