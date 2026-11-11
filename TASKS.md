@@ -25,7 +25,7 @@ next starts (they all touch main.lua and config.lua); game sessions one at a tim
    looks; VEHICLE leaves the garage; Shade drives the base landspeeder (no bike / skimmer choice, owner
    2026-11-10); each racer tile names the vehicle type; class parts go on the racer's build and are put back after.
    Kestar Bool is locked until you win the 150cc title race (`titles['150'].won`; the tile says how to unlock him);
-   he and Sebulba (podracers) are left out or on a stand-in until a pod launches. Old saves: the vehicle pick is
+   (2026-11-11 research: neither is a podracer; Kestar drives a landspeeder, Sebulba a skim speeder.) Old saves: the vehicle pick is
    dropped, a Shade pick stays Shade.
 7. [x] Tile text that doesn't fit (owner 2026-11-10: can't fully read the tune-up tiles in the garage). Go through
    every screen and make every tile's title, badge and description fit: shorter wording in config, a length limit
@@ -35,6 +35,8 @@ next starts (they all touch main.lua and config.lua); game sessions one at a tim
    screenshots until B8 checks them.)
 
 **B. In game with TestAutopilot (game closed, test save, owner's save restored after)**
+(2026-11-11 overnight: not run. The screen was locked, so no keys or screenshots; only B5 is done, from the
+owner's own play, and the offline half of B7.)
 1. v0.9 check: the standings' one tile, B -> the question (keyboard; the pad is the owner's), a restart mid-cup logs
    the drop and HOME shows no cup, a pause-menu quit still moves the cup on.
 2. Rubber band research: one autopilot race per class with the gap log, plus one with MaxAiCatchupScale lowered;
@@ -42,9 +44,12 @@ next starts (they all touch main.lua and config.lua); game sessions one at a tim
 3. v0.11 events: every new race in every class launches and finishes (a long run: about 60 events; sprints and the
    shortest lap counts first, stop at the first failure).
 4. Racing as another pilot: screenshots of the HUD and results name with Kestar Bool picked.
-5. Tune-ups the Elite don't share (150cc with REDLINER): the "cleared from your copy" log path.
+5. [x] (owner's own races, 2026-11-10 23:12: `you=REDLINER+ARMOUR Elite=HEAT SHIELD (...) (240 bot slots cleared, 8
+   cleared from your race copy)`, no FAILED) Tune-ups the Elite don't share: the "cleared from your copy" log path.
 6. Spike: a two-car grid on a normal event (the rival / class leader as title-race opponent). Report only.
-7. Spike for A6 (owner agreed 2026-11-10): find where each racer's own vehicle lives (racer def, AI build, livery)
+7. (offline half done 2026-11-11: docs/racer-vehicles-2026-11-11.md. Every racer has one preset, none a
+   podracer: Kestar = landspeeder PRE_Car_Antagonist, Sebulba = skimmer. The race itself is still to do.)
+   Spike for A6 (owner agreed 2026-11-10): find where each racer's own vehicle lives (racer def, AI build, livery)
    in the dumps, then one race as Biddy Blas in his own vehicle with the class parts set on that build and put back
    after (log + screenshot). Report what launches, what the looks are, and what Kestar / Sebulba fly.
 8. Screenshots of every menu screen (HOME, CUPS at each class, GARAGE with every tune-up and racer focused,
