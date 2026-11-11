@@ -124,7 +124,7 @@ ended('A')
 -- B. the same cup via the menu (the default): every launch from the main menu under the cover, no standings page
 -- between the races
 start()
-T.check(T.logHas('v0.20.0 loaded'), 'B: v0.20.0')
+T.check(T.logHas(' loaded - the GRAND PRIX tab'), 'B: the mod loaded')
 T.clickTitle('JAKKU CUP')
 T.check(M.called('LaunchQuickRace') == 1 and lastLaunch() == TRACKS[1], 'B: race 1 launched from the main menu')
 W.race(11)
