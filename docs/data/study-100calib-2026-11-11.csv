@@ -1,0 +1,7 @@
+job,label,class,event,your_pos,your_time,gap_p1,gap_p2,gap_p3,gap_p6,gap_p12,ai_spread,settings
+1,100 slow0.5,100cc,THE WAR FIELDS (REVERSE),1,118.07,0.00,0.23,5.04,12.76,24.63,24.41,config.SpeedMatchingMaxMatchers=0 errors=0 pacing.MaxAiCatchupScale=1 pacing.MaxAiSlowdownScale=0.5 pressure=0
+2,100 slow0.5,100cc,THE WAR FIELDS (REVERSE),1,118.15,0.00,0.72,4.39,17.04,30.23,29.51,config.SpeedMatchingMaxMatchers=0 errors=0 pacing.MaxAiCatchupScale=1 pacing.MaxAiSlowdownScale=0.5 pressure=0
+3,100 slow0.5,100cc,THE WAR FIELDS (REVERSE),3,122.84,-4.85,-3.95,0.00,6.82,17.97,22.83,config.SpeedMatchingMaxMatchers=0 errors=0 pacing.MaxAiCatchupScale=1 pacing.MaxAiSlowdownScale=0.5 pressure=0
+4,100 slow0.3,100cc,THE WAR FIELDS (REVERSE),1,118.76,0.00,4.57,8.18,16.09,23.85,19.28,config.SpeedMatchingMaxMatchers=0 errors=0 pacing.MaxAiCatchupScale=1 pacing.MaxAiSlowdownScale=0.3 pressure=0
+5,100 slow0.3,100cc,THE WAR FIELDS (REVERSE),1,119.51,0.00,6.84,8.59,11.79,27.33,20.49,config.SpeedMatchingMaxMatchers=0 errors=0 pacing.MaxAiCatchupScale=1 pacing.MaxAiSlowdownScale=0.3 pressure=0
+6,100 slow0.3,100cc,THE WAR FIELDS (REVERSE),2,117.97,-0.09,0.00,2.24,15.01,25.11,25.20,config.SpeedMatchingMaxMatchers=0 errors=0 pacing.MaxAiCatchupScale=1 pacing.MaxAiSlowdownScale=0.3 pressure=0

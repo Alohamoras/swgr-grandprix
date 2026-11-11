@@ -360,16 +360,19 @@ return {
         -- v0.18 (AI study 2026-11-11, docs/ai-study-2026-11-11.md): the race reads its pacing from RP_Default, whose
         -- default slowdown (0.3) is what held the field back; with the band off the bots are as quick as a clean
         -- autopilot and steady. So: no catch-up anywhere (a lead you build is yours), speed matching off, and a
-        -- "mercy" slowdown for bots ahead of you that shrinks with the class. Forced errors stay at 50cc only.
+        -- "mercy" slowdown for bots ahead of their window. Forced errors stay at 50cc only.
+        -- v0.18.1 (check races): 0.5-0.85 barely slowed the bots; 0.3 (the game's own) is the mercy that shows (100cc
+        -- best bot ~123 s against ~118). Your car gains more from the class parts than the bots do, so 150 / 200cc go
+        -- fully honest (1.0: best bot ~105 s at The War Fields dawn against the owner's 102.4).
         Profiles = {
-            ['50'] = { pressure = -1, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.5 },
+            ['50'] = { pressure = -1, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.3 },
                        config = { SpeedMatchingMaxMatchers = 0 } },
-            ['100'] = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.7 }, errors = 0,
+            ['100'] = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.3 }, errors = 0,
                         config = { SpeedMatchingMaxMatchers = 0 } },
-            ['150'] = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.85 }, errors = 0,
+            ['150'] = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 1.0 }, errors = 0,
                         config = { SpeedMatchingMaxMatchers = 0 } },
             -- 200cc: the 150cc profile (the extra is about speed, not a harsher field); its own line to tune apart.
-            ['200'] = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.85 }, errors = 0,
+            ['200'] = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 1.0 }, errors = 0,
                         config = { SpeedMatchingMaxMatchers = 0 } },
         },
     },

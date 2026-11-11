@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.18.1 (2026-11-11): AI profiles after the check races
+12 autopilot check races on The War Fields (docs/data/study-v018check-*, study-100calib-*):
+- v0.18 made 100cc harder than 150cc: at 100cc the best bot beat a clean autopilot (118 s against ~120); at 150cc it
+  lost by 6-11 s. Your car gains more from the class parts than the bots do.
+- Slowdown 0.5-0.85 barely slows the bots; 0.3 (the game's own) does (100cc best bot ~123 s).
+- Now: 50cc and 100cc slowdown 0.3 (50cc keeps pressure -1 and the forced errors), 150cc and 200cc 1.0 (honest:
+  best bot ~105 s at The War Fields dawn against the owner's 1:42.4). Catch-up stays off everywhere.
+
 ## v0.18.0 (2026-11-11): AI profiles from the study
 TASKS "Next" 1. From the AI study (docs/ai-study-2026-11-11.md, 36 autopilot races): races read their pacing from
 RP_Default, whose default slowdown 0.3 is what held the field back; with the band off the bots are as quick as a

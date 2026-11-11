@@ -142,7 +142,7 @@ T.check(p['DefaultPacingSettings.MaxAiSlowdownScale'].set == 1 and p.ForcedError
 -- v0.18: the study's profiles - no catch-up anywhere, speed matching off, the mercy slowdown shrinking by class,
 -- forced errors kept at 50cc only
 cfg.AI.Profiles = REAL
-local want = { ['50'] = 0.5, ['100'] = 0.7, ['150'] = 0.85, ['200'] = 0.85 }
+local want = { ['50'] = 0.3, ['100'] = 0.3, ['150'] = 1.0, ['200'] = 1.0 }
 for cls, slow in pairs(want) do
   local q = A.plan(cls)
   T.check(q['DefaultPacingSettings.MaxAiCatchupScale'].set == 1 and math.abs(q['DefaultPacingSettings.MaxAiSlowdownScale'].set - slow) < 1e-9
