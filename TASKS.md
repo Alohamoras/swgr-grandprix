@@ -64,6 +64,10 @@ owner's own play, and the offline half of B7.)
 5. [x] (owner's own races, 2026-11-10 23:12: `you=REDLINER+ARMOUR Elite=HEAT SHIELD (...) (240 bot slots cleared, 8
    cleared from your race copy)`, no FAILED) Tune-ups the Elite don't share: the "cleared from your copy" log path.
 6. Spike: a two-car grid on a normal event (the rival / class leader as title-race opponent). Report only.
+   (RaceFlowSpike built 2026-11-11, not yet run: tools/recon/RaceFlowSpike, F10 at the main menu, three presses:
+   grid make-up summed to 2 + Sen Fira to Opponents[1]; + Opponents trimmed to her; Opponents only. Logs the
+   Showdown's make-up for reference and the grid at load (RecipeState.Racers[]). Install, key presses, risks: its
+   README.md.)
 7. [x] (2026-11-11 afternoon, LookSpike v2, log tools/recon/LookSpike/lookspike-v2-20261111.log: **the look already comes
    with the racer swap.** The race's recipe list gives your entry the racer's own preset before anything is written
    (Nik Skandaro -> PRE_Car_Hammerhead_QuietStrength), and the car reads "Hammerhead Quiet Strength" through the race
@@ -100,6 +104,12 @@ owner's own play, and the offline half of B7.)
    EventRecipeState) before the pause menu's restart, then other routes. Fallback if (b) fails: after the standings,
    the next race launches by itself after a short countdown, the menu hidden under the cover. Report only.
    Needs the desktop to Claude alone (the owner away).
+   (RaceFlowSpike built 2026-11-11, not yet run: tools/recon/RaceFlowSpike, F9 on the results screen: (a) a text
+   panel added to WBP_SimpleRaceResultsScreen_C's CONTINUE canvas; (b) route A = the next event written into
+   EventRecipeSubsystem.ActiveRecipe.recipe.EventStages[ActiveStage] (AuthoredEvent, TrackDef, LapCount,
+   trackConditions) and the race state's copy, then RacingGameMode:RequestResetRace (or the pause menu's RETRY
+   RACE event); route B = LaunchQuickRace on the default FrontEndGameMode (riskiest). Install, key presses, risks:
+   its README.md.)
 
 10. (2026-11-11, two batches, 36 races: docs/ai-study-2026-11-11.md, data in docs/data/. Races read pacing from
    RP_Default (slowdown 0.3), not only DA_AIConfig; with the band off the bots are as fast as a clean autopilot or
