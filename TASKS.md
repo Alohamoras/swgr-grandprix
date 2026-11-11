@@ -18,6 +18,49 @@ race's launch to the standings of its last race.
 - [ ] In game: the standings' one tile and the B question (pad B through the hidden Back screen); a restart mid-cup
       logs the drop and HOME shows no cup; a pause-menu quit still moves the cup on. Tag v0.9.0 after.
 
+## Engagement plan (owner, 2026-11-10; docs/PHILOSOPHY.md)
+The why behind each chunk is in docs/PHILOSOPHY.md. Order: rubber band first (only the owner can judge it), then
+the cups, then the rival. One tag per chunk.
+
+### v0.10: rubber band per class, 200cc as an extra
+- [ ] Log the gaps after each race: your time against the winner's and the next car's, behind and ahead, so "did my
+      clean race pull away?" has a number next to the owner's feel.
+- [ ] Read what each field in the AI profile does to a lead (pressure, MaxAiSlowdownScale, MaxAiCatchupScale) on the
+      dump and in one autopilot race per class; write it in DESIGN.md §4.
+- [ ] Profiles: generous at 50cc (the AI waits for you), less and less up the classes; at 150cc a clean lead holds
+      (catch-up lower than the game's own). Keep `AI.Adjust` as the one dial.
+- [ ] 200cc: parts 9 instead of 10, the 150cc AI profile, nothing gated on it (check prog.lua and the title race).
+      Blurb says it is the extra.
+- [ ] Owner plays a few cups at 100cc and 150cc and says whether a clean race shows. Retune, then tag.
+
+### v0.11: conditions folded into the cups
+- [ ] Config: one race list per class for each planet cup (50 classics, 100 reverse, 150 conditions, 200 = the 150
+      lists). Move the Outer Rim Cup's tracks into the planet lists. Every event used must already be in the
+      events dump (12-car team race, any vehicle).
+- [ ] Test: no cup at any class races the same base layout twice; every cup has four races.
+- [ ] Remove the remix and conditions cups, their unlock rules, `Progression.RemixClass`, the conditions-cup art swap.
+- [ ] Galactic Cup opens with a trophy in the five planet cups at the class; the title race opens with a trophy in
+      the Galactic Cup. Cups page = 7 tiles (layout to fit, no scrolling).
+- [ ] Save: old remix / conditions / Outer Rim trophies dropped at first load with a log line; records kept (stored
+      per event).
+- [ ] The cup's info lines name the conditions (SCORCHING, SNOW...) so the tune-up choice is visible before Select.
+- [ ] In game with the autopilot: every new event launches and finishes. Name the Ando short track (owner).
+
+### v0.12: stakes and near misses on the standings
+- [ ] One stakes line after races 1-3: "2 POINTS BEHIND BIDDY BLAS, 1 RACE LEFT" / "LEADING BY 4" / "GOLD IS OUT
+      OF REACH" (worked out from the points left).
+- [ ] Near misses after a race: "0.4 S OFF YOUR RECORD", after the cup: "1 POINT FROM GOLD". Only when close (a
+      threshold in config), so they stay special.
+- [ ] Unlock pacing check: from a fresh save, there is always exactly one next thing to aim for; HOME or the cups
+      page shows it.
+
+### v0.13: a rival per class
+- [ ] Rule for the rival: the racer with the closest points to yours across the class's cups (ties: most finishes
+      just ahead of you). Saved per class.
+- [ ] Standings call the rival out ("RIVAL: SEN FIRA, AHEAD BY 3").
+- [ ] Spike: the rival as the title-race opponent (a two-car grid on a normal event: `GridMakeup.Entries[].NumEntrants`
+      + `CharacterList.Opponents`). If it fails, keep the Showdown against Kestar and name the rival in the intro.
+
 ## Waiting on the owner's playtest (v0.8.1 installed, 2026-11-10)
 Things only a real play can answer. Tick them off (or note what felt wrong) as you go.
 - [x] (moot in v0.8: the mods became twelve tune-ups without the "check" ones) **Mods:** which feel good, which feel too strong - the 23 "check" ones especially

@@ -12,6 +12,10 @@ House rules (from the owner, all repos): offline only, the multiplayer guard sta
 memory-only changes to game data, put back after use; one git tag per chunk.
 
 ## 1. Vision
+What makes it engaging, and the decisions that follow (rubber band per class, conditions folded into the cups,
+a rival per class, 200cc as an optional extra): docs/PHILOSOPHY.md (owner, 2026-11-10). It wins over older sections
+of this file where they disagree.
+
 Pick a speed class and a cup, choose your vehicle and four abilities, and race four tracks in a row for points against
 the same field. Gold, silver or bronze at the end. Win your way from 50cc to 200cc, then reverse cups. No vehicle
 upgrades to grind: the class sets everyone's speed and your skill and ability choices do the rest.
