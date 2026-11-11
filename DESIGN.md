@@ -305,3 +305,10 @@ game. Summary of what changed in the design:
 - **Conditions cups** (v0.8; folded into the planet cups' 150cc lists in v0.11, §3): five more cups of night / wet /
   snow / scorching / mines line-ups, opened by gold in the planet's cup at the class. The remix cups went the same way.
 - Dropped for good: vehicle cosmetics, credits / shop, ghosts, a difficulty menu, free-text names.
+- **v0.12 (2026-11-11): stakes and near misses on the standings** (docs/PHILOSOPHY.md points 2, 4, 6). After races
+  1-3 one stakes line from the points left ("3 POINTS BEHIND BIDDY BLAS, 1 RACE LEFT", "LEADING BY 9 OVER SEN FIRA:
+  6TH OR BETTER WINS THE CUP", "GOLD IS OUT OF REACH, SILVER IS NOT"), never claiming what the points can't back (ties
+  as the standings rank them: the latest race). Near misses only when close (config `Near`): "0.4 S OFF YOUR RECORD"
+  (1 s), "1 POINT FROM GOLD" (3 points). They share the NEW RECORD line, so the screen is no taller than before.
+  The unlock pacing (test_pacing): from a fresh save there is always a locked tile one step away that says what opens
+  it, and no cup opens more than two things.

@@ -122,4 +122,108 @@ end
 CU.TROPHIES = { 'GOLD', 'SILVER', 'BRONZE' }
 function CU.trophy(rank) return rank and CU.TROPHIES[rank] or nil end
 
+---------------------------------------------------------------------------------------------------------------------
+-- v0.12: the stakes line after races 1 to (races - 1), and the trophy near miss at the end (docs/PHILOSOPHY.md points
+-- 2 and 4). Pure. Never claims anything the points can't back:
+--   "out of reach" only when even 1st in every race left (and the others scoring nothing) can't get you there;
+--   "is yours" / "wins the cup" only when it holds whatever the others do (any of them winning every race left);
+--   "silver is not" (out of reach) only when one real finishing order gets you there: you win every race left, the
+--   racers you let pass take the places right behind you, the rest finish in reverse order of their points.
+-- Ties go to the better finish in the latest race (CU.standings): winning the last race wins any tie.
+
+local function ord(n)
+  local s = 'TH'
+  if n % 100 < 11 or n % 100 > 13 then s = ({ 'ST', 'ND', 'RD' })[n % 10] or 'TH' end
+  return n .. s
+end
+local function pts(n) return n == 1 and '1 POINT' or (n .. ' POINTS') end
+local function racesLeft(n) return n == 1 and '1 RACE LEFT' or (n .. ' RACES LEFT') end
+local function upper(key) return tostring(key):upper() end
+
+-- can you still end the cup at rank `t` or better? -> 'no' (certainly not), 'yes' (one finishing order gets you
+-- there), nil (can't say cheaply). others = the standings without you (best first), left = races left.
+local function reach(others, mine, t, left, points)
+  local top = points[1] or 0
+  local ceiling = mine + top * left
+  local above = 0
+  for _, o in ipairs(others) do if o.pts > ceiling then above = above + 1 end end
+  if above >= t then return 'no' end
+  local n = #others + 1
+  for i = t, #others do
+    -- others[t..] finish behind you, the one with most points last: places n, n-1, ... t+1
+    local place = n - (i - t)
+    if others[i].pts + left * (points[place] or 0) > ceiling then return nil end
+  end
+  return 'yes'
+end
+
+-- the one stakes line between races: "2 POINTS BEHIND BIDDY BLAS, 1 RACE LEFT", "LEADING BY 4 OVER SEN FIRA, 2 RACES
+-- LEFT", "LEADING BY 4 OVER SEN FIRA: 6TH OR BETTER WINS THE CUP", "GOLD IS OUT OF REACH, SILVER IS NOT", ...
+-- nil before the first race, after the last, or when you are not in the standings.
+function CU.stakes(st, points)
+  points = points or CU.DEFAULT_POINTS
+  local done = #(st.history or {})
+  local left = (st.races or 4) - done
+  if done < 1 or left < 1 then return nil end
+  local mine, rank
+  local others = {}
+  for _, r in ipairs(CU.standings(st)) do
+    if r.key == CU.YOU then mine, rank = r.pts, r.rank else others[#others + 1] = r end
+  end
+  if not mine or #others == 0 then return nil end
+  local top = points[1] or 0
+  if rank == 1 then
+    local second = others[1]
+    local lead = mine - second.pts
+    -- a DNF in every race left and the second winning them all still leaves you ahead
+    if lead > top * left then return ('GOLD IS YOURS: %s CLEAR, %s'):format(pts(lead), racesLeft(left)) end
+    local head = lead == 0 and ('LEVEL ON POINTS WITH %s'):format(upper(second.key))
+      or ('LEADING BY %d OVER %s'):format(lead, upper(second.key))
+    if left == 1 then
+      -- finishing p-th (p >= 2) gives you points[p] while anyone else can win the race (top); strictly more is
+      -- needed, since a racer level with you who finished ahead in the last race ranks ahead
+      local p
+      for i = 2, #points do if mine + points[i] > second.pts + top then p = i end end
+      if p and p >= #others + 1 then return head .. ': ANY FINISH WINS THE CUP' end
+      if p then return ('%s: %s OR BETTER WINS THE CUP'):format(head, ord(p)) end
+      -- winning: you +top, anyone else at most points[2], and you take any tie
+      return head .. ': A WIN TAKES THE CUP'
+    end
+    return ('%s, %s'):format(head, racesLeft(left))
+  end
+  local leader = others[1]
+  if reach(others, mine, 1, left, points) ~= 'no' then
+    local d = leader.pts - mine
+    if d == 0 then return ('LEVEL ON POINTS WITH %s, %s'):format(upper(leader.key), racesLeft(left)) end
+    return ('%s BEHIND %s, %s'):format(pts(d), upper(leader.key), racesLeft(left))
+  end
+  for t = 2, 3 do
+    local r = reach(others, mine, t, left, points)
+    if r ~= 'no' then
+      local out = CU.TROPHIES[t - 1] .. ' IS OUT OF REACH, '
+      if r == 'yes' then return out .. CU.TROPHIES[t] .. ' IS NOT' end
+      -- (you are below rank t here: at rank t the finishing order above always works)
+      return out .. ('%s FROM %s'):format(pts(math.max(0, others[t].pts - mine)), CU.TROPHIES[t])
+    end
+  end
+  return 'THE TROPHIES ARE OUT OF REACH'
+end
+
+-- after the last race: how close you came to the next trophy colour up (rank 2 -> gold, 3 -> silver, 4th or lower ->
+-- bronze), when within `within` points: "1 POINT FROM GOLD", "TIED FOR GOLD, LOST ON THE LAST RACE"; nil otherwise
+-- (gold, not close, no threshold)
+function CU.nearTrophy(st, within)
+  within = tonumber(within)
+  if not within or within < 0 or not CU.finished(st) then return nil end
+  local std = CU.standings(st)
+  local mine, rank
+  for _, r in ipairs(std) do if r.key == CU.YOU then mine, rank = r.pts, r.rank end end
+  if not rank or rank == 1 then return nil end
+  local t = math.min(rank - 1, 3)
+  local gap = std[t].pts - mine
+  if gap > within then return nil end
+  if gap <= 0 then return ('TIED FOR %s, LOST ON THE LAST RACE'):format(CU.TROPHIES[t]) end
+  return ('%s FROM %s'):format(pts(gap), CU.TROPHIES[t])
+end
+
 return CU

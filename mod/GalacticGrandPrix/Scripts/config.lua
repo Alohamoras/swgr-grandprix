@@ -63,6 +63,12 @@ return {
     -- Points by place in each race (1st first); a racer who doesn't finish scores 0
     Points = { 15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 },
 
+    -- Near misses on the standings (v0.12, docs/PHILOSOPHY.md point 4), shown only when this close so they stay
+    -- special: RecordSeconds = a finished race within this many seconds of your record at the class ("0.4 S OFF YOUR
+    -- RECORD"); TrophyPoints = a cup missing the next trophy colour up by this many points or fewer ("1 POINT FROM
+    -- GOLD"). false = off.
+    Near = { RecordSeconds = 1.0, TrophyPoints = 3 },
+
     -- The title race (v0.8, title.lua): one 1 v 1 at the end of each class against the class champion. The game's
     -- Stadium Showdown against Kestar Bool (6 laps, about 5 minutes; he copies your build, so he scales with the
     -- class). Opens with a trophy in the Galactic Cup at the class (v0.11). Fallback = the champion named on the class tile

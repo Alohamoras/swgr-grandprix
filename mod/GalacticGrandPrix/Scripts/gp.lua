@@ -370,8 +370,22 @@ function K.champion(classKey)
   return best, bestPts
 end
 
+-- v0.12: the record near miss of a race result (K.record's out): '0.4 S OFF YOUR RECORD' when a finished race came
+-- within config Near.RecordSeconds of the record at the class without beating it ('0.04 S' under 0.05 s, 'LEVEL WITH
+-- YOUR RECORD' when equal); nil otherwise (a new record, a DNF, no record yet, not close, Near off)
+function K.nearRecord(out)
+  local within = tonumber((cfg.Near or {}).RecordSeconds)
+  local d = out and not out.newRecord and tonumber(out.offBy)
+  if not (within and d and d >= 0 and d <= within) then return nil end
+  local s = ('%.1f'):format(d)
+  if s == '0.0' then s = ('%.2f'):format(d) end
+  if s == '0.00' then return 'LEVEL WITH YOUR RECORD' end
+  return s .. ' S OFF YOUR RECORD'
+end
+
 -- the record entry for a race's track and class, updated from this race: extra = { time, lap } (seconds; the time
--- only when you finished - race.lua). Fills out.time / lap / newRecord / newLap / oldTime.
+-- only when you finished - race.lua). Fills out.time / lap / newRecord / newLap / oldTime, and (v0.12) offBy = how
+-- far a finished race that didn't beat the record was off it.
 local function updateRecord(ev, out, extra, vehicle)
   out.time, out.lap = extra.time, extra.lap
   if not (ev.class and ev.path) then return end
@@ -387,6 +401,8 @@ local function updateRecord(ev, out, extra, vehicle)
     local c = K.class(ev.class)
     log(('NEW RECORD %s %s: %s%s'):format(ev.title or ev.path:match('([^/]+)$'), c and c.name or ev.class,
       K.fmtTime(extra.time), out.oldTime and (' (was ' .. K.fmtTime(out.oldTime) .. ')') or ''))
+  elseif extra.time and extra.time > 0 and rec.time then
+    out.offBy = extra.time - rec.time -- v0.12: a finished race that didn't beat the record (0 = equal to it)
   end
   if changed then
     rec.at, rec.vehicle = os.date('%Y-%m-%d'), vehicle

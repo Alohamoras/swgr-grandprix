@@ -1,5 +1,32 @@
 # Changelog
 
+## v0.12.0 (2026-11-11): stakes and near misses
+Queue item A3 (TASKS.md), from docs/PHILOSOPHY.md points 2, 4 and 6. Built and tested, not yet seen in game.
+- **Stakes line** on the standings after races 1-3 (cup.lua `CU.stakes`), worked out from the points table (config
+  `Points`) and the races left: "3 POINTS BEHIND BIDDY BLAS, 1 RACE LEFT", "LEADING BY 4 OVER SEN FIRA, 2 RACES LEFT",
+  "LEVEL ON POINTS WITH SEN FIRA, 2 RACES LEFT"; before the last race when you lead, "LEADING BY 9 OVER SEN FIRA: 6TH
+  OR BETTER WINS THE CUP" / "...: ANY FINISH WINS THE CUP" / "...: A WIN TAKES THE CUP"; "GOLD IS YOURS: 16 POINTS
+  CLEAR, 1 RACE LEFT"; when the leader can't be caught "GOLD IS OUT OF REACH, SILVER IS NOT" / "SILVER IS OUT OF
+  REACH, BRONZE IS NOT" / "GOLD IS OUT OF REACH, 14 POINTS FROM SILVER" / "THE TROPHIES ARE OUT OF REACH". Never
+  claims what the points can't back: ties go to the better finish in the latest race (as `CU.standings` ranks them);
+  "out of reach" only when winning every race left can't do it, "wins the cup" only when it holds whatever the others
+  do, "silver is not" only when a real finishing order gets you there. test/test_stakes.lua checks every claim
+  against every way the races left can go on 460 random cups. One line, 70 characters at most.
+- **Near misses** (config `Near = { RecordSeconds = 1.0, TrophyPoints = 3 }`, false = off): a finished race within
+  1 s of your record at the class without beating it, "0.4 S OFF YOUR RECORD" (gp.lua `K.nearRecord`, from the new
+  `offBy` of `K.record`; never with a NEW RECORD, never after a DNF); the cup result within 3 points of the next
+  trophy colour up, "1 POINT FROM GOLD" / "2 POINTS FROM SILVER" / "TIED FOR GOLD, LOST ON THE LAST RACE"
+  (`CU.nearTrophy`).
+- **No taller screen:** the record, best lap and near misses share the one line the NEW RECORD line had
+  ("0.4 S OFF YOUR RECORD   -   NEW BEST LAP  0:58.50"); the standings after races 1-3 are 4 lines at most, the cup
+  result 5, as before.
+- **Unlock pacing check** (test/test_pacing.lua): a fresh save walked cup by cup (50cc first with bronzes, 100cc
+  first with golds; 48 steps). At every step something locked can be opened by racing only what is open now and
+  shows as a LOCKED tile saying "To open: ..." on HOME or a cups page; no single cup result opens more than two
+  things (the most: the fifth 100cc / 150cc planet trophy opens the next class and that class's Galactic Cup). The
+  current rules pass; no config change. Nothing added to HOME or the cups page: the locked tiles already say it.
+- Tests: test_stakes, test_nearmiss, test_pacing (26 tests).
+
 ## v0.11.0 (2026-11-11): conditions folded into the cups
 Queue item A2 (TASKS.md), from docs/PHILOSOPHY.md "Cups": one cup per planet, and the race list changes with the
 class, so the same cup gets harder in character as well as speed. Built and tested, not yet seen in game.

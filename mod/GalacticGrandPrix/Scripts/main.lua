@@ -7,7 +7,7 @@
 -- v0.11: one cup per planet with a race list per class (classic / reverse / conditions), the Galactic Cup, the title race.
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.11.0'
+local VERSION = '0.12.0'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -440,11 +440,22 @@ SCREENS.standings = function()
   local you = ('You: %s in this race'):format(r.pos and ordinal(r.pos) or 'did not finish')
   if r.time and K.fmtTime then you = you .. ('   -   %s'):format(K.fmtTime(r.time)) .. (r.lap and ('  (best lap %s)'):format(K.fmtTime(r.lap)) or '') end
   lines[#lines + 1] = { you, 18 }
+  -- v0.12 (docs/PHILOSOPHY.md points 2 and 4): between races one stakes line from the points left; then ONE line for
+  -- the record, the best lap and the near misses together, so the screen never grows past its v0.8 height (races 1-3:
+  -- 4 lines; the cup result: 5 lines, as before)
+  local stakes = (not r.cupOver) and run and K.run() and CU.stakes(run, cfg.Points) or nil
+  if stakes then lines[#lines + 1] = { stakes, 22, U.WHITE } end
+  local note, big = {}, false
   if r.newRecord and K.fmtTime then
-    lines[#lines + 1] = { ('NEW RECORD  %s%s'):format(K.fmtTime(r.time), r.oldTime and ('   (was %s)'):format(K.fmtTime(r.oldTime)) or ''), 22, U.GOLD }
-  elseif r.newLap and K.fmtTime and r.lap then
-    lines[#lines + 1] = { ('NEW BEST LAP  %s'):format(K.fmtTime(r.lap)), 20, U.GOLD }
+    note[#note + 1] = ('NEW RECORD  %s%s'):format(K.fmtTime(r.time), r.oldTime and ('   (was %s)'):format(K.fmtTime(r.oldTime)) or ''); big = true
+  else
+    local near = K.nearRecord and K.nearRecord(r)
+    if near then note[#note + 1] = near; big = true end
+    if r.newLap and K.fmtTime and r.lap then note[#note + 1] = ('NEW BEST LAP  %s'):format(K.fmtTime(r.lap)) end
   end
+  local nearCup = r.cupOver and run and CU.nearTrophy(run, (cfg.Near or {}).TrophyPoints) or nil
+  if nearCup then note[#note + 1] = nearCup; big = true end
+  if #note > 0 then lines[#lines + 1] = { table.concat(note, '   -   '), big and 22 or 20, U.GOLD } end
   local items = {}
   if K.run() then
     -- v0.9: NEXT RACE only (no LATER: cups cannot be resumed; B asks "Leave the cup?" - handle, below)

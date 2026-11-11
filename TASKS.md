@@ -15,8 +15,8 @@ next starts (they all touch main.lua and config.lua); game sessions one at a tim
    worktree-agent-a055e2119ffd4ab7f; see CHANGELOG v0.10.0.)
 2. [x] v0.11 conditions folded into the cups: the whole section except its in-game line. Tag v0.11.0. (Built
    2026-11-11; see CHANGELOG v0.11.0.)
-3. v0.12 stakes and near-miss lines on the standings; the unlock pacing check on a fresh save (after v0.11, since
-   it changes the unlocks). Tag v0.12.0.
+3. [x] v0.12 stakes and near-miss lines on the standings; the unlock pacing check on a fresh save (after v0.11, since
+   it changes the unlocks). Tag v0.12.0. (Built 2026-11-11; see CHANGELOG v0.12.0.)
 4. v0.13 the rival rule and the standings call-out (not the title-race spike). Tag v0.13.0.
 5. The main-menu poll made cheaper (section 4, one sweep 5x a second at the menu).
 6. Racer = vehicle build (after B7 proves it, and after v0.11): picking a racer gives you their own vehicle and
@@ -101,12 +101,13 @@ the cups, then the rival. One tag per chunk.
 - [ ] In game with the autopilot: every new event launches and finishes. Name the Ando short track (owner).
 
 ### v0.12: stakes and near misses on the standings
-- [ ] One stakes line after races 1-3: "2 POINTS BEHIND BIDDY BLAS, 1 RACE LEFT" / "LEADING BY 4" / "GOLD IS OUT
+- [x] One stakes line after races 1-3: "2 POINTS BEHIND BIDDY BLAS, 1 RACE LEFT" / "LEADING BY 4" / "GOLD IS OUT
       OF REACH" (worked out from the points left).
-- [ ] Near misses after a race: "0.4 S OFF YOUR RECORD", after the cup: "1 POINT FROM GOLD". Only when close (a
+- [x] Near misses after a race: "0.4 S OFF YOUR RECORD", after the cup: "1 POINT FROM GOLD". Only when close (a
       threshold in config), so they stay special.
-- [ ] Unlock pacing check: from a fresh save, there is always exactly one next thing to aim for; HOME or the cups
-      page shows it.
+- [x] Unlock pacing check: from a fresh save, there is always exactly one next thing to aim for; HOME or the cups
+      page shows it. (test_pacing: always at least one visible LOCKED tile one step away, never more than two opened
+      at once; a fresh save shows three: GALACTIC CUP at 50cc and 100cc, 150cc. Current rules pass, no change.)
 
 ### v0.13: a rival per class
 - [ ] Rule for the rival: the racer with the closest points to yours across the class's cups (ties: most finishes
