@@ -173,7 +173,15 @@ From the afternoon's findings (docs/ai-study-2026-11-11.md, docs/menu-review-202
    0.3), speed matching off, forced errors off from 100cc (50cc keeps them). Then the owner races one cup at 100cc and
    one at 150cc; read their `[gaps]` lines. Target: a good race wins by a few seconds, a messy one loses, the best bot
    steady from race to race.
-2. **Cups without the main menu** (B9 proven): the standings drawn over the game's results screen, NEXT RACE starts
+2. [x] (Built 2026-11-11 as v0.19.0, see CHANGELOG / DESIGN.md §15; **not yet seen in game**. Check in game, in
+   order: the panel and NEXT RACE on race 1's results screen (`[chain] panel added`, screenshot); NEXT RACE with the
+   pad's A and with N (`[chain] NEXT RACE pressed`); race 2 loads with the right track, laps and conditions (`[chain]
+   new race world ... EVT_MAS_P2P_FWD`), a layout change on one planet (Loop_A -> P2P_A) included; your racer, parts,
+   abilities, the AI's kits and tune-ups in race 2 (`[racer] racing as`, `[loadout] ..., 11 racers`, `[aiset] race
+   class=`); a whole Jakku cup to the cup result with ONE put-back (`build put back (main menu)` once); CONTINUE on
+   the panel -> the standings page at the menu, B there leaves the cup; does the game go to the menu by itself ~7 s
+   after the results (then `[chain] the results went to the main menu before NEXT RACE`); the Galactic Cup keeps the
+   menu (`[chain] not chaining: the next race is on another planet`).) **Cups without the main menu** (B9 proven): the standings drawn over the game's results screen, NEXT RACE starts
    the next cup race from there (recipe stage swap + RequestResetRace). Planet cups stay on one planet (proven case);
    check a planet change for the Galactic Cup first, fall back to the main menu there if it fails. Put-backs (parts,
    abilities, AI, racer) must hold across chained races.

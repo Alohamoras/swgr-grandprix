@@ -24,6 +24,12 @@ function W.widgetLib()
     p.HasAnyUserFocus = function() return p.__focus == true end
     p.HasUserFocus = function() return p.__focus == true end
     p.HasKeyboardFocus = function() return p.__focus == true end
+    if cname:find('Common_Btn', 1, true) then
+      -- v0.19: a button of CONTINUE's class (chain.lua's NEXT RACE): its own name, registered (C.ref / C.deref)
+      rawset(w, '__name', cname .. '_' .. rawget(w, '__addr'))
+      M.add(cname, w)
+      W.chainBtn = w
+    end
     if cname == 'UserWidget' then W.tiles = {}
     elseif cname:find('Tile') then
       W.tiles = W.tiles or {}; table.insert(W.tiles, w)
@@ -43,7 +49,10 @@ end
 function W.frontEnd()
   M.clear('FrontEndGameMode'); M.clear('RacingGameState'); M.clear('GfnPlayerState')
   W.fe = M.add('FrontEndGameMode', M.new('FrontEndGameMode_' .. M.nextAddr, {
-    LaunchQuickRace = function(self, arch, ev, build) table.insert(M.calls, { name = 'LaunchQuickRace', args = { arch, ev, build } }) end,
+    LaunchQuickRace = function(self, arch, ev, build)
+      table.insert(M.calls, { name = 'LaunchQuickRace', args = { arch, ev, build } })
+      W.launchRecipe(ev) -- v0.19: the game builds the race's recipe from the event
+    end,
   }))
   if M.fireNew then M.fireNew('/Script/Griffin.FrontEndGameMode', W.fe) end
   W.mm = M.add('WBP_FE_MainMenu_C', M.new('WBP_FE_MainMenu_C_' .. M.nextAddr, {}, 'WBP_FE_MainMenu_C'))
@@ -111,6 +120,7 @@ function W.setup()
   rawget(ksl, '__props').IsStandalone = function() return true end
   W.characterList()
   W.aiConfig()
+  W.recipeSetup()
   W.frontEnd()
 end
 
@@ -258,7 +268,9 @@ function W.race(nBots, opts)
   M.kill(W.fe)
   M.kill(W.mm)
   W.yourAbility = W.yourAbility or M.new('BP_Ability_Autopilot_C', {}, 'Class')
-  W.gs = M.add('RacingGameState', M.new('RacingGameState', { bIsRaceStarted = true }))
+  W.gs = M.add('RacingGameState', M.new('RacingGameState_' .. M.nextAddr, { bIsRaceStarted = true,
+    EventRecipe = { EventStages = M.tarr({ W.stageCopy(W.activeStage()) }) }, EventRecipeState_Replication = { ActiveStage = 0 },
+    AuthorityGameMode = W.gm }))
   W.rec = { EventPosition = 6, bHasFinishedEvent = false, CurrentLapNumber = 1 }
   W.player = M.add('GfnPlayerState', M.new('me', { bIsABot = false, RaceEventComponent = M.new('rec', W.rec),
     PlayerNamePrivate = FText('Dwayne'), RacerBuildState = { VehicleBuilds = buildCopies({ W.yourAbility }) },
@@ -298,5 +310,120 @@ function W.botFinish(i, pos, time, finished)
 end
 -- a lap done: the best lap so far and the lap you're on
 function W.lap(best, n) W.rec.BestLapTime = best; if n then W.rec.CurrentLapNumber = n end end
-function W.backToMenu() M.kill(W.gs); W.frontEnd(); if W.tabbed then W.tabMenu() end end
+function W.backToMenu() W.dropRaceWorld(); W.frontEnd(); if W.tabbed then W.tabMenu() end end
+
+---------------------------------------------------------------------------------------------------------------------
+-- v0.19 (chain.lua): the race recipe, the results screen, the game's reset
+
+-- an event with the fields the recipe copies (TrackDef, LapCount, TrackConditionTag); cond = 'TrackCondition.Night' etc.
+function W.raceEvent(path, laps, cond)
+  local n = path:match('([^/]+)$')
+  local e = M.new(n, { VehicleTypeTag = { TagName = M.new('Vehicle.Standard', {}, 'FName') },
+    TrackDef = M.new((n:gsub('^EVT_', 'TRAK_')), {}, 'TrackDef'), LapCount = laps or 2,
+    TrackConditionTag = { TagName = M.new(cond or 'TrackCondition.Sunset', {}, 'FName') } }, 'RaceEventDef')
+  M.assets[path .. '.' .. n] = e
+  return e
+end
+-- every event of the config's cups (call after T.boot: the config is loaded by then)
+function W.cupEvents()
+  for _, cup in ipairs(require('config').Cups) do
+    local lists = cup.races[1] and { cup.races } or cup.races
+    for _, list in pairs(lists) do
+      for _, r in ipairs(list) do
+        local cond = r.cond and ('TrackCondition.' .. r.cond:gsub(',.*', ''):gsub('%s', '')) or 'TrackCondition.Sunset'
+        if not M.assets[r.path .. '.' .. r.path:match('([^/]+)$')] then W.raceEvent(r.path, r.laps, cond) end
+      end
+    end
+  end
+end
+-- one stage of a recipe (FRaceEventInstance: the four fields chain.lua reads and writes) from an event
+local function stageOf(ev)
+  local function f(k) local ok, v = pcall(function() return rawget(ev, '__props')[k] end); return ok and v or nil end
+  local tag = f('TrackConditionTag')
+  return { AuthoredEvent = ev, TrackDef = f('TrackDef'), LapCount = tonumber(f('LapCount')) or 2,
+    trackConditions = { TagName = type(tag) == 'table' and tag.TagName or nil } }
+end
+function W.stageCopy(st)
+  if not st then return {} end
+  return { AuthoredEvent = st.AuthoredEvent, TrackDef = st.TrackDef, LapCount = st.LapCount,
+    trackConditions = { TagName = st.trackConditions and st.trackConditions.TagName } }
+end
+-- the game instance's EventRecipeSubsystem (lives on across race worlds); ActiveRecipe = nil until a launch
+function W.recipeSetup()
+  W.sub = M.add('EventRecipeSubsystem', M.new('EventRecipeSubsystem', {}))
+  -- the racing game mode: RequestResetRace = a new race world from the subsystem's recipe (W.resetMode = 'nothing':
+  -- the reset does nothing); RequestReturnToMenus = counted (the test then goes back to the menu)
+  W.resets, W.toMenu, W.resetMode, W.noRecipe = 0, 0, nil, nil
+  W.gm = M.new('BP_RacingGameMode_C_1', {
+    RequestResetRace = function() W.resets = W.resets + 1; if W.resetMode ~= 'nothing' then W.chainWorld() end end,
+    RequestReturnToMenus = function() W.toMenu = W.toMenu + 1 end,
+  }, 'BP_RacingGameMode_C')
+end
+function W.launchRecipe(ev)
+  if W.noRecipe then rawget(W.sub, '__props').ActiveRecipe = nil; return end
+  local inst = M.add('EventRecipeInstance', M.new('EventRecipeInstance_' .. M.nextAddr, {
+    recipe = { EventStages = M.tarr({ stageOf(ev) }) }, RecipeState = { ActiveStage = 0 } }, 'EventRecipeInstance'))
+  rawget(W.sub, '__props').ActiveRecipe = inst
+  W.recipe = inst
+end
+function W.activeStage()
+  local inst = W.sub and rawget(W.sub, '__props').ActiveRecipe
+  return inst and rawget(inst, '__props').recipe.EventStages[1] or nil
+end
+-- the event name of a stage ('?' if none)
+function W.stageEvent(st) return st and st.AuthoredEvent and rawget(st.AuthoredEvent, '__name') or '?' end
+-- the race world goes (the reset or the menu): its race state, racers, results screen and our widgets on it
+function W.dropRaceWorld()
+  for _, cls in ipairs({ 'RacingGameState', 'GfnPlayerState', 'WBP_SimpleRaceResultsScreen_C', 'WBP_Common_Btn_C' }) do
+    for _, o in ipairs(M.objects[cls] or {}) do M.kill(o) end
+    M.clear(cls)
+  end
+  for _, o in ipairs(W.canvasKids or {}) do M.kill(o) end
+  W.canvasKids, W.screen, W.chainBtn = {}, nil, nil
+end
+-- the game's results screen after a race (WBP_SimpleRaceResultsScreen_C, CONTINUE on its canvas Default_Results).
+-- opts.refuse = the canvas takes no children. W.continued counts presses of its CONTINUE.
+function W.results(opts)
+  opts = opts or {}
+  W.canvasKids, W.continued = {}, 0
+  local canvas = M.new('Default_Results', { AddChildToCanvas = function(_, w)
+    if opts.refuse then return nil end
+    W.canvasKids[#W.canvasKids + 1] = w
+    return M.new('CanvasPanelSlot', {}, 'CanvasPanelSlot')
+  end }, 'FuseCanvasPanel')
+  local slot = M.new('CanvasPanelSlot', {
+    GetAnchors = function() return { Minimum = { X = 0.5, Y = 1 }, Maximum = { X = 0.5, Y = 1 } } end,
+    GetAlignment = function() return { X = 0.5, Y = 1 } end, GetPosition = function() return { X = 0, Y = -76 } end,
+    GetAutoSize = function() return true end, GetZOrder = function() return 1 end }, 'CanvasPanelSlot')
+  local cont = M.new('WBP_Common_Btn_Continue', { GetParent = function() return canvas end, Slot = slot, WidthOverride = 300 }, 'WBP_Common_Btn_C')
+  local w = M.new('WBP_SimpleRaceResultsScreen_C_' .. M.nextAddr, { WidgetTree = M.new('WidgetTree', {}), WBP_Common_Btn_Continue = cont,
+    IsInViewport = function() return true end }, 'WBP_SimpleRaceResultsScreen_C')
+  rawget(w, '__props')[require('chain').CONTINUE_EVENT] = function() W.continued = W.continued + 1 end
+  M.add('WBP_SimpleRaceResultsScreen_C', w)
+  W.screen = w
+  return w
+end
+-- the reset: the old race world goes, a new one comes with the subsystem recipe's event
+function W.chainWorld()
+  W.dropRaceWorld()
+  W.race(11)
+end
+-- press our NEXT RACE button (the game's UI turns the toggle button selected)
+function W.pressNext()
+  assert(W.chainBtn, 'no NEXT RACE button')
+  rawget(W.chainBtn, '__props').__sel = true
+end
+-- every text set on a widget since the call index `from` (SetText(FText) calls), joined by newlines
+function W.textsSince(from)
+  local out = {}
+  for i = from or 1, #M.calls do
+    local c = M.calls[i]
+    if c.name == 'SetText' and type(c.args[1]) == 'table' then
+      local p = rawget(c.args[1], '__props')
+      if p and p.__text then out[#out + 1] = p.__text end
+    end
+  end
+  return table.concat(out, '\n')
+end
+
 return W

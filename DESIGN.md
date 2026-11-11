@@ -369,3 +369,73 @@ to you; not 1st: P1 first, negative) and a row in `study_results.csv` (`job,labe
 gap_p1,gap_p2,gap_p3,gap_p6,gap_p12,ai_spread,settings`; seconds; settings = the profile as compact text). A job that
 can't be launched (unknown class / cup / race, a failed launch, a race that never loads) is logged and skipped. After
 the last: `[study] all N jobs done`, then nothing. Delete study_state.lua to run a study again. Code: studymode.lua.
+
+## 15. Cups without the main menu (v0.19, TASKS.md "Next" 2; built, not yet seen in game)
+Owner 2026-11-11: the standings at the end of the race, then straight into the next race with no main menu. Proven
+pieces (RaceFlowSpike B9, `tools/recon/RaceFlowSpike/raceflow-b9-20261111.log`): a panel on the game's results screen
+`WBP_SimpleRaceResultsScreen_C` (canvas `Default_Results`, CONTINUE's parent), and the next race from the race world
+by writing the next event into the active stage of the race recipe (`AuthoredEvent`, `TrackDef`, `LapCount`,
+`trackConditions`) on both `EventRecipeSubsystem.ActiveRecipe` and the race state's `EventRecipe`, then
+`BP_RacingGameMode_C:RequestResetRace()` (a new race world in 0.5 s). Code: chain.lua; race.lua `prepare`,
+`R.chainLaunch`, `recordRace`; standings.lua; ui.lua `U.panel`. Config `ChainRaces`.
+
+**When.** After a cup race that is not the cup's last, when you finished it (a DNF or a quit keeps today's flow), and
+the next race is on the same planet (or `CrossPlanet = true`). Otherwise nothing at all happens in the race world:
+the main menu records the race and shows the standings page, as before. The last race of a cup always goes to the
+main menu and the cup result there.
+
+**Same planet.** The codename folder right after `/Planets/` in the two event paths (`.../Planets/Mastiff/Loop_A/...`
+-> `Mastiff`), compared without case (the paths mix `Husky/LOOP_A` and `Husky/P2P`). Every planet cup stays on its
+planet at every class (test_config checks it), so planet cups chain all four races; the Galactic Cup changes planet
+every race (Dalmatian -> Corgi -> Husky -> Whippet), so with `CrossPlanet = false` (the default: a planet change is
+not proven) it keeps the main-menu flow. Note: the spike proved Loop_A -> Loop_A on Jakku (The War Fields -> Fallen
+Empire); a change of layout folder on one planet (`Loop_A` -> `P2P_A`) is treated as the same planet and is the
+first thing to watch in game.
+
+**On the results screen.** Once you have finished, the results screen is looked for every 0.3 s (one sweep each, up
+to `ResultsWaitS`). When it is up: the race is recorded right then, by the same code the main menu uses
+(`recordRace` -> `K.record`: points, records, rival tally, near misses, gap log, RESULT / PERF lines; the main menu
+later hands this result back instead of recording a second time), and the panel goes on: the standings page's own
+text (standings.lua: cup / race line, your line, stakes, NEW RECORD / near miss, the table with THIS RACE / POINTS /
+MOVED) on a dark box over the game's own table (centred, `Panel.Y` from the top, at least `Panel.MinWidth` x
+`MinHeight`), and one prompt line: `NEXT RACE: race 3 of 4, FALLEN EMPIRE.  CONTINUE: the main menu (to leave the
+cup).` Beside CONTINUE a **NEXT RACE** button made from CONTINUE's own class (FreeRace's RETRY does the same), made
+toggleable and focused, so pad A / Enter / a click on it flips its selected state; we poll it every 0.2 s (one lookup
+by path + address each time, only while the panel is up). The keyboard key `ChainRaces.Key` (N) does the same (the
+bind only sets a flag).
+
+**NEXT RACE.** `R.chainLaunch` runs `prepare`, the same set-up `R.launch` does at the menu: the class's parts,
+abilities and tune-ups on the launch build (their originals went into the save at the cup's first launch and stay
+there, so nothing is lost), the AI profile on DA_AIConfig / RP_Default / RP_Honest (the same values: logged "as is"
+plus the `[aiset]` read-back), a fresh rubber-band state (the finished race's tune objects get their values back
+first), your racer into the character list again (settled 10 s into the race as usual), the AI loadout for the load.
+Then the recipe write (both copies, every field read back) and `RequestResetRace`; the loading watch takes the first
+race state it hasn't seen (name + address) as the new world and checks its recipe names the event we wrote.
+
+**CONTINUE / B.** B is not read in the race world (no reliable way without hooks). The game's CONTINUE is left as it
+is: it goes to the main menu, where today's standings page shows (the result recorded on the results screen, not a
+second time), with NEXT RACE and B -> "Leave the cup? Your points are lost." So leaving the cup from the results
+screen is CONTINUE, then B. The same happens if the game moves on to the menu by itself (~7 s after the results,
+seen in an early recon): the panel and NEXT RACE are up within ~0.3 s of the screen, and if the player is slower the
+menu flow simply takes over.
+
+**Fallbacks** (every one logged with `[chain]`; never stuck):
+- no results screen within `ResultsWaitS`, or the panel can't be added: the race is (or is then) recorded at the
+  main menu as before / CONTINUE shows the standings at the menu;
+- NEXT RACE but the set-up, the recipe write or its read-back, or the reset call fails: `CH.fallback` presses the
+  results screen's CONTINUE for the player (its bound click event), else `RacingGameMode:RequestReturnToMenus()`;
+- no new race world `LoadTimeoutS` after the reset, the main menu coming instead, or a new world running another
+  event: the same fallback; at the main menu the last recorded race's standings page shows (the cup at the next
+  race; NEXT RACE there launches it from the menu);
+- the results going to the menu before NEXT RACE: today's standings page.
+Put-backs (build, abilities, tune-ups, AI config and pacing assets, racer, the subsystem recipe's stage) happen once,
+at the main menu, when the chain ends (cup over, CONTINUE, a fallback); the recipe's originals are memory only (a
+game restart undoes them too). A crash mid-chain is the same as a crash mid-race today: the save's originals are put
+back at the next menu, and the cup is dropped at boot (cups cannot be resumed).
+
+**Log lines.** `[chain] race N of 4 finished: next X (same planet) - looking for the results screen`, `[chain] not
+chaining: <why>`, `[chain] panel added: on Default_Results (...)` / `panel NOT added: <why>`, `[chain] NEXT RACE
+pressed (<how>)`, `[chain] next race written: EVT (track, laps, conditions) ... read back ok`, `[chain] reset called:
+...RequestResetRace() for race N of 4, TITLE`, `[chain] new race world <name> <t> s after the reset: <event>`,
+`[chain] fallback: <why> - ...`, `[chain] main menu after the fallback: ...`, `[chain] the results went to the main
+menu before NEXT RACE: the standings there`, `[chain] recipe put back (main menu): ...`.

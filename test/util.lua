@@ -24,6 +24,29 @@ function T.boot(save, cfg)
   assert(ok, 'load failed: ' .. tostring(err))
   if not cfg.NoTabMenu and not cfg.Manual then W.tabMenu(); M.tick(18) end
 end
+-- v0.19: a fresh start inside the same test file (test_chain runs several scenarios): the fake engine's objects, loops,
+-- key binds, calls and log emptied, every mod module unloaded, the save deleted. Then T.boot again.
+function T.reset()
+  M.loops, M.binds, M.objects, M.assets, M.notifies, M.calls, M.log, M.hooks = {}, {}, {}, {}, {}, {}, {}, {}
+  M.deadTouches, M.deadLog = 0, {}
+  local p = io.popen('ls "' .. T.dir .. '/Scripts"')
+  for f in p:lines() do local m = f:match('^(.-)%.lua$'); if m then package.loaded[m] = nil end end
+  p:close()
+  os.remove(T.dir .. '/save.lua')
+  for _, k in ipairs({ 'tiles', 'pending', 'backs', 'tabbed', 'tab', 'chainBtn', 'screen', 'canvasKids', 'yourAbility',
+    'buildAffixes', 'buildSlots', 'gs', 'player', 'bots', 'rec', 'fe', 'mm' }) do W[k] = nil end
+end
+-- how many log lines contain s (from line `from` on)
+function T.logCount(s, from)
+  local n = 0
+  for i = from or 1, #M.log do if M.log[i]:find(s, 1, true) then n = n + 1 end end
+  return n
+end
+-- the first log line index containing s (from `from` on), or nil
+function T.logAt(s, from)
+  for i = from or 1, #M.log do if M.log[i]:find(s, 1, true) then return i end end
+  return nil
+end
 function T.logHas(s, from)
   for i = from or 1, #M.log do if M.log[i]:find(s, 1, true) then return true end end
   return false

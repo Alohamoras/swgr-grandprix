@@ -60,11 +60,12 @@ end
 -- chain this race? -> { want = true, next = the next race (config entry) } or { why = the reason not (for the log) }.
 -- r = race.lua's run (r.ev = the race just finished)
 function CH.plan(r)
+  -- (off: nothing at all in the race world, not even a log line - today's flow)
+  if not CH.on() then return { quiet = true, why = 'ChainRaces is off' } end
   local ev, run = r.ev or {}, K.run()
   if ev.titleRace or not (run and ev.cup == run.cup and ev.race == run.race and ev.class == run.class) then
     return { quiet = true, why = 'not a cup race' }
   end
-  if not CH.on() then return { why = 'ChainRaces is off: the standings at the main menu' } end
   local nxt = K.races(K.cup(run.cup), run.class)[(ev.race or 0) + 1]
   if not nxt then return { why = ('race %d of %d: the cup result at the main menu'):format(ev.race or 0, run.races) } end
   if not CH.samePlanet(ev.path, nxt.path) and not CH.crossPlanet() then

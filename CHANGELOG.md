@@ -1,5 +1,37 @@
 # Changelog
 
+## v0.19.0 (2026-11-11): cups without the main menu
+TASKS "Next" 2, from the B9 spike (RaceFlowSpike). Built and tested, **not yet seen in game**. DESIGN.md §15.
+- **After a cup race (not the last), the standings go on the game's own results screen**: the standings page's text
+  (cup / race line, your line, stakes, NEW RECORD / near miss, the table with THIS RACE / POINTS / MOVED) on a dark
+  panel over the game's table, one prompt line (`NEXT RACE: race 3 of 4, FALLEN EMPIRE.  CONTINUE: the main menu (to
+  leave the cup).`), and a **NEXT RACE** button beside CONTINUE (made from CONTINUE's own class, focused: pad A /
+  Enter on it; or the key N, config `ChainRaces.Key`).
+- **NEXT RACE starts the next cup race in the race world**: the same set-up as a launch from the menu (race.lua
+  `prepare`, now shared by `R.launch` and the new `R.chainLaunch`: parts, abilities, tune-ups, AI profile + pacing
+  assets with the `[aiset]` read-back, a fresh rubber band, racer swap, AI loadout), the next event written into the
+  race recipe's active stage (both copies, read back), then `RequestResetRace`. The race is recorded on the results
+  screen by the same code the menu uses (race.lua `recordRace`), so points, records, cup progress, rival tally, near
+  misses and the gap log are identical; the menu never records it twice.
+- **CONTINUE** (or the game moving on by itself) goes to the main menu and today's standings page, where B still
+  asks "Leave the cup? Your points are lost." B on the results screen itself is not read.
+- **Put-backs once**, at the main menu when the chain ends (cup over, CONTINUE, a fallback): build, abilities,
+  tune-ups, AI config and pacing assets, racer, and (new) the subsystem recipe's stage.
+- **Same planet only** (config `ChainRaces = { On = true, CrossPlanet = false, ... }`): the folder after `/Planets/`
+  in the two event paths, without case. Planet cups chain all four races; the Galactic Cup (a planet change every
+  race) keeps the main-menu flow. The last race of a cup always goes to the menu and the cup result.
+- **Fallbacks** to CONTINUE -> main menu -> standings page, each logged: no results screen in `ResultsWaitS` (90 s),
+  the panel not added, a failed set-up / recipe write / read-back / reset call, no new race world in `LoadTimeoutS`
+  (15 s), the menu coming instead, a new world running another event. `[chain]` log lines for every step.
+- The standings text moved from main.lua to standings.lua (shared by the page and the panel); ui.lua's line / table
+  drawing is shared by the page and `U.panel`. The race-world watch takes the first race state not seen before
+  (name + address) as the new one (was: not the one at launch).
+- Tests: test_chain (new, 6 scenarios in one file with `T.reset`: ChainRaces off = today's flow; a 4-race cup
+  chained end to end with the save compared to the menu flow's; CONTINUE + B leaving; a reset that gives no world;
+  a recipe write that fails; the Galactic Cup's planet change). The fake world (test/world.lua) has the race recipe
+  (subsystem + race state copies), the results screen with CONTINUE on its canvas, and `RequestResetRace` making a
+  new race world.
+
 ## v0.18.0 (2026-11-11): AI profiles from the study
 TASKS "Next" 1. From the AI study (docs/ai-study-2026-11-11.md, 36 autopilot races): races read their pacing from
 RP_Default, whose default slowdown 0.3 is what held the field back; with the band off the bots are as quick as a
