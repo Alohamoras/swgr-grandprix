@@ -98,6 +98,12 @@ owner's own play, and the offline half of B7.)
    race; plan in docs/ai-tuning-research-2026-11-11.md. Output: a table of gap vs setting and proposed profiles
    with as little catch-up as possible. Needs the desktop to Claude alone.
 
+11. Boot straight into the Grand Prix (owner 2026-11-11: "i want the game to launch and go directly to the grand
+   prix menu, pressing b would still back out to the main menu"). At the first main menu after launch, open the
+   GRAND PRIX tab by itself (HOME page). B on HOME goes back to the game's main menu as today. Only once per launch:
+   coming back from a race or backing out must not reopen it. A config switch (`BootToGrandPrix`, on by default).
+   Never pick the MULTIPLAYER tab on the way. Check the boot-drop of an old cup run still happens first.
+
 **C. Only the owner can do these (left for you)**
 - The v0.10 rubber band feel at 100cc and 150cc (decides the profile numbers from B2).
 - The pad: B on the standings, the v0.8 menus with a controller.
