@@ -312,3 +312,15 @@ game. Summary of what changed in the design:
   (1 s), "1 POINT FROM GOLD" (3 points). They share the NEW RECORD line, so the screen is no taller than before.
   The unlock pacing (test_pacing): from a fresh save there is always a locked tile one step away that says what opens
   it, and no cup opens more than two things.
+- **v0.13 (2026-11-11): a rival per class** (docs/PHILOSOPHY.md point 3; rival.lua, config `Rival`). The rule: after
+  every cup race at a class, each racer within 6 points of you in that cup's standings scores 6 minus the gap (2 more
+  if ranked just ahead of you), the first to 30 becomes your rival at the class, and another racer takes over only
+  when their tally beats the rival's by 10, more than one race can give. You and Kestar Bool are never scored (he
+  never races cups); Shade is scored like anyone (he is on the grid when you race as someone else). Saved per class
+  (`rivals[class] = { name, scores }`, optional; RESET PROGRESS clears it). The standings name the rival with the gap
+  in this cup ("RIVAL: SEN FIRA, AHEAD BY 3" / "RIVAL: SEN FIRA, 5 BEHIND YOU" / "..., LEVEL ON POINTS"): on its own
+  line while the screen is under its height (races 1-3: 4 lines, the cup result: 5), else at the end of your "You:"
+  line; a stakes line already naming the rival says "YOUR RIVAL" instead ("8 POINTS BEHIND YOUR RIVAL SEN FIRA, 1
+  RACE LEFT"), so the rival is never named twice. HOME's class info: "Champion: BIDDY BLAS.  Rival: SEN FIRA"
+  ("Champion and rival: X" when the same). **The title-race opponent is still Kestar Bool** (the Stadium Showdown)
+  until the two-car grid spike (TASKS.md B6) shows the rival can be put on a normal event's grid.

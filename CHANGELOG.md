@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.13.0 (2026-11-11): a rival per class
+Queue item A4 (TASKS.md), from docs/PHILOSOPHY.md point 3. Built and tested, not yet seen in game. Not the title-race
+opponent: that is still Kestar Bool until the two-car grid spike (B6).
+- **The rule** (rival.lua, config `Rival = { Window = 6, Ahead = 2, Form = 30, Margin = 10, Exclude = { 'Kestar Bool'
+  } }`, false = off): after every cup race at a class, each racer within 6 points of you in that cup's standings
+  scores 6 minus the gap (2 more if ranked just ahead of you); the first to 30 becomes your rival at the class (about
+  two cups of close racing), and another racer takes over only when their tally beats the rival's by 10, more than
+  one race can give, so one odd race never flips it. You and Kestar Bool are never scored; Shade is, like anyone.
+  Logged: `[rival] 100cc: Sen Fira is your rival` / `... is your rival now (was ...)`.
+- **Save:** `rivals[class] = { name, scores = { [racer] = tally } }`, optional (old saves load with none); RESET
+  PROGRESS clears it.
+- **Standings call-out** with the gap in this cup: "RIVAL: SEN FIRA, AHEAD BY 3" / "RIVAL: SEN FIRA, 5 BEHIND YOU" /
+  "RIVAL: SEN FIRA, LEVEL ON POINTS". Its own line while the screen is under its v0.12 height (4 lines after races
+  1-3, 5 after the cup); else on the end of your line ("You: 3rd in this race   -   1:58.00   -   RIVAL: SEN FIRA,
+  AHEAD BY 3"). When the stakes line already names the rival it says "YOUR RIVAL" instead ("8 POINTS BEHIND YOUR RIVAL
+  SEN FIRA, 1 RACE LEFT") and there is no second mention. Nothing when the rival isn't in this cup.
+- **HOME:** the class tile's info line names the rival next to the champion ("100cc: parts level 3, abilities 1.  Gold
+  0 / 6, trophies 1 / 6.  Champion: BIDDY BLAS.  Rival: SEN FIRA"; "Champion and rival: X" when the same racer).
+  "every part at level N, abilities level M" became "parts level N, abilities M" to keep it on one line.
+- Tests: test_rival (27 tests).
+
 ## v0.12.0 (2026-11-11): stakes and near misses
 Queue item A3 (TASKS.md), from docs/PHILOSOPHY.md points 2, 4 and 6. Built and tested, not yet seen in game.
 - **Stakes line** on the standings after races 1-3 (cup.lua `CU.stakes`), worked out from the points table (config

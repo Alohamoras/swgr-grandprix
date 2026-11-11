@@ -7,12 +7,12 @@
 -- v0.11: one cup per planet with a race list per class (classic / reverse / conditions), the Galactic Cup, the title race.
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.12.0'
+local VERSION = '0.13.0'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
 package.path = scripts .. '/?.lua;' .. package.path
-for _, m in ipairs({ 'core', 'config', 'abil', 'cup', 'gp', 'loadout', 'ai', 'race', 'ui', 'tab' }) do package.loaded[m] = nil end
+for _, m in ipairs({ 'core', 'config', 'abil', 'cup', 'rival', 'gp', 'loadout', 'ai', 'race', 'ui', 'tab' }) do package.loaded[m] = nil end
 
 local C = require('core')
 C.DIR = scripts:match('^(.*)[/\\][Ss]cripts$') or '.'
@@ -59,6 +59,7 @@ local startLoop -- forward
 local function go(screen) S.screen = screen; S.message = nil; return true end
 
 local CU = require('cup')
+local RV = require('rival')
 local AB = require('abil')
 local PR = require('prog')
 local MS = require('modsel')
@@ -175,6 +176,16 @@ local function championLine(classKey)
   local name = TI.champion(classKey)
   return name and ('Champion: ' .. tostring(name):upper()) or nil
 end
+-- v0.13: the champion and the rival for HOME's info line: '  Champion: BIDDY BLAS.  Rival: SEN FIRA' ('  Champion and
+-- rival: SEN FIRA' when they are the same racer; '' when neither)
+local function rivalInfo(classKey, champ)
+  local name = RV.name(K.data, classKey)
+  local riv = name and ('Rival: ' .. name:upper()) or nil
+  if champ and riv and champ == 'Champion: ' .. name:upper() then return '  Champion and rival: ' .. name:upper() end
+  if champ and riv then return '  ' .. champ .. '.  ' .. riv end
+  local one = champ or riv
+  return one and ('  ' .. one) or ''
+end
 -- the title race tile on the cups page: locked until a trophy in the Galactic Cup at the class; won = CHAMPION
 local function titleTile(cls)
   if not (TI.on() and TI.event(cls.key)) then return nil end
@@ -217,8 +228,8 @@ SCREENS.home = function()
       items[#items + 1] = { title = c.name:upper(), art = ART.class(c.key),
         badge = golds > 0 and ('%d / %d GOLD'):format(golds, total) or (trophies > 0 and ('%d / %d TROPHIES'):format(trophies, total) or nil),
         desc = (c.blurb or '') .. (champ and ('\n' .. champ) or ''),
-        info = ('%s: every part at level %d, abilities level %d.  Gold %d / %d, trophies %d / %d.%s'):format(c.name, c.parts or 0,
-          c.abilities or 1, golds, total, trophies, total, champ and ('  ' .. champ) or ''),
+        info = ('%s: parts level %d, abilities %d.  Gold %d / %d, trophies %d / %d.%s'):format(c.name, c.parts or 0,
+          c.abilities or 1, golds, total, trophies, total, rivalInfo(c.key, champ)),
         act = function() S.class = c.key; K.data.class = c.key; K.save(); return go('cups') end }
     end
   end
@@ -440,11 +451,20 @@ SCREENS.standings = function()
   local you = ('You: %s in this race'):format(r.pos and ordinal(r.pos) or 'did not finish')
   if r.time and K.fmtTime then you = you .. ('   -   %s'):format(K.fmtTime(r.time)) .. (r.lap and ('  (best lap %s)'):format(K.fmtTime(r.lap)) or '') end
   lines[#lines + 1] = { you, 18 }
+  local youLine = lines[#lines]
   -- v0.12 (docs/PHILOSOPHY.md points 2 and 4): between races one stakes line from the points left; then ONE line for
   -- the record, the best lap and the near misses together, so the screen never grows past its v0.8 height (races 1-3:
   -- 4 lines; the cup result: 5 lines, as before)
   local stakes = (not r.cupOver) and run and K.run() and CU.stakes(run, cfg.Points) or nil
+  -- v0.13 (point 3): the rival with their gap in this cup. A stakes line naming them already says "YOUR RIVAL" instead
+  -- of a second line ("2 POINTS BEHIND YOUR RIVAL SEN FIRA, 1 RACE LEFT")
+  local rivalName = run and RV.name(K.data, run.class)
+  local rival = RV.callout(rivalName, run)
+  local merged
+  stakes, merged = RV.merge(stakes, rival and rivalName)
+  if merged then rival = nil end
   if stakes then lines[#lines + 1] = { stakes, 22, U.WHITE } end
+  local rivalAt = #lines + 1
   local note, big = {}, false
   if r.newRecord and K.fmtTime then
     note[#note + 1] = ('NEW RECORD  %s%s'):format(K.fmtTime(r.time), r.oldTime and ('   (was %s)'):format(K.fmtTime(r.oldTime)) or ''); big = true
@@ -456,6 +476,12 @@ SCREENS.standings = function()
   local nearCup = r.cupOver and run and CU.nearTrophy(run, (cfg.Near or {}).TrophyPoints) or nil
   if nearCup then note[#note + 1] = nearCup; big = true end
   if #note > 0 then lines[#lines + 1] = { table.concat(note, '   -   '), big and 22 or 20, U.GOLD } end
+  -- the rival's own line (after the stakes / your line) while the screen has room under its height (races 1-3: 4
+  -- lines, the cup result: 5); else it goes on the end of your line
+  if rival then
+    if #lines < (r.cupOver and 5 or 4) then table.insert(lines, rivalAt, { rival, 20, U.WHITE })
+    else youLine[1] = youLine[1] .. '   -   ' .. rival end
+  end
   local items = {}
   if K.run() then
     -- v0.9: NEXT RACE only (no LATER: cups cannot be resumed; B asks "Leave the cup?" - handle, below)

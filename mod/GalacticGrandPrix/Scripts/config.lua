@@ -69,6 +69,12 @@ return {
     -- GOLD"). false = off.
     Near = { RecordSeconds = 1.0, TrophyPoints = 3 },
 
+    -- Your rival per class (v0.13, rival.lua, docs/PHILOSOPHY.md point 3). After every cup race at a class, each racer
+    -- within Window points of you in that cup's standings scores Window minus the gap (Ahead more if ranked just
+    -- ahead of you); the first to Form becomes your rival there, and another racer takes over only when their tally
+    -- beats the rival's by Margin (more than one race can give: Window + Ahead). Exclude = never a rival. false = off.
+    Rival = { Window = 6, Ahead = 2, Form = 30, Margin = 10, Exclude = { 'Kestar Bool' } },
+
     -- The title race (v0.8, title.lua): one 1 v 1 at the end of each class against the class champion. The game's
     -- Stadium Showdown against Kestar Bool (6 laps, about 5 minutes; he copies your build, so he scales with the
     -- class). Opens with a trophy in the Galactic Cup at the class (v0.11). Fallback = the champion named on the class tile

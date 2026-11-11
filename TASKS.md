@@ -17,7 +17,8 @@ next starts (they all touch main.lua and config.lua); game sessions one at a tim
    2026-11-11; see CHANGELOG v0.11.0.)
 3. [x] v0.12 stakes and near-miss lines on the standings; the unlock pacing check on a fresh save (after v0.11, since
    it changes the unlocks). Tag v0.12.0. (Built 2026-11-11; see CHANGELOG v0.12.0.)
-4. v0.13 the rival rule and the standings call-out (not the title-race spike). Tag v0.13.0.
+4. [x] v0.13 the rival rule and the standings call-out (not the title-race spike). Tag v0.13.0. (Built 2026-11-11;
+   see CHANGELOG v0.13.0.)
 5. The main-menu poll made cheaper (section 4, one sweep 5x a second at the menu).
 6. Racer = vehicle build (after B7 proves it, and after v0.11): picking a racer gives you their own vehicle and
    looks; VEHICLE leaves the garage; Shade drives the base landspeeder (no bike / skimmer choice, owner
@@ -110,9 +111,11 @@ the cups, then the rival. One tag per chunk.
       at once; a fresh save shows three: GALACTIC CUP at 50cc and 100cc, 150cc. Current rules pass, no change.)
 
 ### v0.13: a rival per class
-- [ ] Rule for the rival: the racer with the closest points to yours across the class's cups (ties: most finishes
-      just ahead of you). Saved per class.
-- [ ] Standings call the rival out ("RIVAL: SEN FIRA, AHEAD BY 3").
+- [x] Rule for the rival: the racer with the closest points to yours across the class's cups (ties: most finishes
+      just ahead of you). Saved per class. (rival.lua: a closeness tally per class from each cup race's standings,
+      formed at 30, switched only by a 10-point lead; DESIGN.md §13.)
+- [x] Standings call the rival out ("RIVAL: SEN FIRA, AHEAD BY 3"), merged into the stakes line when it names them;
+      HOME's class info names the rival next to the champion. 27 tests.
 - [ ] Spike: the rival as the title-race opponent (a two-car grid on a normal event: `GridMakeup.Entries[].NumEntrants`
       + `CharacterList.Opponents`). If it fails, keep the Showdown against Kestar and name the rival in the intro.
 

@@ -6,6 +6,7 @@ local C = require('core')
 local cfg = require('config')
 local CU = require('cup')
 local PR = require('prog')
+local RV = require('rival')
 local log = C.log
 
 local K = { data = nil }
@@ -89,6 +90,8 @@ local function fill(d)
   d.perfect = type(d.perfect) == 'table' and d.perfect or {}
   d.standings = type(d.standings) == 'table' and d.standings or {}
   d.titles = type(d.titles) == 'table' and d.titles or {} -- v0.8: the title races won per class (title.lua)
+  -- v0.13: your rival per class (rival.lua): rivals[classKey] = { name, scores = { [racer] = tally } }. Optional.
+  d.rivals = type(d.rivals) == 'table' and d.rivals or {}
   return d
 end
 
@@ -283,8 +286,9 @@ function K.reset()
   b:close()
   K.data.best, K.data.run, K.data.cups = {}, nil, 0
   K.data.records, K.data.perfect, K.data.standings = {}, {}, {}
+  K.data.rivals = {}
   K.save()
-  log('progress reset: trophies, best finishes, track records, perfect cups, cup standings and the cup in progress cleared (backup ' .. name .. ')')
+  log('progress reset: trophies, best finishes, track records, perfect cups, cup standings, rivals and the cup in progress cleared (backup ' .. name .. ')')
   return name
 end
 -- the next race of the cup in progress, as a launchable event
@@ -495,6 +499,14 @@ function K.record(ev, pos, field, extra)
     out.rows = CU.addRace(run, field, cfg.Points)
     log(('cup %s race %d: %s'):format(run.cup, run.race - 1, names(out.rows)))
     out.run = run
+    -- v0.13: the class's rival tally (rival.lua); out.rival = the rival after this race (nil: none yet)
+    local okR, name, what, old = pcall(RV.update, K.data, run)
+    if okR then
+      out.rival = name
+      local c = K.class(run.class)
+      if what == 'new' then log(('[rival] %s: %s is your rival'):format(c and c.name or run.class, name))
+      elseif what == 'switch' then log(('[rival] %s: %s is your rival now (was %s)'):format(c and c.name or run.class, name, old)) end
+    else log('rival not worked out: ' .. tostring(name)) end
     if CU.finished(run) then
       local before = PR.openSet(K.data)
       local rank, pts = CU.yourRank(run)
