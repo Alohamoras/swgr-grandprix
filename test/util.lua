@@ -81,7 +81,8 @@ function T.finish()
   if M.deadTouches > 0 then print("DEADTOUCH " .. M.deadTouches .. "\n" .. M.deadLog[1]) end
   if os.getenv('VERBOSE') then for _, l in ipairs(M.log) do io.stderr:write('  log: ' .. tostring(l)) end end
   for _, l in ipairs(M.log) do
-    if l:find('error', 1, true) then io.stdout:write('FAIL error in log: ' .. l); T.failed = true end
+    -- (v0.16: a study line names the AI profile's `errors=` key; not an error)
+    if l:gsub('errors=', ''):find('error', 1, true) then io.stdout:write('FAIL error in log: ' .. l); T.failed = true end
   end
   if T.failed then os.exit(1) end
 end

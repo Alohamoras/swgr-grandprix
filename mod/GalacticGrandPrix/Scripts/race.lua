@@ -230,7 +230,8 @@ end
 
 -- ev = { path, title, kind, cup, class, race }; picks = your four abilities (abil.lua) or nil for none.
 -- Returns true, or false + a message for the player.
-function R.launch(ev, classKey, vehKey, picks, mods)
+-- opts (v0.16): { ai = profile } replaces the class's AI profile for this race only (study mode, study.lua)
+function R.launch(ev, classKey, vehKey, picks, mods, opts)
   if R.run then return false, 'A race is already running' end
   local fe, why = R.atMainMenu()
   if not fe then return false, 'Cannot launch: ' .. why end
@@ -260,7 +261,8 @@ function R.launch(ev, classKey, vehKey, picks, mods)
   end
   -- v0.8: the class's AI profile (ai.lua) - the AI config asset now (put back with the build), the rubber band while
   -- the race loads (ai, below)
-  local okI, ai = pcall(function() AI.launch(classKey); return AI.begin(classKey) end)
+  local prof = type(opts) == 'table' and type(opts.ai) == 'table' and opts.ai or nil
+  local okI, ai = pcall(function() AI.launch(classKey, prof); return AI.begin(classKey, prof) end)
   if not okI then log('[ai] ' .. tostring(ai)); ai = nil end
   -- v0.8: your pilot into the character list (the save holds what to put back; a failed launch puts it back below)
   if ev.titleRace then
@@ -548,6 +550,7 @@ function R.watch()
   R.run = nil
   -- (v0.8: the race time only once you finished; the best lap whenever one was read)
   local out = K.record(r.ev, r.finished and r.pos or nil, fl, { time = r.finished and r.time or nil, lap = r.lap, top = r.top })
+  out.field = fl -- (v0.16: every racer's position and time, for the study mode's result line)
   pcall(function()
     log(('RESULT %s: %s (time %s, best lap %s, top speed %d kph, last position seen %s)'):format(r.ev.title,
       r.finished and C.ordinal(r.pos) or 'DNF', K.fmtTime(r.finished and r.time or nil), K.fmtTime(r.lap),

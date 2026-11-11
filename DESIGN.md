@@ -346,3 +346,22 @@ game. Summary of what changed in the design:
   mismatch is logged; config wins). **TODO (B7): the racer's own look** (their livery preset,
   docs/racer-vehicles-2026-11-11.md) is not put on yet: it is unproven in game, so you race the plain build of the
   racer's type until B7 settles it.
+
+## 14. Study mode (v0.16, test-only; TASKS.md B10)
+For the AI tuning study: batches of single races driven by the test-only TestAutopilot, one AI setting changed at a
+time. Off unless `study.lua` sits in the mod folder (next to save.lua); without it the only cost is an `io.open` at
+boot and every 5 s at the menu. The file returns a list of jobs
+`{ class = '150', cup = 'ando', race = 1, label = '150 p0.5 catch0.8', ai = { pressure = 0.5, pacing = {...},
+catchup = 0.8, errors = 0.5, perfectStart = 90, aggression = {...}, ops = {...}, config = {...} } }`; `ai` replaces
+`AI.Profiles[class]` for that race only (ai.lua takes the profile through `R.launch(..., { ai = prof })`; the
+global `AI.Adjust` still adds to its pressure). At the main menu (no race, no cup, nothing to put back, no result
+screen waiting) and 5 s after it settled, the next job's race (the cup's race list at the class, index `race`)
+launches through `R.launch` like the title race: the class's parts, your racer and vehicle, abilities, tune-ups. No
+cup run, no points, no trophies; the race count and track records are written as usual (a test save). Our page, if
+open, is closed first. Progress is `study_state.lua` (`next`, plus `started` / `tries` while a race runs: a race
+interrupted by a restart runs again, twice at most). Results: a `[study] job i/N 'label' EVENT CLASS: you 1st 2:31.37,
+P2 +11.17 s (name), P3 +13.0, P6 +20.2, P12 +44.1, AI spread 33.0 s` line (gaps of those finishing places, by time,
+to you; not 1st: P1 first, negative) and a row in `study_results.csv` (`job,label,class,event,your_pos,your_time,
+gap_p1,gap_p2,gap_p3,gap_p6,gap_p12,ai_spread,settings`; seconds; settings = the profile as compact text). A job that
+can't be launched (unknown class / cup / race, a failed launch, a race that never loads) is logged and skipped. After
+the last: `[study] all N jobs done`, then nothing. Delete study_state.lua to run a study again. Code: studymode.lua.

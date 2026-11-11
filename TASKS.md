@@ -97,6 +97,8 @@ owner's own play, and the offline half of B7.)
    class, one AI setting changed at a time (pressure, catch-up, slowdown, forced errors, power level), gap log per
    race; plan in docs/ai-tuning-research-2026-11-11.md. Output: a table of gap vs setting and proposed profiles
    with as little catch-up as possible. Needs the desktop to Claude alone.
+   v0.16.0: study mode built (study.lua jobs -> single races with a per-job AI profile, `[study]` log lines and
+   study_results.csv; DESIGN.md §14). Not yet run in game.
 
 **C. Only the owner can do these (left for you)**
 - The v0.10 rubber band feel at 100cc and 150cc (decides the profile numbers from B2).

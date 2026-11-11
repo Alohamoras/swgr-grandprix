@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.16.0 (2026-11-11): study mode (test-only)
+For the AI tuning study (TASKS.md B10, DESIGN.md §14). Built and tested, not yet run in game.
+- **v0.16.0 - study mode (test-only)**: a `study.lua` in the mod folder lists jobs (class, cup, race number, label, a
+  whole AI profile). At the main menu each job's single race launches like the title race (class parts, your racer,
+  abilities, tune-ups) with the job's AI profile in place of the class's; no cup run, no points or trophies (records
+  and the race count as usual). The menu must be back and settled (put-back done) for 5 s between jobs; our page is
+  closed first if open.
+- One `[study] job i/N ...` start line and one result line per job (your place and time, the gaps of P1/P2/P3/P6/P12
+  to you, the AI's spread) and a row per job in `study_results.csv`. `study_state.lua` holds the next job, so a
+  restart resumes; an interrupted race is run again once, then skipped; a job that can't launch is logged and skipped.
+  `[study] all N jobs done` at the end.
+- ai.lua takes an optional profile (`A.launch / A.begin / A.plan / A.tuneValue`), race.lua `R.launch(..., opts)`
+  passes `opts.ai`; the AI config and tune objects are put back after each race as before. race.lua's result now
+  carries the field (`out.field`).
+- Nothing changes without study.lua: an `io.open` at boot and every 5 s at the menu, no game lookups.
+- Tests: test_study (nothing without study.lua; two jobs back to back: parts, DA_AIConfig writes, tune ops, put-back,
+  page closed first, log lines, CSV, no cup), test_study_resume (resume from study_state, a retry, a bad job, a failed
+  launch, all done, a twice-interrupted job skipped). The test harness's "error in the log" check ignores `errors=`.
+
 ## v0.15.1 (2026-11-11): bright tile pictures drawn darker
 Seen in game: the game brightens a focused tile's picture, and the white name was hard to read on the brightest
 ones. The 50cc banner (75%), the 100cc banner (80%) and Kestar Bool's portrait (70%) are now tinted darker
