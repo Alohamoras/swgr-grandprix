@@ -3,6 +3,40 @@
 Design: DESIGN.md. Shared playbook and house rules: ~/Projects/swgr-underground/AUTOMATION.md.
 One git tag per chunk; push after each tag.
 
+## Overnight queue for Claude (drafted 2026-11-10, to start after 1:10 am)
+Kickoff prompt: "Work through the overnight queue in TASKS.md." Rules for the run: AUTOMATION.md §3 first (if the
+game is running and Claude didn't start it, no game work at all, code only); back up the owner's save before any game
+session and restore it after (md5 check); the code chunks go in order, one worktree each, merged and tagged before the
+next starts (they all touch main.lua and config.lua); game sessions one at a time; push after each tag.
+
+**A. Code and tests, no game needed**
+1. v0.10 code: the gap log after each race; 200cc at parts 9 with the 150cc AI profile, gated on nothing. Tag
+   v0.10.0. The rubber band numbers stay as they are until B2 and the owner's play.
+2. v0.11 conditions folded into the cups: the whole section except its in-game line. Tag v0.11.0.
+3. v0.12 stakes and near-miss lines on the standings; the unlock pacing check on a fresh save (after v0.11, since
+   it changes the unlocks). Tag v0.12.0.
+4. v0.13 the rival rule and the standings call-out (not the title-race spike). Tag v0.13.0.
+5. The main-menu poll made cheaper (section 4, one sweep 5x a second at the menu).
+
+**B. In game with TestAutopilot (game closed, test save, owner's save restored after)**
+1. v0.9 check: the standings' one tile, B -> the question (keyboard; the pad is the owner's), a restart mid-cup logs
+   the drop and HOME shows no cup, a pause-menu quit still moves the cup on.
+2. Rubber band research: one autopilot race per class with the gap log, plus one with MaxAiCatchupScale lowered;
+   write what each AI field does to a lead into DESIGN.md §4 and propose profile numbers (not applied).
+3. v0.11 events: every new race in every class launches and finishes (a long run: about 60 events; sprints and the
+   shortest lap counts first, stop at the first failure).
+4. Racing as another pilot: screenshots of the HUD and results name with Kestar Bool picked.
+5. Tune-ups the Elite don't share (150cc with REDLINER): the "cleared from your copy" log path.
+6. Spike: a two-car grid on a normal event (the rival / class leader as title-race opponent). Report only.
+
+**C. Only the owner can do these (left for you)**
+- The v0.10 rubber band feel at 100cc and 150cc (decides the profile numbers from B2).
+- The pad: B on the standings, the v0.8 menus with a controller.
+- Do AI racers fire their abilities, Shields included (R7)? Does the menu flash still show? Do the ability picks and
+  badges read clearly?
+- A name for the Ando short track.
+- The v1.0 pass: every cup at every class.
+
 ## v0.9: cups are not resumable (owner, 2026-11-10; built, NOT yet seen in game)
 Design rule (DESIGN.md §13): like Mario Kart, leaving a Grand Prix loses it. A cup exists only from its first
 race's launch to the standings of its last race.
