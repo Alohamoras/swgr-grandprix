@@ -64,7 +64,13 @@ owner's own play, and the offline half of B7.)
 5. [x] (owner's own races, 2026-11-10 23:12: `you=REDLINER+ARMOUR Elite=HEAT SHIELD (...) (240 bot slots cleared, 8
    cleared from your race copy)`, no FAILED) Tune-ups the Elite don't share: the "cleared from your copy" log path.
 6. Spike: a two-car grid on a normal event (the rival / class leader as title-race opponent). Report only.
-7. (race done 2026-11-11 with tools/recon/LookSpike, log lookspike-20261111.log: PreferredVehicleType read in
+7. [x] (2026-11-11 afternoon, LookSpike v2, log tools/recon/LookSpike/lookspike-v2-20261111.log: **the look already comes
+   with the racer swap.** The race's recipe list gives your entry the racer's own preset before anything is written
+   (Nik Skandaro -> PRE_Car_Hammerhead_QuietStrength), and the car reads "Hammerhead Quiet Strength" through the race
+   in 3 races; as Griff Halloran the skim speeder is dark with red trim. Route B found no look component on the car
+   (0 components; the 50 found belong to cinematic static vehicles). Route A (FreeRace's Server_UpdateVehicleRecipe)
+   not tried: it can write into the game's own saved recipes. Screenshots autotest/shots/look1-a/b.png for the owner.)
+   (race done 2026-11-11 with tools/recon/LookSpike, log lookspike-20261111.log: PreferredVehicleType read in
    game matches the table in docs/racer-vehicles exactly (Biddy, Sen, Katja, Malis = bike; Kestar, Shade, Ary, Nik,
    Soren = car; the rest skimmer). As Biddy on the bike at 150cc: parts 7 on VBD_Bike_Base, won by 9.2 s.
    PRE_Bike_Sidewinder_Rager loads (recipe "Sidewinder Rager"); Client_SetOverrideVehicleRecipe sent without

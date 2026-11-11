@@ -17,8 +17,9 @@
 -- per racer per session from the def already in hand and a mismatch with config is logged (no extra sweep, no soft
 -- pointers). Kestar Bool (unlockTitle = '150') is locked until you win the 150cc title race: RC.cycle skips him, and a
 -- save that still has him picked races as Shade (logged once).
--- TODO (TASKS.md B7, unproven): the racer's own look (preset PRE_*, docs/racer-vehicles-2026-11-11.md) is NOT put on
--- yet - you race the plain build of the racer's vehicle type. The look comes later, once B7 shows how to make it stick.
+-- The racer's own look comes with the swap (LookSpike v2, 2026-11-11): the race's recipe list (RecipeState.Racers[])
+-- already gives your entry the racer's preset (Nik Skandaro -> PRE_Car_Hammerhead_QuietStrength), and your vehicle
+-- reads "Hammerhead Quiet Strength" through the race. Nothing to add here; the owner judges the screenshots.
 local C = require('core')
 local cfg = require('config')
 local K = require('gp')

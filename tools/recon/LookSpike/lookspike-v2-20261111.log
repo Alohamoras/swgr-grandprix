@@ -1,0 +1,52 @@
+2026-11-11 15:31:32 LookSpike v2.0 loaded; preset /GriffinSharedVehicles/Griffin/Vehicles/Cars/Presets/PRE_Car_Hammerhead_QuietStrength; plan C | B | O
+2026-11-11 15:31:43 preset loaded: recipe "Hammerhead Quiet Strength", archetype Car
+2026-11-11 15:31:44 race 1: world RacingGameState_2147480160, standalone=true, plan C
+2026-11-11 15:31:44 preset "Hammerhead Quiet Strength" (PRE_Car_Hammerhead_QuietStrength_C, Car); routes C@load
+2026-11-11 15:31:44 C: race recipe EventRecipeInstance_2147480579, 12 racers (* = you): 1:DA_Racer_QuietStrength/Car/PRE_Car_Hammerhead_QuietStrength_C* 2:DA_Racer_Nomad/Skimmer/PRE_Skimmer_Condor_Nomad_C 3:DA_Racer_Star/Skimmer/PRE_Skimmer_Crow_StarUpdated_C 4:DA_Racer_Protege/Car/PRE_Car_Orca_Protege_C 5:DA_Racer_Veteran/Skimmer/PRE_Skimmer_Saker_VeteranUpdated_C 6:DA_Racer_Ghost/Skimmer/PRE_Skimmer_Pelican_Ghost_C 7:DA_Racer_InnerHonour/Car/PRE_Car_Snook_InnerHonour_C 8:DA_Racer_DarkEnigma/Car/PRE_Car_Beluga_Protagonist_C 9:DA_Racer_Rager/Bike/PRE_Bike_Sidewinder_Rager_C 10:DA_Racer_ElegantProfessional/Bike/PRE_Bike_Rattlesnake_ElegantProfessional_C 11:DA_Racer_Mercenary/Bike/PRE_Bike_Boa_Mercenary_C 12:DA_Racer_Thrall/Bike/PRE_Bike_Boomslang_Thrall_C
+2026-11-11 15:31:44 C: your entry 1 VehicleCustomisation PRE_Car_Hammerhead_QuietStrength_C -> PRE_Car_Hammerhead_QuietStrength_C: written, reads back PRE_Car_Hammerhead_QuietStrength_C
+2026-11-11 15:31:44 C: your vehicle exists already at the write: true (yes = the write may be too late)
+2026-11-11 15:31:45 your vehicle: VBP_Car_C_2147479934 (Car), 1.00 s after the race world; wears "? (no look component on the vehicle itself)"
+2026-11-11 15:31:47 check (after C): player state holds "Hammerhead Quiet Strength" (CstVehicleRecipe_2147479879, 1 units); vehicle VBP_Car_C_2147479934 wears "Hammerhead Quiet Strength" (want "Hammerhead Quiet Strength") -> ON
+2026-11-11 15:32:11 check (25 s after your vehicle showed up): player state holds "Hammerhead Quiet Strength" (CstVehicleRecipe_2147479879, 1 units); vehicle VBP_Car_C_2147479934 wears "Hammerhead Quiet Strength" (want "Hammerhead Quiet Strength") -> ON
+2026-11-11 15:32:11 done for this race; screenshot the car now (README.md)
+2026-11-11 15:34:07 race 1 over: main menu back
+2026-11-11 15:34:07 put back: C: entry 1 VehicleCustomisation -> /GriffinSharedVehicles/Griffin/Vehicles/Cars/Presets/PRE_Car_Hammerhead_QuietStrength.PRE_Car_Hammerhead_QuietStrength_C: done, reads back PRE_Car_Hammerhead_QuietStrength_C
+2026-11-11 15:34:13 race 2: world RacingGameState_2147472051, standalone=true, plan B
+2026-11-11 15:34:13 preset "Hammerhead Quiet Strength" (PRE_Car_Hammerhead_QuietStrength_C, Car); routes B@after
+2026-11-11 15:34:15 your vehicle: VBP_Car_C_2147471828 (Car), 1.00 s after the race world; wears "? (no look component on the vehicle itself)"
+2026-11-11 15:34:19 B: VBP_Car_C_2147471828 has 0 components: 
+2026-11-11 15:34:19 B: CstCustomisationComponent 1/50 CustomisationComponent owner BP_CineStaticVehicle_C_0 (BP_CineStaticVehicle_C)
+2026-11-11 15:34:19 B: CstCustomisationComponent 2/50 CustomisationComponent owner BP_CineStaticVehicle_C_1 (BP_CineStaticVehicle_C)
+2026-11-11 15:34:19 B: CstCustomisationComponent 3/50 CustomisationComponent owner BP_CineStaticVehicle_C_10 (BP_CineStaticVehicle_C)
+2026-11-11 15:34:19 B: CstCustomisationComponent 4/50 CustomisationComponent owner BP_CineStaticVehicle_C_11 (BP_CineStaticVehicle_C)
+2026-11-11 15:34:19 B: CstCustomisationComponent 5/50 CustomisationComponent owner BP_CineStaticVehicle_C_12 (BP_CineStaticVehicle_C)
+2026-11-11 15:34:19 B: CstCustomisationComponent 6/50 CustomisationComponent owner BP_CineStaticVehicle_C_13 (BP_CineStaticVehicle_C)
+2026-11-11 15:34:19 B: CstCustomisationComponent 7/50 CustomisationComponent owner BP_CineStaticVehicle_C_14 (BP_CineStaticVehicle_C)
+2026-11-11 15:34:19 B: CstCustomisationComponent 8/50 CustomisationComponent owner BP_CineStaticVehicle_C_15 (BP_CineStaticVehicle_C)
+2026-11-11 15:34:19 B: CstCustomisationComponent 9/50 CustomisationComponent owner BP_CineStaticVehicle_C_16 (BP_CineStaticVehicle_C)
+2026-11-11 15:34:19 B: CstCustomisationComponent 10/50 CustomisationComponent owner BP_CineStaticVehicle_C_17 (BP_CineStaticVehicle_C)
+2026-11-11 15:34:19 B: CstCustomisationComponent 11/50 CustomisationComponent owner BP_CineStaticVehicle_C_18 (BP_CineStaticVehicle_C)
+2026-11-11 15:34:19 B: CstCustomisationComponent 12/50 CustomisationComponent owner BP_CineStaticVehicle_C_19 (BP_CineStaticVehicle_C)
+2026-11-11 15:34:19 B: CstCustomisationComponent 13/50 CustomisationComponent owner BP_CineStaticVehicle_C_2 (BP_CineStaticVehicle_C)
+2026-11-11 15:34:19 B: CstCustomisationComponent 14/50 CustomisationComponent owner BP_CineStaticVehicle_C_20 (BP_CineStaticVehicle_C)
+2026-11-11 15:34:19 B: CstCustomisationComponent 15/50 CustomisationComponent owner BP_CineStaticVehicle_C_21 (BP_CineStaticVehicle_C)
+2026-11-11 15:34:19 B: CstCustomisationComponent 16/50 CustomisationComponent owner BP_CineStaticVehicle_C_22 (BP_CineStaticVehicle_C)
+2026-11-11 15:34:19 B: component CustomisationComponent (CstCustomisationComponent, FindAllOf, owner = your vehicle) wears "Hammerhead Quiet Strength"
+2026-11-11 15:34:19 B: SetActiveVehicleRecipeFromPreset sent
+2026-11-11 15:34:19 B: now wears "Hammerhead Quiet Strength"
+2026-11-11 15:34:22 check (after B): player state holds "Hammerhead Quiet Strength" (CstVehicleRecipe_2147471773, 1 units); vehicle VBP_Car_C_2147471828 wears "Hammerhead Quiet Strength" (want "Hammerhead Quiet Strength") -> ON
+2026-11-11 15:34:41 check (25 s after your vehicle showed up): player state holds "Hammerhead Quiet Strength" (CstVehicleRecipe_2147471773, 1 units); vehicle VBP_Car_C_2147471828 wears "Hammerhead Quiet Strength" (want "Hammerhead Quiet Strength") -> ON
+2026-11-11 15:34:41 done for this race; screenshot the car now (README.md)
+2026-11-11 15:36:37 race 2 over: main menu back
+2026-11-11 15:36:43 race 3: world RacingGameState_2147464276, standalone=true, plan O
+2026-11-11 15:36:43 preset "Hammerhead Quiet Strength" (PRE_Car_Hammerhead_QuietStrength_C, Car); routes O@load
+2026-11-11 15:36:43 O: Client_SetOverrideVehicleRecipe(PRE_Car_Hammerhead_QuietStrength_C) sent (vehicle built already: true); player state now holds "Hammerhead Quiet Strength" (CstVehicleRecipe_2147463999, 1 units)
+2026-11-11 15:36:44 your vehicle: VBP_Car_C_2147464054 (Car), 1.00 s after the race world; wears "? (no look component on the vehicle itself)"
+2026-11-11 15:36:47 check (after O): player state holds "Hammerhead Quiet Strength" (CstVehicleRecipe_2147463999, 1 units); vehicle VBP_Car_C_2147464054 wears "Hammerhead Quiet Strength" (want "Hammerhead Quiet Strength") -> ON
+2026-11-11 15:37:11 check (25 s after your vehicle showed up): player state holds "Hammerhead Quiet Strength" (CstVehicleRecipe_2147463999, 1 units); vehicle VBP_Car_C_2147464054 wears "Hammerhead Quiet Strength" (want "Hammerhead Quiet Strength") -> ON
+2026-11-11 15:37:11 done for this race; screenshot the car now (README.md)
+2026-11-11 15:39:22 race 3 over: main menu back
+2026-11-11 15:39:22 put back: A/O: nothing to undo (your player state went with the race world); saved CUSTOMIZE recipes now: Car=Beluga (Protagonist), Car=Beluga, Plane=MythP1, Plane=MythP1, Bike=Taipan (Protagonist), Bike=Hognose, Skimmer=Merlin (Protagonist), Skimmer=Needletail (unchanged)
+2026-11-11 15:40:32 race 4: world RacingGameState_2147455792, standalone=true, plan nil
+2026-11-11 15:40:32 plan done: nothing tried
+2026-11-11 15:42:58 race 4 over: main menu back
