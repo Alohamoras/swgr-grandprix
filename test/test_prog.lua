@@ -95,4 +95,18 @@ check(not ok and why:find('100cc', 1, true), 'a conditions cup in a locked class
 cfg.Progression.On = false
 check(P.classOpen(new, '200') and P.cupOpen(new, '200', 'galactic'), 'On = false: everything open')
 cfg.Progression.On = true
+
+-- v0.8: the title race opens with a trophy in every planet cup at the class; a class's own lock comes first; once
+-- tried it stays open
+cfg.Progression.On = true
+do
+  local t5 = { jakku = 3, lantaana = 1, ando = 2, crait = 3, sentinel = 1 }
+  local ok, why = P.titleOpen(d(), '100')
+  check(not ok and why == 'A trophy in all 5 planet cups at 100cc (0 / 5)', 'title race: locked on a new save (' .. tostring(why) .. ')')
+  check(P.titleOpen(d({ ['100'] = t5 }), '100'), 'title race: five trophies open it')
+  ok, why = P.titleOpen(d({ ['100'] = { jakku = 1 } }), '150')
+  check(not ok and why:find('150cc', 1, true) == nil and why:find('100cc', 1, true), 'a locked class: its own lock is the reason (' .. tostring(why) .. ')')
+  local tried = d({ ['100'] = { jakku = 1 } }); tried.titles = { ['100'] = { tries = 1 } }
+  check(P.titleOpen(tried, '100'), 'once tried it stays open')
+end
 if failed then os.exit(1) end

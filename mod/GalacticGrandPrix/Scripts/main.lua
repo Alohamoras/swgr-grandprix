@@ -34,7 +34,6 @@ U.setLayout('tab')
 local S = {
   ui = nil,          -- the built screen { w, items, scroll, pc }
   screen = nil,      -- 'home' | 'cups' | 'garage' | 'standings' | 'confirm' | 'offline' (v0.8: two levels)
-  cat = nil,         -- ability category being picked
   confirm = nil,     -- { text, yes = function, back = screen, after = screen after yes }
   class = nil,       -- class key
   cup = nil,         -- cup key
@@ -162,6 +161,12 @@ local function classStats(classKey)
 end
 local RC = (function() local ok, m = pcall(require, 'racer'); return ok and m or nil end)()
 local TI = require('title')
+-- the info text always takes the same number of lines, so the grid doesn't jump as the focus moves
+local INFO_LINES = 5
+local function padInfo(text)
+  local n = select(2, tostring(text or ''):gsub('\n', '')) + 1
+  return tostring(text or '') .. string.rep('\n ', math.max(0, INFO_LINES - n))
+end
 local function racerName() return RC and RC.displayName and RC.displayName() or nil end
 local function levelNow() return AB.levelFor(K.data.class or (K.classes()[1] or {}).key) end
 -- the class's champion line (the title races; the racer with most points across its planet cups)
@@ -176,15 +181,16 @@ local function titleTile(cls)
   local st = TI.status(cls.key)
   local open, why = true, nil
   if PR.titleOpen then open, why = PR.titleOpen(K.data, cls.key) end
+  why = tostring(why or '?')
   local vs = TI.opponent(cls.key)
   if not open then
     return { title = 'TITLE RACE', art = ART.SHOWDOWN, badge = 'LOCKED', disabled = true, desc = 'To open: ' .. why,
-      info = 'The title race: 1 v 1 against the champion, ' .. vs .. '.  To open: ' .. why,
+      info = padInfo('The title race: 1 v 1 against the champion, ' .. vs .. '.  To open: ' .. why),
       act = function() S.message = 'The title race is locked. To open it: ' .. why; return true end }
   end
   return { title = 'TITLE RACE', art = ART.SHOWDOWN, badge = st and st.won and 'CHAMPION' or ('VS ' .. vs:upper()),
     desc = (st and st.won) and ('You hold the title\n(defend it: select)') or ('1 v 1 against ' .. vs .. '\nSelect to race'),
-    info = ('1 v 1, 6 laps, no points: win and you are the %s champion.%s'):format(cls.name, st and (('  Tries: %d.'):format(st.tries or 0)) or ''),
+    info = padInfo(('1 v 1, 6 laps, no points: win and you are the %s champion.%s'):format(cls.name, st and (('  Tries: %d.'):format(st.tries or 0)) or '')),
     act = function()
       local run = K.run()
       if run then S.message = 'Finish or quit the cup in progress first'; return true end
@@ -234,7 +240,7 @@ SCREENS.home = function()
   local veh = K.vehicle(K.data.vehicle)
   local who = racerName()
   items[#items + 1] = { title = 'GARAGE', art = ART.vehicle(veh.key),
-    desc = veh.name .. (who and ('\n' .. who) or '') .. '\n' .. picksText(picksFor(K.data.class or '50'), 1):gsub('  /  ', ', '),
+    desc = veh.name .. (who and ('\n' .. who) or '') .. '\n' .. picksText(picksFor(K.data.class or '50'), levelNow()):gsub('  /  ', ', '),
     info = 'Your vehicle, racer, abilities and tune-ups.',
     act = function() return go('garage') end }
   items[#items + 1] = { title = 'RESET PROGRESS', art = 'T_UI_FE_Tile_02', desc = 'Start over\n(asks first)',
@@ -282,7 +288,7 @@ local function cupInfo(cup, classKey)
   for i, r in ipairs(cup.races) do
     local line = K.raceLine and K.raceLine(r) or r.title
     local rec = K.recordFor and K.recordFor(classKey, r.path)
-    if rec and K.fmtTime then line = line .. ('     best %s'):format(K.fmtTime(rec.time)) .. (rec.lap and (' / lap ' .. K.fmtTime(rec.lap)) or '') end
+    if rec and K.fmtTime then line = line .. ('     best %s'):format(rec.time and K.fmtTime(rec.time) or 'no time yet') .. (rec.lap and (' / lap ' .. K.fmtTime(rec.lap)) or '') end
     out[#out + 1] = ('%d  %s'):format(i, line)
   end
   return table.concat(out, '\n')
@@ -298,21 +304,21 @@ SCREENS.cups = function()
     local info = cupInfo(cup, cls.key)
     if not open then
       items[#items + 1] = { title = cup.name, art = ART.cup(cup, K.data.vehicle) or cup.art, badge = 'LOCKED', disabled = true,
-        desc = 'To open: ' .. why, info = 'To open: ' .. why .. '\n' .. info,
+        desc = 'To open: ' .. why, info = padInfo('To open: ' .. why .. '\n' .. info),
         act = function() S.message = cup.name .. ' is locked at ' .. cls.name .. '. To open it: ' .. why; return true end }
     elseif here then
       local ev = K.nextRace()
       items[#items + 1] = { title = cup.name, art = ART.cup(cup, run.vehicle) or cup.art,
         badge = ('IN PROGRESS  %d / %d'):format(run.race, run.races),
         desc = ('Select: race %d, %s'):format(run.race, ev and ev.title or '?') .. '\n' .. soFar(run),
-        info = raceOf(run) .. '  -  ' .. soFar(run) .. '\n' .. info, act = launchNext }
+        info = padInfo(raceOf(run) .. '  -  ' .. soFar(run) .. '\n' .. info), act = launchNext }
     else
       local mIcon, mColor = medal(cls.key, cup.key)
       local perfect = K.perfect and K.perfect(cls.key, cup.key)
       items[#items + 1] = { title = cup.name, art = ART.cup(cup, K.data.vehicle) or cup.art,
         badge = trophyBadge(cls.key, cup.key) or planetBadge(cup), icon = mIcon, iconColor = mColor,
         desc = bestText(cls.key, cup.key) .. (perfect and '  -  PERFECT' or '') .. '\n' .. (cup.races[1] and cup.races[1].title or ''),
-        info = info,
+        info = padInfo(info),
         act = function()
           if run then
             local other = K.cup(run.cup)
@@ -330,10 +336,11 @@ SCREENS.cups = function()
   local tt = titleTile(cls)
   if tt then items[#items + 1] = tt end
   local veh = K.vehicle(K.data.vehicle)
-  return { key = 'cups', title = cls.name:upper() .. '  -  ' .. (cls.blurb or 'CUPS'):upper(),
-    lines = { { ('%s, every part at level %d, abilities level %d.  Select a cup to start it: the first race launches straight away.'):format(
-      veh.name, cls.parts or 0, cls.abilities or 1), 20, U.WHITE }, msgLine() },
-    items = items, info = true, layout = cfg.CupsLayout or { cols = 5, rows = 4, w = 412, h = 277 } }
+  return { key = 'cups', title = cls.name:upper() .. '  -  CUPS',
+    lines = { { cls.blurb or '', 22, U.WHITE },
+      { ('%s, every part at level %d, abilities level %d.  Select a cup to start it: the first race launches straight away.'):format(
+      veh.name, cls.parts or 0, cls.abilities or 1), 18 }, msgLine() },
+    items = items, info = true, layout = cfg.CupsLayout }
 end
 
 -- the garage: one tile per thing you can change; Select cycles it (v0.8: no pick screens)
@@ -592,7 +599,8 @@ local function handle(name)
   elseif name == 'down' then setFocus(math.min(#S.ui.items, S.focus + cols))
   elseif name == 'accept' then press(S.focus)
   elseif name == 'back' then
-    if S.screen == 'confirm' then S.screen = (S.confirm and S.confirm.back) or 'home'; S.confirm = nil; show()
+    if S.blocked then close('back')
+    elseif S.screen == 'confirm' then S.screen = (S.confirm and S.confirm.back) or 'home'; S.confirm = nil; show()
     elseif BACK[S.screen] then go(BACK[S.screen]); show() else close('back') end
   elseif name == 'click' then
     for i, it in ipairs(S.ui.items) do
@@ -697,7 +705,7 @@ local function tick()
       elseif S.result and S.result.titleRace and S.result.ev then S.class = S.result.ev.class end
       S.screen = run and 'standings' or (S.result and S.result.titleRace) and 'titleResult' or 'cups'
       show()
-      pcall(U.cover, false)
+      if S.ui then pcall(U.cover, false) end -- (else the tab is being selected: TB.onEnter drops the cover once the page is up)
     end
     if S.openAt and C.clock - S.openAt > 30000 then S.openAt = nil; pcall(U.cover, false); log('the GRAND PRIX tab never came back - not opening the result') end
   end
@@ -732,6 +740,7 @@ TB.onEnter = function()
   S.screen = S.pendingScreen or S.screen or 'home'
   S.pendingScreen = nil
   show()
+  if S.ui then pcall(U.cover, false) end
 end
 TB.onLeave = function() if S.ui then close('tab left') end end
 -- the menu holding our page was freed: drop the page without touching its widgets (they went with it)

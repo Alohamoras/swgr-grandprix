@@ -112,6 +112,19 @@ function P.conditionsOpen(data, classKey, cupKey)
   return false, ('Gold in the %s at %s'):format(planet.name, className(classKey))
 end
 
+-- the title race at a class (v0.8, title.lua): a trophy (or gold: Unlock) in every planet cup at that class; once
+-- raced (a result saved under titles[class]) it stays open -> open, why
+function P.titleOpen(data, classKey)
+  if not P.on() then return true end
+  local okC, whyC = P.classOpen(data, classKey)
+  if not okC then return false, whyC end
+  if ((data.titles or {})[classKey] or {}).tries then return true end
+  local gold = conf().Unlock == 'gold'
+  local n, of = count(data, classKey, gold and 1 or 3)
+  if n >= of then return true end
+  return false, ('%s in all %d planet cups at %s (%d / %d)'):format(gold and 'Gold' or 'A trophy', of, className(classKey), n, of)
+end
+
 -- everything open, as a set of names ('150cc', 'OUTER RIM CUP at 100cc', 'JAKKU CONDITIONS at 100cc') - compared
 -- before / after a cup to say what it unlocked
 function P.openSet(data)

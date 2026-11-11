@@ -10,6 +10,9 @@ return {
     TabLabel = 'GRAND PRIX',
     -- Tile layout on the tab's page (at 4K one UI unit is about one pixel)
     TabLayout = { TileWidth = 520, TileHeight = 350, Columns = 4, VisibleRows = 3, TextScale = 1.6, FocusScale = 1.04, DimOthers = 0.72 },
+    -- The cups page (v0.8): every cup of a class on one page - 5 columns x 4 rows of smaller tiles (same page width
+    -- as 4 x 520). cols / rows / w / h (nil = the TabLayout grid, which scrolls past 12 tiles)
+    CupsLayout = { cols = 5, rows = 4, w = 412, h = 277 },
     -- Key that selects the GRAND PRIX tab at the main menu (Backspace / B = back)
     MenuKey = 'F6',
 
