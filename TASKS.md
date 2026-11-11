@@ -18,9 +18,11 @@ next starts (they all touch main.lua and config.lua); game sessions one at a tim
 4. v0.13 the rival rule and the standings call-out (not the title-race spike). Tag v0.13.0.
 5. The main-menu poll made cheaper (section 4, one sweep 5x a second at the menu).
 6. Racer = vehicle build (after B7 proves it, and after v0.11): picking a racer gives you their own vehicle and
-   looks; VEHICLE leaves the garage; Shade becomes three entries (landspeeder / bike / skimmer); each racer tile
-   names the vehicle type; class parts go on the racer's build and are put back after; Kestar Bool and Sebulba
-   (podracers) left out or on a stand-in until a pod launches. Old saves map the vehicle pick to Shade's entry.
+   looks; VEHICLE leaves the garage; Shade drives the base landspeeder (no bike / skimmer choice, owner
+   2026-11-10); each racer tile names the vehicle type; class parts go on the racer's build and are put back after.
+   Kestar Bool is locked until you win the 150cc title race (`titles['150'].won`; the tile says how to unlock him);
+   he and Sebulba (podracers) are left out or on a stand-in until a pod launches. Old saves: the vehicle pick is
+   dropped, a Shade pick stays Shade.
    Tag as its own version.
 
 **B. In game with TestAutopilot (game closed, test save, owner's save restored after)**
