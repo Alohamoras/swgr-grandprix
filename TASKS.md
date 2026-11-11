@@ -63,7 +63,12 @@ owner's own play, and the offline half of B7.)
    change.) Racing as another pilot: screenshots of the HUD and results name with Kestar Bool picked.
 5. [x] (owner's own races, 2026-11-10 23:12: `you=REDLINER+ARMOUR Elite=HEAT SHIELD (...) (240 bot slots cleared, 8
    cleared from your race copy)`, no FAILED) Tune-ups the Elite don't share: the "cleared from your copy" log path.
-6. Spike: a two-car grid on a normal event (the rival / class leader as title-race opponent). Report only.
+6. [x] (2026-11-11, tools/recon/RaceFlowSpike, log raceflow-b6-20261111.log: **works.** Before LaunchQuickRace at the
+   main menu: the event's `GridMakeup` set to 2 entrants and `CharacterList.Opponents` cut to the one racer -> a 1 v 1
+   on The War Fields against Sen Fira (HUD POS x/2), finished, both put back at the menu. Moving the racer to the front
+   of the list without cutting it gave a 2-car grid but a different opponent (Biddy Blas): the cut is needed. The
+   third mode (list cut, grid untouched) not run: high crash risk, not needed.)
+   Spike: a two-car grid on a normal event (the rival / class leader as title-race opponent). Report only.
    (RaceFlowSpike built 2026-11-11, not yet run: tools/recon/RaceFlowSpike, F10 at the main menu, three presses:
    grid make-up summed to 2 + Sen Fira to Opponents[1]; + Opponents trimmed to her; Opponents only. Logs the
    Showdown's make-up for reference and the grid at load (RecipeState.Racers[]). Install, key presses, risks: its
@@ -98,7 +103,15 @@ owner's own play, and the offline half of B7.)
    standings, title result, the confirms) before and after A7; crop each tile and list any text cut off or
    overflowing. Hand the owner the before / after pair.
 
-9. Spike (owner 2026-11-11): the standings at the end of the race, then straight into the next race with no main
+9. [x] (2026-11-11, tools/recon/RaceFlowSpike, log raceflow-b9-20261111.log: **both parts work.** (a) A text panel added
+   to the game's results screen (`WBP_SimpleRaceResultsScreen_C`, canvas `Default_Results` next to CONTINUE) shows
+   over it (screenshot autotest/shots/b9-panel.png). (b) Route A: write the next event into the race recipe's active
+   stage (`AuthoredEvent`, `TrackDef`, `LapCount`, `trackConditions`) on both the EventRecipeSubsystem's recipe and the
+   race state's copy, then `BP_RacingGameMode_C:RequestResetRace()` -> a new race world in 0.5 s on Fallen Empire
+   (6 laps), raced and finished, put back at the menu. Only tried on the same planet (The War Fields -> Fallen
+   Empire); a different planet's track is the next check. Route B (LaunchQuickRace from the race world) not run:
+   not needed, high crash risk.)
+   Spike (owner 2026-11-11): the standings at the end of the race, then straight into the next race with no main
    menu. Two parts: (a) draw the standings over the game's results screen in the race world; (b) start the next race
    from there: first try swapping the event in the race's recipe (UEventRecipeInstance.RecipeState /
    EventRecipeState) before the pause menu's restart, then other routes. Fallback if (b) fails: after the standings,

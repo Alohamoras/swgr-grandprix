@@ -1,0 +1,25 @@
+2026-11-11 16:03:19 RaceFlowSpike v1.0 loaded (keys: B9 F7 in a race; B6 F10 at the main menu, Ctrl+F10 = plain launch)
+2026-11-11 16:03:19 plan A | B; next event EVT_MAS_LOOP_A_SHORT_02; restart auto; panel true
+2026-11-11 16:03:40 race recipe at load: event EVT_MAS_LOOP_A_FWD, track TRAK_MAS_LOOP_A_FWD, laps 2, conditions TrackCondition.Sunset, vehicle Car, internal "EVT_MAS_LOOP_A_FWD", mode variant none
+2026-11-11 16:06:31 F9 press 1: route A; race RacingGameState_2147480034, started true, finished true; flow RacingGameState_2147480034:Results(15)
+2026-11-11 16:06:32 results widgets: WBP_SimpleRaceResultsScreen_C (WBP_SimpleRaceResultsScreen_C_2147474505; visibility 4, IsVisible true, IsInViewport true) | WBP_Simple_RaceResultsPanel_C (WBP_Simple_RaceResultsPanel_C_2147474496; visibility 4, IsVisible true, IsInViewport false) | WBP_Shakedown_Results_Presentation_C (WBP_Shakedown_Results_Presentation; visibility 4, IsVisible false, IsInViewport false); the mode rules (BP_ModeRules_TeamRace_C) name ResultsTableWidget = WBP_Simple_RaceResultsPanel_C
+2026-11-11 16:06:32 panel ADDED: CONTINUE's parent Default_Results (FuseCanvasPanel): children 4 -> 5, slot CanvasPanelSlot, parent ok true, text reads back true, panel visibility 0, IsVisible true, IsInViewport false
+2026-11-11 16:06:32 route A in 3 s (screenshot the panel now)
+2026-11-11 16:06:35 A: next event EVT_MAS_LOOP_A_SHORT_02 (MAS [SHORT 02 - 4 Laps]): track TRAK_MAS_LOOP_A_SHORT_02, laps 6, conditions TrackCondition.Sunset
+2026-11-11 16:06:35 A: subsystem recipe EventRecipeInstance_2147480450: 1 stage(s), ActiveStage 0
+2026-11-11 16:06:35 A: subsystem recipe stage 1 before: event EVT_MAS_LOOP_A_FWD, track TRAK_MAS_LOOP_A_FWD, laps 2, conditions TrackCondition.Sunset, vehicle Car, internal "EVT_MAS_LOOP_A_FWD", mode variant none
+2026-11-11 16:06:35 A: subsystem recipe stage 1 writes: AuthoredEvent ok, TrackDef ok, LapCount ok, trackConditions ok
+2026-11-11 16:06:35 A: subsystem recipe stage 1 after:  event EVT_MAS_LOOP_A_SHORT_02, track TRAK_MAS_LOOP_A_SHORT_02, laps 6, conditions TrackCondition.Sunset, vehicle Car, internal "EVT_MAS_LOOP_A_FWD", mode variant none
+2026-11-11 16:06:35 A: race state recipe: 1 stage(s), ActiveStage 0
+2026-11-11 16:06:35 A: race state stage 1 before: event EVT_MAS_LOOP_A_FWD, track TRAK_MAS_LOOP_A_FWD, laps 2, conditions TrackCondition.Sunset, vehicle Car, internal "EVT_MAS_LOOP_A_FWD", mode variant none
+2026-11-11 16:06:35 A: race state stage 1 writes: AuthoredEvent ok, TrackDef ok, LapCount ok, trackConditions ok
+2026-11-11 16:06:35 A: race state stage 1 after:  event EVT_MAS_LOOP_A_SHORT_02, track TRAK_MAS_LOOP_A_SHORT_02, laps 6, conditions TrackCondition.Sunset, vehicle Car, internal "EVT_MAS_LOOP_A_FWD", mode variant none
+2026-11-11 16:06:35 A: restart: BP_RacingGameMode_C:RequestResetRace() called
+2026-11-11 16:06:35 route A done; watching 90 s for a new race world, a reset of this one, or the main menu
+2026-11-11 16:06:35 NEW RACE WORLD after route A (0.5 s): RacingGameState_2147473770, standalone=true; event EVT_MAS_LOOP_A_SHORT_02, track TRAK_MAS_LOOP_A_SHORT_02, laps 6, conditions TrackCondition.Sunset, vehicle Car, internal "EVT_MAS_LOOP_A_FWD", mode variant none
+2026-11-11 16:06:35 race recipe at load: event EVT_MAS_LOOP_A_SHORT_02, track TRAK_MAS_LOOP_A_SHORT_02, laps 6, conditions TrackCondition.Sunset, vehicle Car, internal "EVT_MAS_LOOP_A_FWD", mode variant none
+2026-11-11 16:09:50 put back (main menu): A: subsystem recipe stage 1: AuthoredEvent ok, TrackDef ok, LapCount ok, trackConditions ok -> event EVT_MAS_LOOP_A_FWD, track TRAK_MAS_LOOP_A_FWD, laps 2, conditions TrackCondition.Sunset, vehicle Car, internal "EVT_MAS_LOOP_A_FWD", mode variant none
+2026-11-11 16:09:59 NEW RACE WORLD after route A (193.2 s): RacingGameState_2147469989, standalone=true; event EVT_MAS_LOOP_A_FWD, track TRAK_MAS_LOOP_A_FWD, laps 2, conditions TrackCondition.Sunset, vehicle Car, internal "EVT_MAS_LOOP_A_FWD", mode variant none
+2026-11-11 16:09:59 race recipe at load: event EVT_MAS_LOOP_A_FWD, track TRAK_MAS_LOOP_A_FWD, laps 2, conditions TrackCondition.Sunset, vehicle Car, internal "EVT_MAS_LOOP_A_FWD", mode variant none
+2026-11-11 16:13:21 NEW RACE WORLD after route A (383.5 s): RacingGameState_2147465789, standalone=true; event EVT_MAS_LOOP_A_FWD, track TRAK_MAS_LOOP_A_FWD, laps 2, conditions TrackCondition.Sunset, vehicle Car, internal "EVT_MAS_LOOP_A_FWD", mode variant none
+2026-11-11 16:13:21 race recipe at load: event EVT_MAS_LOOP_A_FWD, track TRAK_MAS_LOOP_A_FWD, laps 2, conditions TrackCondition.Sunset, vehicle Car, internal "EVT_MAS_LOOP_A_FWD", mode variant none

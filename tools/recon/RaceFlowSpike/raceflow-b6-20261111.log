@@ -1,0 +1,45 @@
+2026-11-11 16:03:19 RaceFlowSpike v1.0 loaded (keys: B9 F7 in a race; B6 F10 at the main menu, Ctrl+F10 = plain launch)
+2026-11-11 16:03:19 plan grid+front | grid+only | only; event EVT_MAS_LOOP_A_FWD; opponent DA_Racer_Thrall; grid total 2
+2026-11-11 16:03:40 reference EVT_WHP_SHORTBOSS_FAIR: grid make-up PlayerChoice x2 (sum 2); CustomOpponents 1; laps 6
+2026-11-11 16:03:40 event EVT_MAS_LOOP_A_FWD: grid make-up PlayerChoice x12 (sum 12); CustomOpponents 0; laps 2; mode TeamRaceConfig_0; vehicle tag Vehicle.Standard
+2026-11-11 16:03:40 constants: GetMaxRacersInAnEvent 12, GetMaxRacersPerTeam 1, GetMaxTeamsInAnEvent 12
+2026-11-11 16:03:40 CharacterList DA_CharacterList: Player DarkEnigma; Opponents 11 [1:Mercenary 2:ElegantProfessional 3:Star 4:InnerHonour 5:Thrall 6:Ghost 7:Rager 8:Nomad 9:Veteran 10:QuietStrength 11:Protege]; opponent wanted Thrall (Sen Fira)
+2026-11-11 16:03:40 Ctrl+F10: plain launch, nothing changed
+2026-11-11 16:03:40 LAUNCH EVT_MAS_LOOP_A_FWD (plain, Car): sent
+2026-11-11 16:03:40 race world RacingGameState_2147480034, standalone=true (our F10 launch, plain)
+2026-11-11 16:03:40 grid at load (0.00 s): recipe racers 12: 1:Shade(you)/Car 2:Soren Zaks/Car 3:Ary Quill/Car 4:Malis Vazosk/Bike 5:Katja Mox/Bike 6:Goli & 02-R0/Skimmer 7:Lyren Shok/Skimmer 8:Nik Skandaro/Car 9:Biddy Blas/Bike 10:Sen Fira/Bike 11:Griff Halloran/Skimmer 12:Fola Kanjen/Skimmer
+2026-11-11 16:03:40 grid at load: stage event EVT_MAS_LOOP_A_FWD, track TRAK_MAS_LOOP_A_FWD, laps 2, conditions TrackCondition.Sunset, vehicle Car, internal "EVT_MAS_LOOP_A_FWD", mode variant none
+2026-11-11 16:03:51 grid 10 s in: race state Racers 12: Dwayne(you), Soren Zaks, Ary Quill, Malis Vazosk, Katja Mox, Goli & 02-R0, Lyren Shok, Nik Skandaro, Biddy Blas, Sen Fira, Griff Halloran, Fola Kanjen; Vehicles 12; LapCount 2
+2026-11-11 16:06:35 race world RacingGameState_2147473770, standalone=true
+2026-11-11 16:06:35 grid at load (0.00 s): recipe racers 12: 1:Shade(you)/Car 2:Soren Zaks/Car 3:Ary Quill/Car 4:Malis Vazosk/Bike 5:Katja Mox/Bike 6:Goli & 02-R0/Skimmer 7:Lyren Shok/Skimmer 8:Nik Skandaro/Car 9:Biddy Blas/Bike 10:Sen Fira/Bike 11:Griff Halloran/Skimmer 12:Fola Kanjen/Skimmer
+2026-11-11 16:06:35 grid at load: stage event EVT_MAS_LOOP_A_SHORT_02, track TRAK_MAS_LOOP_A_SHORT_02, laps 6, conditions TrackCondition.Sunset, vehicle Car, internal "EVT_MAS_LOOP_A_FWD", mode variant none
+2026-11-11 16:06:46 grid 10 s in: race state Racers 1: Dwayne(you); Vehicles 12; LapCount 6
+2026-11-11 16:09:50 main menu back
+2026-11-11 16:09:59 reference EVT_WHP_SHORTBOSS_FAIR: grid make-up PlayerChoice x2 (sum 2); CustomOpponents 1; laps 6
+2026-11-11 16:09:59 event EVT_MAS_LOOP_A_FWD: grid make-up PlayerChoice x12 (sum 12); CustomOpponents 0; laps 2; mode TeamRaceConfig_0; vehicle tag Vehicle.Standard
+2026-11-11 16:09:59 constants: GetMaxRacersInAnEvent 12, GetMaxRacersPerTeam 1, GetMaxTeamsInAnEvent 12
+2026-11-11 16:09:59 CharacterList DA_CharacterList: Player DarkEnigma; Opponents 11 [1:Mercenary 2:ElegantProfessional 3:Star 4:InnerHonour 5:Thrall 6:Ghost 7:Rager 8:Nomad 9:Veteran 10:QuietStrength 11:Protege]; opponent wanted Thrall (Sen Fira)
+2026-11-11 16:09:59 F10 press 1: mode grid+front (originals saved to b6_state.lua)
+2026-11-11 16:09:59 grid: make-up now PlayerChoice x2 (sum 2) -> as wanted
+2026-11-11 16:09:59 Opponents: Thrall to the front (was at 5): done -> 11 [1:Thrall 2:ElegantProfessional 3:Star 4:InnerHonour 5:Mercenary 6:Ghost 7:Rager 8:Nomad 9:Veteran 10:QuietStrength 11:Protege]
+2026-11-11 16:09:59 LAUNCH EVT_MAS_LOOP_A_FWD (grid+front, Car): sent
+2026-11-11 16:09:59 race world RacingGameState_2147469989, standalone=true (our F10 launch, grid+front)
+2026-11-11 16:09:59 grid at load (0.00 s): recipe racers 2: 1:Shade(you)/Car 2:Biddy Blas/Bike
+2026-11-11 16:09:59 grid at load: stage event EVT_MAS_LOOP_A_FWD, track TRAK_MAS_LOOP_A_FWD, laps 2, conditions TrackCondition.Sunset, vehicle Car, internal "EVT_MAS_LOOP_A_FWD", mode variant none
+2026-11-11 16:10:10 grid 10 s in: race state Racers 2: Dwayne(you), Biddy Blas; Vehicles 2; LapCount 2
+2026-11-11 16:13:13 main menu back
+2026-11-11 16:13:13 put back (main menu): grid make-up done -> PlayerChoice x12 (sum 12); Opponents done -> 11 [1:Mercenary 2:ElegantProfessional 3:Star 4:InnerHonour 5:Thrall 6:Ghost 7:Rager 8:Nomad 9:Veteran 10:QuietStrength 11:Protege]
+2026-11-11 16:13:21 reference EVT_WHP_SHORTBOSS_FAIR: grid make-up PlayerChoice x2 (sum 2); CustomOpponents 1; laps 6
+2026-11-11 16:13:21 event EVT_MAS_LOOP_A_FWD: grid make-up PlayerChoice x12 (sum 12); CustomOpponents 0; laps 2; mode TeamRaceConfig_0; vehicle tag Vehicle.Standard
+2026-11-11 16:13:21 constants: GetMaxRacersInAnEvent 12, GetMaxRacersPerTeam 1, GetMaxTeamsInAnEvent 12
+2026-11-11 16:13:21 CharacterList DA_CharacterList: Player DarkEnigma; Opponents 11 [1:Mercenary 2:ElegantProfessional 3:Star 4:InnerHonour 5:Thrall 6:Ghost 7:Rager 8:Nomad 9:Veteran 10:QuietStrength 11:Protege]; opponent wanted Thrall (Sen Fira)
+2026-11-11 16:13:21 F10 press 2: mode grid+only (originals saved to b6_state.lua)
+2026-11-11 16:13:21 grid: make-up now PlayerChoice x2 (sum 2) -> as wanted
+2026-11-11 16:13:21 Opponents: trimmed to Thrall only: done -> 1 [1:Thrall]
+2026-11-11 16:13:21 LAUNCH EVT_MAS_LOOP_A_FWD (grid+only, Car): sent
+2026-11-11 16:13:21 race world RacingGameState_2147465789, standalone=true (our F10 launch, grid+only)
+2026-11-11 16:13:21 grid at load (0.00 s): recipe racers 2: 1:Shade(you)/Car 2:Sen Fira/Bike
+2026-11-11 16:13:21 grid at load: stage event EVT_MAS_LOOP_A_FWD, track TRAK_MAS_LOOP_A_FWD, laps 2, conditions TrackCondition.Sunset, vehicle Car, internal "EVT_MAS_LOOP_A_FWD", mode variant none
+2026-11-11 16:13:32 grid 10 s in: race state Racers 2: Dwayne(you), Sen Fira; Vehicles 2; LapCount 2
+2026-11-11 16:16:32 main menu back
+2026-11-11 16:16:32 put back (main menu): grid make-up done -> PlayerChoice x12 (sum 12); Opponents done -> 11 [1:Mercenary 2:ElegantProfessional 3:Star 4:InnerHonour 5:Thrall 6:Ghost 7:Rager 8:Nomad 9:Veteran 10:QuietStrength 11:Protege]
