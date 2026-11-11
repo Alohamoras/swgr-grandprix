@@ -120,7 +120,7 @@ local GOLD, GREY, WHITE = { 1, 0.82, 0.35 }, { 0.72, 0.74, 0.78 }, { 1, 1, 1 }
 U.GOLD, U.GREY, U.WHITE = GOLD, GREY, WHITE
 
 -- host: { tree = the main menu's widget tree, panel = our page panel } - the screen is built into the tab's page
-function U.build(spec, host)
+local function buildInner(spec, host)
   local pc, lib = C.localPC(), C.lib('WidgetBlueprintLibrary', 'UMG')
   if not (alive(pc) and alive(lib)) then log('[menu] no player controller yet'); return nil end
   local tree = host and host.tree
@@ -265,7 +265,7 @@ function U.build(spec, host)
   if #list == 0 then log('[menu] no tiles'); return nil end
 
   local screen = { w = border, host = host, items = list, scroll = alive(scroll) and scroll or nil, pc = pc, grid = grid,
-    info = info }
+    info = info, cols = U.COLS }
   try(function() host.panel:ClearChildren() end)
   local sl = try(function() return host.panel:AddChildToVerticalBox(border) end)
   if not alive(sl) then sl = try(function() return host.panel:AddChild(border) end) end
@@ -349,5 +349,17 @@ function U.cover(on)
   return true
 end
 function U.coverAge() return coverAt and (C.clock - coverAt) or nil end
+
+-- v0.8: a screen can ask for its own grid (spec.layout = { cols, rows, w, h }): the cups page shows 5 x 4 smaller tiles
+-- so every cup of a class fits one page without scrolling. The layout is put back after the build.
+function U.build(spec, host)
+  local saved = { U.TILE_W, U.TILE_H, U.COLS, U.ROWS }
+  local L = spec and spec.layout
+  if L then U.TILE_W, U.TILE_H, U.COLS, U.ROWS = L.w or U.TILE_W, L.h or U.TILE_H, L.cols or U.COLS, L.rows or U.ROWS end
+  local ok, res = pcall(buildInner, spec, host)
+  U.TILE_W, U.TILE_H, U.COLS, U.ROWS = saved[1], saved[2], saved[3], saved[4]
+  if not ok then log('[menu] build error: ' .. tostring(res)); return nil end
+  return res
+end
 
 return U
