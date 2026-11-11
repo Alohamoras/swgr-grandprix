@@ -219,7 +219,7 @@ local info
 for i = n0, #M.calls do
   local c = M.calls[i]
   local s = c.name == 'SetText' and type(c.args[1]) == 'table' and rawget(rawget(c.args[1], '__props') or {}, '__text')
-  if s and s:find('^100cc: ') then info = s end
+  if s and s:find('\n100cc: ') then info = s:match('\n(100cc: [^\n]*)') end -- (v0.14: under the class's blurb)
 end
 T.check(info == '100cc: parts level 3, abilities 1.  Gold 0 / 6, trophies 1 / 6.  Champion: BIDDY BLAS.  Rival: SEN FIRA',
   'HOME info names the rival next to the champion (' .. tostring(info) .. ')')

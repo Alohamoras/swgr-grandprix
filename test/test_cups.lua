@@ -55,16 +55,15 @@ for _, cls in ipairs({ '50CC', '100CC', '150CC', '200CC' }) do
   T.clickTitle(cls); M.tick(3)
   T.check(T.titles() == ALL, cls .. ': the 7 tiles (' .. T.titles() .. ')')
   local d = descs()
+  -- (v0.14: the tile names the conditions under your best - the conditions alone when both don't fit; the races
+  -- themselves are in the focused cup's info line)
   if cls == '150CC' or cls == '200CC' then
     T.check(d[1]:find('\nDawn, scorching$') ~= nil and d[2]:find('\nNight, wet$') ~= nil and d[3]:find('\nNight, snow$') ~= nil
-      and d[4]:find('\nMines, night$') ~= nil and d[5]:find('\nBlue hour, overcast, storm$') ~= nil,
+      and d[4]:find('\nMines, night$') ~= nil and d[5] == 'Blue hour, overcast, storm',
       cls .. ': each planet tile names its conditions (' .. table.concat(d, ' / '):gsub('\n', ' ') .. ')')
-    T.check(d[6]:find('\nOVERFLOW RALLY$') ~= nil, cls .. ': the Galactic Cup has none: its first race')
-  elseif cls == '50CC' then
-    T.check(d[1]:find("\nTHE WAR FIELDS$") ~= nil and d[3]:find('\nICE FIELD CIRCUIT$') ~= nil, '50CC: no conditions, the first race (' .. d[1]:gsub('\n', ' ') .. ')')
+    T.check(d[6] == 'Not raced yet', cls .. ': the Galactic Cup has none: your best only (' .. d[6] .. ')')
   else
-    T.check(d[1]:find('\nTHE WAR FIELDS %(REVERSE%)$') ~= nil and d[2]:find('\nMORO KEHN TUNNELS %(REVERSE%)$') ~= nil,
-      '100CC: the reverse layouts (' .. d[1]:gsub('\n', ' ') .. ')')
+    T.check(not d[1]:find('\n') and not d[2]:find('\n') and not d[3]:find('\n'), cls .. ': no conditions, your best only (' .. d[1] .. ')')
   end
   M.press('BACKSPACE'); M.tick(3)
 end

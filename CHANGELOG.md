@@ -1,5 +1,37 @@
 # Changelog
 
+## v0.14.0 (2026-11-11): every tile's text fits
+Queue item A7 (TASKS.md; owner 2026-11-10: "can't fully read the tune-up tiles in the garage"). Built and tested,
+not yet seen in game: the screenshot check (B8) is still to come.
+- **The budget** (ui.lua `U.FIT`, `U.tileFits`): measured on the v0.8 screenshots of 520 x 350 tiles (the game's own
+  tile and fonts): title 12 characters a line, 2 lines (the game shrinks a full line a little); badge 15, one line
+  (13 beside the medal); the line under the title 19 a line, capitals counting 1.3, and title + that text 3 lines at
+  most (2 under a one-line title, 1 under a two-line one: the rest was cut). Scales with the tile width.
+- **test_tiletext**: every screen built in every state that changes a tile (HOME and every class's cups page with
+  nothing / each trophy / a place / perfect cups / titles, every champion name, every lock; the garage at each class
+  level cycling every vehicle, racer, ability in each slot and tune-up in both slots; the standings before every
+  race of every cup at every class and after a cup; the title result, the confirms, the offline page): 3537 tiles,
+  all within the budget. It failed on 260 distinct tiles before the fix.
+- **Moved to the focused tile's info line** (the tile keeps the name and at most a short line):
+  - GARAGE tune-ups: the effect line ("Immune to Burning and Frozen") was on the tile with "Select: next" (cut);
+    the badge "TUNE-UP 1  -  FROM 100CC" (two lines over the name) is "TUNE-UP 1", the class in the info ("(Tune-up
+    1: from 100cc.)"). Tile: "Select: next" ("Select to fit one" on an empty slot).
+  - GARAGE abilities: the blurb ("Shrug off hits for a while") -> info only. Racer: the bio -> info only. Vehicle:
+    "Select: next vehicle" -> "Select: next". Every garage tile now reads "Select: next".
+  - HOME classes: the blurb -> the info's first line (HOME's info is two lines now: blurb, then the class line); the
+    tile keeps "Champion: X". The GARAGE tile: vehicle, racer and the four abilities -> info ("LANDSPEEDER  -  Shade
+    -  Ion Bolt, Shield, ..."), the tile the vehicle. RESET PROGRESS: "Start over / (asks first)" -> "Asks first".
+  - Locks: "To open: A trophy in all 5 planet cups at 100cc (2 / 5)" -> "To open: 5 trophies at 100cc" on the tile
+    (prog.lua returns a short form too), the full text in the info; the title race "To open: Galactic Cup trophy".
+  - Cups: "Best: GOLD trophy  -  PERFECT" + the first race -> your best only when the badge doesn't show a trophy
+    ("Not raced yet", "Best: 5th", "Perfect cup") over the conditions; the conditions alone when both don't fit
+    (Sentinel's "Blue hour, overcast, storm"). The info's first line: your best and the conditions; then the races.
+  - TITLE RACE: "1 v 1 against Kestar Bool / Select to race" and "You hold the title / (defend it: select)" -> no line
+    (the badge says VS KESTAR BOOL / CHAMPION); the info says "You hold the title: defend it." when you do.
+  - Standings NEXT RACE: "Race 4 of 4 - the final race / FALLEN EMPIRE (Short circuit)" -> the race's name (the
+    badge says RACE 4 / 4), without its conditions when they don't fit ("CAUSTIC FIELDS").
+- Tests: test_tiletext (new; 29 tests); test_cups, test_mods, test_rival follow the moves.
+
 ## v0.13.1 (2026-11-11): a cheaper main-menu poll
 Queue item A5 (TASKS.md, and the section 4 item). Built and tested, not yet seen in game. Every lookup by class,
 name or path is a full sweep of the object list here (~10 ms; AUTOMATION.md §3).

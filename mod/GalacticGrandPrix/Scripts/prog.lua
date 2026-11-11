@@ -38,7 +38,12 @@ local function raced(data, classKey, cupKey)
   return next((data.best or {})[classKey] or {}) ~= nil
 end
 
--- is a class open? -> open, why (the text for a locked tile: what opens it)
+-- v0.14: the short form of what opens a locked thing, for its tile ('5 trophies at 100cc'; the full why goes in the
+-- screen's info line)
+local function shortCount(gold, of, name) return ('%d %s at %s'):format(of, gold and 'golds' or 'trophies', name) end
+local function titleCase(s) return (tostring(s):lower():gsub("(%a)([%w']*)", function(a, b) return a:upper() .. b end)) end
+
+-- is a class open? -> open, why (the text for a locked tile's info: what opens it), short (the same for the tile)
 function P.classOpen(data, classKey)
   if not P.on() then return true end
   local list, prev = cfg.Classes or {}, nil
@@ -54,39 +59,42 @@ function P.classOpen(data, classKey)
   local gold = conf().Unlock == 'gold'
   local n, of = count(data, prev.key, gold and 1 or 3)
   if n >= of then return true end
-  return false, ('%s in all %d planet cups at %s (%d / %d)'):format(gold and 'Gold' or 'A trophy', of, prev.name, n, of)
+  return false, ('%s in all %d planet cups at %s (%d / %d)'):format(gold and 'Gold' or 'A trophy', of, prev.name, n, of),
+    shortCount(gold, of, prev.name)
 end
 
--- is a cup open at a class? (the class must be open too) -> open, why
+-- is a cup open at a class? (the class must be open too) -> open, why, short
 function P.cupOpen(data, classKey, cupKey)
   if not P.on() then return true end
-  local okC, whyC = P.classOpen(data, classKey)
-  if not okC then return false, whyC end
+  local okC, whyC, shortC = P.classOpen(data, classKey)
+  if not okC then return false, whyC, shortC end
   local cup = cupByKey(cupKey)
   if not (cup and cup.final) then return true end
   if raced(data, classKey, cupKey) then return true end
   local gold = conf().Unlock == 'gold'
   local n, of = count(data, classKey, gold and 1 or 3)
   if n >= of then return true end
-  return false, ('%s in all %d planet cups at %s (%d / %d)'):format(gold and 'Gold' or 'A trophy', of, className(classKey), n, of)
+  return false, ('%s in all %d planet cups at %s (%d / %d)'):format(gold and 'Gold' or 'A trophy', of, className(classKey), n, of),
+    shortCount(gold, of, className(classKey))
 end
 
 -- the finale cup (the Galactic Cup), or nil
 local function finalCup() for _, c in ipairs(cfg.Cups or {}) do if c.final then return c end end return nil end
 
 -- the title race at a class (v0.8, title.lua; v0.11): a trophy (or gold: Unlock) in the Galactic Cup at that class;
--- once raced (a result saved under titles[class]) it stays open -> open, why
+-- once raced (a result saved under titles[class]) it stays open -> open, why, short
 function P.titleOpen(data, classKey)
   if not P.on() then return true end
-  local okC, whyC = P.classOpen(data, classKey)
-  if not okC then return false, whyC end
+  local okC, whyC, shortC = P.classOpen(data, classKey)
+  if not okC then return false, whyC, shortC end
   if ((data.titles or {})[classKey] or {}).tries then return true end
   local fin = finalCup()
   if not fin then return true end
   local gold = conf().Unlock == 'gold'
   local b = bestOf(data, classKey, fin.key)
   if b and b <= (gold and 1 or 3) then return true end
-  return false, ('%s in the %s at %s'):format(gold and 'Gold' or 'A trophy', fin.name, className(classKey))
+  return false, ('%s in the %s at %s'):format(gold and 'Gold' or 'A trophy', fin.name, className(classKey)),
+    ('%s %s'):format(titleCase(fin.name), gold and 'gold' or 'trophy')
 end
 
 -- everything open, as a set of names ('150cc', 'GALACTIC CUP at 100cc', 'TITLE RACE at 100cc') - compared before /

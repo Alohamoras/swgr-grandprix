@@ -2,7 +2,7 @@
 -- A tune-up is a named package of one to three catalogue affixes (config TuneUps, keys from mods.lua). Your picks are
 -- MS.MAX slots { package key or false, ... }, kept in the save (data.mods); the class opens the first N (config
 -- Classes[].mods: 50cc 0, then 1 / 2 / 2). One package per slot, never the same one twice. Picked in place on the
--- garage tile: MS.cycle gives the next / previous package for a slot, MS.line the tile's one-line description.
+-- garage tile: MS.cycle gives the next / previous package for a slot, MS.line its one-line description (the info line).
 local cfg = require('config')
 local DATA = require('mods')
 local okC, C = pcall(require, 'core')

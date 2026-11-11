@@ -43,6 +43,76 @@ function U.makeToggle(t)
   try(function() t:SetIsInteractableWhenSelected(true) end)
 end
 
+-- v0.14 (TASKS.md A7): how much text fits on a tile. The tile is the game's WBP_FE_TileCommon_Btn with the game's
+-- own fonts (not ours to size), so the budget is measured on screenshots of 520 x 350 tiles (the v0.8 shots
+-- v08-garage.png / v08-garage2.png / v08-home.png / v08-cups.png in ~/Projects/swgr-underground/autotest/shots:
+-- 1280 x 720 captures of the 3840 x 2160 game, a tile about 168 px wide there):
+--   title (TxtLabel, big caps): 'LANDSPEEDER' / 'HEAT SHIELD' (11) take the whole line (the tile shrinks the font a
+--     little to fit); longer names wrap at spaces ('STATUS / SCRUBBER', 'CONTINUE / CUP'). Budget: 12 a line (no
+--     margin: the shrinking is the margin), 2 lines; hyphens break too ('AUTO- / SCRUBBER II').
+--   badge (TxtSupplemental, small italic caps, top left): 'TUNE-UP 1 - FROM' (16) fits a line, the rest ('100CC')
+--     wraps onto a second line over the title. Budget: 15 (one under the measured fit), one line; 13 when the medal
+--     icon sits at the top right ('GOLD TROPHY' nearly touched it on the smaller v0.8 cup tiles).
+--   description (TxtDescription, under the title; the game shows it on the focused tile): 'Select: next vehicle' (20)
+--     fits a line, 'Immune to Burning and' (21) wraps. Two lines show under a one-line title, one under a two-line
+--     title, the rest is cut ('Select: next' under 'Immune to Burning / and Frozen'; 'Next: MONASTERY...' half
+--     shown under 'CONTINUE / CUP'). Budget: 19 a line (one under the measured fit), capitals counting 1.3 (they
+--     are wider than the mixed case measured), and title lines + description lines <= 3.
+-- Everything scales with the tile width (520 = the measured tiles). Checked for every string the menus can show by
+-- test/test_tiletext.lua; long text belongs in the screen's info line (item.info), not on the tile.
+U.FIT = { width = 520, title = 12, titleLines = 2, badge = 15, badgeIcon = 13, desc = 19, lines = 3, caps = 1.3 }
+local function textWidth(s, weighted)
+  local n = 0
+  for ch in tostring(s):gmatch('.') do n = n + ((weighted and ch:match('%u')) and U.FIT.caps or 1) end
+  return n
+end
+-- greedy word wrap as the game's text does it (breaks at spaces and after hyphens) -> lines, or nil + the word that
+-- doesn't fit on a line of its own
+local function wrap(s, per, weighted)
+  local lines = {}
+  for para in (tostring(s) .. '\n'):gmatch('(.-)\n') do
+    local cur = ''
+    for word, sp in para:gmatch('([^%s%-]*%-?)(%s*)') do
+      if word ~= '' then
+        if textWidth(word, weighted) > per then return nil, word end
+        local try1 = cur .. word
+        if cur ~= '' and textWidth((try1:gsub('%s+$', '')), weighted) > per then
+          lines[#lines + 1] = (cur:gsub('%s+$', ''))
+          cur = word
+        else cur = try1 end
+        if sp ~= '' then cur = cur .. ' ' end
+      end
+    end
+    lines[#lines + 1] = (cur:gsub('%s+$', ''))
+  end
+  return lines
+end
+U.wrapText = wrap
+-- does a tile's text fit (it = { title, badge, desc, icon }; w = the tile width, default the layout's)? -> true, or
+-- false + what doesn't (every problem, '; ' between)
+function U.tileFits(it, w)
+  local F = U.FIT
+  local sc = (w or U.TILE_W) / F.width
+  local probs = {}
+  local tl, bad = wrap(it.title or '', F.title * sc)
+  if not tl then probs[#probs + 1] = ('title word too long: %q'):format(bad); tl = { '', '' }
+  elseif #tl > F.titleLines then probs[#probs + 1] = ('title takes %d lines: %q'):format(#tl, it.title) end
+  if it.badge then
+    local max = (it.icon and F.badgeIcon or F.badge) * sc
+    if it.badge:find('\n') or textWidth(it.badge) > max then probs[#probs + 1] = ('badge over %d: %q'):format(math.floor(max), it.badge) end
+  end
+  if it.desc and it.desc ~= '' then
+    local dl, bad2 = wrap(it.desc, F.desc * sc, true)
+    local room = math.min(F.lines - 1, F.lines - math.min(#tl, F.titleLines))
+    if not dl then probs[#probs + 1] = ('description word too long: %q'):format(bad2)
+    elseif #dl > room then
+      probs[#probs + 1] = ('description takes %d lines, %d show under a %d-line title: %q'):format(#dl, room, #tl, it.desc)
+    end
+  end
+  if #probs > 0 then return false, table.concat(probs, '; ') end
+  return true
+end
+
 local function makeTile(lib, pc, it)
   local cls = C.uclass(TILE)
   local t = cls and try(function() return lib:Create(pc, cls, pc) end)

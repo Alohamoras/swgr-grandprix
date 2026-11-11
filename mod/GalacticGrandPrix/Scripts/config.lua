@@ -52,7 +52,7 @@ return {
         -- Parts 0 / 3 / 7 / 10 (research 2026-11-10 §200cc: parts are back-loaded, 6 -> 10 was +120 kph; 7 spreads the
         -- top two classes). v0.10 (owner, docs/PHILOSOPHY.md "200cc"): 200cc is an optional extra like Mario Kart's -
         -- parts 9 (was 10), the 150cc AI profile, nothing opens from it. blurb = the one-line intro in the Galactic
-        -- League's voice (shown on the class tile).
+        -- League's voice (v0.14: HOME's info line when the class tile is focused).
         { key = '50', name = '50cc', parts = 0, mods = 0, abilities = 1, open = true, blurb = "The feeder division: stock vehicles, no mods, the rookies' field" },
         { key = '100', name = '100cc', parts = 3, mods = 1, abilities = 1, open = true, blurb = 'The League proper: tuned vehicles, one mod, honest rivals' },
         { key = '150', name = '150cc', parts = 7, mods = 2, abilities = 2, blurb = 'The pro division: the field no longer waits for you' },
@@ -303,7 +303,7 @@ return {
 
     -- Your racer (v0.8, racer.lua): any of the game's named pilots. key = the racer def DA_Racer_<key>
     -- (/Game/Griffin/Narrative/CharacterDefs/Racers/); name = the game's CharacterName (what the HUD and the standings
-    -- show); line = one line for the RACER tile (from the game's bios). The first entry is the default and the game's
+    -- show); line = one line from the game's bios (v0.14: in the garage's info line when the RACER tile is focused). The first entry is the default and the game's
     -- own pilot (CharacterList.Player = Shade); the pick is kept in the save (racer). A pilot who is one of the 11
     -- opponents takes Shade's place on the grid for the race, so the field stays 12. Keys are the game's: don't change.
     Racers = {
@@ -357,8 +357,9 @@ return {
     -- Tune-ups (v0.8, research 2026-11-10 "Vehicle mods"): the vehicle's mods trimmed to twelve named packages, picked
     -- in place on the garage tile (modsel.lua). Each bundles one to three of the catalogue's affixes (mods.lua keys:
     -- protection and plain playstyle effects only - nothing tagged "check", no pure-speed ones) at their top step;
-    -- the class sets how many you fit (Classes[].mods). key is used in the save: never change it. line = the one line
-    -- shown on the tile (60 characters at most); group = the catalogue group whose picture the tile shows (art.lua).
+    -- the class sets how many you fit (Classes[].mods). key is used in the save: never change it. line = what it does,
+    -- one line (60 characters at most; v0.14: in the garage's info line when the tile is focused - the tile shows the
+    -- name only, ui.lua U.FIT); group = the catalogue group whose picture the tile shows (art.lua).
     TuneUps = {
         { key = 'heat_shield', name = 'HEAT SHIELD', group = 'Status protection', line = 'Immune to Burning and Frozen',
           mods = { 'Conditions_BurningProtection', 'Conditions_FreezeProtection' } },

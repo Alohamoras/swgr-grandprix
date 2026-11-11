@@ -324,3 +324,10 @@ game. Summary of what changed in the design:
   RACE LEFT"), so the rival is never named twice. HOME's class info: "Champion: BIDDY BLAS.  Rival: SEN FIRA"
   ("Champion and rival: X" when the same). **The title-race opponent is still Kestar Bool** (the Stadium Showdown)
   until the two-car grid spike (TASKS.md B6) shows the rival can be put on a normal event's grid.
+- **v0.14 (2026-11-11): every tile's text fits** (owner: the tune-up tiles couldn't be read). A tile is a short name
+  (the title, at most two lines), a short badge (one line) and at most a short second line under the name (the
+  game shows it on the focused tile); everything longer is in the focused tile's info line: the tune-up's effect,
+  the ability's blurb, the racer's bio, the class blurb, the garage's full setup, what opens a lock in full, the
+  cup's races. The budgets per tile size (ui.lua `U.FIT`, measured on the v0.8 screenshots: title 12 a line, badge
+  15, second line 19 with capitals wider, three lines in all) are checked by test_tiletext for every string every
+  screen can show. Still estimates until the screenshot pass (TASKS.md B8).
