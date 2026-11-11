@@ -7,7 +7,7 @@
 -- v0.11: one cup per planet with a race list per class (classic / reverse / conditions), the Galactic Cup, the title race.
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.14.1'
+local VERSION = '0.14.2'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -410,7 +410,7 @@ SCREENS.garage = function()
       end }
   end
   return { key = 'garage', title = 'GARAGE',
-    lines = { { 'Select a tile to change it.  Kept for every cup until you change it; a cup keeps what it started with.', 20, U.WHITE }, msgLine() },
+    lines = { { 'Select a tile to change it.', 20, U.WHITE }, msgLine() },
     items = items, info = true }
 end
 
@@ -514,11 +514,11 @@ end
 SCREENS.confirm = function()
   local c = S.confirm or { text = '?' }
   local function done(screen) S.screen, S.confirm = screen, nil; return true end
-  local yes = { title = 'YES', art = 'T_UI_FE_Tile_01', desc = 'Yes', act = function()
+  local yes = { title = 'YES', art = 'T_UI_FE_Tile_01', act = function()
     if c.yes then c.yes() end
     return done(c.after or c.back or 'home')
   end }
-  local no = { title = 'NO', art = 'T_UI_FE_Tile_02', desc = 'Cancel', act = function() return done(c.back or 'home') end }
+  local no = { title = 'NO', art = 'T_UI_FE_Tile_02', act = function() return done(c.back or 'home') end }
   return { key = 'confirm', title = 'CONFIRM', lines = { { c.text, 26, U.WHITE }, msgLine() },
     items = c.noFirst and { no, yes } or { yes, no } }
 end

@@ -1,0 +1,7 @@
+2026-11-11 10:52:15 LookSpike loaded; look = /GriffinSharedVehicles/Griffin/Vehicles/Bikes/Presets/PRE_Bike_Sidewinder_Rager
+2026-11-11 10:52:25 PreferredVehicleType: DarkEnigma=Car Protege=Car Mercenary=Bike QuietStrength=Car Veteran=Skimmer Ghost=Skimmer InnerHonour=Car Nomad=Skimmer ElegantProfessional=Bike Thrall=Bike Rager=Bike Star=Skimmer Mentor=Skimmer Antagonist=Car
+2026-11-11 10:53:00 your vehicle: VBP_Bike_C /Game/Griffin/Maps/Planets/MASTIFF/L_Mastiff_LOOP_A/L_Mastiff_LOOP_A.L_Mastiff_LOOP_A:PersistentLevel.VBP_Bik archetype Bike
+2026-11-11 10:53:04 wears "nil"; want "Sidewinder Rager"
+2026-11-11 10:53:04 override recipe: sent
+2026-11-11 10:53:08 still "nil"; preset on the component: FAILED
+2026-11-11 10:53:12 after the component call: wears "nil"

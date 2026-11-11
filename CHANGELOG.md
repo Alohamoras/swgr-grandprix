@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.14.2 (2026-11-11): two menu trims seen in game
+- The confirm screen's YES / NO tiles lose the "Yes" / "Cancel" line under them (it said the title again).
+- The garage header is just "Select a tile to change it." (the rest was about resuming cups, gone in v0.9).
+- In game the same morning (v0.14.1, autopilot, a copy of the owner's save): HOME, every class's cups page, the
+  garage, the standings with the stakes line, the leave question, the boot drop after a restart, the four new
+  events, a race as Kestar Bool and as Biddy Blas on the bike. Details in TASKS.md (queue B1-B8).
+
 ## v0.14.1 (2026-11-11): the class tiles name only your title
 Seen in game on v0.14.0 (HOME, 2026-11-11 morning): the focused 50CC tile read "Champion: GRIFF / HALLORAN", the
 champion's name split over two lines. A class tile now names only your own title ("Champion: YOU"); another

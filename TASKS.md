@@ -35,24 +35,47 @@ next starts (they all touch main.lua and config.lua); game sessions one at a tim
    screenshots until B8 checks them.)
 
 **B. In game with TestAutopilot (game closed, test save, owner's save restored after)**
+(2026-11-11 overnight: not run, the screen was locked. Morning session with the owner's OK: see each item.)
 (2026-11-11 overnight: not run. The screen was locked, so no keys or screenshots; only B5 is done, from the
 owner's own play, and the offline half of B7.)
-1. v0.9 check: the standings' one tile, B -> the question (keyboard; the pad is the owner's), a restart mid-cup logs
+1. [x] (2026-11-11 morning, v0.14.1: one NEXT RACE tile, the stakes line; B -> "Leave the cup? Your points are
+   lost." YES first; NO back to the standings; YES forfeits to HOME with "Cup abandoned"; game killed at the
+   race-2 standings -> `[cup] lantaana 100cc dropped at boot (race 3 of 4)`, HOME without cup tiles. The pause-menu
+   quit was not tried: the pause menu's only ways out are EXIT TO MAIN MENU (locked) and ABANDON TOUR.) v0.9 check: the standings' one tile, B -> the question (keyboard; the pad is the owner's), a restart mid-cup logs
    the drop and HOME shows no cup, a pause-menu quit still moves the cup on.
-2. Rubber band research: one autopilot race per class with the gap log, plus one with MaxAiCatchupScale lowered;
+2. (2026-11-11: autopilot races at every class, gap log working: it won ALL six by 3-13 s - 50cc +12.9, 100cc
+   +4.9 / +3.3 / +11.9 / +7.6, 150cc +11.2 / +9.2, 200cc +12.2. The game's Autopilot outdrives the AI at every
+   class, so it can't stand in for the owner: the profile numbers need the owner's own races with the gap log. The
+   lowered-catch-up run was skipped for that reason.) Rubber band research: one autopilot race per class with the gap log, plus one with MaxAiCatchupScale lowered;
    write what each AI field does to a lead into DESIGN.md §4 and propose profile numbers (not applied).
-3. v0.11 events: every new race in every class launches and finishes (a long run: about 60 events; sprints and the
+3. (2026-11-11: the four never-launched events all launch and finish: Moro Kehn reversed, Ice Field reversed,
+   Monastery Mountains reversed (100cc), plus Geothermal Tour; also Ice Field night (150/200cc), The War Fields
+   dawn (150cc), Ice Field (50cc). Dhunkri River Circuit in the clear not yet raced. The rest were checked against
+   the dump only.) v0.11 events: every new race in every class launches and finishes (a long run: about 60 events; sprints and the
    shortest lap counts first, stop at the first failure).
-4. Racing as another pilot: screenshots of the HUD and results name with Kestar Bool picked.
+4. [x] (2026-11-11: as Kestar Bool at 150cc. The HUD shows no name at all; the game's results list shows YOUR
+   player name ("Dwayne", the Steam name), not the pilot's; our standings say YOU. The pilot's figure and voice
+   change.) Racing as another pilot: screenshots of the HUD and results name with Kestar Bool picked.
 5. [x] (owner's own races, 2026-11-10 23:12: `you=REDLINER+ARMOUR Elite=HEAT SHIELD (...) (240 bot slots cleared, 8
    cleared from your race copy)`, no FAILED) Tune-ups the Elite don't share: the "cleared from your copy" log path.
 6. Spike: a two-car grid on a normal event (the rival / class leader as title-race opponent). Report only.
-7. (offline half done 2026-11-11: docs/racer-vehicles-2026-11-11.md. Every racer has one preset, none a
+7. (race done 2026-11-11 with tools/recon/LookSpike, log lookspike-20261111.log: PreferredVehicleType read in
+   game matches the table in docs/racer-vehicles exactly (Biddy, Sen, Katja, Malis = bike; Kestar, Shade, Ary, Nik,
+   Soren = car; the rest skimmer). As Biddy on the bike at 150cc: parts 7 on VBD_Bike_Base, won by 9.2 s.
+   PRE_Bike_Sidewinder_Rager loads (recipe "Sidewinder Rager"); Client_SetOverrideVehicleRecipe sent without
+   error, but the pawn's CstCustomisationComponent wasn't found (K2_GetComponentsByClass), so whether the look
+   changed is unproven; screenshot autotest/shots/g-biddy.png for the owner to judge. Next: find the look component
+   another way, or set the recipe while the race loads (FreeRace's Server_UpdateVehicleRecipe).)
+   (offline half done 2026-11-11: docs/racer-vehicles-2026-11-11.md. Every racer has one preset, none a
    podracer: Kestar = landspeeder PRE_Car_Antagonist, Sebulba = skimmer. The race itself is still to do.)
    Spike for A6 (owner agreed 2026-11-10): find where each racer's own vehicle lives (racer def, AI build, livery)
    in the dumps, then one race as Biddy Blas in his own vehicle with the class parts set on that build and put back
    after (log + screenshot). Report what launches, what the looks are, and what Kestar / Sebulba fly.
-8. Screenshots of every menu screen (HOME, CUPS at each class, GARAGE with every tune-up and racer focused,
+8. (2026-11-11, v0.14.1: HOME, the cups pages at 50/100/150/200cc, the garage with a tune-up and the racer
+   focused, the standings, the leave question - all text fits now. Still hard to read: the white name on a
+   FOCUSED tile with bright art (50CC, 100CC, Kestar's portrait on RACER). Fixed in v0.14.2: the redundant "Yes" /
+   "Cancel" under the confirm tiles and the garage header's stale cup wording. Title result not shot.)
+   Screenshots of every menu screen (HOME, CUPS at each class, GARAGE with every tune-up and racer focused,
    standings, title result, the confirms) before and after A7; crop each tile and list any text cut off or
    overflowing. Hand the owner the before / after pair.
 
