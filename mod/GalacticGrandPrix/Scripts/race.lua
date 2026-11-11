@@ -190,6 +190,9 @@ function R.restoreBuild(why)
   -- v0.8: the title race's event gets its story cinematics back (title.lua)
   local okT, errT = pcall(function() return require('title').restore(why) end)
   if not okT then log('[title] put back failed: ' .. tostring(errT)) end
+  -- v0.19: the race recipe's next-race writes (chain.lua; memory only)
+  local okC, errC = pcall(function() return require('chain').putBack(why) end)
+  if not okC then log('[chain] recipe put back failed: ' .. tostring(errC)) end
   -- v0.8: your pilot (CharacterList.Player) back, if the race never settled it (quit early, crash, failed launch)
   local okR, errR = pcall(RC.restore, why)
   if not okR then log('[racer] put back failed: ' .. tostring(errR)) end
@@ -228,22 +231,32 @@ local function archetype(n)
   return nil
 end
 
--- ev = { path, title, kind, cup, class, race }; picks = your four abilities (abil.lua) or nil for none.
--- Returns true, or false + a message for the player.
--- opts (v0.16): { ai = profile } replaces the class's AI profile for this race only (study mode, study.lua)
-function R.launch(ev, classKey, vehKey, picks, mods, opts)
-  if R.run then return false, 'A race is already running' end
-  local fe, why = R.atMainMenu()
-  if not fe then return false, 'Cannot launch: ' .. why end
+-- the race states there are now (name@address: a finished race's state can linger a while, and an address can be
+-- reused), so the loading watch knows which one is new
+local function worldKey(gs) return C.idname(gs) .. '@' .. tostring(addr(gs)) end
+local function worldKeys()
+  local t = {}
+  for _, gs in ipairs(C.find('RacingGameState')) do t[worldKey(gs)] = true end
+  return t
+end
+
+-- v0.19: everything a race needs from us before the game builds it, shared by the launch from the main menu (R.launch)
+-- and the next cup race from the results screen (R.chainLaunch): the event and vehicle checked, the class's part
+-- levels, your abilities and tune-ups on the launch build (originals into the save the first time only, so a chained
+-- cup puts back what was there before its first race), the class's AI profile on the AI config / pacing assets
+-- (AI.launch: the same values again, read back in [aiset]) and the rubber-band state for this race (AI.begin), the
+-- title race's cinematics, your racer into the character list (RC.begin). Returns a table for the launch, or nil + a
+-- message for the player.
+local function prepare(ev, classKey, vehKey, picks, mods, opts)
   local e = C.asset(ev.path)
-  if not e then log('event not found: ' .. ev.path); return false, 'Event not found: ' .. ev.path:match('([^/]+)$') end
+  if not e then log('event not found: ' .. ev.path); return nil, 'Event not found: ' .. ev.path:match('([^/]+)$') end
   -- v0.15: the vehicle is the racer's (main.lua passes RC.vehicle(); a cup passes the one it started with)
   local veh = vehKey and K.vehicle(vehKey) or RC.vehicle()
   local tag = C.tag(try(function() return e.VehicleTypeTag end))
-  if not R.fits(veh.key, tag) then return false, ('The %s can\'t enter %s (it needs: %s)'):format(veh.name, ev.title, tostring(tag)) end
+  if not R.fits(veh.key, tag) then return nil, ('The %s can\'t enter %s (it needs: %s)'):format(veh.name, ev.title, tostring(tag)) end
   local arch = archetype(veh.arch)
   local build = C.asset(veh.build)
-  if not (alive(arch) and build) then log('vehicle or build not found: ' .. veh.key); return false, 'Vehicle or build not found' end
+  if not (alive(arch) and build) then log('vehicle or build not found: ' .. veh.key); return nil, 'Vehicle or build not found' end
   applyBuild(veh.build, build, K.levelsFor(classKey))
   if picks then
     local okA, errA = pcall(applyAbilities, veh.build, build, AB.classPaths(picks, AB.levelFor(classKey)))
@@ -271,21 +284,71 @@ function R.launch(ev, classKey, vehKey, picks, mods, opts)
   end
   local okR, errR = pcall(RC.begin, RC.current().key)
   if not okR then log('[racer] not set: ' .. tostring(errR)) end
-  local oldGs = C.first('RacingGameState')
-  local ok, err = try(function() fe:LaunchQuickRace(arch, e, build); return true end)
+  return { e = e, veh = veh, tag = tag, arch = arch, build = build, ai = ai, modNames = modNames, yourKeys = yourKeys }
+end
+
+-- the race is on its way: R.run (watched by R.watch), the LAUNCH line, the AI loadout for the load. skip = the race
+-- states already there; extra = fields for the run (v0.19: chained, prevOut, ...)
+local function startRun(ev, classKey, p, skip, extra)
+  ev.class = classKey
+  log(('LAUNCH %s (%s - %s) class=%s vehicle=%s tag=%s mode=%s'):format(ev.path:match('([^/]+)$'), ev.title, ev.kind or '',
+    tostring(classKey), p.veh.key, tostring(p.tag), C.idname(try(function() return p.e.EventMode end))))
+  R.run = { ev = ev, at = C.clock, skip = skip, phase = 'loading', top = 0, field = {}, ticks = 0, ai = p.ai }
+  for k, v in pairs(extra or {}) do R.run[k] = v end
+  R.menuSeen = false
+  R.menuGone()
+  local ok3, lo = pcall(LO.begin, classKey, p.modNames, p.yourKeys)
+  if ok3 then R.run.lo = lo else log('[loadout] ' .. tostring(lo)) end
+end
+
+-- ev = { path, title, kind, cup, class, race }; picks = your four abilities (abil.lua) or nil for none.
+-- Returns true, or false + a message for the player.
+-- opts (v0.16): { ai = profile } replaces the class's AI profile for this race only (study mode, study.lua)
+function R.launch(ev, classKey, vehKey, picks, mods, opts)
+  if R.run then return false, 'A race is already running' end
+  local fe, why = R.atMainMenu()
+  if not fe then return false, 'Cannot launch: ' .. why end
+  local p, msg = prepare(ev, classKey, vehKey, picks, mods, opts)
+  if not p then return false, msg end
+  local skip = worldKeys()
+  local ok, err = try(function() fe:LaunchQuickRace(p.arch, p.e, p.build); return true end)
   if not ok then
     log('launch failed: ' .. tostring(err))
     R.restoreBuild('launch failed')
     return false, 'Launch failed - see grandprix.log'
   end
-  ev.class = classKey
-  log(('LAUNCH %s (%s - %s) class=%s vehicle=%s tag=%s mode=%s'):format(ev.path:match('([^/]+)$'), ev.title, ev.kind or '',
-    tostring(classKey), veh.key, tostring(tag), C.idname(try(function() return e.EventMode end))))
-  R.run = { ev = ev, at = C.clock, oldGs = addr(oldGs), oldFe = addr(fe), phase = 'loading', top = 0, field = {}, ticks = 0, ai = ai }
-  R.menuSeen = false
-  R.menuGone()
-  local ok3, lo = pcall(LO.begin, classKey, modNames, yourKeys)
-  if ok3 then R.run.lo = lo else log('[loadout] ' .. tostring(lo)) end
+  startRun(ev, classKey, p, skip, { oldFe = addr(fe) })
+  return true
+end
+
+-- v0.19 (chain.lua): the cup's next race from the results screen of the race `prev` just finished, without the main
+-- menu: the same set-up as R.launch (prepare), the next event written into the race recipe (both copies, read back),
+-- the old race's rubber band put back on its live tune objects (the new race's are set again at load), then the game's
+-- RequestResetRace. The build, abilities, tune-ups and AI config stay changed across the chain (their originals are in
+-- the save from the cup's first launch) and are put back once, at the main menu. Returns true, or false + why (the
+-- caller falls back to the main menu; nothing to undo here: the main menu puts everything back).
+function R.chainLaunch(prev)
+  local CH = require('chain')
+  local run, ev = K.run(), K.nextRace()
+  if not (run and ev) then return false, 'no cup race to run next' end
+  local gs = C.deref(prev.gsRef)
+  if not gs then return false, 'the race world is gone' end
+  local ksl = C.lib('KismetSystemLibrary')
+  if try(function() return ksl:IsStandalone(gs) end) ~= true then return false, 'not an offline race' end
+  local classKey, vehKey, picks, mods = CH.args(run)
+  local p, why = prepare(ev, classKey, vehKey, picks, mods)
+  if not p then return false, why end
+  pcall(AI.restore, prev.ai)
+  local okW, whyW = CH.writeRecipe(gs, p.e)
+  if not okW then return false, whyW end
+  local gm = try(function() return gs.AuthorityGameMode end)
+  if not alive(gm) then gm = C.first('RacingGameMode') end
+  if not alive(gm) then return false, 'no racing game mode to reset the race' end
+  local skip = worldKeys()
+  local okR, errR = pcall(function() gm:RequestResetRace() end)
+  if not okR then return false, 'RequestResetRace refused: ' .. tostring(errR) end
+  log(('[chain] reset called: %s:RequestResetRace() for race %d of %d, %s'):format(C.clsname(gm), ev.race, run.races, ev.title))
+  startRun(ev, classKey, p, skip, { chained = true, prevOut = prev.recorded, gsRef = prev.gsRef, screenRef = prev.screenRef })
   return true
 end
 
@@ -463,14 +526,56 @@ end
 -- cheap: no lookup (see above)
 function R.menuUp() return menu.up end
 
+-- the race's result recorded (K.record: the cup's points, records, rival, near misses) and logged (RESULT, [gaps],
+-- PERF). Once per race: from the main menu path of R.watch, or (v0.19) on the results screen by chain.lua.
+local function recordRace(r)
+  local fl = fieldList(r)
+  -- you're always in the result (even if you quit before the racers were first read)
+  local me
+  for _, f in ipairs(fl) do if f.you then me = f end end
+  if not me then me = { name = 'YOU', you = true }; fl[#fl + 1] = me end
+  me.finished = r.finished; me.pos = r.finished and r.pos or me.pos
+  me.time = r.finished and r.time or nil
+  -- (v0.8: the race time only once you finished; the best lap whenever one was read)
+  local out = K.record(r.ev, r.finished and r.pos or nil, fl, { time = r.finished and r.time or nil, lap = r.lap, top = r.top })
+  out.field = fl -- (v0.16: every racer's position and time, for the study mode's result line)
+  pcall(function()
+    log(('RESULT %s: %s (time %s, best lap %s, top speed %d kph, last position seen %s)'):format(r.ev.title,
+      r.finished and C.ordinal(r.pos) or 'DNF', K.fmtTime(r.finished and r.time or nil), K.fmtTime(r.lap),
+      math.floor(r.top), tostring(r.lastPos)))
+  end)
+  -- v0.10: the time gaps (gp.lua K.gaps, worked out in K.record from the field read above)
+  pcall(function() log('[gaps] ' .. K.gapsLine(r.ev, out.gaps)) end)
+  local okP, line = pcall(perfLine, r)
+  log('PERF ' .. r.ev.title .. ': ' .. (okP and line or ('(error: ' .. tostring(line) .. ')')))
+  return out
+end
+-- (chain.lua's view of this file)
+local chainApi = { readField = function(r) return readField(r) end, record = recordRace,
+  launch = function(r) return R.chainLaunch(r) end }
+
+-- v0.19: after a chain fallback, wait for the main menu (the notification, or a sweep every 2 s: the player may still
+-- be in a race world), then put everything back and hand back the last recorded result: today's standings page
+local function fallbackWatch(r)
+  if not R.menuSeen and C.clock - (r.lastFe or -1e9) < 2000 then return nil end
+  r.lastFe = C.clock
+  if not alive(C.first('FrontEndGameMode')) then return nil end
+  R.restoreBuild('main menu')
+  pcall(AI.restore, r.ai)
+  R.run = nil
+  log('[chain] main menu after the fallback: the standings of race ' .. tostring(r.prevOut and r.prevOut.ev and r.prevOut.ev.race or '?'))
+  return r.prevOut
+end
+
 function R.watch()
   local r = R.run
   if not r then return nil end
+  if r.phase == 'fallback' then return fallbackWatch(r) end
   if r.phase == 'loading' then
     -- (loading: a sweep for the new race state every tick - the AI's abilities must be set within ~0.7 s of the race
     -- world appearing (loadout.lua); v0.3.1's 250 ms here was too slow once: "too late" in race 2. Loading is short.)
     for _, gs in ipairs(C.find('RacingGameState')) do
-      if addr(gs) ~= r.oldGs then
+      if not (r.skip or {})[worldKey(gs)] then
         local ksl = C.lib('KismetSystemLibrary')
         local standalone = try(function() return ksl:IsStandalone(gs) end)
         log(('race world loaded, standalone=%s'):format(tostring(standalone)))
@@ -481,12 +586,32 @@ function R.watch()
         r.gs, r.phase, r.racingAt = addr(gs), 'racing', C.clock
         -- (v0.8: the race state's path + address, read again on the 2 s read below for the start of the race)
         r.gsRef = C.ref(gs)
+        if r.chained then
+          -- v0.19: the new race world from the reset - its own recipe copy says which race it runs
+          local CH = require('chain')
+          local got = CH.worldEvent(gs)
+          local want = r.ev.path:match('([^/]+)$')
+          log(('[chain] new race world %s %.1f s after the reset: %s'):format(C.idname(gs), (C.clock - r.at) / 1000, tostring(got or '? (unreadable)')))
+          if got and got ~= want then
+            r.screenRef = nil
+            CH.fallback(r, ('the new race world runs %s, not %s'):format(got, want))
+            r.phase = 'fallback'
+            return nil
+          end
+        end
         if try(function() return gs.bIsRaceStarted end) == true then r.startedAt = C.clock end
         R.applyAI(r)
         local ok, err = pcall(LO.apply, r.lo)
         if not ok then log('[loadout] apply failed: ' .. tostring(err)); r.lo = nil end
         return nil
       end
+    end
+    if r.chained and (R.menuSeen or C.clock - r.at > require('chain').loadTimeoutMs()) then
+      -- v0.19: the reset gave no new race world (or the main menu came instead): the main menu, today's standings
+      if not R.menuSeen then require('chain').fallback(r, ('no new race world %d s after the reset'):format(require('chain').loadTimeoutMs() // 1000))
+      else log('[chain] the main menu came back instead of the next race') end
+      r.phase = 'fallback'
+      return nil
     end
     if C.clock - r.at > 120000 then
       log('no race world after 120 s - giving up')
@@ -505,6 +630,12 @@ function R.watch()
     if not ok then log('[loadout] apply failed: ' .. tostring(err)); r.lo = nil end
   end
   R.perf(r)
+  -- v0.19: once you have finished, the cup's next race from the results screen (chain.lua)
+  if r.finished and not r.chainOff then
+    local okC, errC = pcall(require('chain').tick, r, chainApi)
+    if not okC then log('[chain] stopped: ' .. tostring(errC) .. ' - the standings at the main menu'); r.chainOff = true end
+    if R.run ~= r then return nil end -- (the next race is on its way)
+  end
   local due = C.clock - (r.lastRead or -1e9) >= 2000
   -- v0.8: the AI rubber band, until 3 s after the start (its own sweep of the tune objects, at most every 500 ms,
   -- then it stops itself; nothing more is swept once it's done)
@@ -539,28 +670,15 @@ function R.watch()
   if not (alive(fe) and addr(fe) ~= r.oldFe) then return nil end
   R.restoreBuild('main menu')
   pcall(AI.restore, r.ai)
-  local fl = fieldList(r)
-  -- you're always in the result (even if you quit before the racers were first read)
-  local me
-  for _, f in ipairs(fl) do if f.you then me = f end end
-  if not me then me = { name = 'YOU', you = true }; fl[#fl + 1] = me end
-  me.finished = r.finished; me.pos = r.finished and r.pos or me.pos
-  me.time = r.finished and r.time or nil
   -- (v0.3.5: the race is marked over BEFORE anything that could fail)
   R.run = nil
-  -- (v0.8: the race time only once you finished; the best lap whenever one was read)
-  local out = K.record(r.ev, r.finished and r.pos or nil, fl, { time = r.finished and r.time or nil, lap = r.lap, top = r.top })
-  out.field = fl -- (v0.16: every racer's position and time, for the study mode's result line)
-  pcall(function()
-    log(('RESULT %s: %s (time %s, best lap %s, top speed %d kph, last position seen %s)'):format(r.ev.title,
-      r.finished and C.ordinal(r.pos) or 'DNF', K.fmtTime(r.finished and r.time or nil), K.fmtTime(r.lap),
-      math.floor(r.top), tostring(r.lastPos)))
-  end)
-  -- v0.10: the time gaps (gp.lua K.gaps, worked out in K.record from the field read above)
-  pcall(function() log('[gaps] ' .. K.gapsLine(r.ev, out.gaps)) end)
-  local okP, line = pcall(perfLine, r)
-  log('PERF ' .. r.ev.title .. ': ' .. (okP and line or ('(error: ' .. tostring(line) .. ')')))
-  return out
+  if r.recordTried then
+    -- v0.19: recorded on the results screen already (chain.lua): that result, not a second one
+    if r.chain and not r.chain.done then log('[chain] the results went to the main menu before NEXT RACE: the standings there') end
+    if not r.recorded then log('[chain] the result recorded on the results screen was lost - nothing to show') end
+    return r.recorded
+  end
+  return recordRace(r)
 end
 
 return R

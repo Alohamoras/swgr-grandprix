@@ -35,6 +35,19 @@ return {
     -- straight to the ranking (v0.3.8). false = show the menu as before.
     HideMenuFlash = true,
 
+    -- v0.19 (TASKS.md "Next" 2, DESIGN.md §15): cups without the main menu. After a cup race (not the last), the
+    -- standings are drawn over the game's own results screen with a NEXT RACE button beside CONTINUE: NEXT RACE (pad A
+    -- / Enter on it, or Key) starts the next race in the same race world (the race recipe's stage swapped, then the
+    -- game's RequestResetRace); CONTINUE goes to the main menu and today's standings page (B there leaves the cup).
+    -- CrossPlanet = false: a race whose next race is on another planet (the codename folder after /Planets/ in the
+    -- event paths: 'Mastiff/...' vs 'Dalmatian/...') uses the main-menu flow (a planet change is not proven).
+    -- ResultsWaitS = how long after you finish to look for the results screen; LoadTimeoutS = how long after the reset
+    -- the new race world may take before the main-menu fallback. Panel = where the standings go on the results
+    -- screen's canvas (Y from the top, at 4K one unit is about one pixel) and their least size (covers the game's own
+    -- table). On = false: today's flow, nothing in the race world.
+    ChainRaces = { On = true, CrossPlanet = false, Key = 'N', ResultsWaitS = 90, LoadTimeoutS = 15,
+        Panel = { Y = 330, MinWidth = 1700, MinHeight = 1250 } },
+
     -- Lua garbage: collect a little on every tick (KB of work per step) so it never piles up into one big pause
     -- (v0.3.4, race stutter). GcStep = false to switch off for a comparison.
     GcStep = true,

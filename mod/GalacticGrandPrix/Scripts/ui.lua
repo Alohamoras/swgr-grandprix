@@ -182,6 +182,60 @@ local function textBlock(make, s, size, color, wrapAt)
   return t
 end
 
+local GOLD, GREY, WHITE = { 1, 0.82, 0.35 }, { 0.72, 0.74, 0.78 }, { 1, 1, 1 }
+U.GOLD, U.GREY, U.WHITE = GOLD, GREY, WHITE
+
+-- a screen's text lines ({ text, size, color }) into a vertical box, wrapped at `wrap`; top = the space above each
+local function addLines(box, make, lines, wrap, top)
+  for _, ln in ipairs(lines or {}) do
+    if ln[1] and ln[1] ~= '' then
+      local t = textBlock(make, ln[1], ln[2] or 18, ln[3] or GREY, wrap)
+      local sl = t and try(function() return box:AddChildToVerticalBox(t) end)
+      if sl then try(function() sl:SetPadding({ Left = 0, Top = top or 4, Right = 0, Bottom = 0 }) end) end
+    end
+  end
+end
+
+-- a table (spec.table, see below) into a vertical box: one horizontal box per row
+local function addTable(box, make, tb)
+  local JUST = { left = 0, center = 1, right = 2 }
+  local function row(cells, color, colors, highlight, size)
+    local hb = make('/Script/UMG.HorizontalBox')
+    if not alive(hb) then return end
+    for i, col in ipairs(tb.cols) do
+      local sb = make('/Script/UMG.SizeBox')
+      local t = textBlock(make, tostring(cells[i] or ''), size, (colors and colors[i]) or color or WHITE)
+      if t then try(function() t:SetJustification(JUST[col.align or 'left'] or 0) end) end
+      if alive(sb) and t then
+        try(function() sb:SetWidthOverride(col.w) end)
+        try(function() sb:SetContent(t) end)
+        local sl = try(function() return hb:AddChildToHorizontalBox(sb) end)
+        if sl then try(function() sl:SetPadding({ Left = 0, Top = 0, Right = 24, Bottom = 0 }) end) end
+      end
+    end
+    local holder = hb
+    if highlight then
+      local b = make('/Script/UMG.Border')
+      if alive(b) then
+        try(function() b:SetBrushColor({ R = 1, G = 0.82, B = 0.35, A = 0.16 }) end)
+        try(function() b:SetPadding({ Left = 6, Top = 2, Right = 6, Bottom = 2 }) end)
+        try(function() b:SetContent(hb) end)
+        holder = b
+      end
+    end
+    local sl = try(function() return box:AddChildToVerticalBox(holder) end)
+    if sl then try(function() sl:SetPadding({ Left = highlight and 0 or 6, Top = 2, Right = 0, Bottom = 0 }) end) end
+  end
+  if tb.header then row(tb.header, GREY, nil, false, (tb.size or 20) - 2) end
+  for _, r in ipairs(tb.rows or {}) do row(r.cells, r.color, r.colors, r.highlight, tb.size or 20) end
+end
+-- a table's width (its columns and their gaps)
+local function tableWidth(tb)
+  local w = 0
+  for _, col in ipairs((tb or {}).cols or {}) do w = w + (col.w or 0) + 24 end
+  return w > 0 and w or nil
+end
+
 -- a screen: { title, lines = { {text, size, color} ... }, table = (see below), items = { {title, desc, art, badge, disabled} ... },
 -- hint }
 -- table (v0.3.8, the ranking): { size = text size, cols = { { w = width, align = 'left'|'right'|'center' } ... },
@@ -190,8 +244,6 @@ end
 --   the columns line up whatever the font.
 -- returns { w, items (each with .btn), scroll } or nil
 
-local GOLD, GREY, WHITE = { 1, 0.82, 0.35 }, { 0.72, 0.74, 0.78 }, { 1, 1, 1 }
-U.GOLD, U.GREY, U.WHITE = GOLD, GREY, WHITE
 
 -- host: { tree = the main menu's widget tree, panel = our page panel } - the screen is built into the tab's page
 local function buildInner(spec, host)
@@ -237,13 +289,7 @@ local function buildInner(spec, host)
   local wrap = (U.TILE_W + 20) * U.COLS
   local t1 = textBlock(make, spec.title or '', 34, WHITE)
   if t1 then try(function() box:AddChildToVerticalBox(t1) end) end
-  for _, ln in ipairs(spec.lines or {}) do
-    if ln[1] and ln[1] ~= '' then
-      local t = textBlock(make, ln[1], ln[2] or 18, ln[3] or GREY, wrap)
-      local sl = t and try(function() return box:AddChildToVerticalBox(t) end)
-      if sl then try(function() sl:SetPadding({ Left = 0, Top = 4, Right = 0, Bottom = 0 }) end) end
-    end
-  end
+  addLines(box, make, spec.lines, wrap)
 
   -- v0.6: an info line (spec.info = true): the full text of the focused tile (its item.info), set on every focus change
   -- (tile descriptions are cut after two lines; for mods the description is the point)
@@ -254,39 +300,7 @@ local function buildInner(spec, host)
     if sl then try(function() sl:SetPadding({ Left = 0, Top = 6, Right = 0, Bottom = 0 }) end) end
   end
 
-  if spec.table then
-    local tb = spec.table
-    local JUST = { left = 0, center = 1, right = 2 }
-    local function row(cells, color, colors, highlight, size)
-      local hb = make('/Script/UMG.HorizontalBox')
-      if not alive(hb) then return end
-      for i, col in ipairs(tb.cols) do
-        local sb = make('/Script/UMG.SizeBox')
-        local t = textBlock(make, tostring(cells[i] or ''), size, (colors and colors[i]) or color or WHITE)
-        if t then try(function() t:SetJustification(JUST[col.align or 'left'] or 0) end) end
-        if alive(sb) and t then
-          try(function() sb:SetWidthOverride(col.w) end)
-          try(function() sb:SetContent(t) end)
-          local sl = try(function() return hb:AddChildToHorizontalBox(sb) end)
-          if sl then try(function() sl:SetPadding({ Left = 0, Top = 0, Right = 24, Bottom = 0 }) end) end
-        end
-      end
-      local holder = hb
-      if highlight then
-        local b = make('/Script/UMG.Border')
-        if alive(b) then
-          try(function() b:SetBrushColor({ R = 1, G = 0.82, B = 0.35, A = 0.16 }) end)
-          try(function() b:SetPadding({ Left = 6, Top = 2, Right = 6, Bottom = 2 }) end)
-          try(function() b:SetContent(hb) end)
-          holder = b
-        end
-      end
-      local sl = try(function() return box:AddChildToVerticalBox(holder) end)
-      if sl then try(function() sl:SetPadding({ Left = highlight and 0 or 6, Top = 2, Right = 0, Bottom = 0 }) end) end
-    end
-    if tb.header then row(tb.header, GREY, nil, false, (tb.size or 20) - 2) end
-    for _, r in ipairs(tb.rows or {}) do row(r.cells, r.color, r.colors, r.highlight, tb.size or 20) end
-  end
+  if spec.table then addTable(box, make, spec.table) end
 
   try(function() grid:SetSlotPadding({ Left = 10, Top = 10, Right = 10, Bottom = 10 }) end)
   local holder = grid
@@ -423,6 +437,39 @@ function U.cover(on)
   return true
 end
 function U.coverAge() return coverAt and (C.clock - coverAt) or nil end
+
+-- v0.19 (chain.lua): a standings panel built into another screen's widget tree (the game's race results screen):
+-- the title, spec.lines, spec.table, then spec.after (the prompt), on a dark box. opts = { minW, minH }: the box's
+-- least size (to cover what is under it). Returns the outermost widget (not yet added anywhere), or nil + why.
+-- Nothing is kept: the widgets go with the screen.
+function U.panel(spec, tree, opts)
+  opts = opts or {}
+  if not alive(tree) then return nil, 'no widget tree' end
+  local function make(path) return try(function() return StaticConstructObject(StaticFindObject(path), tree) end) end
+  local border, box = make('/Script/UMG.Border'), make('/Script/UMG.VerticalBox')
+  if not (alive(border) and alive(box)) then return nil, 'could not build the panel' end
+  try(function() border:SetBrushColor({ R = 0.01, G = 0.012, B = 0.016, A = 0.92 }) end)
+  try(function() border:SetPadding({ Left = 48, Top = 32, Right = 48, Bottom = 32 }) end)
+  try(function() border:SetContent(box) end)
+  -- (the text wraps at the table's width or the panel's least width, whichever is wider: one panel width)
+  local wrap = math.max(tableWidth(spec.table) or 0, (opts.minW or 1600) - 96)
+  local t1 = textBlock(make, spec.title or '', 34, WHITE)
+  if t1 then try(function() box:AddChildToVerticalBox(t1) end) end
+  addLines(box, make, spec.lines, wrap)
+  if spec.table then
+    local gap = make('/Script/UMG.SizeBox')
+    if alive(gap) then try(function() gap:SetHeightOverride(12) end); try(function() box:AddChildToVerticalBox(gap) end) end
+    addTable(box, make, spec.table)
+  end
+  addLines(box, make, spec.after, wrap, 18)
+  if not (opts.minW or opts.minH) then return border end
+  local sb = make('/Script/UMG.SizeBox')
+  if not alive(sb) then return border end
+  if opts.minW then try(function() sb:SetMinDesiredWidth(opts.minW) end) end
+  if opts.minH then try(function() sb:SetMinDesiredHeight(opts.minH) end) end
+  try(function() sb:SetContent(border) end)
+  return sb
+end
 
 -- v0.8: a screen can ask for its own grid (spec.layout = { cols, rows, w, h }): the cups page (config CupsLayout;
 -- v0.11: 4 + 3 tiles) fits one page without scrolling. The layout is put back after the build.

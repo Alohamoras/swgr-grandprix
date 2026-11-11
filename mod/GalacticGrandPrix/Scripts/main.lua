@@ -7,14 +7,15 @@
 -- v0.11: one cup per planet with a race list per class (classic / reverse / conditions), the Galactic Cup, the title race.
 -- v0.16: study mode (test-only): study.lua in the mod folder runs a batch of single races with AI profiles (studymode.lua).
 -- v0.17: the game boots straight into the GRAND PRIX tab (HOME), once per launch (config BootToGrandPrix).
+-- v0.19: cups without the main menu: the standings over the game's results screen, NEXT RACE from there (chain.lua).
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.18.1'
+local VERSION = '0.19.0'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
 package.path = scripts .. '/?.lua;' .. package.path
-for _, m in ipairs({ 'core', 'config', 'abil', 'cup', 'rival', 'gp', 'loadout', 'ai', 'race', 'ui', 'tab', 'studymode' }) do package.loaded[m] = nil end
+for _, m in ipairs({ 'core', 'config', 'abil', 'cup', 'rival', 'gp', 'loadout', 'ai', 'race', 'ui', 'tab', 'studymode', 'standings', 'chain' }) do package.loaded[m] = nil end
 
 local C = require('core')
 C.DIR = scripts:match('^(.*)[/\\][Ss]cripts$') or '.'
@@ -110,36 +111,23 @@ local function medal(classKey, cupKey)
   if not (b and TROPHY_NAME[b]) then return nil end
   return ART.medal(b), ART.medalColor(b)
 end
-local function shortName(key) return key == CU.YOU and 'YOU' or key end
 
 -- launch the cup's next race (the cup's own vehicle and class)
+-- (v0.19: the same arguments for a race chained from the results screen, chain.lua / race.lua R.chainLaunch)
+local function cupArgs(run) return run.class, run.vehicle, run.picks or picksFor(run.class), run.mods or modsFor() end
+require('chain').args = cupArgs
 local function launchNext()
   local run, ev = K.run(), K.nextRace()
   if not (run and ev) then S.message = 'No cup in progress'; return true end
-  local ok, why = R.launch(ev, run.class, run.vehicle, run.picks or picksFor(run.class), run.mods or modsFor())
+  local ok, why = R.launch(ev, cupArgs(run))
   if ok then S.message = nil; return 'launched' end
   S.message = why
   return true
 end
 
--- after a race: ONE screen (owner, 2026-11-10: fewer screens) - the ranking by points, as a table: place, racer,
--- points this race, total, places moved. After the last race the same table with the trophy on top.
-local GREEN, RED = { 0.45, 0.9, 0.5 }, { 1, 0.5, 0.45 }
-local function rankingTable(run)
-  local rows = {}
-  for _, r in ipairs(CU.table(run)) do
-    local move, mc = '', nil
-    if r.move and r.move > 0 then move, mc = '+' .. r.move, GREEN
-    elseif r.move and r.move < 0 then move, mc = tostring(r.move), RED end
-    rows[#rows + 1] = {
-      cells = { ordinal(r.rank), shortName(r.key), r.dnf and 'DNF' or (r.raced and ('+' .. r.gain) or '-'), tostring(r.total), move },
-      color = r.you and U.GOLD or U.WHITE, colors = { [5] = mc }, highlight = r.you,
-    }
-  end
-  return { size = 20, header = { '', 'RACER', 'THIS RACE', 'POINTS', 'MOVED' },
-    cols = { { w = 90, align = 'right' }, { w = 460 }, { w = 220, align = 'right' }, { w = 180, align = 'right' }, { w = 160, align = 'right' } },
-    rows = rows }
-end
+-- v0.19: the standings text (lines and the ranking table) is built in standings.lua, shared with the panel over the
+-- game's results screen (chain.lua)
+local SD = require('standings')
 
 local SCREENS = {}
 
@@ -451,55 +439,9 @@ end
 
 SCREENS.standings = function()
   local r = S.result or {}
-  local ev = r.ev or { title = '?' }
   local run = r.run
   local cup = run and K.cup(run.cup) or { name = '?' }
-  local cls = run and K.class(run.class) or { name = '?' }
-  local lines = {}
-  if r.cupOver then
-    lines[#lines + 1] = { r.trophy and (r.trophy .. ' TROPHY') or ('%s PLACE'):format(ordinal(r.rank or 0):upper()), 44, r.trophy and U.GOLD or U.GREY }
-    lines[#lines + 1] = { ('%s   -   %s   -   %d points%s%s'):format(cup.name, cls.name, r.pts or 0, r.newBest and '   -   NEW BEST' or '',
-      r.perfect and '   -   PERFECT CUP' or ''), 22, U.WHITE }
-    if r.unlocked and #r.unlocked > 0 then
-      lines[#lines + 1] = { 'UNLOCKED:  ' .. table.concat(r.unlocked, '   -   '), 24, U.GOLD }
-    end
-  else
-    lines[#lines + 1] = { ('%s   -   %s   -   race %d of %d'):format(cup.name, ev.title, ev.race or 0, run and run.races or 4), 22, U.WHITE }
-  end
-  local you = ('You: %s in this race'):format(r.pos and ordinal(r.pos) or 'did not finish')
-  if r.time and K.fmtTime then you = you .. ('   -   %s'):format(K.fmtTime(r.time)) .. (r.lap and ('  (best lap %s)'):format(K.fmtTime(r.lap)) or '') end
-  lines[#lines + 1] = { you, 18 }
-  local youLine = lines[#lines]
-  -- v0.12 (docs/PHILOSOPHY.md points 2 and 4): between races one stakes line from the points left; then ONE line for
-  -- the record, the best lap and the near misses together, so the screen never grows past its v0.8 height (races 1-3:
-  -- 4 lines; the cup result: 5 lines, as before)
-  local stakes = (not r.cupOver) and run and K.run() and CU.stakes(run, cfg.Points) or nil
-  -- v0.13 (point 3): the rival with their gap in this cup. A stakes line naming them already says "YOUR RIVAL" instead
-  -- of a second line ("2 POINTS BEHIND YOUR RIVAL SEN FIRA, 1 RACE LEFT")
-  local rivalName = run and RV.name(K.data, run.class)
-  local rival = RV.callout(rivalName, run)
-  local merged
-  stakes, merged = RV.merge(stakes, rival and rivalName)
-  if merged then rival = nil end
-  if stakes then lines[#lines + 1] = { stakes, 22, U.WHITE } end
-  local rivalAt = #lines + 1
-  local note, big = {}, false
-  if r.newRecord and K.fmtTime then
-    note[#note + 1] = ('NEW RECORD  %s%s'):format(K.fmtTime(r.time), r.oldTime and ('   (was %s)'):format(K.fmtTime(r.oldTime)) or ''); big = true
-  else
-    local near = K.nearRecord and K.nearRecord(r)
-    if near then note[#note + 1] = near; big = true end
-    if r.newLap and K.fmtTime and r.lap then note[#note + 1] = ('NEW BEST LAP  %s'):format(K.fmtTime(r.lap)) end
-  end
-  local nearCup = r.cupOver and run and CU.nearTrophy(run, (cfg.Near or {}).TrophyPoints) or nil
-  if nearCup then note[#note + 1] = nearCup; big = true end
-  if #note > 0 then lines[#lines + 1] = { table.concat(note, '   -   '), big and 22 or 20, U.GOLD } end
-  -- the rival's own line (after the stakes / your line) while the screen has room under its height (races 1-3: 4
-  -- lines, the cup result: 5); else it goes on the end of your line
-  if rival then
-    if #lines < (r.cupOver and 5 or 4) then table.insert(lines, rivalAt, { rival, 20, U.WHITE })
-    else youLine[1] = youLine[1] .. '   -   ' .. rival end
-  end
+  local spec = SD.spec(r)
   local items = {}
   if K.run() then
     -- v0.9: NEXT RACE only (no LATER: cups cannot be resumed; B asks "Leave the cup?" - handle, below)
@@ -514,8 +456,8 @@ SCREENS.standings = function()
     items[#items + 1] = { title = 'CONTINUE', art = ART.cup(cup, run and run.vehicle) or 'T_UI_FE_Tile_Campaign_Hero', desc = 'Back to the cups',
       icon = r.trophy and ART.medal(TROPHY_INDEX[r.trophy]) or nil, iconColor = r.trophy and ART.medalColor(TROPHY_INDEX[r.trophy]) or nil, act = function() return go('cups') end }
   end
-  return { key = 'standings', title = r.cupOver and 'CUP RESULT' or 'STANDINGS', lines = lines,
-    table = run and rankingTable(run) or nil, items = items, backdrop = ART.BACKDROP }
+  spec.items = items
+  return spec
 end
 
 SCREENS.confirm = function()
@@ -793,6 +735,16 @@ end
 bind(cfg.MenuKey or 'F6', 'menu')
 -- (no hooks: the Underground's v0.7.2-0.8.5 hooked the game's button events; none fired for the pad)
 bind('BACKSPACE', 'back')
+-- v0.19: NEXT RACE on the results screen's standings (chain.lua reads the flag; only while its panel is up)
+do
+  local ck = (type(cfg.ChainRaces) == 'table' and cfg.ChainRaces.On == true) and cfg.ChainRaces.Key or nil
+  local k = ck and Key and Key[ck]
+  if k then
+    local CHm = require('chain')
+    local ok, err = pcall(RegisterKeyBind, k, function() CHm.key = true end)
+    if not ok then log('bind failed ' .. ck .. ': ' .. tostring(err)) end
+  end
+end
 
 ---------------------------------------------------------------------------------------------------------------------
 -- the GRAND PRIX tab: our page is built when the tab is picked, and dropped when another tab is
