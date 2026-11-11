@@ -124,7 +124,7 @@ ended('A')
 -- B. the same cup via the menu (the default): every launch from the main menu under the cover, no standings page
 -- between the races
 start()
-T.check(T.logHas('v0.19.1 loaded'), 'B: v0.19.1')
+T.check(T.logHas('v0.20.0 loaded'), 'B: v0.20.0')
 T.clickTitle('JAKKU CUP')
 T.check(M.called('LaunchQuickRace') == 1 and lastLaunch() == TRACKS[1], 'B: race 1 launched from the main menu')
 W.race(11)
@@ -140,6 +140,9 @@ for k = 1, 3 do
   local txt = W.textsSince(calls)
   T.check(txt:find('STANDINGS', 1, true) and txt:find('THIS RACE', 1, true) and txt:find('POINTS', 1, true) and txt:find('MOVED', 1, true)
     and txt:find(('race %d of 4'):format(k), 1, true), 'B: race ' .. k .. ': the panel has the cup line and the table')
+  -- v0.20: a rival from the first race at the class, and their row marked on the panel (the shared standings text)
+  local riv = require('rival').name(require('gp').data, T.save().run.class)
+  T.check(riv ~= nil and txt:find(riv .. '   RIVAL', 1, true) ~= nil, 'B: race ' .. k .. ': the rival (' .. tostring(riv) .. ') marked RIVAL on the panel')
   local nxt = require('config').Cups[1].races['150'][k + 1].title
   T.check(txt:find(('NEXT RACE: race %d of 4, %s.'):format(k + 1, nxt), 1, true) and txt:find('CONTINUE: the main menu', 1, true),
     'B: race ' .. k .. ': the prompt says what NEXT RACE and CONTINUE do')

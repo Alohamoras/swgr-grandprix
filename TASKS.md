@@ -196,10 +196,17 @@ From the afternoon's findings (docs/ai-study-2026-11-11.md, docs/menu-review-202
    the next cup race from there (recipe stage swap + RequestResetRace). Planet cups stay on one planet (proven case);
    check a planet change for the Galactic Cup first, fall back to the main menu there if it fails. Put-backs (parts,
    abilities, AI, racer) must hold across chained races.
-3. **A real rival, raced in the title race** (menu review 2, B6 proven): rival picked from the first race at a class,
+3. [ ] (Rival part built 2026-11-11 as v0.20.0, **not yet seen in game**: the rival from the first race at a class, their
+   row marked RIVAL on every standings, HOME's info names them, "Champion: <bot>" gone; DESIGN.md §16. The title-race
+   part (1 v 1 against the rival) waits for the owner.) **A real rival, raced in the title race** (menu review 2, B6 proven): rival picked from the first race at a class,
    their row marked on every standings; the title race a 1 v 1 on a real track against the rival (or the class leader)
    with GridMakeup 2 + Opponents cut; Kestar stays as the final boss (owner to confirm where).
-4. **Menu polish pass** (menu review 1, 3, 4, 5): a proper cup result screen (big trophy, top 3, what it unlocked /
+4. [x] (Built 2026-11-11 as v0.20.0, **not yet seen in game**: the cup result screen (medal, PERFECT CUP, top 3, one
+   what's-next line, CONTINUE on the next cup without a gold), the label strip (`TileLabelStrip`), HOME's Next: line
+   and focus on the class last raced, the footer hidden on our tab (`HideFooter`), review 6-7's small ones; review 8
+   (seconds on the standings) built too; 9 (per-ability art) not done. In-game check list: CHANGELOG v0.20.0 / the v0.20
+   report. What the footer's C does on our page is still unknown: hiding the prompt doesn't unbind it.)
+   **Menu polish pass** (menu review 1, 3, 4, 5): a proper cup result screen (big trophy, top 3, what it unlocked /
    what's next), a dark strip behind tile labels, a "Next:" goal line on HOME, check what the footer's C (Restart
    Campaign) does on our page and hide it. Then 6-9 of the review as small fixes.
 Owner checks any time: the pad's B on the boot page; the racer looks (autotest/shots/look1-a/b.png, b6-2-race.png).

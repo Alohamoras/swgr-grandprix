@@ -472,3 +472,50 @@ pressed (<how>)`, `[chain] next race written: EVT (track, laps, conditions) ... 
 ...RequestResetRace() for race N of 4, TITLE`, `[chain] new race world <name> <t> s after the reset: <event>`,
 `[chain] fallback: <why> - ...`, `[chain] main menu after the fallback: ...`, `[chain] the results went to the main
 menu before NEXT RACE: the standings there`, `[chain] recipe put back (main menu): ...`.
+
+## 16. The visible rival and the menu polish (v0.20, TASKS.md "Next" 3 (rival part) and 4; built, not yet seen in game)
+From docs/menu-review-2026-11-11.md. The title race is unchanged (Kestar Bool's Showdown) until the owner decides.
+- **A rival from the first race** (review 2a; rival.lua `RV.nearest`, config `Rival.FirstRace`, default true): after
+  a cup race at a class with no rival yet, the racer who finished nearest you in that race - the one just ahead (the
+  excluded, Kestar Bool, skipped), else the one just behind - becomes your rival there at once (`[rival] 100cc: X is
+  your rival (finished nearest you in race 1 of jakku)`). From then on §13's tally rule decides changes, unchanged
+  (a rival picked this way starts with only one race of tally, so a racer already far ahead in an old save's tally
+  can take over at once by the Margin rule). An old save's rival is kept. `FirstRace = false` = v0.13's rule only.
+- **The rival's row is marked** on every standings table - the standings page, the panel over the game's results
+  screen (both from standings.lua `SD.spec`) and the cup result's top 3: the row in light blue (`SD.RIVAL_COLOR`) and
+  "RIVAL" after the name ("Sen Fira   RIVAL"). The call-out / "YOUR RIVAL" stakes lines stay as in v0.13.
+- **HOME** (review 2c, 4, 6, 7): one "Next:" line under the title naming the nearest goal (prog.lua `P.nextGoal`:
+  the fewest trophies still needed for something locked, from the existing unlock rules - "Next: a trophy in the
+  Sentinel Cup at 100cc opens the GALACTIC CUP and 150cc"; ties go to the class last raced; with nothing left to
+  unlock, the nearest gold or an unwon title race). The League line and the race / cup counts are gone. Every class
+  tile shows the same measure: "N / 6 TROPHIES" on the badge (none before a trophy), "Gold N / 6" under the title
+  (shown on the focused tile). "Champion: <bot>" is gone from HOME (it never said what a champion is); your own title
+  stays ("Champion: YOU"), and the info line names the rival ("Rival: SEN FIRA"). The focus opens on the class you
+  last raced (`K.data.last.class`, else the last picked; a fresh open only - going back keeps the tile you were on).
+- **The cup result** (review 1; `SD.cupSpec`, ui.lua `spec.hero` / `spec.after`): a screen of its own - the medal
+  (the trophy icon used on the cup tiles, `T_UI_Grit_Medals_*`) drawn large (190 px), tinted bronze / silver / gold
+  through the image's brush tint; beside it the trophy (or "5TH PLACE") big, the cup / class / points / NEW BEST, and
+  "PERFECT CUP" as a badge line; then the final top 3 (your row under them when lower); then the last race in one line
+  (place, time, record / near misses, the cup's near miss "1 POINT FROM GOLD"), the rival call-out, and ONE what's-next
+  line: "UNLOCKED: ..." when the cup opened something, else "Next: <the nearest unlock at the class>" (prog.lua
+  `P.nextUnlock`; nothing when the class has nothing left to open - the near miss is on the race line). CONTINUE (and B)
+  land the cups page's focus on the next open cup at the class without a gold, after the one just raced (wrapping; with
+  every other cup golden, the title race), and the tile names it ("Next: CRAIT CUP").
+- **A dark strip behind tile labels** (review 3; ui.lua `U.stripBehind`, config `TileLabelStrip`): the tile's badge
+  (`Txt_Label_Supplemental`) and description (`RT_Description`, header dump `WBP_FE_TileCommon_Btn.hpp`) each put
+  inside a Border (black, alpha 0.6) in their own place in their parent panel (the children from there on taken off and
+  put back with their slot settings - no InsertChildAt from Lua); the badge also gets a text shadow. A collapsed text
+  leaves an empty zero-size border. Logged once per screen: `[tiles] label strip: badge in <panel class>, description
+  in <panel class>` (or `not done (<why>)`).
+- **The game's footer** (review 5; tab.lua `T.findFooter`, config `HideFooter`): the main menu's `WBP_ActionBar_C`
+  (the prompts "Select / C Restart Campaign / Settings"; the FreeRace mod hides the same widget on its tab) is found
+  breadth first from the menu's root (user widgets' own trees too, at most 1500 widgets / 12 deep) when our tab is
+  entered, collapsed, and put back to its old visibility when another tab is picked (found again; only the
+  visibility number is kept). `[footer] found ... at depth N ... hidden while the GRAND PRIX tab is up` / `[footer] put
+  back (visibility N)` / `[footer] not found (N widgets looked at); the menu's root holds: ...`. Hiding the prompts
+  does not unbind the game's C key: what C does on our page is still to be checked.
+- **Small ones** (review 6, 7): the cups page says only the class blurb and "Parts level N, abilities level N" (no
+  vehicle, no how-to); no best lap on a sprint (the standings' "You:" line, NEW BEST LAP, the cups page's records);
+  the cup tiles' medal icons tinted by medal through the brush tint (the image colour set in v0.7 didn't hold in game).
+  Review 8: your line on the standings ends with the seconds to the car just ahead, or to the one behind when you won
+  (`SD.margin` from the race's `K.gaps`; nothing without finish times). Review 9 (per-ability art) not done.

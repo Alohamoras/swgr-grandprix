@@ -515,6 +515,8 @@ function K.record(ev, pos, field, extra)
       out.rival = name
       local c = K.class(run.class)
       if what == 'new' then log(('[rival] %s: %s is your rival'):format(c and c.name or run.class, name))
+      elseif what == 'first' then log(('[rival] %s: %s is your rival (finished nearest you in race %d of %s)'):format(
+        c and c.name or run.class, name, run.race - 1, run.cup))
       elseif what == 'switch' then log(('[rival] %s: %s is your rival now (was %s)'):format(c and c.name or run.class, name, old)) end
     else log('rival not worked out: ' .. tostring(name)) end
     if CU.finished(run) then

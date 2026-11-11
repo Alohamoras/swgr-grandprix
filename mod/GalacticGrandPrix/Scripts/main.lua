@@ -9,9 +9,11 @@
 -- v0.17: the game boots straight into the GRAND PRIX tab (HOME), once per launch (config BootToGrandPrix).
 -- v0.19: cups without the main menu: the standings over the game's results screen, NEXT RACE from there (chain.lua).
 -- v0.19.1: NEXT RACE goes via the menu under the cover (the reset route only on request, same layout only).
+-- v0.20: a rival from the first race, marked on every standings; the cup result a screen of its own; HOME's Next: line;
+-- the game's footer hidden on our tab; a dark strip behind tile labels (TASKS "Next" 3 and 4, docs/menu-review).
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.19.1'
+local VERSION = '0.20.0'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -173,15 +175,14 @@ local function championLine(classKey)
   local name = TI.champion(classKey)
   return name and ('Champion: ' .. tostring(name):upper()) or nil
 end
--- v0.13: the champion and the rival for HOME's info line: '  Champion: BIDDY BLAS.  Rival: SEN FIRA' ('  Champion and
--- rival: SEN FIRA' when they are the same racer; '' when neither)
+-- v0.20 (menu review 2c: "Champion: GRIFF HALLORAN" on HOME said nothing about what a champion is): HOME's info line
+-- names only YOUR title ('  Champion: YOU') and the rival ('  Rival: SEN FIRA'); '' when neither
 local function rivalInfo(classKey, champ)
+  local out = {}
+  if champ == 'Champion: YOU' then out[#out + 1] = champ end
   local name = RV.name(K.data, classKey)
-  local riv = name and ('Rival: ' .. name:upper()) or nil
-  if champ and riv and champ == 'Champion: ' .. name:upper() then return '  Champion and rival: ' .. name:upper() end
-  if champ and riv then return '  ' .. champ .. '.  ' .. riv end
-  local one = champ or riv
-  return one and ('  ' .. one) or ''
+  if name then out[#out + 1] = 'Rival: ' .. name:upper() end
+  return #out > 0 and ('  ' .. table.concat(out, '.  ')) or ''
 end
 -- the title race tile on the cups page: locked until a trophy in the Galactic Cup at the class; won = CHAMPION
 local function titleTile(cls)
@@ -223,11 +224,12 @@ SCREENS.home = function()
         act = function() S.message = c.name .. ' is locked. To open it: ' .. why; return true end }
     else
       local champ = championLine(c.key)
+      -- v0.20 (menu review 7): the same measure on every class tile - trophies on the badge, golds under the title
+      -- (the game shows a tile's description when it's focused). v0.14.1: only YOUR title on the tile.
+      local gl = ('Gold %d / %d'):format(golds, total)
       items[#items + 1] = { title = c.name:upper(), art = ART.class(c.key),
-        badge = golds > 0 and ('%d / %d GOLD'):format(golds, total) or (trophies > 0 and ('%d / %d TROPHIES'):format(trophies, total) or nil),
-        -- v0.14.1: only YOUR title on the tile ('Champion: GRIFF HALLORAN' wrapped onto two lines in game, 2026-11-11);
-        -- the champion's name is in the info line
-        desc = (champ == 'Champion: YOU') and champ or nil,
+        badge = trophies > 0 and ('%d / %d TROPHIES'):format(trophies, total) or nil,
+        desc = (champ == 'Champion: YOU') and (gl .. '\n' .. champ) or (trophies > 0 and gl or nil), classKey = c.key,
         info = padInfo((c.blurb or '') .. '\n' .. ('%s: parts level %d, abilities %d.  Gold %d / %d, trophies %d / %d.%s'):format(c.name,
           c.parts or 0, c.abilities or 1, golds, total, trophies, total, rivalInfo(c.key, champ)), 2),
         act = function() S.class = c.key; K.data.class = c.key; K.save(); return go('cups') end }
@@ -253,10 +255,15 @@ SCREENS.home = function()
         end }
       return go('confirm')
     end }
+  -- v0.20 (menu review 4b): one line naming the nearest goal (prog.lua's own unlock rules); (4a) the focus starts on
+  -- the class you last raced (show() uses spec.focus when the page has no remembered focus: openPage clears it)
+  local last = (K.data.last and K.data.last.class) or K.data.class
+  local goal = PR.nextGoal and PR.nextGoal(K.data, last)
+  local focus
+  for i, it in ipairs(items) do if it.classKey and it.classKey == last and not it.disabled then focus = i end end
   return { key = 'home', title = 'GALACTIC GRAND PRIX',
-    lines = { { 'The Galactic League: four divisions, a season of cups in each.', 22, U.WHITE },
-      { ('Races %d        Cups finished %d'):format(K.data.races, K.data.cups), 18 }, msgLine() },
-    items = items, info = true }
+    lines = { { goal and ('Next: ' .. goal.text) or '', 22, U.WHITE }, msgLine() },
+    items = items, info = true, focus = focus }
 end
 
 -- the cups of a class, on one page (v0.11): the five planet cups, then the finale (the Galactic Cup), then the
@@ -291,7 +298,9 @@ local function cupInfo(cup, classKey, head)
   for i, r in ipairs(K.races(cup, classKey)) do
     local line = K.raceLine and K.raceLine(r) or r.title
     local rec = K.recordFor and K.recordFor(classKey, r.path)
-    if rec and K.fmtTime then line = line .. ('     best %s'):format(rec.time and K.fmtTime(rec.time) or 'no time yet') .. (rec.lap and (' / lap ' .. K.fmtTime(rec.lap)) or '') end
+    -- (v0.20: no best lap on a sprint - its lap is the race)
+    local lap = rec and rec.lap and not SD.sprint(r)
+    if rec and K.fmtTime then line = line .. ('     best %s'):format(rec.time and K.fmtTime(rec.time) or 'no time yet') .. (lap and (' / lap ' .. K.fmtTime(rec.lap)) or '') end
     out[#out + 1] = ('%d  %s'):format(i, line)
   end
   return table.concat(out, '\n')
@@ -331,11 +340,10 @@ SCREENS.cups = function()
   end
   local tt = titleTile(cls)
   if tt then items[#items + 1] = tt end
-  local veh = myVehicle()
   return { key = 'cups', title = cls.name:upper() .. '  -  CUPS',
+    -- (v0.20, menu review 6: the vehicle and the how-to are gone; the levels stay, small)
     lines = { { cls.blurb or '', 22, U.WHITE },
-      { ('%s, every part at level %d, abilities level %d.  Select a cup to start it: the first race launches straight away.'):format(
-      veh.name, cls.parts or 0, cls.abilities or 1), 18 }, msgLine() },
+      { ('Parts level %d, abilities level %d'):format(cls.parts or 0, cls.abilities or 1), 18 }, msgLine() },
     items = items, info = true, layout = cfg.CupsLayout }
 end
 
@@ -438,6 +446,23 @@ SCREENS.titleResult = function()
       act = function() return go('cups') end } } }
 end
 
+-- v0.20 (menu review 1c): where the cups page's focus goes after a cup: the next open cup at the class (in the page's
+-- order, after the one just raced, wrapping) without a gold, not the one just raced; with every cup golden, the title
+-- race when it's open; else the cup just raced. -> tile index, its name (nil when it's the cup just raced)
+local function nextCupFocus(classKey, cupKey)
+  local list = cupsInOrder()
+  local from = 0
+  for i, c in ipairs(list) do if c.key == cupKey then from = i end end
+  for k = 1, #list - 1 do
+    local i = (from + k - 1) % #list + 1
+    local c = list[i]
+    if c.key ~= cupKey and PR.cupOpen(K.data, classKey, c.key) and K.best(classKey, c.key) ~= 1 then return i, c.name end
+  end
+  local cls = K.class(classKey)
+  if cls and titleTile(cls) and (not PR.titleOpen or PR.titleOpen(K.data, classKey)) then return #list + 1, 'TITLE RACE' end
+  return from > 0 and from or nil, nil
+end
+
 SCREENS.standings = function()
   local r = S.result or {}
   local run = r.run
@@ -454,8 +479,14 @@ SCREENS.standings = function()
     local it = items[#items]
     if not U.tileFits(it) then it.desc = nxt.title:match('^(.-)%s*%(') or nxt.title end
   else
-    items[#items + 1] = { title = 'CONTINUE', art = ART.cup(cup, run and run.vehicle) or 'T_UI_FE_Tile_Campaign_Hero', desc = 'Back to the cups',
-      icon = r.trophy and ART.medal(TROPHY_INDEX[r.trophy]) or nil, iconColor = r.trophy and ART.medalColor(TROPHY_INDEX[r.trophy]) or nil, act = function() return go('cups') end }
+    -- v0.20 (menu review 1c): CONTINUE (and B) land on the next cup at the class without a gold, named on the tile
+    local at, nextCup = nil, nil
+    if r.cupOver and run then at, nextCup = nextCupFocus(run.class, run.cup) end
+    if at then S.focusMem.cups = at end
+    items[#items + 1] = { title = 'CONTINUE', art = ART.cup(cup, run and run.vehicle) or 'T_UI_FE_Tile_Campaign_Hero',
+      desc = nextCup and ('Next: ' .. nextCup) or 'Back to the cups',
+      icon = r.trophy and ART.medal(TROPHY_INDEX[r.trophy]) or nil, iconColor = r.trophy and ART.medalColor(TROPHY_INDEX[r.trophy]) or nil,
+      act = function() if at then S.focusMem.cups = at end; return go('cups') end }
   end
   spec.items = items
   return spec
@@ -527,7 +558,7 @@ show = function()
   S.grabs = 0
   -- B on any page: the game turns this invisible screen off, which reads as BACK (tab.lua)
   ui.back = TB.backScreen(sc, sc.panel)
-  setFocus(math.min(S.focusMem[spec.key] or 1, #ui.items))
+  setFocus(math.min(S.focusMem[spec.key] or spec.focus or 1, #ui.items))
   log(('[menu] %s (%d tiles)'):format(spec.key, #ui.items))
   startLoop()
 end
@@ -568,7 +599,7 @@ local function onCup() return K.run() ~= nil and (S.screen == 'standings' or (S.
 -- drop the cup)
 local function openPage()
   S.message = nil
-  if not onCup() then S.screen = 'home' end
+  if not onCup() then S.screen = 'home'; S.focusMem.home = nil end -- (v0.20: HOME opens on the class last raced)
   show()
 end
 local function handle(name)
