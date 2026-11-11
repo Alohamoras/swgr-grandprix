@@ -9,6 +9,9 @@ T.dir = T.main:match('^(.*)/Scripts/main.lua$')
 -- time to settle (the mod waits ~3 s before touching it), unless cfg.NoTabMenu.
 function T.boot(save, cfg)
   cfg = cfg or {}
+  -- v0.17: the boot into the GRAND PRIX tab is off in tests unless asked for (test_boot): the scenarios start from
+  -- the game's own main menu, as before
+  if cfg.BootToGrandPrix == nil then cfg.BootToGrandPrix = false end
   _G.GU_TEST_CFG = cfg
   W.setup()
   for _, b in ipairs({ 'VBD_Car_Base', 'VBD_Bike_Base', 'VBD_Skimmer_Base' }) do W.build('/Game/Griffin/Gameplay/Campaign/Builds/' .. b) end

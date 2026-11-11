@@ -26,6 +26,10 @@ return {
     CupsLayout = { cols = 4, rows = 2, w = 520, h = 350 },
     -- Key that selects the GRAND PRIX tab at the main menu (Backspace / B = back)
     MenuKey = 'F6',
+    -- v0.17 (TASKS.md 11): at the first main menu after the game starts, open the GRAND PRIX tab by itself (HOME).
+    -- Once per launch: after a race, B or leaving the tab it stays shut. Not with a study (study.lua) pending.
+    -- false = the game's own main menu as before.
+    BootToGrandPrix = true,
 
     -- After a race: cover the main menu with the game's loading screen while it's rebuilt, so the race results lead
     -- straight to the ranking (v0.3.8). false = show the menu as before.

@@ -181,6 +181,10 @@ Earlier proposal (to confirm with the owner; 50cc stays mod-free - owner, 2026-1
 
 1. **GRAND PRIX tab** on the main menu (the Underground's tab code) → class → cup → vehicle (car / bike / skimmer)
    → four abilities.
+   v0.17 (TASKS.md 11): the game starts on this tab - at the first main menu after launch it opens by itself on
+   HOME, once per launch (through the menu key's path; never via MULTIPLAYER; after the boot-drop of an old cup and
+   the put-backs; not with a study pending). B on HOME = the game's main menu; nothing reopens it after that.
+   `BootToGrandPrix = false` turns it off.
 2. Race 1 launches straight away (quick race; StreamlineCampaign skips the intros).
 3. Results come back: **points for all 12 racers**, then a standings screen with the cup so far.
 4. Continue → the next race launches. Quitting gives up the cup (owner: start with whatever is easier to code; a

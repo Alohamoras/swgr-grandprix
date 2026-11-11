@@ -6,9 +6,10 @@
 -- v0.9: cups cannot be resumed (owner): leaving a cup before its last standings loses it.
 -- v0.11: one cup per planet with a race list per class (classic / reverse / conditions), the Galactic Cup, the title race.
 -- v0.16: study mode (test-only): study.lua in the mod folder runs a batch of single races with AI profiles (studymode.lua).
+-- v0.17: the game boots straight into the GRAND PRIX tab (HOME), once per launch (config BootToGrandPrix).
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.16.1'
+local VERSION = '0.17.0'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -56,6 +57,7 @@ local show -- forward
 local ST = require('studymode') -- v0.16 study mode (test-only; wired below the input)
 local studyEnv
 local startLoop -- forward
+local boot, bootPoll -- v0.17 boot into the Grand Prix (below the study mode)
 
 ---------------------------------------------------------------------------------------------------------------------
 -- screens: each returns a spec for ui.build; tile `act` functions change state and return true to redraw
@@ -618,10 +620,17 @@ local function leaveCup()
 end
 -- the page is on the cup's standings (or its "Leave the cup?" question) with the cup alive
 local function onCup() return K.run() ~= nil and (S.screen == 'standings' or (S.screen == 'confirm' and S.confirm and S.confirm.back == 'standings')) end
+-- open the page (the menu key, and v0.17's boot open): selects the GRAND PRIX tab (show -> TB.select); the page is
+-- built when the tab is picked (TB.onEnter). (v0.9: the standings rather than HOME while a cup is alive - HOME would
+-- drop the cup)
+local function openPage()
+  S.message = nil
+  if not onCup() then S.screen = 'home' end
+  show()
+end
 local function handle(name)
   if name == 'menu' then
-    -- (v0.9: the menu key reopens the standings rather than HOME while a cup is alive - HOME would drop the cup)
-    if S.ui then close('menu key') else S.message = nil; if not onCup() then S.screen = 'home' end; show() end
+    if S.ui then close('menu key') else openPage() end
     return
   end
   if not S.ui or C.clock - S.shownAt < 350 then return end
@@ -814,6 +823,47 @@ studyEnv = {
 }
 ST.boot()
 
+-- v0.17 (TASKS.md 11, owner: "i want the game to launch and go directly to the grand prix menu, pressing b would still
+-- back out to the main menu"): at the first main menu after the game starts, the GRAND PRIX tab opens by itself on
+-- HOME, through the menu key's own path (openPage -> show -> TB.select: our tab picked by its id, never by stepping
+-- through the game's tabs, so never MULTIPLAYER). Once per launch: `boot.done` is set the moment it opens or gives
+-- up, and nothing sets it back (the mod is loaded once per game start), so a race, B or leaving the tab never
+-- reopens it (the result page after a cup race is S.openAt's own flow). It waits for our tab on a settled menu
+-- (TB.ready: after "[tab] GRAND PRIX tab added"), for nothing left to put back (parts, abilities, tune-ups, AI config,
+-- racer, title: R.pendingRestore) and no cup (dropped at load, K.drop 'at boot'), then BOOT_DELAY_MS more.
+-- Never with study.lua jobs pending (the study needs the plain menu). Flags only, apart from TB.ready's check of the
+-- menu (only while waiting, a few seconds at boot).
+local BOOT_DELAY_MS = 1000
+boot = { done = cfg.BootToGrandPrix == false, waitMs = 0, checkMs = nil }
+if boot.done then log('[boot] BootToGrandPrix is off: the game\'s own main menu') end
+bootPoll = function(dt)
+  if boot.checkMs then
+    -- (2-3 s after opening: say whether the tab stayed up - the game could pick its own tab late; not retried)
+    boot.checkMs = boot.checkMs - dt
+    if boot.checkMs <= 0 then
+      boot.checkMs = nil
+      log(TB.current and TB.current.shown and '[boot] the GRAND PRIX tab is up'
+        or '[boot] the GRAND PRIX tab did not stay selected (not tried again)')
+    end
+  end
+  if boot.done then return end
+  if not tabMode() then boot.done = true; log('[boot] not opening the GRAND PRIX tab: the tab could not be added'); return end
+  -- the player got there first (menu key, picked the tab), or a race / result is under way: nothing to do
+  if S.ui or TB.current or R.run or S.openAt then boot.done = true; log('[boot] the GRAND PRIX tab is already open or a race is under way: not opening it'); return end
+  if ST.pending() then
+    boot.done = true
+    log('[boot] not opening the GRAND PRIX tab: study mode has jobs pending (study.lua) - the study needs the plain main menu')
+    return
+  end
+  if R.pendingRestore() or K.run() or not TB.ready() then boot.waitMs = 0; return end
+  boot.waitMs = boot.waitMs + (dt or 0)
+  if boot.waitMs < BOOT_DELAY_MS then return end
+  boot.done = true
+  log('[boot] opening the GRAND PRIX tab (BootToGrandPrix)')
+  openPage()
+  boot.checkMs = 3000
+end
+
 -- main menu poll (front end only, 200 ms): finds the menu and keeps our tab on it. v0.13.1: the menu's game mode
 -- comes from R.menuPoll (a notification, and a sweep every 2-3 s at most) - it was a lookup every poll (a sweep 5x a
 -- second, plus 10x a second from the tick while our page was up)
@@ -841,6 +891,8 @@ do
       local ok, err = pcall(TB.update, POLL_MS)
       if not ok then log('[tab] update error: ' .. tostring(err)) end
     end
+    local okB, errB = pcall(bootPoll, POLL_MS)
+    if not okB then boot.done = true; log('[boot] failed: ' .. tostring(errB)) end
   end, 'poll')
 end
 
