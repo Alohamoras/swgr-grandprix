@@ -90,11 +90,34 @@ local function runCup(cupKey)
   return out
 end
 local mk = T.mark()
-local o1 = runCup('jakku')
-T.check(o1.cupOver and RV.name(K.data, '100') == nil, 'after one cup: no rival yet (' .. tostring(K.data.rivals['100'] and K.data.rivals['100'].scores['Sen Fira']) .. ' of 30)')
+-- v0.20 (Rival.FirstRace): a rival from the first race - you 2nd, Kestar Bool 1st (never a rival), Sen Fira 3rd: the
+-- nearest finisher ahead is skipped, so the one just behind
+K.startCup('100', 'jakku', 'car')
+local r1 = K.record(K.nextRace(), 2, field(2, 3), { time = 100 })
+T.check(RV.name(K.data, '100') == 'Sen Fira' and r1.rival == 'Sen Fira', 'v0.20: after the first race at 100cc Sen Fira (just behind; Kestar Bool ahead is excluded) is your rival')
+T.check(T.logHas('[rival] 100cc: Sen Fira is your rival (finished nearest you in race 1 of jakku)', mk), 'logged with why')
+for i = 2, 4 do local you = (i % 2 == 1) and 2 or 3; K.record(K.nextRace(), you, field(you, 5 - you), { time = 100 + i }) end
 local o2 = runCup('lantaana')
-T.check(RV.name(K.data, '100') == 'Sen Fira' and o2.rival == 'Sen Fira', 'after two cups: Sen Fira is your rival at 100cc')
-T.check(T.logHas('[rival] 100cc: Sen Fira is your rival', mk), 'logged')
+T.check(RV.name(K.data, '100') == 'Sen Fira' and o2.rival == 'Sen Fira', 'after two cups: Sen Fira is still your rival at 100cc')
+
+-- RV.nearest on its own: the one just ahead preferred, the excluded skipped, else just behind; you not in it: none
+local function hist(rows) local st = CU.new('150', 'jakku', 'car', 4); st.history = { rows }; return st end
+local rows = { { key = 'Biddy Blas', place = 1 }, { key = 'Katja Mox', place = 2 }, { key = 'YOU', place = 3 }, { key = 'Sen Fira', place = 4 } }
+T.check(RV.nearest(hist(rows)) == 'Katja Mox', 'nearest: the one just ahead')
+rows[2].key = 'Kestar Bool'
+T.check(RV.nearest(hist(rows)) == 'Biddy Blas', 'nearest: Kestar Bool skipped, the next one ahead')
+T.check(RV.nearest(hist({ { key = 'YOU', place = 1 }, { key = 'Sen Fira', place = 2 } })) == 'Sen Fira', 'nearest: you won - the one just behind')
+T.check(RV.nearest(hist({ { key = 'Sen Fira', place = 1 } })) == nil, 'nearest: you not in the race - none')
+-- FirstRace = false: v0.13's rule only (no rival after one race)
+local d2 = { rivals = {} }
+RC.FirstRace = false
+T.check(RV.update(d2, hist(rows)) == nil and d2.rivals['150'].name == nil, 'FirstRace = false: no rival from one race')
+RC.FirstRace = nil
+local n2, w2 = RV.update(d2, hist(rows))
+T.check(n2 == 'Biddy Blas' and w2 == 'first', 'FirstRace unset (on): the first race picks one')
+-- an old save's rival is kept (no first-race pick over it)
+local d3 = { rivals = { ['150'] = { name = 'Sen Fira', scores = { ['Sen Fira'] = 40 } } } }
+T.check(RV.update(d3, hist(rows)) == 'Sen Fira', 'a rival already in the save is kept')
 T.check(RV.name(K.data, '50') == nil and RV.name(K.data, '150') == nil, 'only at the class raced')
 T.check(K.data.rivals['100'].scores['Kestar Bool'] == nil, 'Kestar Bool never in the tally')
 -- kept across a save reload
@@ -107,7 +130,7 @@ T.check(T.save().rivals['100'].name == 'Sen Fira', 'in save.lua')
 -- (the format of main.lua's class tile info, worst case: the longest champion and a different longest rival)
 local longest = 0
 for _, n in ipairs({ 'Goli & 02-R0', 'Malis Vazosk', 'Nik Skandaro' }) do
-  local s = ('200cc: parts level 9, abilities 3.  Gold 6 / 6, trophies 6 / 6.  Champion: GRIFF HALLORAN.  Rival: %s'):format(n:upper())
+  local s = ('200cc: parts level 9, abilities 3.  Gold 6 / 6, trophies 6 / 6.  Champion: YOU.  Rival: %s'):format(n:upper())
   longest = math.max(longest, #s)
 end
 T.check(longest <= 112, 'the longest HOME info line with a rival: ' .. longest .. ' characters')
@@ -203,10 +226,18 @@ T.check(has(L, '8 POINTS BEHIND YOUR RIVAL SEN FIRA, 1 RACE LEFT'), 'race 3: mer
 T.check(count(L, 'SEN FIRA') == 1 and count(L, 'RIVAL:') == 0 and #L <= 4, 'race 3: the rival named once, no RIVAL: line')
 T.clickTitle('NEXT RACE')
 -- race 4: you 1st (47), Biddy 2nd (51), Sen Fira 3rd (50): bronze, 3 points from silver
+local c4 = #M.calls + 1
 L = race(1, { 1, 5 }, 120)
 T.check(T.titles() == 'CONTINUE', 'race 4: the cup result')
-T.check(count(L, 'RIVAL: SEN FIRA, AHEAD BY 3') == 1 and count(L, 'SEN FIRA') == 1, 'the cup result: the rival ahead by 3, once (' .. show(L) .. ')')
-T.check(#L <= 5, 'the cup result: 5 lines at most (' .. #L .. ')')
+-- (v0.20: the cup result is its own screen: the medal and the trophy, the top 3 table, then the after lines)
+local tx = {}
+for i = c4, #M.calls do
+  local c = M.calls[i]
+  local s = c.name == 'SetText' and type(c.args[1]) == 'table' and rawget(rawget(c.args[1], '__props') or {}, '__text')
+  if s then tx[#tx + 1] = s end
+end
+T.check(count(tx, 'RIVAL: SEN FIRA, AHEAD BY 3') == 1, 'the cup result: the rival call-out, ahead by 3, once (' .. show(tx) .. ')')
+T.check(has(tx, 'Sen Fira   RIVAL'), 'the cup result: Sen Fira (3rd) marked RIVAL in the top 3')
 T.check(RV.name(K.data, '100') == 'Sen Fira', 'the rival kept through the cup (no flip)')
 -- HOME: the 100cc tile's info names the champion (Biddy Blas, most points) and the rival
 local n0 = #M.calls + 1
@@ -221,6 +252,6 @@ for i = n0, #M.calls do
   local s = c.name == 'SetText' and type(c.args[1]) == 'table' and rawget(rawget(c.args[1], '__props') or {}, '__text')
   if s and s:find('\n100cc: ') then info = s:match('\n(100cc: [^\n]*)') end -- (v0.14: under the class's blurb)
 end
-T.check(info == '100cc: parts level 3, abilities 1.  Gold 0 / 6, trophies 1 / 6.  Champion: BIDDY BLAS.  Rival: SEN FIRA',
-  'HOME info names the rival next to the champion (' .. tostring(info) .. ')')
+T.check(info == '100cc: parts level 3, abilities 1.  Gold 0 / 6, trophies 1 / 6.  Rival: SEN FIRA',
+  'v0.20: HOME info names the rival, no other champion (' .. tostring(info) .. ')')
 T.finish()

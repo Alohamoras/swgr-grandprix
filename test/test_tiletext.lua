@@ -174,7 +174,7 @@ K.data.titles = { ['100'] = { won = true, tries = 1 } }
 local home = SC.home().items or {}
 local got
 for _, it in ipairs(home) do if it.title == '100CC' then got = it.desc end end
-T.check(got == 'Champion: YOU', 'your own title stays on the tile (' .. tostring(got) .. ')')
+T.check(got == 'Gold 1 / 6\nChampion: YOU', 'your own title stays on the tile, under the golds (' .. tostring(got) .. ')')
 for _, it in ipairs(home) do if it.title == '100CC' then T.check(tostring(it.info):find('Champion: YOU', 1, true) ~= nil, 'and in the info line') end end
 
 T.check(#bad == 0, ('every tile\'s text fits its tile (%d tiles checked)%s'):format(count,

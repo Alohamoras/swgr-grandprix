@@ -256,12 +256,79 @@ end
 -- another mod's page tab (FreeRace, Theater: ids start with Mod_) - that mod hides the game's page itself
 local function otherModTab(sel) return type(sel) == 'string' and sel:sub(1, 4) == 'Mod_' and sel ~= T.ID end
 
+---------------------------------------------------------------------------------------------------------------------
+-- v0.20 (menu review 5): the game's footer ("Select / C Restart Campaign / Settings") is hidden while our tab is up.
+-- The footer is the main menu's WBP_ActionBar_C (UFuseBoundActionBar inside; header dump WBP_ActionBar.hpp); the
+-- FreeRace mod hides the same widget on its own tab (fr_menu.lua footer_parts: class name contains WBP_ActionBar,
+-- found breadth first from the menu's root, user widgets' own trees too). Found again on each enter / leave (a short
+-- walk, bounded), never kept: only its visibility number is kept, to put it back. config HideFooter = false: not
+-- hidden, only found and logged. Hiding it does not unbind the game's C key (not known what C does on our page).
+local FOOTER = 'WBP_ActionBar'
+local WALK_MAX, WALK_DEPTH = 1500, 12
+local function kids(w)
+  local out = children(w)
+  if #out > 0 then return out end
+  local one = try(function() return w:GetContent() end)
+  if alive(one) then out[1] = one end
+  return out
+end
+-- -> the footer widget or nil, the depth, how many widgets were looked at, the root's children's classes
+function T.findFooter(sc)
+  local root = try(function() return sc.tree.RootWidget end)
+  if not alive(root) then return nil, nil, 0, 'no root widget' end
+  local top = {}
+  for _, c in ipairs(kids(root)) do top[#top + 1] = idname(c) .. ' (' .. clsname(c) .. ')' end
+  local queue, head, seen = { { root, 0 } }, 1, 0
+  while head <= #queue and seen < WALK_MAX do
+    local w, d = queue[head][1], queue[head][2]
+    head = head + 1
+    seen = seen + 1
+    if clsname(w):find(FOOTER, 1, true) then return w, d, seen, table.concat(top, ', ') end
+    if d < WALK_DEPTH then
+      for _, k in ipairs(kids(w)) do queue[#queue + 1] = { k, d + 1 } end
+      local inner = try(function() return w.WidgetTree.RootWidget end)
+      if alive(inner) then queue[#queue + 1] = { inner, d + 1 } end
+    end
+  end
+  return nil, nil, seen, table.concat(top, ', ')
+end
+local footerSaid = 0
+local function footer(sc, hide)
+  local on = cfg.HideFooter ~= false
+  if hide and not on and footerSaid > 0 then return end -- (switched off: found and logged once per game start)
+  if not hide and not sc.footerVis then return end
+  local w, depth, seen, top = T.findFooter(sc)
+  if not w then
+    footerSaid = footerSaid + 1
+    if footerSaid <= 2 then log(('[footer] not found (%d widgets looked at); the menu\'s root holds: %s'):format(seen, tostring(top))) end
+    sc.footerVis = nil
+    return
+  end
+  if hide then
+    local vis = tonumber(try(function() return w:GetVisibility() end))
+    if footerSaid < 3 then
+      footerSaid = footerSaid + 1
+      log(('[footer] found %s (%s) at depth %d (%d widgets looked at), visibility %s; %s'):format(idname(w), clsname(w),
+        depth, seen, tostring(vis), on and 'hidden while the GRAND PRIX tab is up' or 'not hidden (HideFooter = false)'))
+    end
+    if not on then return end
+    sc.footerVis = vis or VIS.selfHitInvisible
+    try(function() w:SetVisibility(VIS.collapsed) end)
+  else
+    try(function() w:SetVisibility(sc.footerVis) end)
+    log(('[footer] put back (visibility %d)'):format(sc.footerVis))
+    sc.footerVis = nil
+  end
+end
+
 local function enter(sc)
   sc.shown, sc.leftAt = true, nil
   try(function() sc.ws:SetVisibility(VIS.collapsed) end)
   try(function() sc.panel:SetVisibility(VIS.selfHitInvisible) end)
   T.current = sc
   log('[tab] GRAND PRIX tab selected')
+  local okF, errF = pcall(footer, sc, true)
+  if not okF then log('[footer] error: ' .. tostring(errF)) end
   if T.onEnter then
     local ok, err = pcall(T.onEnter, sc)
     if not ok then log('[tab] page error: ' .. tostring(err)) end
@@ -274,6 +341,8 @@ local function leave(sc, sel)
   if T.current == sc then T.current = nil end
   if T.onLeave then pcall(T.onLeave, sc) end
   try(function() sc.panel:ClearChildren() end)
+  local okF, errF = pcall(footer, sc, false)
+  if not okF then log('[footer] error: ' .. tostring(errF)) end
   if not otherModTab(sel) then
     try(function() sc.ws:SetVisibility(sc.wsVis or VIS.selfHitInvisible) end)
     sc.leftAt = T.ms

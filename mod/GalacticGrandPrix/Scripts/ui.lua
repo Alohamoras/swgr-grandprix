@@ -114,7 +114,78 @@ function U.tileFits(it, w)
   return true
 end
 
-local function makeTile(lib, pc, it)
+-- a widget's slot settings (size, padding, alignment), to put a widget back as it was (as tab.lua does)
+local function slotOf(w)
+  local sl = try(function() return w.Slot end)
+  if not alive(sl) then return nil end
+  return {
+    size = try(function() return { SizeRule = tonumber(sl.Size.SizeRule) or 1, Value = sl.Size.Value or 1 } end),
+    pad = try(function() local m = sl.Padding; return { Left = m.Left, Top = m.Top, Right = m.Right, Bottom = m.Bottom } end),
+    h = try(function() return tonumber(sl.HorizontalAlignment) end),
+    v = try(function() return tonumber(sl.VerticalAlignment) end),
+  }
+end
+local function applySlot(slot, p)
+  if not (alive(slot) and p) then return end
+  if p.size then try(function() slot:SetSize(p.size) end) end
+  if p.pad then try(function() slot:SetPadding(p.pad) end) end
+  if p.h then try(function() slot:SetHorizontalAlignment(p.h) end) end
+  if p.v then try(function() slot:SetVerticalAlignment(p.v) end) end
+end
+
+-- v0.20 (menu review 3: the focused tile brightens its art and its small top label vanishes): a dark strip behind a
+-- tile's text widget `w` - a Border (U.STRIP) put in w's place in its parent panel with w inside it. The panel has no
+-- InsertChildAt from Lua, so w and the children after it are taken off and put back after the border, each with its
+-- slot settings (tab.lua's way of placing our page). The text widget keeps being the tile's own (the tile's code
+-- still sets its text and visibility; a collapsed text leaves an empty, zero-size border). make = a widget maker on
+-- the menu's tree. -> true, parent class / false, why. Nothing is kept.
+U.STRIP = { R = 0.0, G = 0.0, B = 0.0, A = 0.6 }
+function U.stripBehind(make, w, pad)
+  if not alive(w) then return false, 'no text widget' end
+  local parent = try(function() return w:GetParent() end)
+  if not alive(parent) then return false, 'no parent' end
+  local pcls = C.clsname(parent)
+  local n = tonumber((try(function() return parent:GetChildrenCount() end)))
+  local at = tonumber((try(function() return parent:GetChildIndex(w) end)))
+  if not (n and at and at >= 0 and at < n) then return false, 'parent ' .. pcls .. ' gives no child index' end
+  local b = make('/Script/UMG.Border')
+  if not alive(b) then return false, 'no border' end
+  local moved = {}
+  for i = at, n - 1 do
+    local c = try(function() return parent:GetChildAt(i) end)
+    if alive(c) then moved[#moved + 1] = { w = c, p = slotOf(c) } end
+  end
+  for _, m in ipairs(moved) do try(function() parent:RemoveChild(m.w) end) end
+  try(function() b:SetBrushColor(U.STRIP) end)
+  try(function() b:SetPadding(pad or { Left = 0, Top = 0, Right = 0, Bottom = 0 }) end)
+  try(function() b:SetContent(w) end)
+  local function add(x) return try(function() return parent:AddChild(x) end) end
+  applySlot(add(b), moved[1] and moved[1].p)
+  for i = 2, #moved do applySlot(add(moved[i].w), moved[i].p) end
+  return true, pcls
+end
+-- the tile's badge and description get the strip (config TileLabelStrip, default on); the badge also a text shadow.
+-- Logged once per screen build: `[tiles] label strip: ...`
+local stripSaid
+local function tileStrips(make, t, it)
+  if cfg.TileLabelStrip == false then return end
+  local said = {}
+  local badge = try(function() return t.Txt_Label_Supplemental end)
+  if it.badge and alive(badge) then
+    try(function() badge:SetShadowOffset({ X = 1.5, Y = 1.5 }) end)
+    try(function() badge:SetShadowColorAndOpacity({ R = 0, G = 0, B = 0, A = 0.9 }) end)
+    local ok, why = U.stripBehind(make, badge, { Left = 6, Top = 1, Right = 6, Bottom = 1 })
+    said[#said + 1] = 'badge ' .. (ok and ('in ' .. why) or ('not done (' .. tostring(why) .. ')'))
+  end
+  local desc = try(function() return t.RT_Description end)
+  if it.desc and alive(desc) then
+    local ok, why = U.stripBehind(make, desc)
+    said[#said + 1] = 'description ' .. (ok and ('in ' .. why) or ('not done (' .. tostring(why) .. ')'))
+  end
+  if #said > 0 and not stripSaid then stripSaid = true; log('[tiles] label strip: ' .. table.concat(said, ', ')) end
+end
+
+local function makeTile(lib, pc, it, make)
   local cls = C.uclass(TILE)
   local t = cls and try(function() return lib:Create(pc, cls, pc) end)
   if not alive(t) then return nil end
@@ -156,13 +227,17 @@ local function makeTile(lib, pc, it)
     try(function() t.Img_Icon:SetBrushFromTexture(icon, false) end)
     try(function() t.Img_Icon:SetVisibility(4) end) -- SelfHitTestInvisible
     -- the tile draws its icon as a shape in one colour (seen in game): white, or the item's colour (medals)
+    -- v0.20 (menu review 7: bronze and gold looked the same in game, v16-cups-100-lantaana.png - the image's colour
+    -- set here did not hold): the colour goes on the brush tint, the image's own colour white (multiplied together:
+    -- whatever the tile's look then puts on the image, the medals stay apart)
     local c = it.iconColor or { 1, 1, 1 }
-    try(function() t.Img_Icon:SetColorAndOpacity({ R = c[1], G = c[2], B = c[3], A = 1 }) end)
-    try(function() t.Img_Icon:SetBrushTintColor({ SpecifiedColor = { R = 1, G = 1, B = 1, A = 1 }, ColorUseRule = 0 }) end)
+    try(function() t.Img_Icon:SetColorAndOpacity({ R = 1, G = 1, B = 1, A = 1 }) end)
+    try(function() t.Img_Icon:SetBrushTintColor({ SpecifiedColor = { R = c[1], G = c[2], B = c[3], A = 1 }, ColorUseRule = 0 }) end)
     -- to the top right corner, off the title (the slot sits over it)
     try(function() t.Img_Icon:SetRenderTranslation({ X = 85, Y = -38 }) end)
   else try(function() t.Img_Icon:SetVisibility(1) end) end
   try(function() t:SetText(FText(it.title)) end)
+  if make then tileStrips(make, t, it) end
   if it.disabled then try(function() t:SetRenderOpacity(0.5) end) end
   U.makeToggle(t)
   return t
@@ -229,6 +304,38 @@ local function addTable(box, make, tb)
   if tb.header then row(tb.header, GREY, nil, false, (tb.size or 20) - 2) end
   for _, r in ipairs(tb.rows or {}) do row(r.cells, r.color, r.colors, r.highlight, tb.size or 20) end
 end
+-- v0.20 (menu review 1a): a big picture with lines beside it (spec.hero = { icon = texture, color = {r,g,b} (the tint:
+-- the medals are one-colour shapes), size = px, lines = { {text, size, color} ... } }): the cup result's medal. With no
+-- picture found, the lines alone.
+local function addHero(box, make, hero, wrap)
+  local hb = make('/Script/UMG.HorizontalBox')
+  local col = make('/Script/UMG.VerticalBox')
+  if not (alive(hb) and alive(col)) then addLines(box, make, hero.lines, wrap); return end
+  local tex = texture(hero.icon)
+  local img = tex and make('/Script/UMG.Image')
+  if alive(img) then
+    local sz = hero.size or 190
+    try(function() img:SetBrushFromTexture(tex, false) end)
+    local c = hero.color or { 1, 1, 1 }
+    try(function() img:SetBrushTintColor({ SpecifiedColor = { R = c[1], G = c[2], B = c[3], A = 1 }, ColorUseRule = 0 }) end)
+    try(function() img:SetColorAndOpacity({ R = 1, G = 1, B = 1, A = 1 }) end)
+    local sb = make('/Script/UMG.SizeBox')
+    local cell = img
+    if alive(sb) then
+      try(function() sb:SetWidthOverride(sz); sb:SetHeightOverride(sz) end)
+      try(function() sb:SetContent(img) end)
+      cell = sb
+    end
+    local sl = try(function() return hb:AddChildToHorizontalBox(cell) end)
+    if sl then try(function() sl:SetPadding({ Left = 0, Top = 6, Right = 28, Bottom = 0 }); sl:SetVerticalAlignment(2) end) end
+  end
+  addLines(col, make, hero.lines, wrap - (hero.size or 190) - 28)
+  local sl2 = try(function() return hb:AddChildToHorizontalBox(col) end)
+  if sl2 then try(function() sl2:SetVerticalAlignment(2) end) end
+  local sl3 = try(function() return box:AddChildToVerticalBox(hb) end)
+  if sl3 then try(function() sl3:SetPadding({ Left = 0, Top = 8, Right = 0, Bottom = 4 }) end) end
+end
+
 -- a table's width (its columns and their gaps)
 local function tableWidth(tb)
   local w = 0
@@ -289,6 +396,7 @@ local function buildInner(spec, host)
   local wrap = (U.TILE_W + 20) * U.COLS
   local t1 = textBlock(make, spec.title or '', 34, WHITE)
   if t1 then try(function() box:AddChildToVerticalBox(t1) end) end
+  if spec.hero then addHero(box, make, spec.hero, wrap) end
   addLines(box, make, spec.lines, wrap)
 
   -- v0.6: an info line (spec.info = true): the full text of the focused tile (its item.info), set on every focus change
@@ -301,6 +409,7 @@ local function buildInner(spec, host)
   end
 
   if spec.table then addTable(box, make, spec.table) end
+  addLines(box, make, spec.after, wrap, 8)
 
   try(function() grid:SetSlotPadding({ Left = 10, Top = 10, Right = 10, Bottom = 10 }) end)
   local holder = grid
@@ -319,8 +428,9 @@ local function buildInner(spec, host)
   if gs then try(function() gs:SetHorizontalAlignment(0) end) end
 
   local list = {}
+  stripSaid = false
   for _, it in ipairs(spec.items or {}) do
-    local t = makeTile(lib, pc, it)
+    local t = makeTile(lib, pc, it, make)
     if t then
       local n = #list
       -- each tile in a box of the tile size (the tile asks for more width than its art, which spreads the grid
@@ -458,6 +568,7 @@ function U.panel(spec, tree, opts)
   local wrap = math.max(tableWidth(spec.table) or 0, (opts.minW or 1600) - 96)
   local t1 = textBlock(make, spec.title or '', 34, WHITE)
   if t1 then try(function() box:AddChildToVerticalBox(t1) end) end
+  if spec.hero then addLines(box, make, spec.hero.lines, wrap) end -- (v0.20: the cup result's lines, no picture here)
   addLines(box, make, spec.lines, wrap)
   if spec.table then
     local gap = make('/Script/UMG.SizeBox')

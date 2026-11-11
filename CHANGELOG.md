@@ -1,5 +1,36 @@
 # Changelog
 
+## v0.20.0 (2026-11-11): the rival you can see, and the menu polish
+TASKS.md "Next" 3 (the rival part; the title race waits for the owner) and 4, from docs/menu-review-2026-11-11.md.
+Built and tested against the fake game, **not yet seen in game**. DESIGN.md §16.
+- **A rival from the first race**: after the first cup race at a class with no rival, the racer who finished nearest
+  you (just ahead, else just behind; never Kestar Bool) is your rival there; the v0.13 tally decides changes after
+  that. Old saves keep their rival. `Rival.FirstRace = false` = the old rule.
+- **The rival's row marked** on every standings (the standings page, the panel on the game's results screen, the cup
+  result's top 3): light blue and "RIVAL" after the name. The call-out and "YOUR RIVAL" stakes lines stay.
+- **The cup result is a screen of its own**: the medal large and tinted (bronze / silver / gold), the trophy big,
+  PERFECT CUP as a badge, the final top 3 only (and your row under them when lower), the last race in one line (with
+  the record and "1 POINT FROM GOLD" near misses), the rival call-out, and one what's-next line: what the cup unlocked,
+  else how close the next unlock is ("Next: 2 more trophies at 150cc open the GALACTIC CUP and 200cc"). CONTINUE (and
+  B) land on the next cup at the class without a gold, named on the tile ("Next: CRAIT CUP").
+- **HOME**: one "Next:" line naming the nearest goal (from the existing unlock rules); the focus opens on the class
+  you last raced; the League line and the counts are gone; every class tile shows trophies on the badge and golds under
+  the title; "Champion: <bot>" is gone (your own title stays), the class info names the rival.
+- **A dark strip behind every tile's small top label and its description** (config `TileLabelStrip`), so they read
+  on a focused, brightened tile.
+- **The game's footer hidden on our tab** ("Select / C Restart Campaign / Settings", the main menu's
+  `WBP_ActionBar_C`, as the FreeRace mod does), put back when you pick another tab (config `HideFooter`; `[footer]`
+  log lines). The C key itself is not unbound.
+- **Small ones**: the cups page loses "Select a cup to start it: ..." and the vehicle name ("Parts level 3, abilities
+  level 1" stays); no best lap on sprints; the cup tiles' medal icons tinted through the brush tint (gold and bronze
+  looked the same in game); the seconds on your line, from the race's gaps ("0.4 s behind Biddy Blas" / "7.8 s
+  ahead", review 8). Review 9 (per-ability art) not done.
+- Tests: test_menu20 (new: the cup result for an unlock / a near unlock / a near miss and CONTINUE's focus, the rival
+  row, HOME's Next: line and focus, the footer hidden / put back / only logged, the label strip, the small texts);
+  test_rival (the first-race rival, `RV.nearest`, FirstRace off, an old rival kept), test_chain (the rival marked on the
+  panel), test_tiletext (the new tile texts) and the badge / text expectations of test_trophies, test_unlocks,
+  test_nearmiss updated.
+
 ## v0.19.1 (2026-11-11): NEXT RACE via the menu
 **What failed in game with v0.19.0** (2026-11-11 17:35, Jakku 150cc): race 1 (The War Fields dawn, Mastiff/Loop_A)
 finished, the panel showed on the results screen, N was pressed, The Giants' Graveyard (Mastiff/P2P_A) was written

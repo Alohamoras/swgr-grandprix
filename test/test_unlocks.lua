@@ -14,7 +14,7 @@ T.boot({ version = 2, races = 30, cups = 4, class = '100', vehicle = 'car',
 local NCUPS = #dofile(T.dir .. '/Scripts/config.lua').Cups
 T.check(T.logHas('[cup] sentinel 100cc dropped at boot (race 4 of 4): cups cannot be resumed') and T.save().run == nil, 'the cup in the save dropped at boot')
 M.press('F6'); M.tick(6)
-T.check(T.badges() == ('|4 / %d GOLD|LOCKED|LOCKED||'):format(NCUPS), 'home: 150cc and 200cc locked (' .. T.badges() .. ')')
+T.check(T.badges() == ('|4 / %d TROPHIES|LOCKED|LOCKED||'):format(NCUPS), 'home: 150cc and 200cc locked (' .. T.badges() .. ')')
 T.clickTitle('150CC'); M.tick(3)
 T.check(T.titles():find('^50CC|100CC') ~= nil, 'a locked class can\'t be entered')
 T.clickTitle('100CC'); M.tick(3)
@@ -64,7 +64,7 @@ T.clickTitle('CONTINUE'); M.tick(3)
 b = T.badges()
 T.check(select(2, b:gsub('LOCKED', '')) == 0 and b:find('GOLD TROPHY|VS ', 1, true) ~= nil, '100cc: everything open, the title race names its opponent (' .. b .. ')')
 M.press('BACKSPACE'); M.tick(3)
-T.check(T.badges() == ('|6 / %d GOLD||LOCKED||'):format(NCUPS), 'home: 6 / 6 golds at 100cc, 150cc open, 200cc still locked (' .. T.badges() .. ')')
+T.check(T.badges() == ('|6 / %d TROPHIES||LOCKED||'):format(NCUPS), 'home: 6 / 6 trophies at 100cc, 150cc open, 200cc still locked (' .. T.badges() .. ')')
 T.clickTitle('150CC'); M.tick(3)
 b = T.badges()
 T.check(T.titles() == 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|TITLE RACE' and select(2, b:gsub('LOCKED', '')) == 2,

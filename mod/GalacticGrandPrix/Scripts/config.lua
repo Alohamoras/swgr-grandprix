@@ -35,6 +35,14 @@ return {
     -- straight to the ranking (v0.3.8). false = show the menu as before.
     HideMenuFlash = true,
 
+    -- v0.20 (menu review 5): hide the game's footer (WBP_ActionBar: "Select / C Restart Campaign / Settings") while
+    -- the GRAND PRIX tab is up; put back when another tab is picked. Logged as [footer]. false = leave it (still
+    -- found and logged once). Note: hiding the prompts does not switch off the game's C key.
+    HideFooter = true,
+    -- v0.20 (menu review 3): a dark strip behind every tile's small top label and its description, so they read on a
+    -- focused (brightened) tile. Logged as [tiles]. false = the tiles as in v0.19.
+    TileLabelStrip = true,
+
     -- v0.19 (TASKS.md "Next" 2, DESIGN.md §15): cups without the main menu. After a cup race (not the last), the
     -- standings are drawn over the game's own results screen (opaque, the game's table hidden under it) with a NEXT
     -- RACE button left of CONTINUE. CONTINUE goes to the main menu and today's standings page (B there leaves the cup).
@@ -95,7 +103,9 @@ return {
     -- within Window points of you in that cup's standings scores Window minus the gap (Ahead more if ranked just
     -- ahead of you); the first to Form becomes your rival there, and another racer takes over only when their tally
     -- beats the rival's by Margin (more than one race can give: Window + Ahead). Exclude = never a rival. false = off.
-    Rival = { Window = 6, Ahead = 2, Form = 30, Margin = 10, Exclude = { 'Kestar Bool' } },
+    -- FirstRace (v0.20): a class with no rival gets one after its first cup race - the racer who finished nearest you
+    -- (just ahead, else just behind); false = only the tally (Form) makes one, as in v0.13-v0.19.
+    Rival = { Window = 6, Ahead = 2, Form = 30, Margin = 10, Exclude = { 'Kestar Bool' }, FirstRace = true },
 
     -- The title race (v0.8, title.lua): one 1 v 1 at the end of each class against the class champion. The game's
     -- Stadium Showdown against Kestar Bool (6 laps, about 5 minutes; he copies your build, so he scales with the

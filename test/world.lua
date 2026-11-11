@@ -4,6 +4,21 @@ local W = { pad = {} }
 
 local function vec(x) return { X = x, Y = 0, Z = 0 } end
 
+-- v0.20: a panel widget holding `kids` (children by index, remove / add at the end, each child's GetParent)
+function W.panel(kids, cls)
+  local pan = M.new('panel', {}, cls or 'FuseOverlay')
+  local pp = rawget(pan, '__props')
+  pp.__kids = kids
+  local function own(w) rawget(w, '__props').GetParent = function() return pan end end
+  pp.GetChildrenCount = function() return #pp.__kids end
+  pp.GetChildAt = function(_, i) return pp.__kids[i + 1] end
+  pp.GetChildIndex = function(_, w) for i, k in ipairs(pp.__kids) do if k == w then return i - 1 end end return -1 end
+  pp.RemoveChild = function(_, w) for i, k in ipairs(pp.__kids) do if k == w then table.remove(pp.__kids, i); return true end end return false end
+  pp.AddChild = function(_, w) table.insert(pp.__kids, w); own(w); return M.new('slot', {}) end
+  for _, k in ipairs(kids) do own(k) end
+  return pan
+end
+
 function W.widgetLib()
   local lib = StaticFindObject('/Script/UMG.Default__WidgetBlueprintLibrary')
   rawget(lib, '__props').Create = function(self, pc, cls, owner)
@@ -18,6 +33,14 @@ function W.widgetLib()
     p.SzB_SizeOverride = M.new('sz', {})
     p.Img_TileArt = M.new('img', {})
     p.Img_Icon = M.new('img', {})
+    if cname:find('TileCommon', 1, true) then
+      -- v0.20: the tile's badge and description text in their panels (the label strip goes in their place)
+      p.Txt_Label_Supplemental = M.new('Txt_Label_Supplemental', {}, 'FuseTextBlock')
+      p.Txt_Label_Title = M.new('Txt_Label_Title', {}, 'FuseTextBlock')
+      p.RT_Description = M.new('RT_Description', {}, 'FuseRichTextBlock')
+      p.VB_ContentLayout = W.panel({ M.new('Txt_TitleDecoration', {}, 'FuseTextBlock'), p.Txt_Label_Supplemental, p.Txt_Label_Title }, 'FuseVerticalBox')
+      p.O_DescText = W.panel({ p.RT_Description }, 'FuseOverlay')
+    end
     -- toggle tiles (v0.8.6+): selected state, and the game UI's focus
     p.GetSelected = function() return p.__sel == true end
     p.SetIsSelected = function(_, v) p.__sel = v end

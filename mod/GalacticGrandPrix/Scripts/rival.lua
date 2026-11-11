@@ -5,6 +5,10 @@
 -- standings scores Window minus the gap, Ahead (2) more if ranked just ahead of you; the first to Form (30) becomes
 -- your rival at the class, and another racer takes over only when their tally beats the rival's by Margin (10),
 -- more than one race can give, so one odd race never flips it.
+-- v0.20 (TASKS "Next" 3, menu review 2a): a rival from the first race. After a cup race at a class with no rival yet,
+-- the racer who finished nearest you in that race (just ahead preferred, else just behind; the excluded skipped)
+-- becomes your rival at once (config Rival.FirstRace, default on); from then on the tally above decides changes.
+-- An old save's rival is kept; an old save with a tally but no rival gets one at its next cup race there.
 --
 -- Save: rivals[classKey] = { name = 'Sen Fira' or nil, scores = { [racerName] = tally } } (optional; missing = none).
 -- You (CU.YOU) and the Exclude names (Kestar Bool: never on a cup grid) are never scored. Shade is scored like any
@@ -72,8 +76,27 @@ function RV.gains(run)
   return out
 end
 
+-- v0.20: the racer who finished nearest you in the cup's latest race: the one just ahead (the excluded skipped), else
+-- the one just behind; nil when you weren't in it or nobody else was
+function RV.nearest(run)
+  local c = conf()
+  if not (c and run and run.history) then return nil end
+  local rows = run.history[#run.history]
+  if type(rows) ~= 'table' then return nil end
+  local list = {}
+  for _, r in ipairs(rows) do list[#list + 1] = r end
+  table.sort(list, function(a, b) return (a.place or 99) < (b.place or 99) end)
+  local at
+  for i, r in ipairs(list) do if r.key == CU.YOU then at = i end end
+  if not at then return nil end
+  for i = at - 1, 1, -1 do if not excluded(list[i].key, c) then return list[i].key end end
+  for i = at + 1, #list do if not excluded(list[i].key, c) then return list[i].key end end
+  return nil
+end
+
 -- add a cup race to the class's tally and maybe change the rival. Returns the rival's name (or nil), and what
--- happened: 'new' (a first rival), 'switch' (another racer took over; third value = the old one) or nil.
+-- happened: 'new' (a first rival; v0.20: 'first' when picked from the race just run, the nearest finisher),
+-- 'switch' (another racer took over; third value = the old one) or nil.
 function RV.update(data, run)
   local c = conf()
   if not (c and run and run.class) then return nil end
@@ -84,6 +107,10 @@ function RV.update(data, run)
     if type(s) == 'number' and not excluded(name, c) and (not best or s > bestScore or (s == bestScore and name < best)) then
       best, bestScore = name, s
     end
+  end
+  if not e.name and c.FirstRace ~= false then
+    local near = RV.nearest(run)
+    if near then e.name = near; return near, 'first' end
   end
   if not best then return e.name end
   if not e.name then
