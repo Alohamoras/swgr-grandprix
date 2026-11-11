@@ -7,7 +7,7 @@
 -- v0.11: one cup per planet with a race list per class (classic / reverse / conditions), the Galactic Cup, the title race.
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.14.0'
+local VERSION = '0.14.1'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -228,7 +228,9 @@ SCREENS.home = function()
       local champ = championLine(c.key)
       items[#items + 1] = { title = c.name:upper(), art = ART.class(c.key),
         badge = golds > 0 and ('%d / %d GOLD'):format(golds, total) or (trophies > 0 and ('%d / %d TROPHIES'):format(trophies, total) or nil),
-        desc = champ,
+        -- v0.14.1: only YOUR title on the tile ('Champion: GRIFF HALLORAN' wrapped onto two lines in game, 2026-11-11);
+        -- the champion's name is in the info line
+        desc = (champ == 'Champion: YOU') and champ or nil,
         info = padInfo((c.blurb or '') .. '\n' .. ('%s: parts level %d, abilities %d.  Gold %d / %d, trophies %d / %d.%s'):format(c.name,
           c.parts or 0, c.abilities or 1, golds, total, trophies, total, rivalInfo(c.key, champ)), 2),
         act = function() S.class = c.key; K.data.class = c.key; K.save(); return go('cups') end }

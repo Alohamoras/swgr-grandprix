@@ -155,6 +155,22 @@ S.blocked = 'matchmaking is running'
 check('offline', SC.offline())
 S.blocked = nil
 
+-- v0.14.1 (seen in game 2026-11-11: 'Champion: GRIFF / HALLORAN' wrapped on the focused 50CC tile): a class tile on
+-- HOME names only YOUR title; another champion's name is in the info line
+K.data.best, K.data.perfect, K.data.titles = {}, {}, {}
+for _, c in ipairs(K.classes()) do K.data.best[c.key] = { jakku = 1 } end
+local descs = {}
+for _, it in ipairs(SC.home().items or {}) do
+  if it.title and it.title:match('CC$') then descs[#descs + 1] = tostring(it.desc) end
+end
+T.check(not table.concat(descs, '|'):find('Champion: %u%u+ %u'), 'no other champion on a class tile (' .. table.concat(descs, '|') .. ')')
+K.data.titles = { ['100'] = { won = true, tries = 1 } }
+local home = SC.home().items or {}
+local got
+for _, it in ipairs(home) do if it.title == '100CC' then got = it.desc end end
+T.check(got == 'Champion: YOU', 'your own title stays on the tile (' .. tostring(got) .. ')')
+for _, it in ipairs(home) do if it.title == '100CC' then T.check(tostring(it.info):find('Champion: YOU', 1, true) ~= nil, 'and in the info line') end end
+
 T.check(#bad == 0, ('every tile\'s text fits its tile (%d tiles checked)%s'):format(count,
   #bad > 0 and (':\n  ' .. table.concat(bad, '\n  ')) or ''))
 T.finish()

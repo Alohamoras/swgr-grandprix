@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.14.1 (2026-11-11): the class tiles name only your title
+Seen in game on v0.14.0 (HOME, 2026-11-11 morning): the focused 50CC tile read "Champion: GRIFF / HALLORAN", the
+champion's name split over two lines. A class tile now names only your own title ("Champion: YOU"); another
+champion's name stays in HOME's info line, as before. test_tiletext checks it (fails on v0.14.0).
+Also seen: on a focused class tile the class name (white) is hard to read on the bright 50cc and 100cc posters - the
+game's focus highlight brightens the art. Not changed yet (art choice; part of the B8 screenshot pass).
+
 ## v0.14.0 (2026-11-11): every tile's text fits
 Queue item A7 (TASKS.md; owner 2026-11-10: "can't fully read the tune-up tiles in the garage"). Built and tested,
 not yet seen in game: the screenshot check (B8) is still to come.
