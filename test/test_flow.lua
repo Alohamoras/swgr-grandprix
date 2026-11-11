@@ -9,7 +9,7 @@ M.press('F6'); M.tick(6)
 T.check(T.logHas('[menu] home'), 'F6 opens the home screen')
 T.check(T.titles() == '50CC|100CC|150CC|200CC|GARAGE|RESET PROGRESS', 'home: the four classes, GARAGE, RESET (no EXIT) (' .. T.titles() .. ')')
 T.clickTitle('150CC'); M.tick(3)
-T.check(T.ntiles() == #require('config').Cups, 'every cup of the class on one page, no BACK (' .. T.ntiles() .. ')')
+T.check(T.ntiles() == #require('config').Cups + 1, 'every cup of the class plus the title race on one page, no BACK (' .. T.ntiles() .. ')')
 T.check(T.titles():find('^JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|') ~= nil, 'planet cups first (' .. T.titles() .. ')')
 T.check(T.logHas('[menu] cups'), 'cups page')
 

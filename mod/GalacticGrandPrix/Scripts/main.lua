@@ -10,7 +10,7 @@ local VERSION = '0.8.0'
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
 package.path = scripts .. '/?.lua;' .. package.path
-for _, m in ipairs({ 'core', 'config', 'abil', 'cup', 'gp', 'loadout', 'race', 'ui', 'tab' }) do package.loaded[m] = nil end
+for _, m in ipairs({ 'core', 'config', 'abil', 'cup', 'gp', 'loadout', 'ai', 'race', 'ui', 'tab' }) do package.loaded[m] = nil end
 
 local C = require('core')
 C.DIR = scripts:match('^(.*)[/\\][Ss]cripts$') or '.'

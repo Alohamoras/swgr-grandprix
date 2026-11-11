@@ -6,6 +6,7 @@ local AB = require('abil')
 local LO = require('loadout')
 local MS = require('modsel')
 local RC = require('racer')
+local AI = require('ai')
 local try, alive, addr, log = C.try, C.alive, C.addr, C.log
 
 local R = { run = nil }
@@ -75,7 +76,7 @@ local function writeLevels(build, want)
   end
 end
 
-function R.pendingRestore() return next(K.data.restores) ~= nil or next(K.data.abilityRestores) ~= nil or RC.pending() end
+function R.pendingRestore() return next(K.data.restores) ~= nil or next(K.data.abilityRestores) ~= nil or RC.pending() or AI.pending() end
 
 -- ability slots (v0.3): a class object -> its path ('' = empty)
 local function slotPath(c)
@@ -182,6 +183,9 @@ function R.restoreBuild(why)
     K.data.modRestores[path] = nil
     done[#done + 1] = path
   end
+  -- v0.8: the AI config asset (ai.lua), its originals in K.data.aiRestores
+  local okA, nA = pcall(AI.restoreConfig, why)
+  if not okA then log('[ai] restore error: ' .. tostring(nA)) elseif nA > 0 then done[#done + 1] = AI.CONFIG end
   if #done > 0 then K.save() end
   -- v0.8: your pilot (CharacterList.Player) back, if the race never settled it (quit early, crash, failed launch)
   local okR, errR = pcall(RC.restore, why)
@@ -248,6 +252,10 @@ function R.launch(ev, classKey, vehKey, picks, mods)
       if okM then modNames = got else log('mods not set: ' .. tostring(got)) end
     end
   end
+  -- v0.8: the class's AI profile (ai.lua) - the AI config asset now (put back with the build), the rubber band while
+  -- the race loads (ai, below)
+  local okI, ai = pcall(function() AI.launch(classKey); return AI.begin(classKey) end)
+  if not okI then log('[ai] ' .. tostring(ai)); ai = nil end
   -- v0.8: your pilot into the character list (the save holds what to put back; a failed launch puts it back below)
   local okR, errR = pcall(RC.begin, RC.current().key)
   if not okR then log('[racer] not set: ' .. tostring(errR)) end
@@ -261,7 +269,7 @@ function R.launch(ev, classKey, vehKey, picks, mods)
   ev.class = classKey
   log(('LAUNCH %s (%s - %s) class=%s vehicle=%s tag=%s mode=%s'):format(ev.path:match('([^/]+)$'), ev.title, ev.kind or '',
     tostring(classKey), veh.key, tostring(tag), C.idname(try(function() return e.EventMode end))))
-  R.run = { ev = ev, at = C.clock, oldGs = addr(oldGs), oldFe = addr(fe), phase = 'loading', top = 0, field = {}, ticks = 0 }
+  R.run = { ev = ev, at = C.clock, oldGs = addr(oldGs), oldFe = addr(fe), phase = 'loading', top = 0, field = {}, ticks = 0, ai = ai }
   R.menuSeen = false
   local ok3, lo = pcall(LO.begin, classKey, modNames)
   if ok3 then R.run.lo = lo else log('[loadout] ' .. tostring(lo)) end
@@ -396,6 +404,14 @@ local function perfLine(r)
       p.tN, p.wSum / p.tN, p.wMax, p.gSum / p.tN, p.gMax, p.over5 or 0, p.over20 or 0) or ' | our tick: not measured')
 end
 
+-- v0.8: the AI rubber band on the race's tune objects (ai.lua): started = the race state's bIsRaceStarted was seen
+-- (r.startedAt), and how long ago
+function R.applyAI(r)
+  if not (r.ai and not r.ai.finished) then return end
+  local ok, err = pcall(AI.apply, r.ai, r.startedAt ~= nil, r.startedAt and (C.clock - r.startedAt) or 0)
+  if not ok then log('[ai] apply error: ' .. tostring(err)); r.ai.finished = true end
+end
+
 -- the main menu coming back (v0.3.9): a notification when its game mode is created - no polling, no sweeps
 R.menuSeen = false
 pcall(NotifyOnNewObject, '/Script/Griffin.FrontEndGameMode', function() R.menuSeen = true end)
@@ -413,9 +429,13 @@ function R.watch()
         log(('race world loaded, standalone=%s'):format(tostring(standalone)))
         if standalone ~= true then
           log('NOT an offline race - Grand Prix stops here, build put back')
-          R.restoreBuild('not offline'); R.run = nil; return { failed = 'not offline' }
+          R.restoreBuild('not offline'); pcall(AI.restore, r.ai); R.run = nil; return { failed = 'not offline' }
         end
         r.gs, r.phase, r.racingAt = addr(gs), 'racing', C.clock
+        -- (v0.8: the race state's path + address, read again on the 2 s read below for the start of the race)
+        r.gsRef = C.ref(gs)
+        if try(function() return gs.bIsRaceStarted end) == true then r.startedAt = C.clock end
+        R.applyAI(r)
         local ok, err = pcall(LO.apply, r.lo)
         if not ok then log('[loadout] apply failed: ' .. tostring(err)); r.lo = nil end
         return nil
@@ -423,7 +443,7 @@ function R.watch()
     end
     if C.clock - r.at > 120000 then
       log('no race world after 120 s - giving up')
-      R.restoreBuild('timeout'); R.run = nil
+      R.restoreBuild('timeout'); pcall(AI.restore, r.ai); R.run = nil
       return { failed = 'timeout' }
     end
     return nil
@@ -439,6 +459,16 @@ function R.watch()
   end
   R.perf(r)
   local due = C.clock - (r.lastRead or -1e9) >= 2000
+  -- v0.8: the AI rubber band, until 3 s after the start (its own sweep of the tune objects, at most every 500 ms,
+  -- then it stops itself; nothing more is swept once it's done)
+  if r.ai and not r.ai.finished then
+    if due and not r.startedAt and not R.menuSeen then
+      -- the start of the race: the race state looked up again on the 2 s read only (one lookup, a few times a race)
+      local gs = C.deref(r.gsRef)
+      if gs and try(function() return gs.bIsRaceStarted end) == true then r.startedAt = C.clock end
+    end
+    R.applyAI(r)
+  end
   if not (R.menuSeen or due or r.gone) then return nil end
   local n = 0
   if not R.menuSeen and due then
@@ -461,6 +491,7 @@ function R.watch()
   local fe = C.first('FrontEndGameMode')
   if not (alive(fe) and addr(fe) ~= r.oldFe) then return nil end
   R.restoreBuild('main menu')
+  pcall(AI.restore, r.ai)
   local fl = fieldList(r)
   -- you're always in the result (even if you quit before the racers were first read)
   local me
