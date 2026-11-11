@@ -166,6 +166,25 @@ owner's own play, and the offline half of B7.)
 - A name for the Ando short track.
 - The v1.0 pass: every cup at every class.
 
+## Next (owner 2026-11-11 evening: "make sure these are added to the task list, then go ahead")
+From the afternoon's findings (docs/ai-study-2026-11-11.md, docs/menu-review-2026-11-11.md, B6 / B9 spikes), in order:
+1. **v0.18 AI profiles from the study** (config only): catch-up off at every class (MaxAiCatchupScale 1.0, all three
+   pacing assets), the mercy slowdown shrinking by class (50cc 0.5, 100cc 0.7, 150cc 0.85, 200cc 0.85; game default
+   0.3), speed matching off, forced errors off from 100cc (50cc keeps them). Then the owner races one cup at 100cc and
+   one at 150cc; read their `[gaps]` lines. Target: a good race wins by a few seconds, a messy one loses, the best bot
+   steady from race to race.
+2. **Cups without the main menu** (B9 proven): the standings drawn over the game's results screen, NEXT RACE starts
+   the next cup race from there (recipe stage swap + RequestResetRace). Planet cups stay on one planet (proven case);
+   check a planet change for the Galactic Cup first, fall back to the main menu there if it fails. Put-backs (parts,
+   abilities, AI, racer) must hold across chained races.
+3. **A real rival, raced in the title race** (menu review 2, B6 proven): rival picked from the first race at a class,
+   their row marked on every standings; the title race a 1 v 1 on a real track against the rival (or the class leader)
+   with GridMakeup 2 + Opponents cut; Kestar stays as the final boss (owner to confirm where).
+4. **Menu polish pass** (menu review 1, 3, 4, 5): a proper cup result screen (big trophy, top 3, what it unlocked /
+   what's next), a dark strip behind tile labels, a "Next:" goal line on HOME, check what the footer's C (Restart
+   Campaign) does on our page and hide it. Then 6-9 of the review as small fixes.
+Owner checks any time: the pad's B on the boot page; the racer looks (autotest/shots/look1-a/b.png, b6-2-race.png).
+
 ## v0.9: cups are not resumable (owner, 2026-11-10; built, NOT yet seen in game)
 Design rule (DESIGN.md §13): like Mario Kart, leaving a Grand Prix loses it. A cup exists only from its first
 race's launch to the standings of its last race.
