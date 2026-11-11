@@ -334,6 +334,10 @@ return {
         Enabled = true,
         -- Hidden tuning dial: added to every class's pressure (e.g. 0.25 = every class a notch harder). Keep 0.
         Adjust = 0,
+        -- v0.16.1: every pacing write (pacing / catchup below) also goes to the pacing assets RP_Default and
+        -- RP_Honest (their PacingSettingsConfig, a second copy of the same scales), put back with DA_AIConfig.
+        -- false = DA_AIConfig only (as up to v0.16.0).
+        WritePacingAssets = true,
         -- One profile per class key. pressure (-1..2): the rubber band on the game's race tune data, the way its own
         -- difficulties set it - -1 = Cadet (AI max time ahead x0.65 / min -3 s, abilities -0.25, aggression -0.35,
         -- slam countdown +0.8 s), 0 = the game's own, 1 = Nightmare (+2.5 s / +1.5 s, abilities +0.5, aggression +1,

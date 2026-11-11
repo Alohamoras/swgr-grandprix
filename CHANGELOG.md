@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.16.1 (2026-11-11): AI study Phase 0 logging
+For the AI tuning study's Phase 0 (TASKS.md B10, docs/ai-tuning-research-2026-11-11.md (c)). Built and tested, not
+yet run in game.
+- **`[aiset]` read-back**: the values actually on the assets, read back after the AI settings are written. Once at
+  the main menu after boot (`[aiset] menu at boot | ...`, after any crash put-back) and once per race at launch
+  (`[aiset] race class=150[ study] | DA_AIConfig: ... | RP_Default: ... | RP_Honest: ...`): DA_AIConfig's
+  DefaultPacingSettings (6 fields), the SpeedMatching fields, forced errors, perfect start, aggression vs player;
+  each pacing asset's `PacingConfigs.Num` and its PacingSettingsConfig (6 fields). Plain numbers / bools only; `?` =
+  unreadable, `missing` = asset not found. Plus one `[aiset] race tune class=150 | ...` line per race with the shared
+  race tune's values after our writes (from the tune object the rubber band already finds; no extra lookup).
+- **Pacing to both places** (config `AI.WritePacingAssets = true`): every DefaultPacingSettings write on DA_AIConfig
+  (`pacing`, `catchup`, also a study profile's) goes to `RP_Default` and `RP_Honest`'s PacingSettingsConfig too (a
+  set is the same value, `catchup` multiplies each asset's own original), originals in the save's `aiRestores` under
+  each asset's path, put back at the menu like DA_AIConfig (also after a crash, at the next boot).
+- The three assets are looked up once per race at launch (3 lookups at the menu, none in the race).
+- Tests: test_aiset (new: boot line once, RP writes + put-back, WritePacingAssets=false, study profile, one line per
+  race, missing asset); test_ai_restore (an RP original left over from a crash is put back). The test world has
+  made-up RP assets (their game values aren't read yet).
+
 ## v0.16.0 (2026-11-11): study mode (test-only)
 For the AI tuning study (TASKS.md B10, DESIGN.md §14). Built and tested, not yet run in game.
 - **v0.16.0 - study mode (test-only)**: a `study.lua` in the mod folder lists jobs (class, cup, race number, label, a

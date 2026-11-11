@@ -163,9 +163,26 @@ function W.aiConfig()
       AiAheadTimeToMaxSlowdown = 1.5, AiBehindTimeToMaxCatchup = 2, AiSlowdownDuringCrash = 0.5 },
     ForcedErrorChance = 15, ForcedErrorDuration = 8, DefaultPercentageChancePerfectStart = 75,
     AggressionConfig = { VersusAI = { Cooldown = 4, Chance = 100 }, VersusPlayer = { Cooldown = 2, Chance = 50 } },
+    EnableSpeedMatchingZone = true, SpeedMatchingMaxMatchers = 2, SpeedMatchingSpeedLag = 5,
   }
   M.assets['/Game/Griffin/AI/DA_AIConfig.DA_AIConfig'] = M.new('DA_AIConfig', W.ai, 'RaceAIComponentConfig')
+  W.pacingAssets()
   return W.ai
+end
+-- v0.16.1: the pacing assets RP_Default / RP_Honest (URacePacingConfig). Their values in game are not read yet: these
+-- are made up (RP_Default as DA_AIConfig's but catch-up 1.2, RP_Honest no slowdown), so the tests can tell them apart.
+-- W.rp.Default / W.rp.Honest = their fields.
+function W.pacingAssets()
+  W.rp = {}
+  for name, pace in pairs({ Default = { 1.2, 0.75 }, Honest = { 1.25, 1.0 } }) do
+    W.rp[name] = {
+      PacingConfigs = M.tarr({ {}, {}, {}, {}, {} }),
+      PacingSettingsConfig = { RacePacingLowestSpeedMph = 150, MaxAiCatchupScale = pace[1], MaxAiSlowdownScale = pace[2],
+        AiAheadTimeToMaxSlowdown = 1.5, AiBehindTimeToMaxCatchup = 2, AiSlowdownDuringCrash = 0.5 },
+    }
+    local path = '/Game/Griffin/AI/Pacing/Default/RP_' .. name
+    M.assets[path .. '.RP_' .. name] = M.new('RP_' .. name, W.rp[name], 'RacePacingConfig')
+  end
 end
 -- n race tune objects (a GameTuneComponent each, its RaceTuneData.Config with the game's own rubber-band values);
 -- returns the configs and the tune data objects

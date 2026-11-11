@@ -8,7 +8,7 @@
 -- v0.16: study mode (test-only): study.lua in the mod folder runs a batch of single races with AI profiles (studymode.lua).
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.16.0'
+local VERSION = '0.16.1'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -24,6 +24,7 @@ local R = require('race')
 local U = require('ui')
 local ART = require('art')
 local TB = require('tab')
+local AI = require('ai')
 local try, alive, log, ordinal = C.try, C.alive, C.log, C.ordinal
 
 K.load()
@@ -823,6 +824,11 @@ do
     if R.run then return end
     if not R.menuPoll(POLL_MS) then return end
     if not seenMenu then seenMenu = true end
+    -- v0.16.1: [aiset] the AI / pacing assets as they are, once after boot (after any put-back from a crash)
+    if not AI.bootRead and not R.pendingRestore() then
+      local okA, errA = pcall(AI.bootReadback)
+      if not okA then AI.bootRead = true; log('[aiset] read-back failed: ' .. tostring(errA)) end
+    end
     -- v0.16: study mode (test-only; nothing but an io.open every 5 s without study.lua)
     local okS, errS = pcall(ST.poll, POLL_MS, studyEnv)
     if not okS then log('[study] poll: ' .. tostring(errS)) end

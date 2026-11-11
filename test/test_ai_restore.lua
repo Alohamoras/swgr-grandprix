@@ -4,17 +4,24 @@ local M = require('mock')
 local W = require('world')
 local T = require('util')
 T.boot({ aiRestores = { ['/Game/Griffin/AI/DA_AIConfig'] = { ['DefaultPacingSettings.MaxAiSlowdownScale'] = 0.75, ForcedErrorChance = 15,
-  ['AggressionConfig.VersusPlayer.Chance'] = 50 } } },
+  ['AggressionConfig.VersusPlayer.Chance'] = 50 },
+  -- v0.16.1: a pacing asset's originals too
+  ['/Game/Griffin/AI/Pacing/Default/RP_Default'] = { ['PacingSettingsConfig.MaxAiSlowdownScale'] = 0.75 } } },
   { Progression = { On = false }, AI = { Enabled = false }, NoTabMenu = true })
 -- the asset as the crashed race left it
 W.ai.DefaultPacingSettings.MaxAiSlowdownScale = 1
 W.ai.ForcedErrorChance = 7.5
 W.ai.AggressionConfig.VersusPlayer.Chance = 75
+W.rp.Default.PacingSettingsConfig.MaxAiSlowdownScale = 1
 W.tabMenu(); M.tick(18)
 T.check(W.ai.DefaultPacingSettings.MaxAiSlowdownScale == 0.75 and W.ai.ForcedErrorChance == 15 and W.ai.AggressionConfig.VersusPlayer.Chance == 50,
   'left over from a crash: DA_AIConfig put back at the first menu tick')
 T.check(T.logHas('[ai] AI config put back (left over from an earlier race): DA_AIConfig AggressionConfig.VersusPlayer.Chance=50 DefaultPacingSettings.MaxAiSlowdownScale=0.75 ForcedErrorChance=15'),
   'put back logged (nested struct fields included)')
+T.check(W.rp.Default.PacingSettingsConfig.MaxAiSlowdownScale == 0.75
+  and T.logHas('[ai] AI config put back (left over from an earlier race): RP_Default PacingSettingsConfig.MaxAiSlowdownScale=0.75'),
+  'v0.16.1: left over from a crash: RP_Default put back too')
+T.check(not T.logHas('[aiset]'), 'AI off: no [aiset] read-back at boot')
 T.check(next(T.save().aiRestores) == nil, 'the save is clear')
 T.check(T.logHas('build put back') == false, 'nothing else was pending')
 

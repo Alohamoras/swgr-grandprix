@@ -10,7 +10,8 @@
 --     ahead), forced errors, perfect start, aggression. Read at race start, so it's written at launch, at the main menu
 --     (A.launch) and put back when the race returns to the menu (A.restoreConfig). The originals go into the save
 --     first (K.data.aiRestores, like restores / modRestores for the parts and mods), so a crash mid-race is put right at
---     the next menu (race.lua R.pendingRestore / R.restoreBuild).
+--     the next menu (race.lua R.pendingRestore / R.restoreBuild). v0.16.1: the pacing writes also go to the pacing
+--     assets RP_Default / RP_Honest (config AI.WritePacingAssets), and `[aiset]` lines log what's actually on them.
 -- Every engine access is guarded: a field that can't be read is never written (the mock has fewer fields than the game).
 local C = require('core')
 local K = require('gp')
@@ -147,44 +148,173 @@ local function restores()
 end
 function A.pending() return K.data ~= nil and next(restores()) ~= nil end
 
--- at launch (the main menu): the class's writes on the AI config asset, the originals into the save first.
--- Returns the number of fields written (0 = nothing to do or the asset wasn't found).
-function A.launch(classKey, prof)
-  if not A.enabled() then return 0 end
-  local plan = A.plan(classKey, prof)
-  if next(plan) == nil then return 0 end
-  local obj = C.asset(A.CONFIG)
-  if not alive(obj) then log('[ai] AI config asset not found: ' .. A.CONFIG); return 0 end
+-- v0.16.1: the two pacing assets (URacePacingConfig) hold a second copy of the pacing scales in their
+-- PacingSettingsConfig (docs/ai-tuning-research-2026-11-11.md (a)). Which copy the race reads isn't known yet, so
+-- (config AI.WritePacingAssets) every DefaultPacingSettings write on DA_AIConfig goes to both of them too - a `set`
+-- is the same value, a `mul` (catchup) is on each asset's own original - and is put back the same way (originals in
+-- aiRestores under each asset's own path, so a crash mid-race is put right at the next menu as well).
+A.PACING_ASSETS = { '/Game/Griffin/AI/Pacing/Default/RP_Default', '/Game/Griffin/AI/Pacing/Default/RP_Honest' }
+local DA_PACE, RP_PACE = 'DefaultPacingSettings.', 'PacingSettingsConfig.'
+function A.writePacingAssets() return aiCfg().WritePacingAssets ~= false end
+-- the pacing part of a plan, as paths on a pacing asset
+function A.pacingPlan(plan)
+  local out = {}
+  for path, t in pairs(plan) do
+    if path:sub(1, #DA_PACE) == DA_PACE then out[RP_PACE .. path:sub(#DA_PACE + 1)] = t end
+  end
+  return out
+end
+local function short(path) return path:match('([^/]+)$') end
+
+-- the three assets, each looked up once (a lookup is a full sweep here, ~10 ms: only at the menu / launch, never in
+-- a race): path -> object, or false when it isn't there
+function A.lookup()
+  local objs = {}
+  for _, path in ipairs({ A.CONFIG, A.PACING_ASSETS[1], A.PACING_ASSETS[2] }) do
+    local o = C.asset(path)
+    objs[path] = alive(o) and o or false
+  end
+  return objs
+end
+
+-- one asset's planned writes, the originals into the save first; returns the number written and the log parts
+local function writePlan(path, obj, plan)
   local paths = {}
-  for path in pairs(plan) do paths[#paths + 1] = path end
+  for p in pairs(plan) do paths[#paths + 1] = p end
   table.sort(paths)
   local rest = restores()
-  local mine = rest[A.CONFIG] or {}
+  local mine = rest[path] or {}
   local parts, n = {}, 0
-  for _, path in ipairs(paths) do
-    local cur = readNum(obj, path)
+  for _, fp in ipairs(paths) do
+    local cur = readNum(obj, fp)
     if cur == nil then
-      log('[ai] AI config has no readable ' .. path .. ' - left alone')
+      log(('[ai] %s has no readable %s - left alone'):format(short(path), fp))
     else
       -- the original: what the save already holds (a put-back still pending) or what's there now
-      local orig = mine[path]
+      local orig = mine[fp]
       if orig == nil then orig = cur end
-      local nv = A.planned(plan[path], orig)
+      local nv = A.planned(plan[fp], orig)
       if near(nv, cur) then
-        parts[#parts + 1] = ('%s %g (as is)'):format(path, cur)
+        parts[#parts + 1] = ('%s %g (as is)'):format(fp, cur)
       else
-        if mine[path] == nil then mine[path] = orig; rest[A.CONFIG] = mine; K.save() end
-        if writeNum(obj, path, nv) then
+        if mine[fp] == nil then mine[fp] = orig; rest[path] = mine; K.save() end
+        if writeNum(obj, fp, nv) then
           n = n + 1
-          parts[#parts + 1] = ('%s %g -> %g'):format(path, cur, nv)
+          parts[#parts + 1] = ('%s %g -> %g'):format(fp, cur, nv)
         else
-          parts[#parts + 1] = ('%s %g -> %g FAILED'):format(path, cur, nv)
+          parts[#parts + 1] = ('%s %g -> %g FAILED'):format(fp, cur, nv)
         end
       end
     end
   end
-  log(('[ai] class %s%s: AI config (%s) %s'):format(tostring(classKey), prof and ' (study profile)' or '', A.CONFIG:match('([^/]+)$'), table.concat(parts, ', ')))
+  return n, parts
+end
+
+-- at launch (the main menu): the class's writes on the AI config asset (and the pacing assets), the originals into
+-- the save first; then the [aiset] read-back. Returns the number of fields written (0 = nothing to do / not found).
+function A.launch(classKey, prof)
+  if not A.enabled() then return 0 end
+  local plan = A.plan(classKey, prof)
+  local objs = A.lookup()
+  local who = tostring(classKey) .. (prof and ' (study profile)' or '')
+  local n = 0
+  if next(plan) ~= nil then
+    local obj = objs[A.CONFIG]
+    if not obj then log('[ai] AI config asset not found: ' .. A.CONFIG)
+    else
+      local k, parts = writePlan(A.CONFIG, obj, plan)
+      n = n + k
+      log(('[ai] class %s: AI config (%s) %s'):format(who, short(A.CONFIG), table.concat(parts, ', ')))
+    end
+    local rp = A.pacingPlan(plan)
+    if A.writePacingAssets() and next(rp) ~= nil then
+      for _, path in ipairs(A.PACING_ASSETS) do
+        local o = objs[path]
+        if not o then log('[ai] pacing asset not found: ' .. path)
+        else
+          local k, parts = writePlan(path, o, rp)
+          n = n + k
+          log(('[ai] class %s: pacing asset (%s) %s'):format(who, short(path), table.concat(parts, ', ')))
+        end
+      end
+    end
+  end
+  local ok, err = pcall(A.readback, ('race class=%s%s'):format(tostring(classKey), prof and ' study' or ''), objs, plan)
+  if not ok then log('[aiset] read-back failed: ' .. tostring(err)) end
   return n
+end
+
+---------------------------------------------------------------------------------------------------------------------
+-- [aiset] (v0.16.1, AI study Phase 0): the values actually on the assets, read back. Plain numbers / bools only
+-- (no TMap / TOptional / soft pointers / curves); a field that can't be read shows '?', an asset not found 'missing'.
+local PACE = { 'RacePacingLowestSpeedMph', 'MaxAiCatchupScale', 'MaxAiSlowdownScale', 'AiAheadTimeToMaxSlowdown',
+  'AiBehindTimeToMaxCatchup', 'AiSlowdownDuringCrash' }
+local DA_MORE = { 'EnableSpeedMatchingZone', 'SpeedMatchingMinPlayerSpeedInMph', 'SpeedMatchingMaxMatchers',
+  'SpeedMatchingSpeedLag', 'SpeedMatchingMaxTimeMatching', 'SpeedMatchingCooldown', 'SpeedMatchingTimeAhead',
+  'SpeedMatchingTimeBehind', 'SpeedMatchingUseSpeedMatchingCurve', 'AllowSpeedMatchingWhenBoosting',
+  'ForcedErrorZoneLengthAhead', 'ForcedErrorZoneLengthBehind', 'ForcedErrorTickRate', 'ForcedErrorChance',
+  'ForcedErrorDuration', 'SpectacleZoneLengthAhead', 'DefaultPercentageChancePerfectStart',
+  'AggressionConfig.VersusPlayer.EnableAggression', 'AggressionConfig.VersusPlayer.Chance',
+  'AggressionConfig.VersusPlayer.Cooldown', 'AggressionConfig.VersusPlayer.TimeBeforeSlam' }
+local function readShow(obj, path)
+  local o, k = walk(obj, path)
+  local v
+  if o ~= nil then v = try(function() return o[k] end) end
+  if type(v) == 'number' then return ('%g'):format(v) end
+  if type(v) == 'boolean' then return tostring(v) end
+  return '?'
+end
+local function fieldsText(obj, prefix, extra)
+  local parts, seen = {}, {}
+  local function add(path, label)
+    if seen[path] then return end
+    seen[path] = true
+    parts[#parts + 1] = (label or path) .. '=' .. readShow(obj, path)
+  end
+  for _, f in ipairs(PACE) do add(prefix .. f, f) end
+  for _, f in ipairs(extra or {}) do add(f) end
+  return parts
+end
+-- ctx: when it's read ('menu at boot', 'race class=150'); objs: A.lookup()'s (looked up here when not given);
+-- plan: the race's writes (any not in the lists above are read back too). Returns the line.
+function A.readback(ctx, objs, plan)
+  objs = objs or A.lookup()
+  local segs = {}
+  local da = objs[A.CONFIG]
+  if da then
+    local extra = {}
+    for _, f in ipairs(DA_MORE) do extra[#extra + 1] = f end
+    local more = {}
+    for p in pairs(plan or {}) do if p:sub(1, #DA_PACE) ~= DA_PACE then more[#more + 1] = p end end
+    table.sort(more)
+    for _, p in ipairs(more) do extra[#extra + 1] = p end
+    segs[#segs + 1] = short(A.CONFIG) .. ': ' .. table.concat(fieldsText(da, DA_PACE, extra), ' ')
+  else
+    segs[#segs + 1] = short(A.CONFIG) .. ': missing'
+  end
+  for _, path in ipairs(A.PACING_ASSETS) do
+    local o = objs[path]
+    if o then
+      -- PacingConfigs is a plain TArray of structs (the tier windows): its length only
+      local num = try(function() return o.PacingConfigs:GetArrayNum() end)
+      local parts = fieldsText(o, RP_PACE)
+      table.insert(parts, 1, 'PacingConfigs.Num=' .. (type(num) == 'number' and ('%d'):format(num) or '?'))
+      segs[#segs + 1] = short(path) .. ': ' .. table.concat(parts, ' ')
+    else
+      segs[#segs + 1] = short(path) .. ': missing'
+    end
+  end
+  local line = ('[aiset] %s | %s'):format(ctx, table.concat(segs, ' | '))
+  log(line)
+  return line
+end
+-- once after boot, at the main menu (main.lua's poll, once nothing is left to put back)
+A.bootRead = false
+function A.bootReadback()
+  if A.bootRead then return end
+  A.bootRead = true
+  if not A.enabled() then return end
+  A.readback('menu at boot')
 end
 
 -- at the menu (race.lua R.restoreBuild): every saved original back on the asset. Returns the number of assets put
@@ -261,6 +391,14 @@ function A.apply(st, started, sinceStart)
       if st.logged < 1 then
         st.logged = st.logged + 1
         log(('[ai] %s -> %s'):format(table.concat(was, ' '), table.concat(now, ' ')))
+      end
+      -- [aiset] (v0.16.1): the shared race tune as read back after the writes, once per race (no extra lookup)
+      if not st.tuneRead then
+        st.tuneRead = true
+        local parts = {}
+        for _, f in ipairs(FIELDS) do parts[#parts + 1] = f .. '=' .. readShow(conf, f) end
+        parts[#parts + 1] = 'TotalCrashAllowance=' .. readShow(conf, 'TotalCrashAllowance')
+        log(('[aiset] race tune class=%s%s | %s'):format(tostring(st.class), st.prof and ' study' or '', table.concat(parts, ' ')))
       end
       n = n + 1
     end

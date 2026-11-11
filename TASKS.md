@@ -99,6 +99,7 @@ owner's own play, and the offline half of B7.)
    with as little catch-up as possible. Needs the desktop to Claude alone.
    v0.16.0: study mode built (study.lua jobs -> single races with a per-job AI profile, `[study]` log lines and
    study_results.csv; DESIGN.md §14). Not yet run in game.
+   v0.16.1: Phase 0 logging built (`[aiset]` read-back; pacing written to RP_Default / RP_Honest too). Not yet run in game.
 
 11. Boot straight into the Grand Prix (owner 2026-11-11: "i want the game to launch and go directly to the grand
    prix menu, pressing b would still back out to the main menu"). At the first main menu after launch, open the
