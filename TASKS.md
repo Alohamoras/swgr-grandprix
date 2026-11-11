@@ -17,6 +17,11 @@ next starts (they all touch main.lua and config.lua); game sessions one at a tim
    it changes the unlocks). Tag v0.12.0.
 4. v0.13 the rival rule and the standings call-out (not the title-race spike). Tag v0.13.0.
 5. The main-menu poll made cheaper (section 4, one sweep 5x a second at the menu).
+6. Racer = vehicle build (after B7 proves it, and after v0.11): picking a racer gives you their own vehicle and
+   looks; VEHICLE leaves the garage; Shade becomes three entries (landspeeder / bike / skimmer); each racer tile
+   names the vehicle type; class parts go on the racer's build and are put back after; Kestar Bool and Sebulba
+   (podracers) left out or on a stand-in until a pod launches. Old saves map the vehicle pick to Shade's entry.
+   Tag as its own version.
 
 **B. In game with TestAutopilot (game closed, test save, owner's save restored after)**
 1. v0.9 check: the standings' one tile, B -> the question (keyboard; the pad is the owner's), a restart mid-cup logs
@@ -28,6 +33,9 @@ next starts (they all touch main.lua and config.lua); game sessions one at a tim
 4. Racing as another pilot: screenshots of the HUD and results name with Kestar Bool picked.
 5. Tune-ups the Elite don't share (150cc with REDLINER): the "cleared from your copy" log path.
 6. Spike: a two-car grid on a normal event (the rival / class leader as title-race opponent). Report only.
+7. Spike for A6 (owner agreed 2026-11-10): find where each racer's own vehicle lives (racer def, AI build, livery)
+   in the dumps, then one race as Biddy Blas in his own vehicle with the class parts set on that build and put back
+   after (log + screenshot). Report what launches, what the looks are, and what Kestar / Sebulba fly.
 
 **C. Only the owner can do these (left for you)**
 - The v0.10 rubber band feel at 100cc and 150cc (decides the profile numbers from B2).
