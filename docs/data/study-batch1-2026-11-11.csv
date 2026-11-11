@@ -1,0 +1,19 @@
+job,label,class,event,your_pos,your_time,gap_p1,gap_p2,gap_p3,gap_p6,gap_p12,ai_spread,settings
+1,150 base,150cc,THE WAR FIELDS (DAWN),1,98.82,0.00,9.65,11.44,17.21,44.82,35.17,(class default)
+2,150 base,150cc,THE WAR FIELDS (DAWN),DNF,,,,,,,36.85,(class default)
+3,150 base,150cc,THE WAR FIELDS (DAWN),2,111.04,-5.81,0.00,3.91,7.02,35.47,41.28,(class default)
+4,150 base,150cc,THE WAR FIELDS (DAWN),1,110.58,0.00,5.79,5.82,10.96,34.12,28.33,(class default)
+5,50 open,50cc,THE WAR FIELDS,1,138.87,0.00,2.30,3.47,12.99,17.70,15.41,config.SpeedMatchingMaxMatchers=0 errors=0 pacing.MaxAiCatchupScale=1 pacing.MaxAiSlowdownScale=1
+6,50 open,50cc,THE WAR FIELDS,1,138.39,0.00,5.35,8.17,12.25,18.59,13.24,config.SpeedMatchingMaxMatchers=0 errors=0 pacing.MaxAiCatchupScale=1 pacing.MaxAiSlowdownScale=1
+7,50 open,50cc,THE GIANTS' GRAVEYARD,1,138.62,0.00,2.32,3.63,7.79,12.79,10.47,config.SpeedMatchingMaxMatchers=0 errors=0 pacing.MaxAiCatchupScale=1 pacing.MaxAiSlowdownScale=1
+8,50 open,50cc,THE GIANTS' GRAVEYARD,1,137.85,0.00,0.65,6.18,7.43,17.78,17.13,config.SpeedMatchingMaxMatchers=0 errors=0 pacing.MaxAiCatchupScale=1 pacing.MaxAiSlowdownScale=1
+9,50 open,50cc,FALLEN EMPIRE,2,144.92,-1.32,0.00,0.75,4.35,16.29,17.61,config.SpeedMatchingMaxMatchers=0 errors=0 pacing.MaxAiCatchupScale=1 pacing.MaxAiSlowdownScale=1
+10,50 open,50cc,FALLEN EMPIRE,1,138.88,0.00,5.26,8.68,9.56,27.55,22.29,config.SpeedMatchingMaxMatchers=0 errors=0 pacing.MaxAiCatchupScale=1 pacing.MaxAiSlowdownScale=1
+11,150 open,150cc,THE WAR FIELDS (DAWN),2,108.94,-4.16,0.00,5.88,11.70,31.18,35.34,config.SpeedMatchingMaxMatchers=0 errors=0 pacing.MaxAiCatchupScale=1 pacing.MaxAiSlowdownScale=1
+12,150 open,150cc,THE WAR FIELDS (DAWN),1,98.26,0.00,7.26,9.99,21.45,40.35,33.09,config.SpeedMatchingMaxMatchers=0 errors=0 pacing.MaxAiCatchupScale=1 pacing.MaxAiSlowdownScale=1
+13,150 open,150cc,THE GIANTS' GRAVEYARD,4,102.66,-6.03,-4.80,-3.13,5.98,21.18,27.21,config.SpeedMatchingMaxMatchers=0 errors=0 pacing.MaxAiCatchupScale=1 pacing.MaxAiSlowdownScale=1
+14,150 open,150cc,THE GIANTS' GRAVEYARD,5,102.00,-7.44,-5.08,-2.31,2.40,23.98,31.42,config.SpeedMatchingMaxMatchers=0 errors=0 pacing.MaxAiCatchupScale=1 pacing.MaxAiSlowdownScale=1
+15,150 open,150cc,FALLEN EMPIRE (SCORCHING),2,73.13,-0.25,0.00,6.65,13.65,23.78,24.03,config.SpeedMatchingMaxMatchers=0 errors=0 pacing.MaxAiCatchupScale=1 pacing.MaxAiSlowdownScale=1
+16,150 open,150cc,FALLEN EMPIRE (SCORCHING),1,73.75,0.00,6.76,7.01,12.69,28.98,22.21,config.SpeedMatchingMaxMatchers=0 errors=0 pacing.MaxAiCatchupScale=1 pacing.MaxAiSlowdownScale=1
+17,150 open p2,150cc,THE WAR FIELDS (DAWN),2,99.45,-4.22,0.00,5.31,9.87,32.40,36.63,config.SpeedMatchingMaxMatchers=0 errors=0 pacing.MaxAiCatchupScale=1 pacing.MaxAiSlowdownScale=1 pressure=2
+18,150 open p2,150cc,THE WAR FIELDS (DAWN),1,100.90,0.00,7.95,11.74,16.59,30.15,22.20,config.SpeedMatchingMaxMatchers=0 errors=0 pacing.MaxAiCatchupScale=1 pacing.MaxAiSlowdownScale=1 pressure=2
