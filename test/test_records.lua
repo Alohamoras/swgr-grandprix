@@ -31,8 +31,7 @@ T.check(#lines == 4 and lines[1] == 'THE WAR FIELDS  no time yet' and text:find(
 -- race 1 of the cup through the menu: the time and lap come from the race read
 M.press('F6'); M.tick(6)
 T.clickTitle('100CC'); M.tick(3)
-T.clickTitle('JAKKU CUP'); M.tick(3)
-T.clickTitle('NEXT RACE')
+T.clickTitle('JAKKU CUP')
 T.check(M.called('LaunchQuickRace') == 1, 'race 1 launched')
 W.race(11); M.tick(5)
 W.lap(60.5, 2); M.tick(25)           -- lap 1 done

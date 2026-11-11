@@ -1,16 +1,17 @@
--- v0.2: a whole cup. GRAND PRIX tab -> 150cc -> Jakku Cup -> START CUP; 4 races with points for all 12 racers,
--- standings after each, the trophy at the end; parts at the class level for each race and put back after.
+-- v0.2 / v0.8: a whole cup. GRAND PRIX tab -> 150cc -> Jakku Cup (Select starts it: no cup page); 4 races with points
+-- for all 12 racers, standings after each, the trophy at the end; parts at the class level for each race and put back after.
 local M = require('mock')
 local W = require('world')
 local T = require('util')
 T.boot(nil, { Progression = { On = false } }) -- (unlocks: test_prog, test_unlocks)
 T.check(W.tab.label == 'GRAND PRIX', 'tab added with the label GRAND PRIX')
 M.press('F6'); M.tick(6)
-T.check(T.logHas('[menu] classes'), 'F6 opens the class screen')
+T.check(T.logHas('[menu] home'), 'F6 opens the home screen')
+T.check(T.titles() == '50CC|100CC|150CC|200CC|GARAGE|RESET PROGRESS', 'home: the four classes, GARAGE, RESET (no EXIT) (' .. T.titles() .. ')')
 T.clickTitle('150CC'); M.tick(3)
-T.check(T.ntiles() == 13, '7 cups + 5 remix cups + BACK (' .. T.ntiles() .. ')')
-T.clickTitle('JAKKU CUP'); M.tick(3)
-T.check(T.titles() == 'START CUP|ABILITIES|MODS|VEHICLE|BACK', 'a cup not started: START CUP, ABILITIES, MODS, VEHICLE, BACK (' .. T.titles() .. ')')
+T.check(T.ntiles() == #require('config').Cups, 'every cup of the class on one page, no BACK (' .. T.ntiles() .. ')')
+T.check(T.titles():find('^JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|') ~= nil, 'planet cups first (' .. T.titles() .. ')')
+T.check(T.logHas('[menu] cups'), 'cups page')
 
 -- one race: bots finish around you; you finish `you`
 local function race(n, you)
@@ -26,10 +27,11 @@ local function race(n, you)
   W.backToMenu(); M.tick(45)
 end
 
-T.clickTitle('START CUP')
-T.check(M.called('LaunchQuickRace') == 1, 'START CUP launches race 1')
+T.clickTitle('JAKKU CUP')
+T.check(M.called('LaunchQuickRace') == 1, 'Select on a cup launches race 1 straight away')
 T.check(rawget(M.lastCall('LaunchQuickRace').args[2], '__name'):find('EVT_MAS_LOOP_A_FWD', 1, true) ~= nil, 'race 1 = The War Fields')
-T.check(T.levels('VBD_Car_Base') == '0=6 1=6 2=6 3=6 4=6 5=6', '150cc: every part at 6')
+local parts = require('config').Classes[3].parts
+T.check(T.levels('VBD_Car_Base') == ('0=%d 1=%d 2=%d 3=%d 4=%d 5=%d'):format(parts, parts, parts, parts, parts, parts), '150cc: every part at ' .. parts)
 T.check(T.save().run and T.save().run.race == 1, 'the cup is in the save (race 1)')
 
 race(1, 2)
@@ -43,7 +45,14 @@ T.check(sv.run.race == 2 and sv.run.points.YOU == 12 and sv.run.points['Biddy Bl
 
 local launches = { 'EVT_MAS_P2P_FWD', 'EVT_MAS_LOOP_B_FWD', 'EVT_MAS_LOOP_A_SHORT_02' }
 for i, you in ipairs({ 1, 1, 3 }) do
-  T.clickTitle('NEXT RACE')
+  if i == 2 then
+    -- from the cups page: the cup in progress launches its next race on Select
+    T.clickTitle('LATER'); M.tick(3)
+    T.check(T.badges():find('IN PROGRESS  3 / 4', 1, true) ~= nil, 'the cup tile says IN PROGRESS 3 / 4 (' .. T.badges() .. ')')
+    T.clickTitle('JAKKU CUP')
+  else
+    T.clickTitle('NEXT RACE')
+  end
   T.check(rawget(M.lastCall('LaunchQuickRace').args[2], '__name'):find(launches[i], 1, true) ~= nil, 'race ' .. (i + 1) .. ' = ' .. launches[i])
   race(i + 1, you)
 end
@@ -55,4 +64,8 @@ T.check(sv.run == nil, 'no cup in progress any more')
 T.check(sv.best['150'].jakku == 2 and sv.cups == 1 and sv.races == 4, 'best = 2nd saved; 1 cup, 4 races')
 T.clickTitle('CONTINUE'); M.tick(3)
 T.check(T.titles():find('JAKKU CUP', 1, true) ~= nil, 'CONTINUE -> the cups')
+T.check(T.badges():find('^SILVER TROPHY|') ~= nil, 'Jakku shows its silver (' .. T.badges() .. ')')
+M.press('BACKSPACE'); M.tick(3)
+T.check(T.logHas('[menu] home'), 'B from the cups goes home')
+T.check(T.badges():find('1 / ' .. #require('config').Cups .. ' TROPHIES', 1, true) ~= nil, '150cc shows its trophy count (' .. T.badges() .. ')')
 T.finish()

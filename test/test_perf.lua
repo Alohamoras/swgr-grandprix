@@ -15,8 +15,7 @@ local ticks = 638000000000000000
 rawget(kml, '__props').Now = function() ticks = ticks + 3000; return { Ticks = ticks } end
 M.press('F6'); M.tick(6)
 T.clickTitle('50CC'); M.tick(3)
-T.clickTitle('JAKKU CUP'); M.tick(3)
-T.clickTitle('START CUP')
+T.clickTitle('JAKKU CUP')
 W.race(11); M.tick(30)   -- loading + the first seconds (the AI loadout, the first racer sweep)
 local real, count = _G.FindAllOf, {}
 _G.FindAllOf = function(cls) count[cls] = (count[cls] or 0) + 1; return real(cls) end

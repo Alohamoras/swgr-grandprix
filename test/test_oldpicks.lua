@@ -10,8 +10,7 @@ T.boot({ version = 2, races = 25, cups = 5, class = '200', vehicle = 'car', best
     picks = { offensive = 'shockwave.magnetic', defensive = 'shield.impact', utility = 'surge.impact', wildcard = 'scrubber.auto' } },
   restores = {}, abilityRestores = {} }, { Progression = { On = false } })
 M.press('F6'); M.tick(6)
-T.clickTitle('CONTINUE CUP'); M.tick(3)
-T.clickTitle('NEXT RACE')
+T.clickTitle('CONTINUE CUP')
 local slots = W.buildSlots['VBD_Car_Base']
 local function names(list) local t = {}; for i = 1, 4 do t[i] = rawget(list[i], '__dead') and '-' or rawget(list[i], '__name') end; return table.concat(t, ',') end
 T.check(names(slots) == 'BP_Ability_Shockwave_MagneticConcussion_C,BP_Ability_Shield_ChargedV2_C,BP_Ability_Surge_AggressiveV2_C,BP_Ability_Repair_AutoV2_C',
@@ -21,15 +20,15 @@ local t0 = os.time(); while os.time() - t0 < 3 do end
 W.backToMenu(); M.tick(45)
 T.check(names(slots) == '-,-,-,-', 'put back after the race')
 T.clickTitle('LATER'); M.tick(3)
+M.press('BACKSPACE'); M.tick(3)
 T.clickTitle('QUIT CUP'); M.tick(3)
 T.click(1); M.tick(3)
-T.clickTitle('JAKKU CUP'); M.tick(3)
-T.clickTitle('ABILITIES'); M.tick(3)
-T.check(T.titles() == 'MAGNETIC SHOCKWAVE II|IMPACT SHIELD II|IMPACT SURGE II|AUTO-SCRUBBER II|DONE', 'your old four on the ability screen (' .. T.titles() .. ')')
+T.clickTitle('GARAGE'); M.tick(3)
+T.check(T.titles():find('MAGNETIC SHOCKWAVE II|IMPACT SHIELD II|IMPACT SURGE II|AUTO-SCRUBBER II', 1, true) ~= nil, 'your old four in the garage, at the last class\'s level (' .. T.titles() .. ')')
 local p = T.save().picks
 T.check((p[1] or p.offensive) == 'shockwave.magnetic' and (p[4] or p.wildcard) == 'scrubber.auto', 'your picks unchanged in the save')
 T.clickTitle('IMPACT SURGE II'); M.tick(3)
-T.clickTitle('OVERTAKING SURGE II'); M.tick(3)
+T.check(T.titles():find('OVERTAKING SURGE II', 1, true) ~= nil, 'Select cycles the slot to the next ability (' .. T.titles() .. ')')
 p = T.save().picks
 T.check(p[1] == 'shockwave.magnetic' and p[3] == 'surge.overtake' and p[4] == 'scrubber.auto' and p.offensive == nil,
   'after a change: saved as a list of four')

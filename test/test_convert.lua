@@ -22,6 +22,7 @@ T.check(files:find('save.backup-v1-', 1, true) ~= nil, 'the old save kept as a b
 M.press('F6'); M.tick(6)
 T.check(T.titles():find('50CC|100CC|150CC|200CC', 1, true) ~= nil, 'four classes on the first screen (' .. T.titles() .. ')')
 T.clickTitle('50CC'); M.tick(3)
+local n = M.called('LaunchQuickRace')
 T.clickTitle('JAKKU CUP'); M.tick(3)
-T.check(T.titles():find('GO TO IT', 1, true) ~= nil, 'the 150cc cup in progress still blocks a new one')
+T.check(M.called('LaunchQuickRace') == n and T.titles():find('JAKKU CUP', 1, true) ~= nil, 'the 150cc cup in progress still blocks a new one')
 T.finish()
