@@ -1,16 +1,49 @@
 # Changelog
 
-## Unreleased (branch gp-tuneups, 2026-11-10): tune-ups and the Elite AI's mods (not seen in game yet)
-- Mods trimmed to twelve named **tune-ups** (config `TuneUps`; research 2026-11-10 "Vehicle mods"): HEAT SHIELD,
-  ARMOUR, ICE COLD, REDLINER, RAMJET RIDER, AFTERBURNER, BRAWLER, SURVIVOR, SLIPSTREAMER, FIREBUG, ENGINEER,
-  TENACIOUS, each two catalogue affixes (protection / plain playstyle only, none of the 23 "check" ones). Two slots
-  at most (`modsel.lua`: `MS.cycle` / `MS.line` for a tile that picks in place; the v0.6 MODS screens still run on the
-  packages until the garage tile replaces them). A v0.6 save's catalogue keys are dropped with a log line.
-- The AI's Elite (Sen Fira, Biddy Blas, Lyren Shok) race with HEAT SHIELD from 150cc and HEAT SHIELD + ARMOUR at
-  200cc, the Challenger (Goli & 02-R0) with HEAT SHIELD at 200cc (`TuneUps.AI` / `Tiers`). The launch build carries
-  yours plus theirs; at load each racer's race copy (yours included) loses what isn't theirs (`loadout.lua`, one
-  log line `[loadout] mods: you=... Elite=... (N bot slots cleared)`). `TuneUps.AIExtra = false` = the old behaviour
-  (the launch build yours only, the AI keeps only what you also carry).
+## v0.8.0 (2026-11-10): the research round built - two-level menu, title race, your racer, AI profiles, records, tune-ups, conditions cups (NOT yet seen in game)
+Built from the research doc (docs/research-2026-11-10.md) by five parallel subagents in worktrees plus the
+integrator; every piece has tests against the fake game; nothing has been checked in the real game yet (the owner was
+playing when the checks were due). First v0.8 load: a v0.6/v0.7 save's catalogue mod keys are dropped (logged).
+- **Two-level menu** (owner's rules: never more than two deep, no words you don't need, no scrolling). HOME: the cup
+  in progress (CONTINUE CUP launches its next race; QUIT CUP), the four classes (badge: golds, desc: intro line and
+  the class champion), GARAGE, RESET PROGRESS. No EXIT (B leaves the tab). CUPS: every cup of a class on one page
+  (5 x 4 grid of smaller tiles; `spec.layout` in ui.lua): planet cups, remix cups, conditions cups, the bonus cups
+  and the TITLE RACE. Focusing a cup shows its four races with planet, kind, laps and your records in the info
+  lines; Select starts the cup (the first race launches straight away) or launches the next race of the cup in
+  progress. No cup page, no BACK. GARAGE: VEHICLE, RACER, ABILITY 1-4, TUNE-UP 1-2 tiles; Select cycles the option
+  in place (no pick screens, no DONE). The standings screen is unchanged (NEW RECORD / PERFECT CUP lines added).
+- **Title race** (`title.lua`): 1 v 1 against the class champion at the end of each class - the game's Stadium
+  Showdown against Kestar Bool (6 laps; he copies your build, so he scales with the class). Opens with a trophy in
+  every planet cup at the class (prog.lua). A win makes you the class champion (saved `titles[class]`, badge
+  CHAMPION, "Champion: YOU" on the class tile); a loss can be run again. Never part of a cup, no points. The class
+  leader as the opponent (a two-car grid on a normal event) is not built: needs an in-game check first.
+- **Your racer** (`racer.lua`, config `Racers`): the RACER tile cycles the game's 14 named pilots (Shade = the game's
+  own, first); at launch `CharacterList.Player` is swapped to your pick (an opponent you pick is swapped out of the
+  field for Shade), put back 10 s into the race and at the menu (the save keeps what to put back). Locked while a
+  cup is in progress.
+- **AI profile per class** (`ai.lua`, config `AI`): the rubber band pressure per class (-1 Cadet at 50cc, 0 at
+  100cc, 0.5 at 150cc, 1.2 at 200cc; FreeRace's presets, blended) written to every racer's tune data while the race
+  loads and put back at the menu (the Underground's proven mechanism); plus "honest pacing" from 150cc: the AI config
+  asset's MaxAiSlowdownScale 0.75 -> 1 (the AI no longer slows down when ahead), forced errors halved, at 200cc
+  catch-up x1.15 and perfect starts 90%, written at launch and put back with the build (crash-safe through the
+  save). `AI.Adjust` = a hidden dial on every class; `AI.Enabled = false` switches it off.
+- **Records and marks** (gp.lua): best race time and best lap per track and class (`records`, read from your
+  RaceEventComponent on the existing 2 s sweep), NEW RECORD / NEW BEST LAP on the standings, perfect cups
+  (`perfect`), every cup's final points (`standings`), the class champion = most points across the planet cups
+  (`K.champion`), golds count on the class tile. RESET PROGRESS clears them too.
+- **Tune-ups** (modsel.lua, config `TuneUps`): the mods trimmed to twelve named packages (HEAT SHIELD, ARMOUR, ICE
+  COLD, REDLINER, RAMJET RIDER, AFTERBURNER, BRAWLER, SURVIVOR, SLIPSTREAMER, FIREBUG, ENGINEER, TENACIOUS), two
+  affixes each, protection and plain playstyle only. Slots 0 / 1 / 2 / 2 by class, picked in place. The AI's Elite
+  (Sen Fira, Biddy Blas, Lyren Shok) race with HEAT SHIELD from 150cc and HEAT SHIELD + ARMOUR at 200cc, the
+  Challenger (Goli & 02-R0) with HEAT SHIELD at 200cc: the launch build carries yours plus theirs, at load each
+  racer's race copy (yours included) loses what isn't theirs (`loadout.lua`). `TuneUps.AIExtra = false` = yours only.
+- **Classes and gates** (config / prog.lua): parts 0 / 3 / 7 / 10 (100cc and 150cc were 50 kph apart, 200cc 120 kph
+  above); one intro line per class; the remix cups (and the title race) open from 150cc, 200cc gates nothing.
+- **Conditions cups**: five more cups (night / wet / snow / scorching / mines line-ups from the game's unused
+  12-car events, plus Dhunkri River Circuit and Mineral Loop, never raced before), one per planet, opened by gold
+  in that planet's cup at the class. Laps per race in the config; planet names and flavour lines (`Planets`).
+- Tests: every flow test rewritten for the new screens; new test_records, test_ai, test_ai_restore, test_racer,
+  test_title, (test_conditions). `autotest/race.sh` drives a Grand Prix race with TestAutopilot.
 
 ## v0.7.1 (2026-11-10): the art fitted to the tiles (seen in game)
 - The tile draws its art through the game's own material, which zooms by `ImageScale` (default 0.44, made for the

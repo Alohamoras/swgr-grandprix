@@ -75,7 +75,7 @@ band.
 
 | | 50cc | 100cc | 150cc | 200cc |
 |---|---|---|---|---|
-| Your parts (all 6 slots) | 0 (no upgrades) | 3 | 6 | 10 (maxed) |
+| Your parts (all 6 slots) | 0 (no upgrades) | 3 | 7 (v0.8; was 6) | 10 (maxed) |
 | AI pressure (rubber band) | the game's own (tuning later, maybe) | | | |
 | Abilities (yours and the AI's) | level 1 | level 1 | level 2 | level 3 |
 
@@ -242,3 +242,29 @@ circuits 4-8. First race in game (v0.1): The War Fields, 2 laps, about 2 min 20 
 | 2026-11-09 | Abilities built before the AI difficulty (v0.3); AI difficulty per class becomes v0.4. |
 | 2026-11-10 | Abilities: free pick, any four, one per family (owner). The AI keeps its category fours. Points 15-12-10-...-1 kept ("works well"). 50cc and 100cc open from the start. |
 | 2026-11-09 | Mines only as the Wildcard. The AI follows the four-category rule too. 150cc fully maxed. Quitting a cup forfeits it (easiest to build). |
+
+## 13. v0.8 (2026-11-10): the research round
+Built from docs/research-2026-11-10.md (the owner's 13 questions; the Claude Doc has the reasoning). Not yet seen in
+game. Summary of what changed in the design:
+- **Menu, two levels** (owner's rules: never more than two deep, no words you don't need, no scrolling, simple).
+  HOME = the cup in progress (CONTINUE / QUIT), the four classes, GARAGE, RESET PROGRESS. CUPS (per class) = every
+  cup on one 5 x 4 page: planet / remix / conditions cups, the bonus cups, the TITLE RACE; the focused cup shows its
+  races (planet, kind, laps) and your records; Select starts it. GARAGE = VEHICLE, RACER, ABILITY 1-4, TUNE-UP 1-2,
+  each cycled in place with Select. No cup page, no pick screens, no BACK / EXIT / DONE tiles (B goes back).
+- **The Galactic League frame**: classes = divisions with one intro line each; a season = the five planet cups; the
+  **title race** = the Stadium Showdown against Kestar Bool at every class (he copies your build), open with a trophy
+  in all five planet cups at the class; a win = the class champion (shown on the class tile). The class points
+  leader as the opponent (two-car grid on a normal event) is a later step that needs an in-game check.
+- **Your racer**: any of the game's 14 named pilots (CharacterList.Player swapped at launch and put back). No
+  free-text names, no vehicle cosmetics.
+- **AI profile per class** (ai.lua): the rubber band pressure per class (Cadet at 50cc ... Champion-ish at 200cc),
+  honest pacing from 150cc (the AI no longer slows down when ahead), forced errors halved, catch-up up at 200cc.
+  This is what makes "fail now, come back faster and win" real: at 150cc+ the field no longer waits for you.
+- **Records**: best time and lap per track and class, perfect cups, every cup's final points, golds per class.
+- **Tune-ups**: the mods trimmed to twelve named packages (two affixes each, protection / plain playstyle), slots
+  0 / 1 / 2 / 2; the AI's Elite tier carries HEAT SHIELD from 150cc (+ ARMOUR at 200cc), the Challenger at 200cc.
+- **Classes**: parts 0 / 3 / 7 / 10; remix cups and the title race open from 150cc; 200cc gates nothing (the
+  optional summit).
+- **Conditions cups**: five more (night / wet / snow / scorching / mines line-ups from the game's unused 12-car
+  events, two never-raced tracks), opened by gold in the planet's cup at the class.
+- Dropped for good: vehicle cosmetics, credits / shop, ghosts, a difficulty menu, free-text names.
