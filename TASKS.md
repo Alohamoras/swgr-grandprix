@@ -104,6 +104,16 @@ owner's own play, and the offline half of B7.)
    coming back from a race or backing out must not reopen it. A config switch (`BootToGrandPrix`, on by default).
    Never pick the MULTIPLAYER tab on the way. Check the boot-drop of an old cup run still happens first.
 
+12. Menu review, whole-mod (owner 2026-11-11: "go through all the menus in grand prix and think holistically about
+   them. How they are laid out, how engaging they are to use, think about what would make them better or more
+   engaging"). Walk every screen in order (HOME, CUPS at each class, GARAGE, standings, leave question, title race,
+   results, RESET) with screenshots, then judge them as one flow, not tile by tile: what you see first, how many
+   presses to the next race, what each screen makes you want to do, where the stakes / rival / near misses / goals
+   (docs/PHILOSOPHY.md) show or are missing, consistency of wording, art and layout between screens. Keep the
+   owner's menu rules: never more than two menus deep, no words you don't need, never scroll, simplicity.
+   Output: docs/menu-review-<date>.md with findings and a ranked list of proposals (mockups where useful) for the
+   owner to pick from. Report only; nothing built until the owner chooses. Needs the desktop to Claude alone.
+
 **C. Only the owner can do these (left for you)**
 - The v0.10 rubber band feel at 100cc and 150cc (decides the profile numbers from B2).
 - The pad: B on the standings, the v0.8 menus with a controller.
