@@ -46,6 +46,15 @@ local function fill(d)
   d.run = type(d.run) == 'table' and d.run or nil
   d.best = type(d.best) == 'table' and d.best or {}
   d.cups = tonumber(d.cups) or 0
+  -- v0.8 (records): per class, the best race time and best lap per track
+  --   records[classKey][eventPath] = { time = s, lap = s, at = 'YYYY-MM-DD', vehicle = key }
+  -- (the time only from a finished race; the lap from any race), the cups won with 1st in every race
+  -- (perfect[classKey][cupKey] = true) and every finished cup's final points (standings[classKey][cupKey] =
+  -- { [racerName] = points, YOU = points }: the class champion is worked out from these). Filled when missing,
+  -- so the save version stays 2.
+  d.records = type(d.records) == 'table' and d.records or {}
+  d.perfect = type(d.perfect) == 'table' and d.perfect or {}
+  d.standings = type(d.standings) == 'table' and d.standings or {}
   return d
 end
 
@@ -164,8 +173,9 @@ function K.reset()
   b:write('-- Galactic Grand Prix save\nreturn ', C.serialize(K.data), '\n')
   b:close()
   K.data.best, K.data.run, K.data.cups = {}, nil, 0
+  K.data.records, K.data.perfect, K.data.standings = {}, {}, {}
   K.save()
-  log('progress reset: trophies, best finishes and the cup in progress cleared (backup ' .. name .. ')')
+  log('progress reset: trophies, best finishes, track records, perfect cups, cup standings and the cup in progress cleared (backup ' .. name .. ')')
   return name
 end
 -- the next race of the cup in progress, as a launchable event
@@ -184,13 +194,113 @@ local function names(rows)
   return table.concat(p, ', ')
 end
 
+---------------------------------------------------------------------------------------------------------------------
+-- v0.8: track records, perfect cups, cup standings and the class champion (pure; test/test_records.lua)
+
+-- seconds -> '2:04.31' (nil / not a number -> '-')
+function K.fmtTime(s)
+  s = tonumber(s)
+  if not s or s < 0 then return '-' end
+  local cs = math.floor(s * 100 + 0.5)
+  return ('%d:%02d.%02d'):format(cs // 6000, (cs % 6000) // 100, cs % 100)
+end
+-- the record for a track at a class: { time, lap, at, vehicle } or nil
+function K.recordFor(classKey, path) return ((K.data.records or {})[classKey] or {})[path] end
+-- the final standings of a finished cup at a class: { [name] = points, YOU = points } or nil
+function K.standings(classKey, cupKey) return ((K.data.standings or {})[classKey] or {})[cupKey] end
+-- was the cup won with 1st place in every race at that class?
+function K.perfect(classKey, cupKey) return ((K.data.perfect or {})[classKey] or {})[cupKey] == true end
+-- how many of the cups (every cup in the config: planet, bonus, remix, ...) have a best finish at least `need`
+local function countBest(classKey, need)
+  local n = 0
+  for _, c in ipairs(K.cups()) do
+    local b = K.best(classKey, c.key)
+    if b and b <= need then n = n + 1 end
+  end
+  return n, #K.cups()
+end
+-- golds at a class -> golds, cups in all
+function K.golds(classKey) return countBest(classKey, 1) end
+-- trophies (gold, silver or bronze) at a class -> trophies, cups in all
+function K.trophies(classKey) return countBest(classKey, 3) end
+-- the cup page's record lines, one per race: 'THE WAR FIELDS  2:04.31 / lap 0:58.10' (a lap but no time:
+-- 'no time yet / lap 0:58.10'; nothing: 'no time yet'). cup = a cup (config) or its key.
+-- Returns the lines joined with newlines, and the list of lines.
+function K.recordsText(cup, classKey)
+  if type(cup) ~= 'table' then cup = K.cup(cup) end
+  local lines = {}
+  for _, r in ipairs(cup and cup.races or {}) do
+    local rec = K.recordFor(classKey, r.path)
+    local s = rec and rec.time and K.fmtTime(rec.time) or 'no time yet'
+    if rec and rec.lap then s = s .. ' / lap ' .. K.fmtTime(rec.lap) end
+    lines[#lines + 1] = r.title .. '  ' .. s
+  end
+  return table.concat(lines, '\n'), lines
+end
+-- a planet cup: neither bonus, remix nor conditions (by flag or key)
+local function planetCup(c)
+  if c.bonus or c.remix or c.conditions then return false end
+  local k = c.key or ''
+  return not (k:find('bonus', 1, true) or k:find('remix', 1, true) or k:find('conditions', 1, true))
+end
+-- the class champion: the racer (never you) with the most points over the planet cups finished at that class
+-- -> name, points; nil when no planet cup has been finished there. Ties: the first name in alphabetical order.
+function K.champion(classKey)
+  local sum, any = {}, false
+  for _, c in ipairs(K.cups()) do
+    local st = planetCup(c) and K.standings(classKey, c.key)
+    if st then
+      any = true
+      for name, pts in pairs(st) do
+        if name ~= CU.YOU and type(pts) == 'number' then sum[name] = (sum[name] or 0) + pts end
+      end
+    end
+  end
+  if not any then return nil end
+  local best, bestPts
+  for name, pts in pairs(sum) do
+    if not best or pts > bestPts or (pts == bestPts and name < best) then best, bestPts = name, pts end
+  end
+  return best, bestPts
+end
+
+-- the record entry for a race's track and class, updated from this race: extra = { time, lap } (seconds; the time
+-- only when you finished - race.lua). Fills out.time / lap / newRecord / newLap / oldTime.
+local function updateRecord(ev, out, extra, vehicle)
+  out.time, out.lap = extra.time, extra.lap
+  if not (ev.class and ev.path) then return end
+  local byClass = K.data.records[ev.class] or {}
+  local rec = byClass[ev.path] or {}
+  local changed = false
+  if extra.lap and extra.lap > 0 and (not rec.lap or extra.lap < rec.lap) then
+    rec.lap, out.newLap, changed = extra.lap, true, true
+  end
+  if extra.time and extra.time > 0 and (not rec.time or extra.time < rec.time) then
+    out.oldTime, out.newRecord, changed = rec.time, true, true
+    rec.time = extra.time
+    local c = K.class(ev.class)
+    log(('NEW RECORD %s %s: %s%s'):format(ev.title or ev.path:match('([^/]+)$'), c and c.name or ev.class,
+      K.fmtTime(extra.time), out.oldTime and (' (was ' .. K.fmtTime(out.oldTime) .. ')') or ''))
+  end
+  if changed then
+    rec.at, rec.vehicle = os.date('%Y-%m-%d'), vehicle
+    byClass[ev.path] = rec
+    K.data.records[ev.class] = byClass
+  end
+end
+
 -- a finished race: counted, and added to the cup when it's the cup's next race. field = every racer (race.lua).
--- Returns { ev, pos, rows (this race, with points), cupOver, rank, trophy, run (a copy of the cup's state) }.
-function K.record(ev, pos, field)
+-- extra (v0.8) = { time = your race time in s (nil unless you finished), lap = your best lap in s, top = kph }.
+-- Returns { ev, pos, rows (this race, with points), cupOver, rank, trophy, run (a copy of the cup's state),
+--   time, lap (this race's), newRecord, oldTime, newLap, perfect (at cup end: 1st in every race) }.
+function K.record(ev, pos, field, extra)
+  extra = extra or {}
   K.data.races = K.data.races + 1
-  K.data.last = { title = ev.title, pos = pos, class = ev.class, cup = ev.cup, at = os.date('%Y-%m-%d %H:%M') }
+  K.data.last = { title = ev.title, pos = pos, class = ev.class, cup = ev.cup, at = os.date('%Y-%m-%d %H:%M'),
+    time = extra.time, lap = extra.lap }
   local out = { ev = ev, pos = pos }
   local run = K.data.run
+  updateRecord(ev, out, extra, run and run.vehicle or K.data.vehicle)
   if run and ev.cup == run.cup and ev.race == run.race and ev.class == run.class then
     out.rows = CU.addRace(run, field, cfg.Points)
     log(('cup %s race %d: %s'):format(run.cup, run.race - 1, names(out.rows)))
@@ -203,8 +313,18 @@ function K.record(ev, pos, field)
       local was = K.data.best[run.class][run.cup]
       if rank and (not was or rank < was) then K.data.best[run.class][run.cup] = rank; out.newBest = true end
       K.data.cups = K.data.cups + 1
-      log(('cup over: %s %s - you %s with %d points%s'):format(run.class, run.cup, C.ordinal(rank), pts,
-        out.trophy and (', ' .. out.trophy .. ' trophy') or ''))
+      -- v0.8: the final points of every racer (the class champion is read from these), and a perfect cup
+      local final = {}
+      for k, p in pairs(run.points) do final[k] = p end
+      K.data.standings[run.class] = K.data.standings[run.class] or {}
+      K.data.standings[run.class][run.cup] = final
+      out.perfect = CU.perfect(run)
+      if out.perfect then
+        K.data.perfect[run.class] = K.data.perfect[run.class] or {}
+        K.data.perfect[run.class][run.cup] = true
+      end
+      log(('cup over: %s %s - you %s with %d points%s%s'):format(run.class, run.cup, C.ordinal(rank), pts,
+        out.trophy and (', ' .. out.trophy .. ' trophy') or '', out.perfect and ' - PERFECT CUP' or ''))
       K.data.run = nil
       -- v0.5: what this cup opened (a class, a bonus cup)
       out.unlocked = PR.newlyOpen(before, PR.openSet(K.data))

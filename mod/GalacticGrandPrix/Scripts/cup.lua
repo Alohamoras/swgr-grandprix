@@ -107,6 +107,17 @@ function CU.yourRank(st)
   return nil, 0
 end
 
+-- a perfect cup (v0.8 records): every race of the cup run, and you first in each of them (history rows: place 1, no DNF)
+function CU.perfect(st)
+  if #st.history == 0 or #st.history < (st.races or 0) then return false end
+  for _, rows in ipairs(st.history) do
+    local won = false
+    for _, r in ipairs(rows) do if r.key == CU.YOU and r.place == 1 and not r.dnf then won = true end end
+    if not won then return false end
+  end
+  return true
+end
+
 -- 1 gold, 2 silver, 3 bronze
 CU.TROPHIES = { 'GOLD', 'SILVER', 'BRONZE' }
 function CU.trophy(rank) return rank and CU.TROPHIES[rank] or nil end

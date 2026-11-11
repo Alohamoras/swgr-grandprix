@@ -304,9 +304,19 @@ local function readField(r)
         local kph = alive(pawn) and try(function() local v = pawn:GetVelocity(); return math.sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z) * 0.036 end) or 0
         if kph > r.top then r.top = kph end
         if f.pos then r.lastPos = f.pos end
+        -- v0.8 records: your best lap so far and lap number, from the same component (numbers only, no lookups)
+        local lap = try(function() return tonumber(rec.BestLapTime) end)
+        if lap and lap > 0 and (not r.lap or lap < r.lap) then r.lap = lap end
+        local lapNo = try(function() return tonumber(rec.CurrentLapNumber) end)
+        if lapNo then r.lapNo = lapNo end
         if f.finished and not r.finished then
           r.finished, r.pos = true, f.pos
           log(('finished %s'):format(C.ordinal(f.pos)))
+        end
+        if f.finished and not r.time then
+          -- the race time, there once you've finished (0 until then)
+          local t = try(function() return tonumber(rec.EventFinishTime) end)
+          if t and t > 0 then r.time = t end
         end
       end
       n = n + 1
@@ -446,10 +456,12 @@ function R.watch()
   me.finished = r.finished; me.pos = r.finished and r.pos or me.pos
   -- (v0.3.5: the race is marked over BEFORE anything that could fail)
   R.run = nil
-  local out = K.record(r.ev, r.finished and r.pos or nil, fl)
+  -- (v0.8: the race time only once you finished; the best lap whenever one was read)
+  local out = K.record(r.ev, r.finished and r.pos or nil, fl, { time = r.finished and r.time or nil, lap = r.lap, top = r.top })
   pcall(function()
-    log(('RESULT %s: %s (top speed %d kph, last position seen %s)'):format(r.ev.title,
-      r.finished and C.ordinal(r.pos) or 'DNF', math.floor(r.top), tostring(r.lastPos)))
+    log(('RESULT %s: %s (time %s, best lap %s, top speed %d kph, last position seen %s)'):format(r.ev.title,
+      r.finished and C.ordinal(r.pos) or 'DNF', K.fmtTime(r.finished and r.time or nil), K.fmtTime(r.lap),
+      math.floor(r.top), tostring(r.lastPos)))
   end)
   local okP, line = pcall(perfLine, r)
   log('PERF ' .. r.ev.title .. ': ' .. (okP and line or ('(error: ' .. tostring(line) .. ')')))
