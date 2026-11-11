@@ -5,14 +5,15 @@
 -- v0.3: your four abilities (v0.3.10: free pick, one per family), the AI racers' four, levels by class.
 -- v0.9: cups cannot be resumed (owner): leaving a cup before its last standings loses it.
 -- v0.11: one cup per planet with a race list per class (classic / reverse / conditions), the Galactic Cup, the title race.
+-- v0.16: study mode (test-only): study.lua in the mod folder runs a batch of single races with AI profiles (studymode.lua).
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.15.1'
+local VERSION = '0.16.0'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
 package.path = scripts .. '/?.lua;' .. package.path
-for _, m in ipairs({ 'core', 'config', 'abil', 'cup', 'rival', 'gp', 'loadout', 'ai', 'race', 'ui', 'tab' }) do package.loaded[m] = nil end
+for _, m in ipairs({ 'core', 'config', 'abil', 'cup', 'rival', 'gp', 'loadout', 'ai', 'race', 'ui', 'tab', 'studymode' }) do package.loaded[m] = nil end
 
 local C = require('core')
 C.DIR = scripts:match('^(.*)[/\\][Ss]cripts$') or '.'
@@ -51,6 +52,8 @@ local S = {
 local function msgLine() return { S.message or '', 20, U.GOLD } end
 
 local show -- forward
+local ST = require('studymode') -- v0.16 study mode (test-only; wired below the input)
+local studyEnv
 local startLoop -- forward
 
 ---------------------------------------------------------------------------------------------------------------------
@@ -726,6 +729,14 @@ local function tick()
   local t2 = t1 and R.nowMs() or nil
   if t2 then pcall(R.perfTick, t1 - t0, t2 - t1) end
   if not ok then log('watch error: ' .. tostring(out))
+  elseif out and out.failed and ST.running() then
+    -- v0.16: a study job's race never loaded: logged and skipped (no page opened)
+    ST.onFailed(out.failed)
+  elseif ST.owns(out) then
+    -- v0.16: a study job's result: its log line and CSV row; the page stays shut (the next job follows)
+    S.result = out
+    local okS, errS = pcall(ST.onResult, out)
+    if not okS then log('[study] result not written: ' .. tostring(errS)) end
   elseif out and out.failed then
     -- the launch went nowhere: ours back with a message
     S.message = out.failed == 'timeout' and 'The race never loaded - nothing was recorded.' or nil
@@ -786,6 +797,22 @@ TB.onLeave = function() if S.ui then close('tab left') end end
 TB.onGone = function() S.ui = nil; log('[menu] closed (menu gone)') end
 TB.onFail = function() S.ui = nil end
 
+---------------------------------------------------------------------------------------------------------------------
+-- v0.16: study mode (test-only, studymode.lua): a job's single race at the main menu, no cup. Ready = menu up, no race
+-- of ours, no cup, nothing to put back, no result screen waiting (flags only, no lookups). Our page is closed first
+-- through the usual close path; the launch itself is the title race's (R.launch with the class's parts, your racer,
+-- abilities and tune-ups), with the job's AI profile.
+studyEnv = {
+  ready = function() return R.menuUp() and not R.run and not K.run() and not R.pendingRestore() and not S.openAt end,
+  launch = function(job, ev)
+    if S.ui then close('study job'); return 'wait' end
+    local ok, why = R.launch(ev, ev.class, myVehicle().key, picksFor(ev.class), modsFor(), { ai = job.ai })
+    if ok then S.message = nil end
+    return ok, why
+  end,
+}
+ST.boot()
+
 -- main menu poll (front end only, 200 ms): finds the menu and keeps our tab on it. v0.13.1: the menu's game mode
 -- comes from R.menuPoll (a notification, and a sweep every 2-3 s at most) - it was a lookup every poll (a sweep 5x a
 -- second, plus 10x a second from the tick while our page was up)
@@ -796,6 +823,9 @@ do
     if R.run then return end
     if not R.menuPoll(POLL_MS) then return end
     if not seenMenu then seenMenu = true end
+    -- v0.16: study mode (test-only; nothing but an io.open every 5 s without study.lua)
+    local okS, errS = pcall(ST.poll, POLL_MS, studyEnv)
+    if not okS then log('[study] poll: ' .. tostring(errS)) end
     ticks = ticks + 1
     if tabMode() then
       if ticks % 5 == 1 then

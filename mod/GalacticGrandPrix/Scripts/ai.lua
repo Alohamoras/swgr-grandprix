@@ -55,10 +55,14 @@ end
 
 local function aiCfg() return cfg.AI or {} end
 function A.enabled() return aiCfg().Enabled ~= false end
-function A.profile(classKey) return (aiCfg().Profiles or {})[tostring(classKey)] or {} end
+-- prof (v0.16, study mode): a profile table that replaces the class's for one race (same keys as Profiles[class])
+function A.profile(classKey, prof)
+  if type(prof) == 'table' then return prof end
+  return (aiCfg().Profiles or {})[tostring(classKey)] or {}
+end
 -- the pressure for a class: its profile's + the hidden Adjust knob, kept within -1..2
-function A.pressure(classKey)
-  local p = (A.profile(classKey).pressure or 0) + (tonumber(aiCfg().Adjust) or 0)
+function A.pressure(classKey, prof)
+  local p = (A.profile(classKey, prof).pressure or 0) + (tonumber(aiCfg().Adjust) or 0)
   return math.max(-1, math.min(2, p))
 end
 function A.label(p)
@@ -67,15 +71,15 @@ function A.label(p)
   return 'CHAMPION'
 end
 -- the tune ops a class applies to field f: the pressure's, then the profile's own explicit op (ops[f] = { add, mul })
-function A.classOp(classKey, f)
-  local o = A.opFor(A.pressure(classKey), f)
-  local x = (A.profile(classKey).ops or {})[f]
+function A.classOp(classKey, f, prof)
+  local o = A.opFor(A.pressure(classKey, prof), f)
+  local x = (A.profile(classKey, prof).ops or {})[f]
   if type(x) == 'table' then return { o[1] * (x[2] or 1) + (x[1] or 0), o[2] * (x[2] or 1) } end
   return o
 end
 -- a tune value through a class's ops (Multipliers never below 0)
-function A.tuneValue(classKey, f, v)
-  local o = A.classOp(classKey, f)
+function A.tuneValue(classKey, f, v, prof)
+  local o = A.classOp(classKey, f, prof)
   local nv = v * o[2] + o[1]
   if f:find('Multiplier$') then nv = math.max(0, nv) end
   return nv
@@ -112,8 +116,8 @@ local function writeNum(obj, path, v)
 end
 
 -- the writes a profile asks for: field path -> { set = value } and / or { mul = factor } (set first, then mul)
-function A.plan(classKey)
-  local prof = A.profile(classKey)
+function A.plan(classKey, profOverride)
+  local prof = A.profile(classKey, profOverride)
   local w = {}
   local function want(path, t)
     w[path] = w[path] or {}
@@ -145,9 +149,9 @@ function A.pending() return K.data ~= nil and next(restores()) ~= nil end
 
 -- at launch (the main menu): the class's writes on the AI config asset, the originals into the save first.
 -- Returns the number of fields written (0 = nothing to do or the asset wasn't found).
-function A.launch(classKey)
+function A.launch(classKey, prof)
   if not A.enabled() then return 0 end
-  local plan = A.plan(classKey)
+  local plan = A.plan(classKey, prof)
   if next(plan) == nil then return 0 end
   local obj = C.asset(A.CONFIG)
   if not alive(obj) then log('[ai] AI config asset not found: ' .. A.CONFIG); return 0 end
@@ -179,7 +183,7 @@ function A.launch(classKey)
       end
     end
   end
-  log(('[ai] class %s: AI config (%s) %s'):format(tostring(classKey), A.CONFIG:match('([^/]+)$'), table.concat(parts, ', ')))
+  log(('[ai] class %s%s: AI config (%s) %s'):format(tostring(classKey), prof and ' (study profile)' or '', A.CONFIG:match('([^/]+)$'), table.concat(parts, ', ')))
   return n
 end
 
@@ -214,13 +218,13 @@ end
 -- the rubber band on the race's tune objects: begin at launch, apply from race.watch while the race loads and for
 -- 3 s after the start, restore at the menu
 
-function A.begin(classKey)
+function A.begin(classKey, prof)
   if not A.enabled() then return nil end
-  local p = A.pressure(classKey)
+  local p = A.pressure(classKey, prof)
   local adj = tonumber(aiCfg().Adjust) or 0
-  log(('[ai] class %s: pressure %.2f (%s)%s'):format(tostring(classKey), p, A.label(p),
+  log(('[ai] class %s%s: pressure %.2f (%s)%s'):format(tostring(classKey), prof and ' (study profile)' or '', p, A.label(p),
     adj ~= 0 and (' - Adjust %+g'):format(adj) or ''))
-  return { class = classKey, p = p, at = C.clock, done = {}, orig = {}, last = -1e9, logged = 0 }
+  return { class = classKey, prof = prof, p = p, at = C.clock, done = {}, orig = {}, last = -1e9, logged = 0 }
 end
 
 -- (a sweep every 500 ms: never for a whole race - if the start is never seen, it stops after GIVE_UP_MS anyway)
@@ -246,7 +250,7 @@ function A.apply(st, started, sinceStart)
         local v = try(function() return conf[f] end)
         if type(v) == 'number' then
           rec.vals[f] = v
-          local nv = A.tuneValue(st.class, f, v)
+          local nv = A.tuneValue(st.class, f, v, st.prof)
           try(function() conf[f] = nv end)
           was[#was + 1] = ('%s=%g'):format(f:gsub('^Ai', ''), v)
           local back = try(function() return conf[f] end)
