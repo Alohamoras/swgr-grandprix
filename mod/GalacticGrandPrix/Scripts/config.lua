@@ -42,6 +42,13 @@ return {
     -- Points by place in each race (1st first); a racer who doesn't finish scores 0
     Points = { 15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 },
 
+    -- The title race (v0.8, title.lua): one 1 v 1 at the end of each class against the class champion. The game's
+    -- Stadium Showdown against Kestar Bool (6 laps, about 5 minutes; he copies your build, so he scales with the
+    -- class). Opens with a trophy in every planet cup at the class. Fallback = the champion named on the class tile
+    -- before any cup is finished there (the lore); after that the racer with most points across the planet cups.
+    Title = { On = true, Event = EV .. 'Whippet/FINALBOSS/EVT_WHP_SHORTBOSS_FAIR', Name = 'TITLE RACE', Opponent = 'Kestar Bool',
+        Fallback = { ['50'] = 'Griff Halloran', ['100'] = 'Lyren Shok', ['150'] = 'Biddy Blas', ['200'] = 'Kestar Bool' } },
+
     -- Cups of 4 races (full 12-car grids; no knockouts or 1 v 1s). key is used in the save: never change it.
     Cups = {
         { key = 'jakku', name = 'JAKKU CUP', art = 'T_UI_FE_Tile_01', races = {

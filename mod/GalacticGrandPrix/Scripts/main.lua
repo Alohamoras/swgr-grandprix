@@ -161,13 +161,39 @@ local function classStats(classKey)
   return golds, trophies, total
 end
 local RC = (function() local ok, m = pcall(require, 'racer'); return ok and m or nil end)()
+local TI = require('title')
 local function racerName() return RC and RC.displayName and RC.displayName() or nil end
 local function levelNow() return AB.levelFor(K.data.class or (K.classes()[1] or {}).key) end
 -- the class's champion line (the title races; the racer with most points across its planet cups)
 local function championLine(classKey)
-  local name = K.champion and K.champion(classKey)
-  if name then return 'Champion: ' .. tostring(name):upper() end
-  return nil
+  if not TI.on() then return nil end
+  local name = TI.champion(classKey)
+  return name and ('Champion: ' .. tostring(name):upper()) or nil
+end
+-- the title race tile on the cups page: locked until a trophy in every planet cup at the class; won = CHAMPION
+local function titleTile(cls)
+  if not (TI.on() and TI.event(cls.key)) then return nil end
+  local st = TI.status(cls.key)
+  local open, why = true, nil
+  if PR.titleOpen then open, why = PR.titleOpen(K.data, cls.key) end
+  local vs = TI.opponent(cls.key)
+  if not open then
+    return { title = 'TITLE RACE', art = ART.SHOWDOWN, badge = 'LOCKED', disabled = true, desc = 'To open: ' .. why,
+      info = 'The title race: 1 v 1 against the champion, ' .. vs .. '.  To open: ' .. why,
+      act = function() S.message = 'The title race is locked. To open it: ' .. why; return true end }
+  end
+  return { title = 'TITLE RACE', art = ART.SHOWDOWN, badge = st and st.won and 'CHAMPION' or ('VS ' .. vs:upper()),
+    desc = (st and st.won) and ('You hold the title\n(defend it: select)') or ('1 v 1 against ' .. vs .. '\nSelect to race'),
+    info = ('1 v 1, 6 laps, no points: win and you are the %s champion.%s'):format(cls.name, st and (('  Tries: %d.'):format(st.tries or 0)) or ''),
+    act = function()
+      local run = K.run()
+      if run then S.message = 'Finish or quit the cup in progress first'; return true end
+      local ev = TI.event(cls.key)
+      local ok, why2 = R.launch(ev, cls.key, K.data.vehicle, picksFor(cls.key), modsFor())
+      if ok then S.message = nil; return 'launched' end
+      S.message = why2
+      return true
+    end }
 end
 
 SCREENS.home = function()
@@ -301,6 +327,8 @@ SCREENS.cups = function()
         end }
     end
   end
+  local tt = titleTile(cls)
+  if tt then items[#items + 1] = tt end
   local veh = K.vehicle(K.data.vehicle)
   return { key = 'cups', title = cls.name:upper() .. '  -  ' .. (cls.blurb or 'CUPS'):upper(),
     lines = { { ('%s, every part at level %d, abilities level %d.  Select a cup to start it: the first race launches straight away.'):format(
@@ -390,6 +418,24 @@ SCREENS.offline = function()
       { 'Leave the party / stop matchmaking, then come back to this tab.', 18 } },
     items = { { title = 'BACK', art = 'T_UI_FE_Tile_03', desc = 'Back to the main menu', act = function() return 'close' end } },
   }
+end
+
+-- a title race's result: no points, just the title
+SCREENS.titleResult = function()
+  local r = S.result or {}
+  local cls = K.class(r.ev and r.ev.class) or { name = '?' }
+  local lines = {}
+  if r.won then
+    lines[#lines + 1] = { ('%s CHAMPION'):format(cls.name:upper()), 44, U.GOLD }
+    lines[#lines + 1] = { ('You beat %s in the title race.'):format(r.vs or 'the champion'), 22, U.WHITE }
+  else
+    lines[#lines + 1] = { 'THE TITLE STAYS WITH ' .. tostring(r.vs or 'the champion'):upper(), 36, U.GREY }
+    lines[#lines + 1] = { ('You finished %s.  Come back faster: the title race can be run again.'):format(r.pos and ordinal(r.pos) or 'without finishing'), 22, U.WHITE }
+  end
+  if r.time and K.fmtTime then lines[#lines + 1] = { ('Your time %s'):format(K.fmtTime(r.time)) .. (r.lap and ('   -   best lap ' .. K.fmtTime(r.lap)) or ''), 18 } end
+  return { key = 'titleResult', title = 'TITLE RACE', lines = lines, backdrop = ART.BACKDROP,
+    items = { { title = 'CONTINUE', art = ART.SHOWDOWN, desc = 'Back to the cups', icon = r.won and ART.medal(1) or nil, iconColor = r.won and ART.medalColor(1) or nil,
+      act = function() return go('cups') end } } }
 end
 
 SCREENS.standings = function()
@@ -524,7 +570,7 @@ end
 ---------------------------------------------------------------------------------------------------------------------
 -- input
 
-local BACK = { cups = 'home', garage = 'home', standings = 'cups' }
+local BACK = { cups = 'home', garage = 'home', standings = 'cups', titleResult = 'cups' }
 local function handle(name)
   if name == 'menu' then
     if S.ui then close('menu key') else S.message = nil; S.screen = 'home'; show() end
@@ -640,15 +686,16 @@ local function tick()
   elseif out then
     S.result, S.openAt = out, C.clock
     -- cover the main menu while it's rebuilt, so the race results lead straight to the ranking (config HideMenuFlash)
-    if cfg.HideMenuFlash ~= false and out.run then pcall(U.cover, true) end
+    if cfg.HideMenuFlash ~= false and (out.run or out.titleRace) then pcall(U.cover, true) end
   end
   if S.openAt and C.clock >= S.openAt and not R.run then
     -- the menu is rebuilt after a race: wait for our tab on it, then open the result in the tab
     if TB.ready() then
       S.openAt = nil; S.message = nil
       local run = S.result and S.result.run
-      if run then S.class, S.cup = run.class, run.cup end
-      S.screen = run and 'standings' or 'cups'
+      if run then S.class, S.cup = run.class, run.cup
+      elseif S.result and S.result.titleRace and S.result.ev then S.class = S.result.ev.class end
+      S.screen = run and 'standings' or (S.result and S.result.titleRace) and 'titleResult' or 'cups'
       show()
       pcall(U.cover, false)
     end

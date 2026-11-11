@@ -56,6 +56,7 @@ local function fill(d)
   d.records = type(d.records) == 'table' and d.records or {}
   d.perfect = type(d.perfect) == 'table' and d.perfect or {}
   d.standings = type(d.standings) == 'table' and d.standings or {}
+  d.titles = type(d.titles) == 'table' and d.titles or {} -- v0.8: the title races won per class (title.lua)
   return d
 end
 
@@ -302,6 +303,13 @@ function K.record(ev, pos, field, extra)
   local out = { ev = ev, pos = pos }
   local run = K.data.run
   updateRecord(ev, out, extra, run and run.vehicle or K.data.vehicle)
+  -- v0.8: a title race (1 v 1 against the class champion) is never part of a cup
+  if ev.titleRace then
+    local okT, res = pcall(function() return require('title').record(ev, pos) end)
+    if okT then for k, v in pairs(res) do out[k] = v end else log('title race not recorded: ' .. tostring(res)) end
+    K.save()
+    return out
+  end
   if run and ev.cup == run.cup and ev.race == run.race and ev.class == run.class then
     out.rows = CU.addRace(run, field, cfg.Points)
     log(('cup %s race %d: %s'):format(run.cup, run.race - 1, names(out.rows)))
