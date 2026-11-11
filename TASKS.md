@@ -90,6 +90,14 @@ owner's own play, and the offline half of B7.)
    the next race launches by itself after a short countdown, the menu hidden under the cover. Report only.
    Needs the desktop to Claude alone (the owner away).
 
+10. AI tuning study (owner 2026-11-11: "run a bunch of races with autopilot at different CC's ... tune the AI so it's
+   challenging and consistent and we can lower the rubber band value as much as possible"). The autopilot is a
+   fixed benchmark driver (it beats today's AI by 3-13 s); the owner's records map its pace to theirs (The War
+   Fields 150cc: owner 1:42.39, autopilot 1:43.35 on the dawn version). Batches of races on a few fixed tracks per
+   class, one AI setting changed at a time (pressure, catch-up, slowdown, forced errors, power level), gap log per
+   race; plan in docs/ai-tuning-research-2026-11-11.md. Output: a table of gap vs setting and proposed profiles
+   with as little catch-up as possible. Needs the desktop to Claude alone.
+
 **C. Only the owner can do these (left for you)**
 - The v0.10 rubber band feel at 100cc and 150cc (decides the profile numbers from B2).
 - The pad: B on the standings, the v0.8 menus with a controller.
@@ -203,8 +211,8 @@ records-to-be, abilities and vehicle are kept.
 - [x] (moot in v0.11: folded into the planet cups' 150cc lists; their events are checked by queue item B3) **Conditions cups:** open with gold in the planet cup; every event launches (paths were checked against the
       event dump, not in game); art (the other vehicle's poster).
 - [x] (Claude: 653 kph at parts 7 on The War Fields; was ~620 at parts 6) **Class spacing.**
-- [ ] Later (research spikes): the class leader as the title-race opponent (two-car grid + Opponents list); bot
-      rename; per-racer pacing; podracer launch; the rival 1 v 1 ladder.
+- [ ] Later (research spikes): the class leader as the title-race opponent (two-car grid + Opponents list); (bot
+      rename dropped by the owner 2026-11-11); per-racer pacing; podracer launch; the rival 1 v 1 ladder.
 
 ## 0. Repo and design (2026-11-09)
 - [x] Repo, DESIGN.md, this plan.
@@ -386,7 +394,7 @@ records-to-be, abilities and vehicle are kept.
 ## 8. Maybe (moved to the end by the owner, 2026-11-09: might not be needed)
 - [x] (built in v0.8: ai.lua profiles per class; tuning is v1.0) **AI difficulty per class:** AI pressure (`ai.lua`, the rubber band) on top of the class's part levels.
       Owner after the first cups: "difficult but fun" as it is.
-- [ ] **No crash limit:** pick the working control (GPRecon `health=def|state|tune`), set before each race, put back
+- [-] (dropped by the owner 2026-11-11) **No crash limit:** pick the working control (GPRecon `health=def|state|tune`), set before each race, put back
       at the menu.
 
 ## 9. v1.0 Tuning
