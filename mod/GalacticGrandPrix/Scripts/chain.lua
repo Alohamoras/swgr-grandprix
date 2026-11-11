@@ -3,20 +3,32 @@
 -- results screen WBP_SimpleRaceResultsScreen_C on its canvas Default_Results (CONTINUE's parent) shows over it; (b) the
 -- next event written into the active stage of the race recipe (AuthoredEvent, TrackDef, LapCount, trackConditions) on
 -- both EventRecipeSubsystem.ActiveRecipe and the race state's EventRecipe, then BP_RacingGameMode_C:RequestResetRace()
--- -> a new race world with that event in 0.5 s. Proven on one planet only (config ChainRaces.CrossPlanet).
+-- -> a new race world with that event in 0.5 s - BUT only within the same track world (Loop_A FWD -> Loop_A SHORT_02).
+-- v0.19.0 in game (2026-11-11 17:35, Jakku 150cc): Mastiff/Loop_A -> Mastiff/P2P_A by the reset hung on the black
+-- PLEASE WAIT screen for good (`field: 1 racers`, Escape dead, game killed): the reset re-uses the loaded map.
 --
--- The flow, after a cup race that isn't the cup's last (race.lua R.watch calls CH.tick once you have finished):
---   1. CH.plan: chain this race? (ChainRaces.On, a cup race with a next race, same planet unless CrossPlanet). If not,
---      nothing happens in the race world: the main menu records the race and shows the standings, as before.
+-- v0.19.1: NEXT RACE goes VIA THE MENU by default. The flow, after a cup race that isn't the cup's last (race.lua
+-- R.watch calls CH.tick once you have finished):
+--   1. CH.plan: chain this race? (ChainRaces.On, a cup race with a next race - any cup, the Galactic Cup too). The route:
+--      'menu' (default), or 'reset' when ChainRaces.Reset = true AND the next race is in the same layout folder
+--      ('Mastiff/Loop_A', CH.layout). Not chaining: nothing in the race world, the main menu as before.
 --   2. Look for the results screen (one sweep every LOOK_MS, up to ResultsWaitS). Found: the race is recorded right
---      then by race.lua's own recording (K.record: points, records, rival, near misses - the same call the main menu
---      makes; the main menu then hands back this result instead of recording again), and our panel goes on the
---      screen: the standings (standings.lua, the main menu page's own lines and table) and a prompt, plus a NEXT RACE
---      button made from CONTINUE's own class beside CONTINUE (FreeRace's RETRY button does the same), focused.
---   3. NEXT RACE (the button's selected state, polled; or ChainRaces.Key): race.lua R.chainLaunch - the same set-up as
---      a launch from the menu (race.lua prepare), the recipe written (CH.writeRecipe, read back), RequestResetRace.
---   4. CONTINUE (or the game moving on by itself) instead: the main menu, and today's standings page there.
--- Every failure falls back to the main menu and today's standings page (CH.fallback), with a `[chain]` log line.
+--      then by race.lua's own recording (K.record - the main menu then hands back this result instead of recording
+--      again), and our panel goes on the screen: the standings (standings.lua) on an opaque dark box (the game's own
+--      table hidden under it), a prompt, and a NEXT RACE button of CONTINUE's own class left of CONTINUE, focused.
+--   3. NEXT RACE (the button's selected state, polled; or ChainRaces.Key):
+--      'menu':  CH.via is set (plain values: cup, class, race number) and the results go to the main menu the game's
+--               own way (CH.leave: the screen's CONTINUE click, else RequestReturnToMenus). At the menu main.lua sees
+--               CH.via: the cover goes up instead of the standings page, and once the menu has settled (the study
+--               mode's rules: menu up, no race, put-backs done, settled ChainRaces.MenuSettleS) the next race launches
+--               through R.launch, exactly as NEXT RACE on the standings page would. A failed launch: the cover off,
+--               today's standings page.
+--      'reset': race.lua R.chainLaunch (the B9 route: the recipe written, read back, RequestResetRace), watched: no new
+--               race world in LoadTimeoutS, or no AI racer / no start WatchdogS after the reset -> RequestReturnToMenus
+--               and CH.via set, so the via-the-menu flow carries the cup on. Proven for Loop_A -> Loop_A only.
+--   4. CONTINUE (or the game moving on by itself) instead: the main menu, and today's standings page (CH.via unset).
+-- Every failure after NEXT RACE carries the cup on via the menu (CH.fallback with via = true); every other one ends
+-- at today's standings page; each with a `[chain]` log line.
 --
 -- House rules: no hooks (the key bind only sets a flag; the button is read by polling), every engine call guarded,
 -- nothing kept between ticks but C.ref (path + address) of the screen and our button, looked up again (a sweep, at most
@@ -35,12 +47,22 @@ CH.CONTINUE_EVENT = 'BndEvt__WBP_SimpleRaceResultsScreen_WBP_Common_Btn_K2Node_C
 local LOOK_MS = 300   -- the results screen looked for this often once you have finished (a sweep each time)
 local POLL_MS = 200   -- our NEXT RACE button read this often while the panel is up (a lookup each time)
 local FOCUS_MS = 1500 -- focus given back to NEXT RACE for this long after it is added (the screen may take it once)
-local GAP = 40        -- px between NEXT RACE and CONTINUE
+local GAP = 80        -- canvas units between NEXT RACE and CONTINUE (v0.19.1: was 40, and they overlapped in game)
+local MIN_BTN_W = 420 -- the least width taken for a button when its own can't be read
 
 local function conf() return type(cfg.ChainRaces) == 'table' and cfg.ChainRaces or {} end
 function CH.on() return conf().On == true end
-function CH.crossPlanet() return conf().CrossPlanet == true end
+-- v0.19.1: the reset route only on request (proven for Loop_A -> Loop_A only); CrossPlanet is gone (the via-the-menu
+-- flow works for every cup; the reset route needs the same layout folder, which is always the same planet)
+function CH.resetOn() return conf().Reset == true end
 function CH.loadTimeoutMs() return (tonumber(conf().LoadTimeoutS) or 15) * 1000 end
+function CH.watchdogMs() return (tonumber(conf().WatchdogS) or 20) * 1000 end
+function CH.settleMs() return (tonumber(conf().MenuSettleS) or 5) * 1000 end
+
+-- v0.19.1: the via-the-menu request: { cup, class, race = the race number to launch, title, at = C.clock } (plain
+-- values only), set by NEXT RACE (route 'menu') or a failure of the reset route; read and cleared by main.lua at the
+-- main menu. nil = CONTINUE's meaning: today's standings page.
+CH.via = nil
 local function resultsWaitMs() return (tonumber(conf().ResultsWaitS) or 90) * 1000 end
 
 -- the launch arguments of the cup's next race: class, vehicle, picks, mods (main.lua sets this to the same values its
@@ -48,16 +70,24 @@ local function resultsWaitMs() return (tonumber(conf().ResultsWaitS) or 90) * 10
 function CH.args(run) return run.class, run.vehicle, run.picks, run.mods end
 
 ---------------------------------------------------------------------------------------------------------------------
--- same planet: the codename folder right after /Planets/ in the event path ('.../Planets/Mastiff/Loop_A/EVT_...' ->
--- 'Mastiff'), compared without case (the paths mix cases: 'Husky/LOOP_A'). Unknown = not the same.
+-- same layout (v0.19.1): the planet's codename folder and the folder after it in the event path
+-- ('.../Planets/Mastiff/Loop_A/EVT_...' -> 'Mastiff/Loop_A'), compared without case (the paths mix cases:
+-- 'Husky/LOOP_A'). Unknown = not the same. The reset route only re-uses the loaded track world: a race in another
+-- layout folder (another map) never loads (v0.19.0 in game).
 
 function CH.planet(path) return type(path) == 'string' and path:match('/Planets/([^/]+)/') or nil end
-function CH.samePlanet(a, b)
-  local x, y = CH.planet(a), CH.planet(b)
+function CH.layout(path)
+  if type(path) ~= 'string' then return nil end
+  local p, l = path:match('/Planets/([^/]+)/([^/]+)/')
+  return p and (p .. '/' .. l) or nil
+end
+function CH.sameLayout(a, b)
+  local x, y = CH.layout(a), CH.layout(b)
   return x ~= nil and y ~= nil and x:lower() == y:lower()
 end
 
--- chain this race? -> { want = true, next = the next race (config entry) } or { why = the reason not (for the log) }.
+-- chain this race? -> { want = true, next = the next race (config entry), route = 'menu' | 'reset', how = text } or
+-- { why = the reason not (for the log) }.
 -- r = race.lua's run (r.ev = the race just finished)
 function CH.plan(r)
   -- (off: nothing at all in the race world, not even a log line - today's flow)
@@ -68,11 +98,12 @@ function CH.plan(r)
   end
   local nxt = K.races(K.cup(run.cup), run.class)[(ev.race or 0) + 1]
   if not nxt then return { why = ('race %d of %d: the cup result at the main menu'):format(ev.race or 0, run.races) } end
-  if not CH.samePlanet(ev.path, nxt.path) and not CH.crossPlanet() then
-    return { why = ('the next race is on another planet (%s -> %s) and CrossPlanet is off: the standings at the main menu'):format(
-      tostring(CH.planet(ev.path)), tostring(CH.planet(nxt.path))) }
+  if CH.resetOn() and CH.sameLayout(ev.path, nxt.path) then
+    return { want = true, next = nxt, route = 'reset', how = ('same layout %s, Reset on: NEXT RACE by the reset'):format(tostring(CH.layout(nxt.path))) }
   end
-  return { want = true, next = nxt }
+  local how = 'NEXT RACE via the menu'
+  if CH.resetOn() then how = ('%s -> %s is another layout: NEXT RACE via the menu'):format(tostring(CH.layout(ev.path)), tostring(CH.layout(nxt.path))) end
+  return { want = true, next = nxt, route = 'menu', how = how }
 end
 
 ---------------------------------------------------------------------------------------------------------------------
@@ -205,9 +236,23 @@ local function setLabel(b, s)
   try(function() b:UpdateText() end)
 end
 
+-- a widget's width on the canvas: the largest of its desired size (laid out by now: the screen has been up a moment),
+-- its width override and its slot's size; nil when none can be read
+local function widthOf(w, slot)
+  local best
+  local function take(v) v = tonumber(v); if v and v > 0 and (not best or v > best) then best = v end end
+  take(try(function() return w:GetDesiredSize().X end))
+  take(try(function() return w.WidthOverride end))
+  take(slot and try(function() return slot:GetSize().X end))
+  return best
+end
+CH.widthOf = widthOf -- (tests)
+
 -- NEXT RACE beside CONTINUE: a button of CONTINUE's own class (so it looks and takes the pad like it), toggleable so a
--- press (pad A, Enter, a click) flips its selected state through the game's own code; the two placed either side of
--- the centre. Returns the button or nil + why.
+-- press (pad A, Enter, a click) flips its selected state through the game's own code. v0.19.1: side by side, never
+-- overlapping (v0.19.0's 300-unit guess overlapped in game): both centred on their own half (alignment X 0.5), NEXT
+-- RACE left of where CONTINUE was, CONTINUE right of it, GAP apart, each by the wider of the two (NEXT RACE's longer
+-- label: its width taken as CONTINUE's x 1.2, at least MIN_BTN_W). Returns the button (and the layout text) or nil + why.
 local function addButton(cont, host)
   local pc, lib = C.localPC(), C.lib('WidgetBlueprintLibrary', 'UMG')
   local cls = try(function() return cont:GetClass() end)
@@ -222,18 +267,42 @@ local function addButton(cont, host)
   if not (alive(slot) and alive(cs)) then try(function() btn:RemoveFromParent() end); return nil, 'the button was not placed' end
   local a = try(function() local x = cs:GetAnchors(); return { Minimum = v2(x.Minimum), Maximum = v2(x.Maximum) } end)
   if a and a.Minimum and a.Maximum then try(function() slot:SetAnchors(a) end) end
-  local al = try(function() return v2(cs:GetAlignment()) end)
-  if al then try(function() slot:SetAlignment(al) end) end
+  local al = try(function() return v2(cs:GetAlignment()) end) or { X = 0.5, Y = 1 }
+  local ctr = { X = 0.5, Y = al.Y }
+  try(function() slot:SetAlignment(ctr) end)
   try(function() slot:SetAutoSize(cs:GetAutoSize()) end)
   try(function() slot:SetZOrder(cs:GetZOrder()) end)
-  local half = ((tonumber(try(function() return cont.WidthOverride end)) or 300) + GAP) / 2
+  local P = conf().Panel or {}
+  local gap = tonumber(P.ButtonGap) or GAP
+  local wc = math.max(widthOf(cont, cs) or 0, MIN_BTN_W)
+  local w = math.max(wc * 1.2, tonumber(P.ButtonWidth) or 0)
   local pos = try(function() return v2(cs:GetPosition()) end) or { X = 0, Y = -76 }
-  try(function() slot:SetPosition({ X = pos.X - half, Y = pos.Y }) end)
-  try(function() cs:SetPosition({ X = pos.X + half, Y = pos.Y }) end)
+  -- CONTINUE's centre where it was (by its own alignment), then the two centres either side of it
+  local mid = pos.X + (0.5 - (al.X or 0.5)) * wc
+  local half = w / 2 + gap / 2
+  try(function() cs:SetAlignment(ctr) end)
+  try(function() slot:SetPosition({ X = mid - half, Y = pos.Y }) end)
+  try(function() cs:SetPosition({ X = mid + half, Y = pos.Y }) end)
+  -- (and a fixed width each, so neither grows into the other)
+  try(function() btn.WidthOverride = w end)
   try(function() btn:SetNavigationRuleExplicit(1, cont) end)  -- EUINavigation Right
   try(function() cont:SetNavigationRuleExplicit(0, btn) end)  -- Left
   require('ui').grabFocus(btn, pc)
-  return btn
+  return btn, ('NEXT RACE at x %d, CONTINUE at x %d (centres; CONTINUE %d wide, slot %d, gap %d)'):format(math.floor(mid - half),
+    math.floor(mid + half), math.floor(wc), math.floor(w), math.floor(gap))
+end
+
+-- v0.19.1: the game's own results table (WBP_Simple_RaceResultsPanel_C, RaceFlowSpike B9: the mode rules'
+-- ResultsTableWidget) hidden while our panel is over it (it showed through in v0.19.0). One sweep, once; it goes with
+-- the results screen. Returns how many were hidden.
+CH.GAME_TABLE = 'WBP_Simple_RaceResultsPanel_C'
+local function hideGameTable()
+  if (conf().Panel or {}).HideGameTable == false then return 0 end
+  local n = 0
+  for _, t in ipairs(C.find(CH.GAME_TABLE)) do
+    if try(function() return t:IsVisible() end) == true and pcall(function() t:SetVisibility(2) end) then n = n + 1 end -- Hidden
+  end
+  return n
 end
 
 -- the standings panel (and NEXT RACE) on the results screen w, for the recorded result out. Returns ok, text for the log.
@@ -258,34 +327,68 @@ function CH.addPanel(w, out, st)
   try(function() slot:SetPosition({ X = 0, Y = tonumber(P.Y) or 330 }) end)
   try(function() slot:SetZOrder(50) end)
   st.panel = true
+  local hidden = hideGameTable()
   local btn, bwhy = addButton(cont, host)
   st.btn = btn and C.ref(btn) or nil
   local rows = spec.table and #spec.table.rows or 0
-  return true, ('on %s (%s): %d lines, %d table rows; %s'):format(C.idname(host), C.clsname(host), #spec.lines, rows,
-    btn and 'NEXT RACE button beside CONTINUE, focused' or ('no NEXT RACE button (' .. tostring(bwhy) .. '): key ' .. tostring(conf().Key or '-') .. ' only'))
+  return true, ('on %s (%s): %d lines, %d table rows, opaque; the game\'s table %s; %s'):format(C.idname(host), C.clsname(host), #spec.lines, rows,
+    hidden > 0 and ('hidden (' .. hidden .. ')') or 'not found (left as it is)',
+    btn and ('NEXT RACE button left of CONTINUE, focused: ' .. bwhy) or ('no NEXT RACE button (' .. tostring(bwhy) .. '): key ' .. tostring(conf().Key or '-') .. ' only'))
 end
 
 ---------------------------------------------------------------------------------------------------------------------
--- the way out when something fails: the game's own CONTINUE (to the main menu, where race.lua hands back the recorded
--- result and today's standings page shows). r = the run whose screen / race state to use.
+-- leaving the race world for the main menu the game's own way: the results screen's CONTINUE (its bound click event,
+-- as FreeRace's retry.lua presses it), else RacingGameMode:RequestReturnToMenus(). r = the run whose screen / race
+-- state to use. Returns true when one of them was called.
 
-function CH.fallback(r, why)
-  log('[chain] fallback: ' .. tostring(why) .. ' - CONTINUE to the main menu, the standings there')
-  local w = r.screenRef and C.deref(r.screenRef) or nil
+function CH.leave(r, noScreen)
+  local w = (not noScreen and r.screenRef) and C.deref(r.screenRef) or nil
   local cont = w and try(function() return w.WBP_Common_Btn_Continue end)
   if w and alive(cont) and pcall(function() w[CH.CONTINUE_EVENT](w, cont) end) then
-    log('[chain] fallback: the results screen\'s CONTINUE pressed')
+    log('[chain] the results screen\'s CONTINUE pressed')
     return true
   end
   local gs = r.gsRef and C.deref(r.gsRef) or nil
   local gm = gs and try(function() return gs.AuthorityGameMode end)
   if not alive(gm) then gm = C.first('RacingGameMode') end
   if alive(gm) and pcall(function() gm:RequestReturnToMenus() end) then
-    log('[chain] fallback: RacingGameMode:RequestReturnToMenus() called')
+    log('[chain] RacingGameMode:RequestReturnToMenus() called')
     return true
   end
-  log('[chain] fallback: could not leave for the main menu by itself - press CONTINUE (or quit from the pause menu)')
+  log('[chain] could not leave for the main menu by itself - press CONTINUE (or quit from the pause menu)')
   return false
+end
+
+-- v0.19.1: the via-the-menu request for the cup's next race (plain values). Returns it, or nil (no cup race next).
+function CH.setVia()
+  local run, nxt = K.run(), K.nextRace()
+  if not (run and nxt) then CH.via = nil; return nil end
+  CH.via = { cup = run.cup, class = run.class, race = nxt.race, races = run.races, title = nxt.title, at = C.clock }
+  return CH.via
+end
+
+-- NEXT RACE by the menu (route 'menu'): the request set, then the results to the main menu (main.lua does the rest)
+function CH.goViaMenu(r)
+  local v = CH.setVia()
+  if not v then log('[chain] via the menu: no cup race to run next - the main menu as usual'); return CH.leave(r) end
+  log(('[chain] via the menu: race %d of %d (%s) launches from the main menu under the cover - leaving the results now'):format(
+    v.race, v.races or 4, v.title))
+  if CH.leave(r) then return true end
+  CH.via = nil
+  log('[chain] via the menu: dropped (the results screen could not be left) - CONTINUE goes to the standings page')
+  return false
+end
+
+-- the way out when something fails: to the main menu. via = true (a failure after NEXT RACE): the next race then
+-- launches from the menu (CH.via); else today's standings page there. noScreen: RequestReturnToMenus straight away
+-- (the reset's watchdog: the results screen is gone).
+function CH.fallback(r, why, via, noScreen)
+  log('[chain] fallback: ' .. tostring(why) .. (via and ' - to the main menu, the next race from there (via the menu)'
+    or ' - CONTINUE to the main menu, the standings there'))
+  if via and not CH.setVia() then via = false end
+  local ok = CH.leave(r, noScreen)
+  if not ok and via then CH.via = nil; log('[chain] via the menu: dropped - the standings page at the main menu') end
+  return ok
 end
 
 ---------------------------------------------------------------------------------------------------------------------
@@ -299,8 +402,8 @@ function CH.tick(r, api)
     r.chain = st
     if st.want then
       CH.key = false
-      log(('[chain] race %d of %d finished: next %s (same planet) - looking for the results screen'):format(r.ev.race or 0,
-        (K.run() or {}).races or 4, st.next.title))
+      log(('[chain] race %d of %d finished: next %s (%s) - looking for the results screen'):format(r.ev.race or 0,
+        (K.run() or {}).races or 4, st.next.title, st.how))
     elseif not st.quiet then
       log('[chain] not chaining: ' .. st.why)
     end
@@ -363,8 +466,12 @@ function CH.tick(r, api)
     try(function() btn:SetIsEnabled(false) end)
   end
   log('[chain] NEXT RACE pressed (' .. how .. ')')
-  local ok, why = api.launch(r)
-  if not ok then CH.fallback(r, why) end
+  if st.route == 'reset' then
+    local ok, why = api.launch(r)
+    if not ok then CH.fallback(r, why, true) end
+  else
+    CH.goViaMenu(r)
+  end
 end
 
 return CH

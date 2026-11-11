@@ -306,6 +306,7 @@ end
 -- opts (v0.16): { ai = profile } replaces the class's AI profile for this race only (study mode, study.lua)
 function R.launch(ev, classKey, vehKey, picks, mods, opts)
   if R.run then return false, 'A race is already running' end
+  require('chain').via = nil -- (v0.19.1: a launch from the menu ends any via-the-menu request)
   local fe, why = R.atMainMenu()
   if not fe then return false, 'Cannot launch: ' .. why end
   local p, msg = prepare(ev, classKey, vehKey, picks, mods, opts)
@@ -368,7 +369,7 @@ end
 -- so nothing is kept or looked up between reads; all values come from objects found in this same call. You too:
 -- position, finished, speed (for the top speed). Returns the number of racers seen.
 local function readField(r)
-  local n, seen = 0, {}
+  local n, seen, bots = 0, {}, 0
   for _, ps in ipairs(C.find('GfnPlayerState')) do
     local rec = try(function() return ps.RaceEventComponent end)
     local name = pilotName(ps)
@@ -417,8 +418,11 @@ local function readField(r)
         end
       end
       n = n + 1
+      if not you then bots = bots + 1 end
     end
   end
+  -- (v0.19.1: the most AI racers seen in one read - the reset's watchdog)
+  if bots > (r.bots or 0) then r.bots = bots end
   return n
 end
 local function fieldList(r)
@@ -555,7 +559,8 @@ local chainApi = { readField = function(r) return readField(r) end, record = rec
   launch = function(r) return R.chainLaunch(r) end }
 
 -- v0.19: after a chain fallback, wait for the main menu (the notification, or a sweep every 2 s: the player may still
--- be in a race world), then put everything back and hand back the last recorded result: today's standings page
+-- be in a race world), then put everything back and hand back the last recorded result: today's standings page, or
+-- (v0.19.1, chain.lua CH.via set) the next cup race launched from the menu under the cover (main.lua)
 local function fallbackWatch(r)
   if not R.menuSeen and C.clock - (r.lastFe or -1e9) < 2000 then return nil end
   r.lastFe = C.clock
@@ -563,7 +568,8 @@ local function fallbackWatch(r)
   R.restoreBuild('main menu')
   pcall(AI.restore, r.ai)
   R.run = nil
-  log('[chain] main menu after the fallback: the standings of race ' .. tostring(r.prevOut and r.prevOut.ev and r.prevOut.ev.race or '?'))
+  log('[chain] main menu after the fallback: the result of race ' .. tostring(r.prevOut and r.prevOut.ev and r.prevOut.ev.race or '?')
+    .. (require('chain').via and (' - race ' .. require('chain').via.race .. ' next, via the menu') or ' - the standings page'))
   return r.prevOut
 end
 
@@ -594,7 +600,7 @@ function R.watch()
           log(('[chain] new race world %s %.1f s after the reset: %s'):format(C.idname(gs), (C.clock - r.at) / 1000, tostring(got or '? (unreadable)')))
           if got and got ~= want then
             r.screenRef = nil
-            CH.fallback(r, ('the new race world runs %s, not %s'):format(got, want))
+            CH.fallback(r, ('the new race world runs %s, not %s'):format(got, want), true, true)
             r.phase = 'fallback'
             return nil
           end
@@ -608,8 +614,13 @@ function R.watch()
     end
     if r.chained and (R.menuSeen or C.clock - r.at > require('chain').loadTimeoutMs()) then
       -- v0.19: the reset gave no new race world (or the main menu came instead): the main menu, today's standings
-      if not R.menuSeen then require('chain').fallback(r, ('no new race world %d s after the reset'):format(require('chain').loadTimeoutMs() // 1000))
-      else log('[chain] the main menu came back instead of the next race') end
+      -- (v0.19.1: the next race then from the menu, CH.via)
+      local CH = require('chain')
+      if not R.menuSeen then CH.fallback(r, ('no new race world %d s after the reset'):format(CH.loadTimeoutMs() // 1000), true)
+      else
+        CH.setVia()
+        log('[chain] the main menu came back instead of the next race' .. (CH.via and ': the next race from there (via the menu)' or ''))
+      end
       r.phase = 'fallback'
       return nil
     end
@@ -630,6 +641,32 @@ function R.watch()
     if not ok then log('[loadout] apply failed: ' .. tostring(err)); r.lo = nil end
   end
   R.perf(r)
+  -- v0.19.1: the reset's watchdog (a race chained by RequestResetRace): WatchdogS after the reset, at least one AI
+  -- racer seen and the race started - else (v0.19.0 in game: another layout hung on PLEASE WAIT with `field: 1
+  -- racers`) RequestReturnToMenus and the next race from the menu (CH.via). One lookup of the race state, once.
+  if r.chained and not r.watchOk and not R.menuSeen then
+    local CH = require('chain')
+    if (r.bots or 0) > 0 and r.startedAt then
+      r.watchOk = true
+      log(('[chain] watchdog: ok - %d AI racers, the race started %.1f s after the reset'):format(r.bots, (r.startedAt - r.at) / 1000))
+    elseif C.clock - r.at > CH.watchdogMs() then
+      if not r.startedAt then
+        local gs = C.deref(r.gsRef)
+        if gs and try(function() return gs.bIsRaceStarted end) == true then r.startedAt = C.clock end
+      end
+      if (r.bots or 0) > 0 and r.startedAt then
+        r.watchOk = true
+        log(('[chain] watchdog: ok - %d AI racers, the race started (seen late)'):format(r.bots))
+      else
+        local why = ('watchdog: %d s after the reset %s'):format(CH.watchdogMs() // 1000,
+          (r.bots or 0) == 0 and 'no AI racer has appeared' or 'the race has not started')
+        log('[chain] ' .. why .. ' - giving up on the reset')
+        CH.fallback(r, why, true, true)
+        r.phase = 'fallback'
+        return nil
+      end
+    end
+  end
   -- v0.19: once you have finished, the cup's next race from the results screen (chain.lua)
   if r.finished and not r.chainOff then
     local okC, errC = pcall(require('chain').tick, r, chainApi)

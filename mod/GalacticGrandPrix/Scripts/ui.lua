@@ -440,15 +440,18 @@ function U.coverAge() return coverAt and (C.clock - coverAt) or nil end
 
 -- v0.19 (chain.lua): a standings panel built into another screen's widget tree (the game's race results screen):
 -- the title, spec.lines, spec.table, then spec.after (the prompt), on a dark box. opts = { minW, minH }: the box's
--- least size (to cover what is under it). Returns the outermost widget (not yet added anywhere), or nil + why.
+-- least size (to cover what is under it). v0.19.1: the box is opaque (alpha 1, and the size box behind it a second
+-- opaque border: v0.19.0's 0.92 let the game's table show through). Returns the outermost widget (not yet added
+-- anywhere), or nil + why.
 -- Nothing is kept: the widgets go with the screen.
+U.PANEL_BG = { R = 0.01, G = 0.012, B = 0.016, A = 1 }
 function U.panel(spec, tree, opts)
   opts = opts or {}
   if not alive(tree) then return nil, 'no widget tree' end
   local function make(path) return try(function() return StaticConstructObject(StaticFindObject(path), tree) end) end
   local border, box = make('/Script/UMG.Border'), make('/Script/UMG.VerticalBox')
   if not (alive(border) and alive(box)) then return nil, 'could not build the panel' end
-  try(function() border:SetBrushColor({ R = 0.01, G = 0.012, B = 0.016, A = 0.92 }) end)
+  try(function() border:SetBrushColor(U.PANEL_BG) end)
   try(function() border:SetPadding({ Left = 48, Top = 32, Right = 48, Bottom = 32 }) end)
   try(function() border:SetContent(box) end)
   -- (the text wraps at the table's width or the panel's least width, whichever is wider: one panel width)
@@ -468,7 +471,13 @@ function U.panel(spec, tree, opts)
   if opts.minW then try(function() sb:SetMinDesiredWidth(opts.minW) end) end
   if opts.minH then try(function() sb:SetMinDesiredHeight(opts.minH) end) end
   try(function() sb:SetContent(border) end)
-  return sb
+  -- (an opaque backing border around the size box: whatever the inner one draws, nothing under the panel shows)
+  local back = make('/Script/UMG.Border')
+  if not alive(back) then return sb end
+  try(function() back:SetBrushColor(U.PANEL_BG) end)
+  try(function() back:SetPadding({ Left = 0, Top = 0, Right = 0, Bottom = 0 }) end)
+  try(function() back:SetContent(sb) end)
+  return back
 end
 
 -- v0.8: a screen can ask for its own grid (spec.layout = { cols, rows, w, h }): the cups page (config CupsLayout;

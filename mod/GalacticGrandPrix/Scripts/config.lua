@@ -36,17 +36,22 @@ return {
     HideMenuFlash = true,
 
     -- v0.19 (TASKS.md "Next" 2, DESIGN.md §15): cups without the main menu. After a cup race (not the last), the
-    -- standings are drawn over the game's own results screen with a NEXT RACE button beside CONTINUE: NEXT RACE (pad A
-    -- / Enter on it, or Key) starts the next race in the same race world (the race recipe's stage swapped, then the
-    -- game's RequestResetRace); CONTINUE goes to the main menu and today's standings page (B there leaves the cup).
-    -- CrossPlanet = false: a race whose next race is on another planet (the codename folder after /Planets/ in the
-    -- event paths: 'Mastiff/...' vs 'Dalmatian/...') uses the main-menu flow (a planet change is not proven).
-    -- ResultsWaitS = how long after you finish to look for the results screen; LoadTimeoutS = how long after the reset
-    -- the new race world may take before the main-menu fallback. Panel = where the standings go on the results
-    -- screen's canvas (Y from the top, at 4K one unit is about one pixel) and their least size (covers the game's own
-    -- table). On = false: today's flow, nothing in the race world.
-    ChainRaces = { On = true, CrossPlanet = false, Key = 'N', ResultsWaitS = 90, LoadTimeoutS = 15,
-        Panel = { Y = 330, MinWidth = 1700, MinHeight = 1250 } },
+    -- standings are drawn over the game's own results screen (opaque, the game's table hidden under it) with a NEXT
+    -- RACE button left of CONTINUE. CONTINUE goes to the main menu and today's standings page (B there leaves the cup).
+    -- v0.19.1: NEXT RACE (pad A / Enter on it, or Key) goes VIA THE MENU: the results go to the main menu the game's
+    -- own way, the cover goes up there (no standings page) and the next race launches by itself once the menu has
+    -- settled (MenuSettleS). Every cup, the Galactic Cup too. (CrossPlanet is gone: it no longer matters.)
+    -- Reset = true: the v0.19.0 route instead (the race recipe's stage swapped, then the game's RequestResetRace, no
+    -- main menu) but ONLY when the next race is in the same layout folder (planet + the folder after it, e.g.
+    -- 'Mastiff/Loop_A'). PROVEN ONLY FOR Loop_A -> Loop_A (RaceFlowSpike B9); another layout hung the game on PLEASE
+    -- WAIT in v0.19.0. Its watchdog: no new race world LoadTimeoutS after the reset, or no AI racer / no start
+    -- WatchdogS after it -> RequestReturnToMenus and the next race via the menu.
+    -- ResultsWaitS = how long after you finish to look for the results screen. Panel = where the standings go on the
+    -- results screen's canvas (Y from the top, at 4K one unit is about one pixel), their least size, the gap between
+    -- NEXT RACE and CONTINUE (ButtonGap), HideGameTable = false to leave the game's table as it is. On = false:
+    -- today's flow, nothing in the race world.
+    ChainRaces = { On = true, Reset = false, Key = 'N', ResultsWaitS = 90, MenuSettleS = 5, LoadTimeoutS = 15, WatchdogS = 20,
+        Panel = { Y = 330, MinWidth = 1700, MinHeight = 1250, ButtonGap = 80, HideGameTable = true } },
 
     -- Lua garbage: collect a little on every tick (KB of work per step) so it never piles up into one big pause
     -- (v0.3.4, race stutter). GcStep = false to switch off for a comparison.

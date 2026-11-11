@@ -173,7 +173,14 @@ From the afternoon's findings (docs/ai-study-2026-11-11.md, docs/menu-review-202
    0.3), speed matching off, forced errors off from 100cc (50cc keeps them). Then the owner races one cup at 100cc and
    one at 150cc; read their `[gaps]` lines. Target: a good race wins by a few seconds, a messy one loses, the best bot
    steady from race to race.
-2. [x] (Built 2026-11-11 as v0.19.0, see CHANGELOG / DESIGN.md §15; **not yet seen in game**. Check in game, in
+2. [x] (2026-11-11 17:35, v0.19.0 in game: the panel showed, but NEXT RACE by RequestResetRace to another layout
+   (Mastiff/Loop_A -> P2P_A) hung on PLEASE WAIT for good - the reset only re-uses the loaded map; the game's table
+   showed through the panel; NEXT RACE overlapped CONTINUE. **v0.19.1** (built, tested, NOT yet seen in game): NEXT
+   RACE now goes via the main menu under the cover and launches the next race by itself (every cup); the reset route
+   only with `ChainRaces.Reset = true` and the same layout folder, with a 20 s watchdog; the panel opaque with the
+   game's table hidden; the buttons side by side. In-game check list: CHANGELOG v0.19.1 / the v0.19.1 report. The
+   v0.19.0 list below is superseded where it says reset.)
+   (Built 2026-11-11 as v0.19.0, see CHANGELOG / DESIGN.md §15; **not yet seen in game**. Check in game, in
    order: the panel and NEXT RACE on race 1's results screen (`[chain] panel added`, screenshot); NEXT RACE with the
    pad's A and with N (`[chain] NEXT RACE pressed`); race 2 loads with the right track, laps and conditions (`[chain]
    new race world ... EVT_MAS_P2P_FWD`), a layout change on one planet (Loop_A -> P2P_A) included; your racer, parts,

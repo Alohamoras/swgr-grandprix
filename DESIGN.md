@@ -370,7 +370,40 @@ gap_p1,gap_p2,gap_p3,gap_p6,gap_p12,ai_spread,settings`; seconds; settings = the
 can't be launched (unknown class / cup / race, a failed launch, a race that never loads) is logged and skipped. After
 the last: `[study] all N jobs done`, then nothing. Delete study_state.lua to run a study again. Code: studymode.lua.
 
-## 15. Cups without the main menu (v0.19, TASKS.md "Next" 2; built, not yet seen in game)
+## 15. Cups without the main menu (v0.19, TASKS.md "Next" 2; v0.19.1 built, not yet seen in game)
+**v0.19.1: NEXT RACE goes via the main menu.** v0.19.0's reset route hung the game in its first in-game cup
+(2026-11-11 17:35, Jakku 150cc): Mastiff/Loop_A -> Mastiff/P2P_A by `RequestResetRace` stayed on the black PLEASE
+WAIT screen for good (`field: 1 racers`, Escape dead, game killed). `RequestResetRace` re-uses the loaded track world:
+only a race in the same layout folder can load that way (B9 proved Loop_A FWD -> Loop_A SHORT_02), and only 8 of the
+cups' 48 race-to-race steps are like that. So:
+- **Default, every cup (the Galactic Cup too): via the menu.** NEXT RACE on the panel (button or N) sets `CH.via`
+  (plain values: cup, class, race number, title) and leaves the results the game's own way (`CH.leave`: the results
+  screen's CONTINUE click, else `RacingGameMode:RequestReturnToMenus()`). At the main menu (race.lua hands back the
+  result recorded on the results screen, as for CONTINUE), main.lua's `viaMenu` sees `CH.via`: the cover goes up
+  (`[cover] on`) instead of the standings page; when the menu has settled - the study mode's rules: `R.menuUp()`, no
+  race of ours, `R.pendingRestore()` false, for `ChainRaces.MenuSettleS` (5 s) in a row - the cup's next race launches
+  through `R.launch(K.nextRace(), cupArgs(run))`, the very call NEXT RACE on the standings page makes. The cover comes
+  off once that race's world is there. The request is checked first (the cup still at that race; else dropped). A
+  failed launch, or no settled menu in 30 s: the cover off, today's standings page (logged with why). Everything the
+  menu flow does happens unchanged (put-backs at the menu after every race, the set-up at every launch), so points,
+  records, put-backs and the save are the menu flow's (test_chain B compares them line for line).
+- **The reset route, on request only**: `ChainRaces.Reset = true` (default false) AND the next race in the same
+  layout folder (`CH.layout`: the planet's folder and the one after it, `Mastiff/Loop_A`, compared without case).
+  Proven for Loop_A -> Loop_A only. Its **watchdog**: `WatchdogS` (20 s) after the reset at least one AI racer must
+  have been read and the race started (one lookup of the race state, once, if not seen yet) - else `[chain]
+  watchdog: ...`, `RequestReturnToMenus` and the next race via the menu. Every other failure after NEXT RACE (no new
+  world in `LoadTimeoutS`, the menu coming instead, a failed set-up / recipe write / reset call, a world running
+  another event) also continues via the menu (`CH.fallback(r, why, via = true)`).
+- `CrossPlanet` is gone: the menu route doesn't care, and one layout folder is always one planet.
+- **Panel**: opaque (alpha 1, plus an opaque backing border; v0.19.0's 0.92 let the game's table show through) and the
+  game's own table `WBP_Simple_RaceResultsPanel_C` (the mode rules' ResultsTableWidget, B9 log) hidden while it is up
+  (`SetVisibility(Hidden)`, one sweep, once; `Panel.HideGameTable = false` leaves it). NEXT RACE left of CONTINUE,
+  side by side: both slots centred (alignment X 0.5), CONTINUE's width read (desired size / width override / slot
+  size, at least 420), a slot of that x 1.2 each, `Panel.ButtonGap` (80) between; positions logged.
+- **CONTINUE** unchanged: the main menu and today's standings page (B there leaves the cup).
+The rest of this section is v0.19.0's design; where it says NEXT RACE resets the race, read "with Reset = true and
+the same layout only".
+
 Owner 2026-11-11: the standings at the end of the race, then straight into the next race with no main menu. Proven
 pieces (RaceFlowSpike B9, `tools/recon/RaceFlowSpike/raceflow-b9-20261111.log`): a panel on the game's results screen
 `WBP_SimpleRaceResultsScreen_C` (canvas `Default_Results`, CONTINUE's parent), and the next race from the race world

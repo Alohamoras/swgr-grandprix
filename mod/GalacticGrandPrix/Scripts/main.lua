@@ -8,9 +8,10 @@
 -- v0.16: study mode (test-only): study.lua in the mod folder runs a batch of single races with AI profiles (studymode.lua).
 -- v0.17: the game boots straight into the GRAND PRIX tab (HOME), once per launch (config BootToGrandPrix).
 -- v0.19: cups without the main menu: the standings over the game's results screen, NEXT RACE from there (chain.lua).
+-- v0.19.1: NEXT RACE goes via the menu under the cover (the reset route only on request, same layout only).
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.19.0'
+local VERSION = '0.19.1'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -650,6 +651,55 @@ local TICK_MS = 100
 local keys = {}
 local function busy() return #keys > 0 or S.ui ~= nil or R.run ~= nil or S.openAt ~= nil or R.pendingRestore() end
 
+-- v0.19.1 (chain.lua CH.via, DESIGN.md §15): NEXT RACE on the results screen's panel went via the menu. At the main
+-- menu, instead of the standings page: the cover stays up and the cup's next race launches through R.launch (the
+-- same call as NEXT RACE on the standings page) once the menu has settled - the study mode's readiness rules: the
+-- menu up (R.menuUp, a flag), no race of ours, nothing left to put back, ChainRaces.MenuSettleS of that in a row.
+-- Returns true while it holds the result back (waiting / launched), false = show today's standings page (the
+-- request dropped, logged). Flags only, no lookups, until the launch.
+local VIA_GIVEUP_MS = 30000
+local function viaMenu()
+  local CHm = require('chain')
+  local v = CHm.via
+  if not v then return false end
+  local run, nxt = K.run(), K.nextRace()
+  local function drop(why)
+    CHm.via = nil
+    S.openAt = C.clock -- (the standings page gets its own wait for the tab)
+    log('[chain] via the menu: ' .. why .. ' - the standings page instead')
+    return false
+  end
+  if not v.seen then
+    v.seen = true
+    pcall(U.cover, true)
+    log(('[chain] via the menu: at the main menu - the cover up, race %d of %d launches once the menu has settled'):format(v.race, v.races or 4))
+  end
+  if not (run and nxt and run.cup == v.cup and run.class == v.class and nxt.race == v.race) then
+    return drop(('the cup is not at race %d any more (%s)'):format(v.race, run and nxt and ('race ' .. nxt.race) or 'no cup'))
+  end
+  local ready = R.menuUp() and not R.run and not R.pendingRestore()
+  if not ready then
+    v.readyAt = nil
+    if C.clock - (S.openAt or C.clock) > VIA_GIVEUP_MS then return drop(('the main menu did not settle in %d s'):format(VIA_GIVEUP_MS // 1000)) end
+    return true
+  end
+  v.readyAt = v.readyAt or C.clock
+  if C.clock - v.readyAt < CHm.settleMs() then return true end
+  if S.ui then close('next cup race'); return true end
+  CHm.via = nil
+  local ok, why = R.launch(nxt, cupArgs(run))
+  if not ok then
+    S.message = why
+    log('[chain] via the menu: the launch of race ' .. v.race .. ' failed (' .. tostring(why) .. ') - the cover off, the standings page')
+    pcall(U.cover, false)
+    return false
+  end
+  S.openAt, S.message, S.chainCover = nil, nil, true
+  log(('[chain] via the menu: race %d of %d launched from the main menu (%.1f s after the results) - no standings page'):format(
+    v.race, v.races or 4, (C.clock - (v.at or C.clock)) / 1000))
+  return true
+end
+
 local function tick()
   C.clock = C.clock + TICK_MS
   -- (v0.13.1: R.menuUp() is a flag, not a lookup - race.lua)
@@ -690,6 +740,7 @@ local function tick()
     local okS, errS = pcall(ST.onResult, out)
     if not okS then log('[study] result not written: ' .. tostring(errS)) end
   elseif out and out.failed then
+    if S.chainCover then S.chainCover = nil; pcall(U.cover, false) end
     -- the launch went nowhere: ours back with a message
     S.message = out.failed == 'timeout' and 'The race never loaded - nothing was recorded.' or nil
     if out.failed == 'timeout' and alive(C.first('FrontEndGameMode')) then S.screen = 'cups'; show() end
@@ -698,7 +749,14 @@ local function tick()
     -- cover the main menu while it's rebuilt, so the race results lead straight to the ranking (config HideMenuFlash)
     if cfg.HideMenuFlash ~= false and (out.run or out.titleRace) then pcall(U.cover, true) end
   end
-  if S.openAt and C.clock >= S.openAt and not R.run then
+  -- v0.19.1: a race launched via the menu is loading under the cover: the cover goes once its race world is there
+  if S.chainCover and R.run and R.run.phase ~= 'loading' then
+    S.chainCover = nil
+    pcall(U.cover, false)
+  end
+  if S.openAt and C.clock >= S.openAt and not R.run and viaMenu() then
+    -- (v0.19.1: the next cup race launches via the menu - no standings page)
+  elseif S.openAt and C.clock >= S.openAt and not R.run then
     -- the menu is rebuilt after a race: wait for our tab on it, then open the result in the tab
     if TB.ready() then
       S.openAt = nil; S.message = nil

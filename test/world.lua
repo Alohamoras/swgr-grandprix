@@ -352,10 +352,15 @@ end
 function W.recipeSetup()
   W.sub = M.add('EventRecipeSubsystem', M.new('EventRecipeSubsystem', {}))
   -- the racing game mode: RequestResetRace = a new race world from the subsystem's recipe (W.resetMode = 'nothing':
-  -- the reset does nothing); RequestReturnToMenus = counted (the test then goes back to the menu)
+  -- the reset does nothing; 'empty' (v0.19.1, the v0.19.0 hang in game): a new race world with you only, no AI racer
+  -- ever); RequestReturnToMenus = counted (the test then goes back to the menu)
   W.resets, W.toMenu, W.resetMode, W.noRecipe = 0, 0, nil, nil
   W.gm = M.new('BP_RacingGameMode_C_1', {
-    RequestResetRace = function() W.resets = W.resets + 1; if W.resetMode ~= 'nothing' then W.chainWorld() end end,
+    RequestResetRace = function()
+      W.resets = W.resets + 1
+      if W.resetMode == 'empty' then W.dropRaceWorld(); W.race(0); rawget(W.gs, '__props').bIsRaceStarted = false
+      elseif W.resetMode ~= 'nothing' then W.chainWorld() end
+    end,
     RequestReturnToMenus = function() W.toMenu = W.toMenu + 1 end,
   }, 'BP_RacingGameMode_C')
 end
@@ -374,7 +379,7 @@ end
 function W.stageEvent(st) return st and st.AuthoredEvent and rawget(st.AuthoredEvent, '__name') or '?' end
 -- the race world goes (the reset or the menu): its race state, racers, results screen and our widgets on it
 function W.dropRaceWorld()
-  for _, cls in ipairs({ 'RacingGameState', 'GfnPlayerState', 'WBP_SimpleRaceResultsScreen_C', 'WBP_Common_Btn_C' }) do
+  for _, cls in ipairs({ 'RacingGameState', 'GfnPlayerState', 'WBP_SimpleRaceResultsScreen_C', 'WBP_Common_Btn_C', 'WBP_Simple_RaceResultsPanel_C' }) do
     for _, o in ipairs(M.objects[cls] or {}) do M.kill(o) end
     M.clear(cls)
   end
@@ -401,6 +406,11 @@ function W.results(opts)
   rawget(w, '__props')[require('chain').CONTINUE_EVENT] = function() W.continued = W.continued + 1 end
   M.add('WBP_SimpleRaceResultsScreen_C', w)
   W.screen = w
+  -- (v0.19.1) the game's own results table on it: chain.lua hides it under the panel (W.tableVis: its visibility)
+  W.tableVis = 4
+  M.add('WBP_Simple_RaceResultsPanel_C', M.new('WBP_Simple_RaceResultsPanel_C_' .. M.nextAddr, {
+    IsVisible = function() return W.tableVis ~= 1 and W.tableVis ~= 2 end, SetVisibility = function(_, v) W.tableVis = v end },
+    'WBP_Simple_RaceResultsPanel_C'))
   return w
 end
 -- the reset: the old race world goes, a new one comes with the subsystem recipe's event

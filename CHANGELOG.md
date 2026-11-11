@@ -1,5 +1,41 @@
 # Changelog
 
+## v0.19.1 (2026-11-11): NEXT RACE via the menu
+**What failed in game with v0.19.0** (2026-11-11 17:35, Jakku 150cc): race 1 (The War Fields dawn, Mastiff/Loop_A)
+finished, the panel showed on the results screen, N was pressed, The Giants' Graveyard (Mastiff/P2P_A) was written
+into the race recipe and read back, `RequestResetRace` was called and a new race world even logged `EVT_MAS_P2P_FWD`
+0.3 s later - but the screen stayed on the game's black PLEASE WAIT loading screen for good (2+ minutes, Escape did
+nothing, the game had to be killed; `field: 1 racers`, `[loadout] gave up: the AI racers never appeared`). **Why:**
+`RequestResetRace` re-uses the track world that is loaded; a race in another layout folder (another map) never
+loads. The B9 spike only proved Loop_A FWD -> Loop_A SHORT_02 (one map). Only 8 of the cups' 48 race-to-race steps
+stay in one layout folder. Also the game's results table showed through our panel, and NEXT RACE overlapped CONTINUE.
+Built and tested, **not yet seen in game**. DESIGN.md §15.
+- **NEXT RACE now goes via the main menu** (the default, every cup, the Galactic Cup too): the results leave for the
+  main menu the game's own way (the results screen's CONTINUE click, else `RequestReturnToMenus` - what the v0.19.0
+  fallback did), and at the menu the cover goes up instead of the standings page; once the menu has settled (the
+  study mode's rules: menu up, no race, put-backs done, `ChainRaces.MenuSettleS` = 5 s) the next cup race launches
+  through `R.launch`, exactly as NEXT RACE on the standings page does. The cover comes off when the race world is
+  there. You never see the menu. A failed launch: the cover off and today's standings page (logged with why).
+- **The reset route only on request and only within one layout**: `ChainRaces.Reset = true` (default false) AND the
+  next race in the same layout folder (planet + the folder after it, e.g. `Mastiff/Loop_A`, without case). Proven
+  for Loop_A -> Loop_A only. New **watchdog**: no AI racer or no race start 20 s after the reset (`WatchdogS`) ->
+  `RequestReturnToMenus` and the next race via the menu. Every other failure after NEXT RACE (no new world in
+  `LoadTimeoutS`, the menu coming instead, a recipe write that fails, a world running another event) now also
+  carries the cup on via the menu rather than stopping at the standings page.
+- **`CrossPlanet` removed**: it no longer matters (the menu route works across planets; the reset route needs one
+  layout folder, which is always one planet). An old config line with it is ignored.
+- **Panel**: an opaque dark background (alpha 1, a second opaque border behind it; was 0.92) and the game's own
+  results table (`WBP_Simple_RaceResultsPanel_C`) hidden under it (`Panel.HideGameTable`). NEXT RACE left of CONTINUE,
+  side by side: both centred, a slot each of CONTINUE's width x 1.2 (its desired size / width override / slot size,
+  at least 420), `Panel.ButtonGap` (80) apart; the positions are logged on `[chain] panel added`. Text unchanged.
+- **CONTINUE** keeps its meaning: the main menu and today's standings page, where B leaves the cup.
+- Tests: test_chain rewritten (10 scenarios): ChainRaces off as the reference; a whole Jakku cup via the menu with
+  the save, the set-up lines and the put-backs identical to the menu flow, the cover, no standings page between the
+  races, the cup result at the end; CONTINUE + B leaving; a failed auto-launch -> the standings page; Reset on with
+  the same layout (Crait race 2 -> 3) uses the reset and the watchdog is satisfied; Reset on with another layout
+  uses the menu; the watchdog firing (a world with you only); no world after the reset; a failed recipe write; the
+  Galactic Cup via the menu. The fake world: `W.resetMode = 'empty'`, the game's results table on the results screen.
+
 ## v0.19.0 (2026-11-11): cups without the main menu
 TASKS "Next" 2, from the B9 spike (RaceFlowSpike). Built and tested, **not yet seen in game**. DESIGN.md §15.
 - **After a cup race (not the last), the standings go on the game's own results screen**: the standings page's text
