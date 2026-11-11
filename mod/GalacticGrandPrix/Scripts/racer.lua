@@ -10,6 +10,15 @@
 --
 -- Memory only, nothing kept between ticks (the list is found again each time: a full sweep, at launch / the menu / the
 -- one settle read), every engine access in try / pcall. Object pointers only (Player, Opponents[]): no soft pointers.
+--
+-- v0.15 (TASKS.md A6): the racer decides the vehicle. config Racers[].vehicle (car / bike / skimmer) is the source of
+-- truth: RC.vehicle() picks the launch build (config Vehicles), so the menu never looks anything up in the game. At
+-- launch the picked racer's URacerDef.PreferredVehicleType (a plain enum byte: 0 car, 2 bike, 3 skimmer) is read once
+-- per racer per session from the def already in hand and a mismatch with config is logged (no extra sweep, no soft
+-- pointers). Kestar Bool (unlockTitle = '150') is locked until you win the 150cc title race: RC.cycle skips him, and a
+-- save that still has him picked races as Shade (logged once).
+-- TODO (TASKS.md B7, unproven): the racer's own look (preset PRE_*, docs/racer-vehicles-2026-11-11.md) is NOT put on
+-- yet - you race the plain build of the racer's vehicle type. The look comes later, once B7 shows how to make it stick.
 local C = require('core')
 local cfg = require('config')
 local K = require('gp')
@@ -18,7 +27,7 @@ local try, alive, log = C.try, C.alive, C.log
 local RC = {}
 local RACERS = '/Game/Griffin/Narrative/CharacterDefs/Racers/DA_Racer_'
 local LIST = '/Game/Griffin/Narrative/CharacterDefs/DA_CharacterList'
-local DEFAULT = { key = 'DarkEnigma', name = 'Shade', line = 'The campaign\'s racer' }
+local DEFAULT = { key = 'DarkEnigma', name = 'Shade', vehicle = 'car', line = 'The campaign\'s racer' }
 -- the list goes back this long after the race world appeared: past the grid and the countdown, so the race has
 -- surely taken its copy (FreeRace puts it back "once started"); race.lua checks it inside its 2 s read
 RC.SETTLE_MS = 10000
@@ -34,15 +43,56 @@ function RC.get(key)
   for _, r in ipairs(RC.list()) do if r.key == key then return r end end
   return nil
 end
-function RC.current() return RC.get(K.data.racer) or RC.list()[1] end
+-- v0.15: is the racer (an entry or a key) still locked? Only a racer with unlockTitle is: until you win that class's
+-- title race (K.data.titles[class].won)
+function RC.locked(r)
+  if type(r) == 'string' then r = RC.get(r) end
+  local cls = type(r) == 'table' and r.unlockTitle
+  if not cls then return false end
+  local t = type(K.data.titles) == 'table' and K.data.titles[cls]
+  return not (type(t) == 'table' and t.won)
+end
+-- 'To unlock: win the 150cc title' (nil when the racer has no lock)
+function RC.unlockText(r)
+  if type(r) == 'string' then r = RC.get(r) end
+  local cls = type(r) == 'table' and r.unlockTitle
+  if not cls then return nil end
+  local c = K.class(cls)
+  return 'To unlock: win the ' .. (c and c.name or cls) .. ' title'
+end
+-- the pick; a locked pick (an old save, or a lock come back) is Shade, saved and logged
+function RC.current()
+  local r = RC.get(K.data.racer)
+  if r and RC.locked(r) then
+    log(('[racer] %s is locked (%s) - racing as %s'):format(r.name, RC.unlockText(r):lower(), RC.list()[1].name))
+    K.data.racer = RC.list()[1].key
+    K.save()
+    r = nil
+  end
+  return r or RC.list()[1]
+end
 function RC.path(key) return RACERS .. key end
+-- v0.15: the racer's vehicle (a config Vehicles entry): the build the race launches with. No key = the pick.
+function RC.vehicle(key)
+  local r = key == nil and RC.current() or RC.get(key)
+  return K.vehicle(r and r.vehicle or 'car')
+end
+-- the vehicle type in words for the menu: 'Speeder bike'
+function RC.vehicleText(key)
+  local n = tostring(RC.vehicle(key).name or '?')
+  return n:sub(1, 1):upper() .. n:sub(2):lower()
+end
 -- the next (dir = 1) or previous (-1) pilot, saved. Returns the entry. (v0.9: no lock while a cup runs - the garage
--- can't be reached mid-cup without leaving the cup, since cups cannot be resumed.)
+-- can't be reached mid-cup without leaving the cup, since cups cannot be resumed.) v0.15: a locked racer is skipped.
 function RC.cycle(dir)
   local list = RC.list()
   local cur, at = RC.current(), 1
   for i, r in ipairs(list) do if r.key == cur.key then at = i end end
-  local r = list[((at - 1 + (dir or 1)) % #list) + 1]
+  local r = cur
+  for _ = 1, #list do
+    at = ((at - 1 + (dir or 1)) % #list) + 1
+    if not RC.locked(list[at]) then r = list[at]; break end
+  end
   K.data.racer = r.key
   K.save()
   return r
@@ -97,6 +147,20 @@ local function setOpponent(list, i, def, path)
   return ok and defPath(try(function() return list.Opponents[i] end)) == path
 end
 
+-- v0.15: the game's own vehicle type for the racer (URacerDef.PreferredVehicleType, a plain enum byte) against
+-- config, once per racer per session, from a def already in hand (no lookup of its own). Logs only a mismatch.
+local typeChecked = {}
+local function checkType(want, def)
+  if typeChecked[want.key] or not alive(def) then return end
+  typeChecked[want.key] = true
+  local b = try(function() return tonumber(def.PreferredVehicleType) end)
+  local veh = RC.vehicle(want.key)
+  if b ~= nil and b ~= veh.arch then
+    log(('[racer] %s: the game\'s PreferredVehicleType is %s, config says %s (arch %s) - racing the config\'s %s'):format(
+      want.name, tostring(b), tostring(veh.key), tostring(veh.arch), tostring(veh.key)))
+  end
+end
+
 -- at launch (race.lua, before LaunchQuickRace): the picked pilot into CharacterList.Player. Returns true when the
 -- list is as wanted (also when the pick is already the game's own pilot), false + why when not (the race still
 -- launches, as the game's own pilot).
@@ -110,10 +174,14 @@ function RC.begin(key)
   if not list then log('[racer] character list not found - racing as the game\'s own pilot'); return false, 'no character list' end
   local cur = playerPath(list)
   local wantPath = RC.path(want.key)
-  if cur == wantPath then log(('[racer] racing as %s (DA_Racer_%s): the game\'s own pilot'):format(want.name, want.key)); return true end
+  if cur == wantPath then
+    checkType(want, try(function() return list.Player end))
+    log(('[racer] racing as %s (DA_Racer_%s): the game\'s own pilot'):format(want.name, want.key)); return true
+  end
   if not cur then log('[racer] CharacterList.Player unreadable - racing as the game\'s own pilot'); return false, 'player unreadable' end
   local def = C.asset(wantPath)
   if not def then log('[racer] pilot not found: ' .. wantPath); return false, 'pilot not found' end
+  checkType(want, def)
   -- what to put back, in the save before anything changes
   local rec = { key = want.key, player = cur, list = defPath(list) or LIST }
   for i, p in ipairs(opponentPaths(list)) do

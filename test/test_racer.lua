@@ -8,7 +8,8 @@ local EV = '/Game/Griffin/Gameplay/Events/Planets/'
 local RACERS = '/Game/Griffin/Narrative/CharacterDefs/Racers/DA_Racer_'
 
 -- 1. boot after a 'crash': the save says Kestar was in CharacterList.Player; the list (in memory) still shows it
-T.boot({ racer = 'Antagonist', racerRestore = { key = 'Antagonist', player = RACERS .. 'DarkEnigma', list = '/Game/Griffin/Narrative/CharacterDefs/DA_CharacterList' } },
+T.boot({ racer = 'Antagonist', titles = { ['150'] = { won = true, tries = 1 } }, -- (v0.15: Kestar unlocked by the 150cc title)
+  racerRestore = { key = 'Antagonist', player = RACERS .. 'DarkEnigma', list = '/Game/Griffin/Narrative/CharacterDefs/DA_CharacterList' } },
   { Progression = { On = false }, Manual = true })
 rawget(W.chars, '__props').Player = W.racerDef('Antagonist')
 T.check(W.charsText():find('^Player=Antagonist') ~= nil, 'before the first tick: the list still holds Kestar')

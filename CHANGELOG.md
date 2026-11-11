@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.15.0 (2026-11-11): the racer decides the vehicle
+Queue item A6 (TASKS.md, owner-decided). Built and tested, not yet seen in game.
+- **Your racer's vehicle**: config `Racers[].vehicle` (car / bike / skimmer) is the source of truth, the same as the
+  game's `URacerDef.PreferredVehicleType` read in game 2026-11-11: Malis Vazosk, Katja Mox, Sen Fira, Biddy Blas ride
+  speeder bikes; Shade, Ary Quill, Nik Skandaro, Soren Zaks, Kestar Bool drive landspeeders; Griff Halloran, Goli &
+  02-R0, Fola Kanjen, Lyren Shok, Sebulba fly skim speeders. Shade drives the base landspeeder (owner). The launch build
+  is the racer's type's (config `Vehicles`, unchanged); the class part levels go on it and are put back as before.
+- At launch the picked racer's `PreferredVehicleType` (a plain byte, from the def already in hand) is compared with
+  config once per racer per session; a mismatch is logged and config wins.
+- **The garage has no VEHICLE tile** (RACER, ABILITY 1-4, TUNE-UP 1-2). The RACER tile's second line is the vehicle
+  type ("Speeder bike"); its info reads "Biddy Blas - speeder bike:  <bio>.  Select: next racer." HOME's GARAGE tile
+  shows the racer and the vehicle type.
+- **Kestar Bool is locked until you win the 150cc title race**: Select on the RACER tile skips him, and the info line
+  says "Kestar Bool is locked. To unlock: win the 150cc title." A save with him picked while locked races as Shade
+  (`[racer] Kestar Bool is locked (to unlock: win the 150cc title) - racing as Shade`).
+- **Old saves**: the `vehicle` pick is dropped once at load (`[save] the old vehicle pick (bike) is dropped ...`);
+  the racer pick stays.
+- Not in this version: the racer's own look (livery preset). It is unproven (TASKS.md B7): you race the plain build
+  of your racer's vehicle type for now.
+- Tests: test_racervehicle (new: the 14 racers' builds, the lock, cycling with and without the 150cc title, the
+  garage and HOME text, the byte check, part levels on and off the skimmer build); test_vehicles now an old save with
+  the bike picked and Shade (races the car build), then a bike racer from the RACER tile; test_tiletext, test_racer,
+  test_abilities, test_records, test_trophies updated for the missing VEHICLE tile and pick.
+
 ## v0.14.2 (2026-11-11): two menu trims seen in game
 - The confirm screen's YES / NO tiles lose the "Yes" / "Cancel" line under them (it said the title again).
 - The garage header is just "Select a tile to change it." (the rest was about resuming cups, gone in v0.9).

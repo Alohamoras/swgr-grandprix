@@ -7,7 +7,7 @@
 -- v0.11: one cup per planet with a race list per class (classic / reverse / conditions), the Galactic Cup, the title race.
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.14.2'
+local VERSION = '0.15.0'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -169,6 +169,8 @@ end
 -- long text (effects, bios, blurbs, what opens a lock) is in the focused tile's info line
 local SELECT_NEXT = 'Select: next'
 local function racerName() return RC and RC.displayName and RC.displayName() or nil end
+-- v0.15: the vehicle is your racer's (config Racers[].vehicle); no vehicle pick
+local function myVehicle() return (RC and RC.vehicle) and RC.vehicle() or K.vehicle('car') end
 local function levelNow() return AB.levelFor(K.data.class or (K.classes()[1] or {}).key) end
 -- the class's champion line (the title races; the racer with most points across its planet cups)
 local function championLine(classKey)
@@ -205,7 +207,7 @@ local function titleTile(cls)
       (st and st.won) and 'You hold the title: defend it.  ' or '', vs, cls.name, st and (('  Tries: %d.'):format(st.tries or 0)) or '')),
     act = function()
       local ev = TI.event(cls.key)
-      local ok, why2 = R.launch(ev, cls.key, K.data.vehicle, picksFor(cls.key), modsFor())
+      local ok, why2 = R.launch(ev, cls.key, myVehicle().key, picksFor(cls.key), modsFor())
       if ok then S.message = nil; return 'launched' end
       S.message = why2
       return true
@@ -236,11 +238,13 @@ SCREENS.home = function()
         act = function() S.class = c.key; K.data.class = c.key; K.save(); return go('cups') end }
     end
   end
-  local veh = K.vehicle(K.data.vehicle)
-  local who = racerName()
+  -- v0.15: the racer and their vehicle type (the racer decides the vehicle)
+  local veh = myVehicle()
+  local who = racerName() or '?'
+  local vtext = (RC and RC.vehicleText) and RC.vehicleText() or veh.name
   items[#items + 1] = { title = 'GARAGE', art = ART.vehicle(veh.key),
-    desc = veh.name,
-    info = padInfo('Your vehicle, racer, abilities and tune-ups.\n' .. veh.name .. (who and ('  -  ' .. who) or '') .. '  -  '
+    desc = who .. '\n' .. vtext,
+    info = padInfo('Your racer, abilities and tune-ups.\n' .. who .. '  -  ' .. vtext:lower() .. '  -  '
       .. picksText(picksFor(K.data.class or '50'), levelNow()):gsub('  /  ', ', '), 2),
     act = function() return go('garage') end }
   items[#items + 1] = { title = 'RESET PROGRESS', art = 'T_UI_FE_Tile_02', desc = 'Asks first',
@@ -304,7 +308,7 @@ SCREENS.cups = function()
   for _, cup in ipairs(cupsInOrder()) do
     local open, why, short = PR.cupOpen(K.data, cls.key, cup.key)
     if not open then
-      items[#items + 1] = { title = cup.name, art = ART.cup(cup, K.data.vehicle) or cup.art, badge = 'LOCKED', disabled = true,
+      items[#items + 1] = { title = cup.name, art = ART.cup(cup, myVehicle().key) or cup.art, badge = 'LOCKED', disabled = true,
         desc = 'To open: ' .. tostring(short or why), info = padInfo(cupInfo(cup, cls.key, 'To open: ' .. why)),
         act = function() S.message = cup.name .. ' is locked at ' .. cls.name .. '. To open it: ' .. why; return true end }
     else
@@ -315,11 +319,11 @@ SCREENS.cups = function()
       local b = K.best(cls.key, cup.key)
       local bestLine = perfect and 'Perfect cup' or (not b and 'Not raced yet') or (not TROPHY_NAME[b] and ('Best: ' .. ordinal(b))) or nil
       local cond = condText(cup, cls.key)
-      local it = { title = cup.name, art = ART.cup(cup, K.data.vehicle) or cup.art,
+      local it = { title = cup.name, art = ART.cup(cup, myVehicle().key) or cup.art,
         badge = trophyBadge(cls.key, cup.key) or planetBadge(cup, cls.key), icon = mIcon, iconColor = mColor,
         info = padInfo(cupInfo(cup, cls.key)),
         act = function()
-          local veh = K.vehicle(K.data.vehicle)
+          local veh = myVehicle()
           K.startCup(cls.key, cup.key, veh.key, picksFor(cls.key), modsFor())
           local res = launchNext()
           if res ~= 'launched' then K.forfeit() end -- couldn't start: no cup left half-begun
@@ -332,7 +336,7 @@ SCREENS.cups = function()
   end
   local tt = titleTile(cls)
   if tt then items[#items + 1] = tt end
-  local veh = K.vehicle(K.data.vehicle)
+  local veh = myVehicle()
   return { key = 'cups', title = cls.name:upper() .. '  -  CUPS',
     lines = { { cls.blurb or '', 22, U.WHITE },
       { ('%s, every part at level %d, abilities level %d.  Select a cup to start it: the first race launches straight away.'):format(
@@ -361,23 +365,20 @@ SCREENS.garage = function()
   local level = levelNow()
   local picks = picksFor(K.data.class or '50')
   local items = {}
-  local veh = K.vehicle(K.data.vehicle)
-  items[#items + 1] = { title = veh.name, art = ART.vehicle(veh.key), badge = 'VEHICLE', desc = SELECT_NEXT,
-    info = 'Landspeeder, speeder bike or skim speeder: every cup race takes any of the three.',
-    act = function()
-      local vs, nxt = K.vehicles(), 1
-      for i, v in ipairs(vs) do if v.key == veh.key then nxt = i % #vs + 1 end end
-      K.data.vehicle = vs[nxt].key; K.save()
-      S.message = vs[nxt].name .. ' selected'
-      return true
-    end }
+  -- v0.15 (TASKS.md A6): no VEHICLE tile - the racer decides the vehicle; the RACER tile names it. A locked racer
+  -- (Kestar Bool until the 150cc title) is skipped by Select and named in the info line with how to unlock him.
   if RC and RC.current then
     local r = RC.current() or {}
+    local vtext = RC.vehicleText and RC.vehicleText() or '?'
+    local locks = {}
+    for _, o in ipairs(RC.list()) do
+      if RC.locked and RC.locked(o) then locks[#locks + 1] = ('  %s is locked. %s.'):format(o.name, RC.unlockText(o)) end
+    end
     items[#items + 1] = { title = (r.name or 'RACER'):upper(), art = (r.key == 'Antagonist') and ART.SHOWDOWN or 'T_UI_FE_Tile_01', badge = 'RACER',
-      desc = SELECT_NEXT, info = (r.name or '?') .. ':  ' .. (r.line or '') .. '  (the pilot you race as; name, look and voice come with the pilot)',
+      desc = vtext, info = ('%s - %s:  %s.  Select: next racer.'):format(r.name or '?', vtext:lower(), r.line or '') .. table.concat(locks),
       act = function()
         local n = RC.cycle(1)
-        S.message = n and ('Racing as ' .. n.name) or nil
+        S.message = n and ('Racing as %s (%s)'):format(n.name, RC.vehicleText(n.key):lower()) or nil
         return true
       end }
   end

@@ -1,11 +1,11 @@
 -- v0.3.11 / v0.8 / v0.9: trophy badges on the cup and class tiles, a cup left in the save dropped at boot (cups
--- cannot be resumed), and RESET PROGRESS (asks first, NO first, backs the save up, keeps your abilities / vehicle /
+-- cannot be resumed), and RESET PROGRESS (asks first, NO first, backs the save up, keeps your abilities / racer /
 -- race count).
 local M = require('mock')
 local W = require('world')
 local T = require('util')
 
-T.boot({ version = 2, races = 25, cups = 5, class = '200', vehicle = 'bike',
+T.boot({ version = 2, races = 25, cups = 5, class = '200', vehicle = 'bike', racer = 'Rager',
   picks = { 'bolt.multi', 'shield.surging', 'vent.flame', 'mine.frozen' },
   best = { ['100'] = { jakku = 1, lantaana = 2, galactic = 3 }, ['200'] = { jakku = 1, crait = 5 } },
   run = { class = '200', cup = 'lantaana', vehicle = 'car', race = 4, races = 4,
@@ -38,7 +38,7 @@ T.clickTitle('RESET PROGRESS'); M.tick(3)
 T.clickTitle('YES'); M.tick(3)
 local sv = T.save()
 T.check(next(sv.best) == nil and sv.run == nil and sv.cups == 0, 'YES: trophies, best finishes and the cups count cleared')
-T.check(sv.picks[1] == 'bolt.multi' and sv.vehicle == 'bike' and sv.races == 25, 'kept: your abilities, vehicle, race count')
+T.check(sv.picks[1] == 'bolt.multi' and sv.racer == 'Rager' and sv.vehicle == nil and sv.races == 25, 'kept: your abilities, racer, race count (v0.15: the old vehicle pick dropped)')
 T.check(T.logHas('progress reset'), 'reset logged')
 local p = io.popen('ls "' .. T.dir .. '"'); local files = p:read('a'); p:close()
 local bk = files:match('(save%.backup%-reset%-[%d%-]+%.lua)')

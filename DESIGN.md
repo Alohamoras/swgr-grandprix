@@ -278,7 +278,7 @@ game. Summary of what changed in the design:
   HOME = the four classes, GARAGE, RESET PROGRESS (always these six; v0.9 took the CONTINUE / QUIT CUP tiles off).
   CUPS (per class) = every cup on one page: v0.11 the five planet cups, the GALACTIC CUP and the TITLE RACE (7 tiles,
   4 + 3; was 5 x 4 with the remix / conditions / bonus cups); the focused cup shows its races at that class (planet,
-  kind, laps, conditions) and your records; Select starts it. GARAGE = VEHICLE, RACER,
+  kind, laps, conditions) and your records; Select starts it. GARAGE = RACER (v0.15: no VEHICLE, the racer decides it),
   ABILITY 1-4, TUNE-UP 1-2, each cycled in place with Select. No cup page, no pick screens, no BACK / EXIT / DONE
   tiles (B goes back).
 - **Cups are not resumable (v0.9, owner, 2026-11-10): like Mario Kart, leaving a Grand Prix loses it.** A cup
@@ -293,7 +293,8 @@ game. Summary of what changed in the design:
   **title race** = the Stadium Showdown against Kestar Bool at every class (he copies your build), open with a trophy
   in the Galactic Cup at the class (v0.11; was all five planet cups); a win = the class champion (shown on the class tile). The class points
   leader as the opponent (two-car grid on a normal event) is a later step that needs an in-game check.
-- **Your racer**: any of the game's 14 named pilots (CharacterList.Player swapped at launch and put back). No
+- **Your racer**: any of the game's 14 named pilots (CharacterList.Player swapped at launch and put back); v0.15:
+  in their own vehicle type (below). No
   free-text names, no vehicle cosmetics.
 - **AI profile per class** (ai.lua): the rubber band pressure per class (Cadet at 50cc ... Champion-ish at 200cc),
   honest pacing from 150cc (the AI no longer slows down when ahead), forced errors halved, catch-up up at 200cc.
@@ -331,3 +332,17 @@ game. Summary of what changed in the design:
   cup's races. The budgets per tile size (ui.lua `U.FIT`, measured on the v0.8 screenshots: title 12 a line, badge
   15, second line 19 with capitals wider, three lines in all) are checked by test_tiletext for every string every
   screen can show. Still estimates until the screenshot pass (TASKS.md B8).
+- **v0.15 (2026-11-11): the racer decides the vehicle** (TASKS.md A6, owner-decided). Each racer has their own
+  vehicle type (config `Racers[].vehicle`, the same as the game's `URacerDef.PreferredVehicleType`, read in game
+  2026-11-11): 4 speeder bikes (Malis Vazosk, Katja Mox, Sen Fira, Biddy Blas), 5 landspeeders (Shade, Ary Quill, Nik
+  Skandaro, Soren Zaks, Kestar Bool), 5 skim speeders (Griff Halloran, Goli & 02-R0, Fola Kanjen, Lyren Shok,
+  Sebulba). The launch build is that type's (`Vehicles`), with the class parts on it and put back after, as before;
+  Shade drives the base landspeeder (owner: no bike / skimmer choice). The VEHICLE tile left the garage: the RACER
+  tile's second line names the vehicle type, its info line reads "<racer> - <type>: <bio>", and HOME's GARAGE tile
+  shows racer and type. **Kestar Bool is locked until you win the 150cc title race** (`titles['150'].won`): Select
+  skips him and the RACER info says "Kestar Bool is locked. To unlock: win the 150cc title."; a save that has him
+  picked while locked races as Shade (logged). Old saves: the `vehicle` pick is dropped (logged once), the racer
+  stays. At launch the picked racer's `PreferredVehicleType` byte is compared with config once per session (a
+  mismatch is logged; config wins). **TODO (B7): the racer's own look** (their livery preset,
+  docs/racer-vehicles-2026-11-11.md) is not put on yet: it is unproven in game, so you race the plain build of the
+  racer's type until B7 settles it.

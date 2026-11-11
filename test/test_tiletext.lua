@@ -2,7 +2,8 @@
 -- any menu can show fits that tile (ui.lua U.FIT / U.tileFits: the budgets and how they were measured). Every
 -- screen is built from its spec (main.lua's SCREENS, the test hook) in every state that changes a tile's text:
 -- HOME and the cups pages at every class with nothing / every trophy / a place / perfect cups / titles won and every
--- possible champion, every lock; the garage at every class level with every vehicle, racer, ability in each slot and
+-- possible champion, every lock; the garage at every class level with every racer (v0.15: naming their vehicle type;
+-- HOME's GARAGE tile with each racer too), ability in each slot and
 -- tune-up in both slots; the standings before every race of every cup at every class and after a cup; the title
 -- result; the confirms; the offline page.
 local M = require('mock')
@@ -81,14 +82,16 @@ end
 local function find(items, pat)
   for i, it in ipairs(items) do if (it.badge or ''):find(pat) then return i end end
 end
+-- (v0.15: no VEHICLE tile; the RACER tile names the racer's vehicle type, and HOME's GARAGE tile the racer and it.
+-- Kestar Bool unlocked here, so every racer is on the tile.)
+K.data.titles = { ['150'] = { won = true, tries = 1 } }
 for _, c in ipairs(K.classes()) do
   local items = garage(c.key)
-  for _ = 1, #K.vehicles() do
-    local i = find(items, '^VEHICLE'); seenVeh[items[i].title] = true
-    items[i].act(); items = garage(c.key)
-  end
+  T.check(find(items, '^VEHICLE') == nil, 'no VEHICLE tile in the garage at ' .. c.key)
   for _ = 1, #(cfg.Racers or {}) do
     local i = find(items, '^RACER'); seenRacer[items[i].title] = true
+    seenVeh[items[i].desc] = true
+    check('home racer ' .. items[i].title, SC.home())
     items[i].act(); items = garage(c.key)
   end
   for slot = 1, 4 do
@@ -108,7 +111,10 @@ for _, c in ipairs(K.classes()) do
 end
 -- (coverage: every vehicle, racer, ability at every level and tune-up was on a tile)
 local missing = {}
-for _, v in ipairs(K.vehicles()) do if not seenVeh[v.name] then missing[#missing + 1] = v.name end end
+for _, v in ipairs(K.vehicles()) do
+  local t = v.name:sub(1, 1) .. v.name:sub(2):lower()
+  if not seenVeh[t] then missing[#missing + 1] = t end
+end
 for _, r in ipairs(cfg.Racers or {}) do if not seenRacer[r.name:upper()] then missing[#missing + 1] = r.name end end
 for _, p in ipairs(MS.all()) do if not seenTu[p.name:upper()] then missing[#missing + 1] = p.name end end
 for _, c in ipairs(K.classes()) do

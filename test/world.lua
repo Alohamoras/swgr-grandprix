@@ -124,10 +124,13 @@ W.RACER_NAMES = { Antagonist = 'Kestar Bool', DarkEnigma = 'Shade', ElegantProfe
   TestPilot = 'Autopilot', MentorBossRace = 'Sebulba' }
 W.OPPONENTS = { 'Mercenary', 'ElegantProfessional', 'Star', 'InnerHonour', 'Thrall', 'Ghost', 'Rager', 'Nomad', 'Veteran',
   'QuietStrength', 'Protege' }
+-- URacerDef.PreferredVehicleType as read in game 2026-11-11 (0 car, 2 bike, 3 skimmer; LookSpike log)
+W.PREFERRED = { Mercenary = 2, ElegantProfessional = 2, Thrall = 2, Rager = 2, Veteran = 3, Ghost = 3, Nomad = 3, Star = 3,
+  Mentor = 3, MentorBossRace = 3 }
 function W.racerDef(key)
   local full = RACERS .. key .. '.DA_Racer_' .. key
   if not M.assets[full] then
-    M.assets[full] = M.new(full, { CharacterName = FText(W.RACER_NAMES[key] or key), PreferredVehicleType = 0 }, 'RacerDef')
+    M.assets[full] = M.new(full, { CharacterName = FText(W.RACER_NAMES[key] or key), PreferredVehicleType = W.PREFERRED[key] or 0 }, 'RacerDef')
   end
   return M.assets[full]
 end

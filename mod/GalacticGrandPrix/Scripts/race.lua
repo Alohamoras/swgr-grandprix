@@ -236,7 +236,8 @@ function R.launch(ev, classKey, vehKey, picks, mods)
   if not fe then return false, 'Cannot launch: ' .. why end
   local e = C.asset(ev.path)
   if not e then log('event not found: ' .. ev.path); return false, 'Event not found: ' .. ev.path:match('([^/]+)$') end
-  local veh = K.vehicle(vehKey)
+  -- v0.15: the vehicle is the racer's (main.lua passes RC.vehicle(); a cup passes the one it started with)
+  local veh = vehKey and K.vehicle(vehKey) or RC.vehicle()
   local tag = C.tag(try(function() return e.VehicleTypeTag end))
   if not R.fits(veh.key, tag) then return false, ('The %s can\'t enter %s (it needs: %s)'):format(veh.name, ev.title, tostring(tag)) end
   local arch = archetype(veh.arch)

@@ -293,8 +293,9 @@ return {
         -- anyone else gets the default four
     },
 
-    -- Vehicles (v0.1: the landspeeder; the choice comes with the cup flow). arch = the game's vehicle archetype
-    -- (0 car, 2 bike, 3 skimmer); build = the launch build whose part levels are set for the race and put back after.
+    -- Vehicles (v0.15: the racer you pick decides which one, Racers[].vehicle). arch = the game's vehicle archetype
+    -- (0 car, 2 bike, 3 skimmer; also the value of URacerDef.PreferredVehicleType); build = the launch build whose
+    -- part levels are set for the race and put back after.
     Vehicles = {
         { key = 'car', arch = 0, name = 'LANDSPEEDER', build = '/Game/Griffin/Gameplay/Campaign/Builds/VBD_Car_Base' },
         { key = 'bike', arch = 2, name = 'SPEEDER BIKE', build = '/Game/Griffin/Gameplay/Campaign/Builds/VBD_Bike_Base' },
@@ -306,21 +307,25 @@ return {
     -- show); line = one line from the game's bios (v0.14: in the garage's info line when the RACER tile is focused). The first entry is the default and the game's
     -- own pilot (CharacterList.Player = Shade); the pick is kept in the save (racer). A pilot who is one of the 11
     -- opponents takes Shade's place on the grid for the race, so the field stays 12. Keys are the game's: don't change.
+    -- v0.15 (TASKS.md A6): vehicle = the racer's own vehicle type (a Vehicles key): the launch build follows the racer.
+    -- The game's own field is URacerDef.PreferredVehicleType (read in game 2026-11-11, it matches this table; racer.lua
+    -- compares it once per racer at launch and logs a mismatch). Shade drives the base landspeeder (owner). unlockTitle
+    -- = the class whose title race unlocks the racer (Kestar Bool: the 150cc title); until then the garage skips him.
     Racers = {
-        { key = 'DarkEnigma',          name = 'Shade',          line = 'The campaign\'s racer' },
-        { key = 'Protege',             name = 'Ary Quill',      line = 'Audacious heir to the Quill racing legacy' },
-        { key = 'Mercenary',           name = 'Malis Vazosk',   line = 'Racing and mercenary work are one and the same' },
-        { key = 'QuietStrength',       name = 'Nik Skandaro',   line = 'The Bools\' former enforcer, racing for solace' },
-        { key = 'Veteran',             name = 'Griff Halloran', line = 'Still in his Imperial Navy armour; flying is what he knows' },
-        { key = 'Ghost',               name = 'Goli & 02-R0',   line = 'A meek prodigy from Polis Massa and their companion droid' },
-        { key = 'InnerHonour',         name = 'Soren Zaks',     line = 'A former smuggler redeeming his life on the racetrack' },
-        { key = 'Nomad',               name = 'Fola Kanjen',    line = 'From racing farmers\' cattle to the Galactic League' },
-        { key = 'ElegantProfessional', name = 'Katja Mox',      line = 'Forging her own destiny apart from the disgraced MoxCorp' },
-        { key = 'Thrall',              name = 'Sen Fira',       line = 'Races for Kestar until her debt to the Bools is repaid' },
-        { key = 'Rager',               name = 'Biddy Blas',     line = 'Hot-headed; his last shot at a face on a cereal box' },
-        { key = 'Star',                name = 'Lyren Shok',     line = 'Celebrity waveskimmer racer after a new start and fans' },
-        { key = 'Mentor',              name = 'Sebulba',        line = 'The legend himself, never on the League\'s grid' },
-        { key = 'Antagonist',          name = 'Kestar Bool',    line = 'Galactic League Champion, proud son of the Bool family' },
+        { key = 'DarkEnigma',          name = 'Shade',          vehicle = 'car',     line = 'The campaign\'s racer' },
+        { key = 'Protege',             name = 'Ary Quill',      vehicle = 'car',     line = 'Audacious heir to the Quill racing legacy' },
+        { key = 'Mercenary',           name = 'Malis Vazosk',   vehicle = 'bike',    line = 'Racing and mercenary work are one and the same' },
+        { key = 'QuietStrength',       name = 'Nik Skandaro',   vehicle = 'car',     line = 'The Bools\' former enforcer, racing for solace' },
+        { key = 'Veteran',             name = 'Griff Halloran', vehicle = 'skimmer', line = 'Still in his Imperial Navy armour; flying is what he knows' },
+        { key = 'Ghost',               name = 'Goli & 02-R0',   vehicle = 'skimmer', line = 'A meek prodigy from Polis Massa and their companion droid' },
+        { key = 'InnerHonour',         name = 'Soren Zaks',     vehicle = 'car',     line = 'A former smuggler redeeming his life on the racetrack' },
+        { key = 'Nomad',               name = 'Fola Kanjen',    vehicle = 'skimmer', line = 'From racing farmers\' cattle to the Galactic League' },
+        { key = 'ElegantProfessional', name = 'Katja Mox',      vehicle = 'bike',    line = 'Forging her own destiny apart from the disgraced MoxCorp' },
+        { key = 'Thrall',              name = 'Sen Fira',       vehicle = 'bike',    line = 'Races for Kestar until her debt to the Bools is repaid' },
+        { key = 'Rager',               name = 'Biddy Blas',     vehicle = 'bike',    line = 'Hot-headed; his last shot at a face on a cereal box' },
+        { key = 'Star',                name = 'Lyren Shok',     vehicle = 'skimmer', line = 'Celebrity waveskimmer racer after a new start and fans' },
+        { key = 'Mentor',              name = 'Sebulba',        vehicle = 'skimmer', line = 'The legend himself, never on the League\'s grid' },
+        { key = 'Antagonist',          name = 'Kestar Bool',    vehicle = 'car',     line = 'Galactic League Champion, proud son of the Bool family', unlockTitle = '150' },
     },
 
     -- AI strength per class (ai.lua; DESIGN.md §4, docs/research-2026-11-10.md "Difficulty"). Everything is

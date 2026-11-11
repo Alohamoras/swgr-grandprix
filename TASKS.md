@@ -21,7 +21,11 @@ next starts (they all touch main.lua and config.lua); game sessions one at a tim
    see CHANGELOG v0.13.0.)
 5. [x] The main-menu poll made cheaper (section 4, one sweep 5x a second at the menu). (Built 2026-11-11 as v0.13.1;
    see CHANGELOG v0.13.1.)
-6. Racer = vehicle build (after B7 proves it, and after v0.11): picking a racer gives you their own vehicle and
+6. [x] (Built 2026-11-11 as v0.15.0, see CHANGELOG: the vehicle type and build follow the racer, no VEHICLE tile,
+   Kestar locked until the 150cc title (skipped by Select, named in the RACER info line), old saves' vehicle pick
+   dropped. **Still to do: the racer's own look / livery preset**, unproven in game - B7; TODO in racer.lua and
+   DESIGN.md §13. Not yet seen in game.)
+   Racer = vehicle build (after B7 proves it, and after v0.11): picking a racer gives you their own vehicle and
    looks; VEHICLE leaves the garage; Shade drives the base landspeeder (no bike / skimmer choice, owner
    2026-11-10); each racer tile names the vehicle type; class parts go on the racer's build and are put back after.
    Kestar Bool is locked until you win the 150cc title race (`titles['150'].won`; the tile says how to unlock him);

@@ -5,7 +5,7 @@ local W = require('world')
 local T = require('util')
 local EV = '/Game/Griffin/Gameplay/Events/Planets/'
 local WAR = EV .. 'Mastiff/Loop_A/EVT_MAS_LOOP_A_REV' -- (v0.11: the Jakku Cup at 100cc opens on The War Fields reversed)
-T.boot({ version = 2, races = 3, cups = 0, class = '100', vehicle = 'bike',
+T.boot({ version = 2, races = 3, cups = 0, class = '100', vehicle = 'bike', racer = 'Rager', -- (v0.15: Biddy Blas rides a bike; the old vehicle field is dropped)
   run = { class = '100', cup = 'jakku', vehicle = 'bike', race = 1, races = 4, points = {}, last = {}, history = {} },
   restores = {}, abilityRestores = {} })
 local K = require('gp')
@@ -46,8 +46,8 @@ W.backToMenu(); M.tick(45)
 sv = T.save()
 local rec = sv.records['100'] and sv.records['100'][WAR]
 T.check(rec and rec.time == 124.31 and rec.lap == 58.1, 'record written from the race: time 2:04.31, lap 0:58.10')
-T.check(rec and rec.vehicle == 'bike' and rec.at == os.date('%Y-%m-%d'), 'with the cup\'s vehicle and today\'s date')
-T.check(T.logHas('NEW RECORD THE WAR FIELDS (REVERSE) 100cc: 2:04.31') and not T.logHas('(was '), 'NEW RECORD logged, no "was" the first time')
+T.check(rec and rec.vehicle == 'bike' and rec.at == os.date('%Y-%m-%d'), 'with the cup\'s vehicle (Biddy Blas: the bike) and today\'s date')
+T.check(T.logHas('NEW RECORD THE WAR FIELDS (REVERSE) 100cc: 2:04.31') and not T.logHas('2:04.31 (was '), 'NEW RECORD logged, no "was" the first time')
 T.check(T.logHas('RESULT THE WAR FIELDS (REVERSE): 1st (time 2:04.31, best lap 0:58.10'), 'RESULT line shows the time and lap')
 T.check(sv.last.time == 124.31 and sv.last.lap == 58.1, 'last race keeps its time and lap')
 T.check(sv.run and sv.run.race == 2 and sv.run.points.YOU == 15, 'the cup went on: race 2 next, you 15 points')

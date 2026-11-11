@@ -74,7 +74,8 @@ local function fill(d)
   d.mods = type(d.mods) == 'table' and d.mods or nil
   d.modRestores = type(d.modRestores) == 'table' and d.modRestores or {}
   d.class = type(d.class) == 'string' and d.class or nil -- the class picked last
-  d.vehicle = type(d.vehicle) == 'string' and d.vehicle or 'car'
+  -- (v0.15: no vehicle pick - the racer decides the vehicle, racer.lua RC.vehicle; an old save's `vehicle` is dropped
+  -- in K.load)
   d.racer = type(d.racer) == 'string' and d.racer or nil -- v0.8: your pilot (racer.lua, config Racers key); nil = the game's own. racerRestore = the list to put back
   -- v0.2: the cup in progress (nil = none; v0.9: dropped at boot, K.drop - cups cannot be resumed) and best finishes
   d.run = type(d.run) == 'table' and d.run or nil
@@ -126,6 +127,13 @@ function K.load()
         log(('save converted from version %d to %d (four classes; old save kept as %s)'):format(was, K.SAVE_VERSION, name))
       else
         K.data = fill(t)
+      end
+      -- v0.15: the vehicle pick is gone (the racer decides the vehicle); an old save's is dropped once, the racer stays
+      if K.data.vehicle ~= nil then
+        log(('[save] the old vehicle pick (%s) is dropped: the racer decides the vehicle now (v0.15); racer kept: %s'):format(
+          tostring(K.data.vehicle), tostring(K.data.racer or 'the default')))
+        K.data.vehicle = nil
+        K.save()
       end
       local dropped = K.dropOldCups(K.data)
       if #dropped > 0 then
@@ -487,7 +495,9 @@ function K.record(ev, pos, field, extra)
   local okG, g = pcall(K.gaps, field)
   if okG then out.gaps, K.data.last.gaps = g, g else log('gaps not worked out: ' .. tostring(g)) end
   local run = K.data.run
-  updateRecord(ev, out, extra, run and run.vehicle or K.data.vehicle)
+  -- (v0.15: outside a cup - the title race - the racer's vehicle; racer.lua requires gp, so it's loaded here lazily)
+  local okV, veh = pcall(function() return run and run.vehicle or require('racer').vehicle().key end)
+  updateRecord(ev, out, extra, okV and veh or nil)
   -- v0.8: a title race (1 v 1 against the class champion) is never part of a cup
   if ev.titleRace then
     local okT, res = pcall(function() return require('title').record(ev, pos) end)
