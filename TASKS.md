@@ -211,6 +211,17 @@ From the afternoon's findings (docs/ai-study-2026-11-11.md, docs/menu-review-202
    Campaign) does on our page and hide it. Then 6-9 of the review as small fixes.
 Owner checks any time: the pad's B on the boot page; the racer looks (autotest/shots/look1-a/b.png, b6-2-race.png).
 
+## Next, round 2 (owner 2026-11-11 night, after racing 50cc + 100cc; OWNER.md "Done")
+1. **v0.21:** a little harder at 50 / 100cc (more of a gap to catch after a crash); CONTINUE at a cup's end -> that
+   class's cups page, focus on the cup just raced; cut the rival (code, save field, standings marks, HOME line);
+   the title race a 1 v 1 on a normal track vs the class leader (best bot of your last cup at that class; GridMakeup
+   2 + Opponents cut, B6); Kestar = a final boss after 150cc (stadium 1 v 1 opened by the 150cc title, beating him
+   unlocks him as a racer); less clutter on HOME and sub-screens (no "Next:" line); no grey see-through page
+   background if text reads without it; RESET clears ALL progress incl. titles behind two "are you sure" questions;
+   the Ando short track renamed on theme.
+2. **Later: progress badges** on the right side of the screen showing every unlock / achievement at a glance (the
+   base game has a dedicated badge screen; ours sits beside the menu), replacing goal lines.
+
 ## v0.9: cups are not resumable (owner, 2026-11-10; built, NOT yet seen in game)
 Design rule (DESIGN.md §13): like Mario Kart, leaving a Grand Prix loses it. A cup exists only from its first
 race's launch to the standings of its last race.
