@@ -64,11 +64,10 @@ function SD.margin(g)
 end
 -- your line: 'You: 2nd in this race   -   1:45.07  (best lap 0:48.12)   -   0.4 s behind Biddy Blas' (no best lap
 -- on a sprint)
+-- v0.22 (quiet pass): '2nd   -   1:45.07   -   0.4 s behind Biddy Blas' - no 'You:', no best lap (a new one is a note)
 local function yourLine(r, ev, head)
-  local you = (head or 'You: %s in this race'):format(r.pos and ordinal(r.pos) or 'did not finish')
-  if r.time and K.fmtTime then
-    you = you .. ('   -   %s'):format(K.fmtTime(r.time)) .. ((r.lap and not sprint(ev)) and ('  (best lap %s)'):format(K.fmtTime(r.lap)) or '')
-  end
+  local you = (head or '%s'):format(r.pos and ordinal(r.pos) or 'Did not finish')
+  if r.time and K.fmtTime then you = you .. ('   -   %s'):format(K.fmtTime(r.time)) end
   local m = SD.margin(r.gaps)
   if m then you = you .. '   -   ' .. m end
   return you
@@ -113,16 +112,14 @@ function SD.cupSpec(r)
   hero.lines[#hero.lines + 1] = { ('%s   -   %s   -   %d points%s'):format(cup.name, cls.name, r.pts or 0, r.newBest and '   -   NEW BEST' or ''), 22, U.WHITE }
   if r.perfect then hero.lines[#hero.lines + 1] = { 'PERFECT CUP', 30, U.GOLD } end
   local after = {}
-  -- the last race in one line: your place and time, then its record / near misses and the cup's near miss
-  local line = yourLine(r, ev, 'Last race: %s')
+  -- v0.22 (quiet pass): no 'Last race' line - only its record / near misses and the cup's near miss, when there are
+  -- any; what the cup unlocked, but no goal line (owner: no goal lines)
   local note = raceNotes(r, ev)
   local nearCup = run and CU.nearTrophy(run, (cfg.Near or {}).TrophyPoints) or nil
   if nearCup then note[#note + 1] = nearCup end
-  if #note > 0 then line = line .. '   -   ' .. table.concat(note, '   -   ') end
-  after[#after + 1] = { line, 20, #note > 0 and U.GOLD or U.GREY }
-  local nxt = SD.whatsNext(r)
-  if nxt then after[#after + 1] = { nxt, 24, U.GOLD } end
-  return { key = 'standings', title = 'CUP RESULT', hero = hero, lines = {}, after = after,
+  if #note > 0 then after[#after + 1] = { table.concat(note, '   -   '), 20, U.GOLD } end
+  if r.unlocked and #r.unlocked > 0 then after[#after + 1] = { 'UNLOCKED:  ' .. table.concat(r.unlocked, '   -   '), 24, U.GOLD } end
+  return { key = 'standings', title = '', hero = hero, lines = {}, after = after,
     table = run and SD.podiumTable(run) or nil, backdrop = ART.BACKDROP, cupOver = true }
 end
 
@@ -143,7 +140,7 @@ function SD.spec(r)
   if stakes then lines[#lines + 1] = { stakes, 22, U.WHITE } end
   local note, big = raceNotes(r, ev)
   if #note > 0 then lines[#lines + 1] = { table.concat(note, '   -   '), big and 22 or 20, U.GOLD } end
-  return { key = 'standings', title = 'STANDINGS', lines = lines,
+  return { key = 'standings', title = '', lines = lines,
     table = run and SD.rankingTable(run) or nil, backdrop = ART.BACKDROP }
 end
 

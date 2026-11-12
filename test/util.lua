@@ -82,6 +82,17 @@ function T.titles()
   for _, t in ipairs(W.tiles or {}) do all[#all + 1] = label(t) end
   return table.concat(all, '|')
 end
+-- v0.22: the medal on each tile (the icon's texture): 'GOLD|SILVER||...', '' where none
+function T.medals()
+  local all = {}
+  for _, t in ipairs(W.tiles or {}) do
+    local img = rawget(t, '__props').Img_Icon
+    local tex = img and rawget(img, '__props').__tex
+    local n = tex and tostring(rawget(tex, '__name') or ''):match('Medals_(%a+)') or ''
+    all[#all + 1] = n:upper()
+  end
+  return table.concat(all, '|')
+end
 -- the small extra line on each tile (the trophy badge), '' where none: 'GOLD TROPHY||...'
 function T.badges()
   local all = {}

@@ -19,7 +19,7 @@ T.clickTitle('150CC'); M.tick(3)
 T.check(T.titles():find('^50CC|100CC') ~= nil, 'a locked class can\'t be entered')
 T.clickTitle('100CC'); M.tick(3)
 local b = T.badges()
-T.check(b:find('^GOLD TROPHY|GOLD TROPHY|GOLD TROPHY|GOLD TROPHY|SENTINEL I|') ~= nil, '100cc: the four golds, Sentinel not raced (' .. b .. ')')
+T.check(T.medals():find('^GOLD|GOLD|GOLD|GOLD||') ~= nil, '100cc: the four golds, Sentinel not raced (' .. T.medals() .. ')')
 -- locked: the Galactic Cup and the title race
 T.check(select(2, b:gsub('LOCKED', '')) == 2 and b:find('|LOCKED|LOCKED$') ~= nil, 'the Galactic Cup and the title race locked until five trophies (' .. b .. ')')
 local n = M.called('LaunchQuickRace')
@@ -51,7 +51,7 @@ T.check(T.logHas('unlocked: 150cc, GALACTIC CUP at 100cc'), 'the fifth gold unlo
 T.check(T.save().best['100'].sentinel == 1, 'Sentinel gold saved')
 T.clickTitle('CONTINUE'); M.tick(3)
 b = T.badges()
-T.check(b:find('^GOLD TROPHY|GOLD TROPHY|GOLD TROPHY|GOLD TROPHY|GOLD TROPHY|') ~= nil, '100cc: five golds (' .. b .. ')')
+T.check(T.medals():find('^GOLD|GOLD|GOLD|GOLD|GOLD|') ~= nil, '100cc: five golds (' .. T.medals() .. ')')
 T.check(select(2, b:gsub('LOCKED', '')) == 1 and b:find('|LOCKED$') ~= nil, '100cc: the Galactic Cup open, the title race still locked (' .. b .. ')')
 -- the Galactic Cup: four races on four planets; a trophy opens the title race
 local mark = T.mark()

@@ -261,6 +261,19 @@ Each step is its own version, checked in game (owner away) before the next.
 4. **Later: progress badges** (round 2 item 2) from the game's insignias, a column on the right of HOME.
 
 ## Discussions (owner 2026-11-11 late; no decision yet, talk before building)
+- **The title race's bot is slow** (owner's 150cc title race, 2026-11-11 21:13, v0.21: vs Biddy Blas on The War
+  Fields (dawn), racing as Ary Quill). The owner: he "either crashed a few times on his own or just went slow for a
+  while". The log: won by **+16.0 s** (2:05.66), against a few seconds in a full cup; the grid cut and put-back,
+  the result and the unlock all worked. Untested causes: a lone bot's mistakes show in a 1 v 1, while a full field
+  hides them; the pacing (tier windows, `RacePacingLowestSpeedMph`) acting differently with one AI; Surge_Aggressive
+  or Vent_Flame causing crashes. Next: race the same 1 v 1 with the autopilot and compare the bot's time with the
+  best bot's time in the full-grid study (~105 s at The War Fields (dawn), 150cc). A trace in the race needs care:
+  no lookups per tick in races, no objects kept between ticks.
+  **Kestar too** (owner, 21:18, the Showdown at 150cc, the game's own 1 v 1 event, no grid cut): "we took off from
+  the start line and he drove right into the left wall". What both races share: our 150cc AI settings (no catch-up,
+  no slowdown, no forced errors, no speed matching) and **Surge_Aggressive in the bot's four** (a surge fired off the
+  line, with a 75% perfect-start chance, fits a wall hit at the start). To separate them: a 1 v 1 with
+  Surge_Aggressive swapped out, and one on the game's stock AI settings.
 - **Tune-ups gated by class:** tune-ups 1 and 2 are "great packs of abilities" but shouldn't be gated by cc class.
   Gated some other way (trophies, golds, titles: an unlock to play for) or not at all? Ties in with the "no top"
   point in the review (rewards to come back for).

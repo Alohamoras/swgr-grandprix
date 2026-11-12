@@ -33,7 +33,7 @@ T.check(T.logHas('[menu] page backdrop: none, transparent (config PageBackdrop =
   'the backdrop logged')
 local rs
 for _, it in ipairs(home.items) do if it.title == 'RESET PROGRESS' then rs = it end end
-T.check(rs and rs.desc == 'Asks twice' and rs.info:find('titles included', 1, true) ~= nil, 'the RESET tile says it asks twice, titles included')
+T.check(rs and rs.desc == nil and not rs.info:find('%a'), 'v0.22: the RESET tile has no extra words (the two questions say it)')
 
 -- 1. NO on the first question: nothing cleared
 T.clickTitle('RESET PROGRESS'); M.tick(3)

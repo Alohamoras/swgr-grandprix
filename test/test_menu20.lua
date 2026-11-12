@@ -47,7 +47,7 @@ end
 local out = runCup('100', 'sentinel', { 1, 1, 1, 1 })
 S.result = out
 local spec = SC.standings()
-T.check(spec.title == 'CUP RESULT' and spec.hero ~= nil, 'the cup result is its own screen (CUP RESULT, a hero block)')
+T.check(spec.title == '' and spec.hero ~= nil, 'the cup result is its own screen (a hero block; v0.22: no title)')
 T.check(spec.hero.icon == ART.medal(1) and spec.hero.color == ART.medalColor(1) and (spec.hero.size or 0) >= 150,
   'the medal large, gold, tinted gold (' .. tostring(spec.hero.icon) .. ')')
 T.check(spec.hero.lines[1][1] == 'GOLD TROPHY' and spec.hero.lines[1][2] >= 44, 'the trophy named big beside the medal')
@@ -56,7 +56,7 @@ T.check(spec.table and #spec.table.rows == 3 and spec.table.rows[1].cells[2] == 
   'the final top 3 only (' .. (spec.table and #spec.table.rows or 0) .. ' rows)')
 T.check(hasText(spec.after, 'UNLOCKED:  150cc   -   GALACTIC CUP at 100cc'), 'what\'s next: what it unlocked (' .. joined(spec.after) .. ')')
 T.check(not findText(spec.after, 'Next:'), 'one what\'s-next line only')
-T.check(findText(spec.after, 'Last race: 1st') ~= nil, 'the last race in one line (' .. joined(spec.after) .. ')')
+T.check(not findText(spec.after, 'Last race') and findText(spec.after, 'NEW RECORD') ~= nil, 'v0.22: no Last race line, its record kept (' .. joined(spec.after) .. ')')
 local cont = spec.items[1]
 T.check(cont.title == 'CONTINUE' and cont.desc == 'Back to the cups' and S.focusMem.cups == 5,
   'v0.21: CONTINUE lands on the cup just raced, the Sentinel Cup (' .. tostring(cont.desc) .. ', ' .. tostring(S.focusMem.cups) .. ')')
@@ -70,8 +70,7 @@ spec = SC.standings()
 T.check(out.trophy == 'SILVER' and spec.hero.icon == ART.medal(2) and spec.hero.color == ART.medalColor(2), 'silver: the silver medal, tinted silver')
 T.check(not hasText(spec.hero.lines, 'PERFECT CUP'), 'no PERFECT CUP badge when not')
 T.check(#spec.table.rows == 3 and spec.table.rows[2].cells[2] == 'YOU', 'you 2nd in the top 3 (' .. spec.table.rows[2].cells[2] .. ')')
-T.check(hasText(spec.after, 'Next: 2 more trophies at 150cc open the GALACTIC CUP and 200cc'),
-  'what\'s next: how close the next unlock is (' .. joined(spec.after) .. ')')
+T.check(not findText(spec.after, 'Next:'), 'v0.22 (owner: no goal lines): no Next: line (' .. joined(spec.after) .. ')')
 T.check(spec.items[1].desc == 'Back to the cups' and S.focusMem.cups == 3, 'v0.21: CONTINUE lands on the Ando Cup, the cup just raced')
 -- v0.21: no rival - the winner's row plain, no call-out; the leader saved for the title race
 T.check(spec.table.rows[1].cells[2] == 'Biddy Blas' and spec.table.rows[1].color == require('ui').WHITE, 'v0.21: no RIVAL tag or colour')
@@ -86,8 +85,7 @@ S.result = out
 spec = SC.standings()
 T.check(spec.hero.icon == nil and spec.hero.lines[1][1] == '5TH PLACE', 'no trophy: no medal, 5TH PLACE')
 T.check(#spec.table.rows == 4 and spec.table.rows[4].cells[2] == 'YOU' and spec.table.rows[4].cells[1] == '5th', 'the top 3 and your row under them')
-T.check(hasText(spec.after, 'Next: a trophy in the Sentinel Cup at 150cc opens the GALACTIC CUP and 200cc'),
-  'what\'s next: one cup away, named (' .. joined(spec.after) .. ')')
+T.check(not findText(spec.after, 'Next:'), 'v0.22: no Next: line here either')
 
 -- d) nothing left to open at the class: the near miss on the race line, no Next: line
 local run = CU.new('100', 'jakku', 'car', 4)
@@ -107,7 +105,7 @@ spec = SD.spec({ run = run, ev = { title = 'X', race = 1, laps = 2 }, pos = 2, t
 local marked
 for _, r in ipairs(spec.table.rows) do if tostring(r.cells[2]):find('RIVAL', 1, true) then marked = r end end
 T.check(not marked, 'v0.21: the standings: no row marked RIVAL')
-T.check(findText(spec.lines, '(best lap 1:00.00)') ~= nil, 'a race of laps: your best lap shown')
+T.check(not findText(spec.lines, '(best lap'), 'v0.22: no best lap on your line (a new one is a note)')
 spec = SD.spec({ run = run, ev = { title = 'X', race = 1, laps = 1, kind = 'Sprint' }, pos = 2, time = 120, lap = 120, newLap = true })
 T.check(not findText(spec.lines, 'best lap') and not findText(spec.lines, 'BEST LAP'), 'a sprint: no best lap (' .. joined(spec.lines) .. ')')
 -- review 8: the seconds on your line, from the race's gaps
@@ -118,7 +116,7 @@ local gp1 = K.gaps({ { name = 'Dwayne', you = true, pos = 1, finished = true, ti
 T.check(SD.margin(gp1) == '7.8 s ahead', 'the margin when you won: 7.8 s ahead')
 T.check(SD.margin(nil) == nil and SD.margin(K.gaps({ { name = 'Dwayne', you = true, pos = 1, finished = true } })) == nil, 'no times: no margin')
 spec = SD.spec({ run = run, ev = { title = 'X', race = 1, laps = 2 }, pos = 2, time = 100.4, gaps = gp2 })
-T.check(findText(spec.lines, 'You: 2nd in this race   -   1:40.40   -   0.4 s behind Biddy Blas') ~= nil, 'on your line (' .. joined(spec.lines) .. ')')
+T.check(findText(spec.lines, '2nd   -   1:40.40   -   0.4 s behind Biddy Blas') ~= nil and not findText(spec.lines, 'You:'), 'on your line (' .. joined(spec.lines) .. ')')
 
 -- f) HOME (v0.21: no Next: line, no blurbs), the same measure on every class tile, no League line; the cups page: no
 -- how-to, no blurb, no levels line
@@ -131,7 +129,7 @@ local infos = {}
 for _, it in ipairs(home.items) do infos[#infos + 1] = tostring(it.info) end
 T.check(not table.concat(infos, '|'):find('division', 1, true) and not table.concat(infos, '|'):find('League proper', 1, true),
   'v0.21: no class blurbs in HOME\'s info lines')
-T.check(home.items[2].info:match('^Parts level 3, abilities level 1%.') ~= nil, 'v0.21: a class\'s info line: its speed only (' .. home.items[2].info .. ')')
+T.check(not home.items[2].info:find('%a'), 'v0.22: a class has no info line (' .. home.items[2].info .. ')')
 local measures = {}
 for _, it in ipairs(home.items) do
   if it.classKey and not it.disabled then measures[#measures + 1] = tostring(it.badge) .. '/' .. tostring(it.desc) end
@@ -153,7 +151,7 @@ K.data.records['100'] = { [sprintRace.r.path] = { time = 61, lap = 61 } }
 cups = SC.cups()
 local info
 for _, it in ipairs(cups.items) do if it.title == sprintRace.cup.name then info = it.info end end
-T.check(info and info:find('best 1:01.00', 1, true) and not info:find('/ lap', 1, true), 'the cups page: a sprint\'s record without a lap (' .. tostring(info) .. ')')
+T.check(info and info:find('GRAVEYARD     1:01.00', 1, true) and not info:find('lap', 1, true), 'the cups page: a record is the time alone (v0.22) (' .. tostring(info) .. ')')
 K.data.records = {}
 T.finish()
 

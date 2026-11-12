@@ -140,7 +140,7 @@ for k = 1, 3 do
   T.check(T.logHas('[chain] panel added: on Default_Results', mark), 'B: race ' .. k .. ': the standings panel on the results screen')
   T.check(T.logCount('RESULT ', mark) == 1 and T.save().run.race == k + 1, 'B: race ' .. k .. ' recorded once, on the results screen; the cup at race ' .. (k + 1))
   local txt = W.textsSince(calls)
-  T.check(txt:find('STANDINGS', 1, true) and txt:find('THIS RACE', 1, true) and txt:find('POINTS', 1, true) and txt:find('MOVED', 1, true)
+  T.check(not txt:find('STANDINGS', 1, true) and txt:find('THIS RACE', 1, true) and txt:find('POINTS', 1, true) and txt:find('MOVED', 1, true)
     and txt:find(('race %d of 4'):format(k), 1, true), 'B: race ' .. k .. ': the panel has the cup line and the table')
   -- v0.21: no rival marked on the panel
   T.check(not txt:find('RIVAL', 1, true), 'B: race ' .. k .. ': no RIVAL on the panel (v0.21)')

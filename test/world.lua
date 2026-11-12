@@ -32,7 +32,7 @@ function W.widgetLib()
     p.IsHovered = function() return p.__hovered == true end
     p.SzB_SizeOverride = M.new('sz', {})
     p.Img_TileArt = M.new('img', {})
-    p.Img_Icon = M.new('img', {})
+    p.Img_Icon = M.new('img', { SetBrushFromTexture = function(self, tex) rawget(self, '__props').__tex = tex end })
     if cname:find('TileCommon', 1, true) then
       -- v0.20: the tile's badge and description text in their panels (the label strip goes in their place)
       p.Txt_Label_Supplemental = M.new('Txt_Label_Supplemental', {}, 'FuseTextBlock')

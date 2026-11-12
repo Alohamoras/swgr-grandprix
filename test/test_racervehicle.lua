@@ -68,7 +68,7 @@ T.check(racer and racer.info:find('Kestar Bool is locked. To unlock: beat Kestar
 local garage
 for _, it in ipairs(SC.home().items) do if it.title == 'GARAGE' then garage = it end end
 T.check(garage and garage.desc == 'Biddy Blas\nSpeeder bike', 'HOME\'s GARAGE tile: racer and vehicle type (' .. tostring(garage and garage.desc):gsub('\n', ' / ') .. ')')
-T.check(garage and garage.info:find('^Abilities: ') ~= nil, 'v0.21: its info: the abilities only (the tile names the racer)')
+T.check(garage and not garage.info:find('%a'), 'v0.22: no info line on GARAGE (the tile names the racer)')
 
 -- 4. v0.21: the 150cc title alone doesn't unlock him; beating him (the final boss) does: Kestar in the cycle, the lock
 -- line gone

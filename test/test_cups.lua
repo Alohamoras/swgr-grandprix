@@ -58,10 +58,11 @@ for _, cls in ipairs({ '50CC', '100CC', '150CC', '200CC' }) do
   -- (v0.14: the tile names the conditions under your best - the conditions alone when both don't fit; the races
   -- themselves are in the focused cup's info line)
   if cls == '150CC' or cls == '200CC' then
-    T.check(d[1]:find('\nDawn, scorching$') ~= nil and d[2]:find('\nNight, wet$') ~= nil and d[3]:find('\nNight, snow$') ~= nil
-      and d[4]:find('\nMines, night$') ~= nil and d[5] == 'Blue hour, overcast, storm',
+    -- (v0.22: the conditions alone - the medal icon shows your best)
+    T.check(d[1] == 'Dawn, scorching' and d[2] == 'Night, wet' and d[3] == 'Night, snow'
+      and d[4] == 'Mines, night' and d[5] == 'Blue hour, overcast, storm',
       cls .. ': each planet tile names its conditions (' .. table.concat(d, ' / '):gsub('\n', ' ') .. ')')
-    T.check(d[6] == 'Not raced yet', cls .. ': the Galactic Cup has none: your best only (' .. d[6] .. ')')
+    T.check(d[6] == '', cls .. ': the Galactic Cup has no conditions: no line (v0.22: no "Not raced yet") (' .. d[6] .. ')')
   else
     T.check(not d[1]:find('\n') and not d[2]:find('\n') and not d[3]:find('\n'), cls .. ': no conditions, your best only (' .. d[1] .. ')')
   end

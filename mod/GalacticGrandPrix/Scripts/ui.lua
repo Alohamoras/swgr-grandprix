@@ -243,11 +243,15 @@ local function makeTile(lib, pc, it, make)
   return t
 end
 
+-- v0.22 (owner: the gold and white text is too light on the menu's own pale art): while a page without a picture
+-- behind it is built, every text colour is swapped for dark grey (U.ink); pages with a picture keep the light colours
+local inkOn = false
 local function textBlock(make, s, size, color, wrapAt)
   local t = make('/Script/UMG.TextBlock')
   if not alive(t) then return nil end
   try(function() t:SetText(FText(s)) end)
   local c = color or { 1, 1, 1 }
+  if inkOn then c = U.ink(c) end
   try(function() t:SetColorAndOpacity({ SpecifiedColor = { R = c[1], G = c[2], B = c[3], A = 1 }, ColorUseRule = 0 }) end)
   if size then try(function() local f = t.Font; f.Size = math.floor(size * (U.TEXT or 1) + 0.5); t:SetFont(f) end) end
   if wrapAt then
@@ -259,6 +263,12 @@ end
 
 local GOLD, GREY, WHITE = { 1, 0.82, 0.35 }, { 0.72, 0.74, 0.78 }, { 1, 1, 1 }
 U.GOLD, U.GREY, U.WHITE = GOLD, GREY, WHITE
+-- the dark inks (v0.22): white and gold -> dark grey, the light grey (small print) -> a lighter dark grey
+U.DARK, U.DARK2 = { 0.12, 0.13, 0.14 }, { 0.26, 0.27, 0.29 }
+function U.ink(c)
+  if c == GREY then return U.DARK2 end
+  return U.DARK
+end
 
 -- a screen's text lines ({ text, size, color }) into a vertical box, wrapped at `wrap`; top = the space above each
 local function addLines(box, make, lines, wrap, top)
@@ -377,6 +387,7 @@ local function buildInner(spec, host)
   -- cup result, the title result - tables and big lines over the menu's busy art) keeps it either way
   local bd = texture(spec.backdrop)
   try(function() border:SetBrushColor(U.pageColor(bd ~= nil)) end)
+  inkOn = (bd == nil) and cfg.PageBackdrop ~= true and cfg.DarkText ~= false
   -- v0.7: a picture behind the page (spec.backdrop), darkened so the text stays readable
   if bd then
     try(function() border:SetBrushFromTexture(bd) end)
@@ -409,7 +420,7 @@ local function buildInner(spec, host)
   try(function() border:SetContent(content) end)
 
   local wrap = (U.TILE_W + 20) * U.COLS
-  local t1 = textBlock(make, spec.title or '', 34, WHITE)
+  local t1 = (spec.title or '') ~= '' and textBlock(make, spec.title, 34, WHITE) or nil
   if t1 then try(function() box:AddChildToVerticalBox(t1) end) end
   if spec.hero then addHero(box, make, spec.hero, wrap) end
   addLines(box, make, spec.lines, wrap)
@@ -581,7 +592,7 @@ function U.panel(spec, tree, opts)
   try(function() border:SetContent(box) end)
   -- (the text wraps at the table's width or the panel's least width, whichever is wider: one panel width)
   local wrap = math.max(tableWidth(spec.table) or 0, (opts.minW or 1600) - 96)
-  local t1 = textBlock(make, spec.title or '', 34, WHITE)
+  local t1 = (spec.title or '') ~= '' and textBlock(make, spec.title, 34, WHITE) or nil
   if t1 then try(function() box:AddChildToVerticalBox(t1) end) end
   if spec.hero then addLines(box, make, spec.hero.lines, wrap) end -- (v0.20: the cup result's lines, no picture here)
   addLines(box, make, spec.lines, wrap)
@@ -613,6 +624,7 @@ function U.build(spec, host)
   local L = spec and spec.layout
   if L then U.TILE_W, U.TILE_H, U.COLS, U.ROWS = L.w or U.TILE_W, L.h or U.TILE_H, L.cols or U.COLS, L.rows or U.ROWS end
   local ok, res = pcall(buildInner, spec, host)
+  inkOn = false
   U.TILE_W, U.TILE_H, U.COLS, U.ROWS = saved[1], saved[2], saved[3], saved[4]
   if not ok then log('[menu] build error: ' .. tostring(res)); return nil end
   return res
