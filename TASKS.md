@@ -228,6 +228,52 @@ Owner checks any time: the pad's B on the boot page; the racer looks (autotest/s
 2. **Later: progress badges** on the right side of the screen showing every unlock / achievement at a glance (the
    base game has a dedicated badge screen; ours sits beside the menu), replacing goal lines.
 
+## Round 3: the UI (owner 2026-11-11 late: "clean up the UI more ... the menus are all very similar looking boxes";
+plan: docs/review-2026-11-11.md §2)
+Each step is its own version, checked in game (owner away) before the next.
+1. **v0.22: the quiet pass** (text only, no new layout).
+   - [ ] Dark grey text on the pages without a backdrop (HOME, cups, garage, the questions): the gold and white lines
+         are too light on the menu's pale art (owner). The standings / results pages keep light text on their picture.
+   - [ ] Cut the stray text (review table A): HOME's title and parts line, "Asks twice"; the cups page's "- CUPS",
+         "Best:", medal words on tiles, "4 PLANETS", planet and laps in the race list (track names on one line);
+         the garage's "Select: next racer." and the other how-to sentences; the standings' "STANDINGS" title and
+         "You: ..." line; the cup result's "Last race" line; the title result's second sentences.
+   - [ ] **The GRAND PRIX tab takes ~3 s to show after the menu loads** (owner). Cause: tab.lua waits for the menu
+         to be seen 3 times in a row (SETTLE = 3, one look a second), a guard from the v0.9.0 crash that was most
+         likely the CampaignLogger mod (since removed). Log 21:00:33 menu seen -> 21:00:35 tab added -> 21:00:39 page
+         up. Fix: look every 200 ms while a new menu settles, settle on ~1 s of time, open our page as soon as the tab
+         is in. Check for crashes over several boots and race returns.
+   - [ ] Old code to attic/ (study mode, the chain reset route; owner: "take it out and save it somewhere as old code").
+2. **v0.23: a layout per screen, the cups page first.**
+   - [ ] ui.lua: rows of tiles, each row its own tile size (in place of the one uniform grid), the page centred.
+         Check the pad / D-pad moves between rows of different sizes.
+   - [ ] Cups page: the five planets in one row; GALACTIC CUP wide below, TITLE RACE and KESTAR BOOL as portrait
+         tiles (the leader's face, Kestar's `T_UI_Antagonist`); medals as icons only, bigger, gold vs bronze told
+         apart; the focused cup's four tracks on one line.
+3. **v0.24: HOME, the cup result, the garage, the standings.**
+   - [ ] HOME: four tall class posters with medal counts as icons; a small row: GARAGE (your racer's face), RESET.
+   - [ ] Cup result: the medal large, centred; the top 3 as a podium of portraits (2nd 1st 3rd).
+   - [ ] Garage: your racer large on the left, abilities (the game's large ability icons) and tune-ups on the right.
+         (Depends on "the garage after the cup" below.)
+   - [ ] Standings: fewer lines above the table; the MOVED column only when someone moved.
+   - [ ] Portraits: map each of the 14 racers to the game's art (`Content/Characters`, else their racer style);
+         look at each in game (some decode badly in our previews).
+4. **Later: progress badges** (round 2 item 2) from the game's insignias, a column on the right of HOME.
+
+## Discussions (owner 2026-11-11 late; no decision yet, talk before building)
+- **Tune-ups gated by class:** tune-ups 1 and 2 are "great packs of abilities" but shouldn't be gated by cc class.
+  Gated some other way (trophies, golds, titles: an unlock to play for) or not at all? Ties in with the "no top"
+  point in the review (rewards to come back for).
+- **Heat / cold and the packs:** the owner half likes picking the right pack for a scorching or snowy cup. How to make
+  it matter more, or drop it.
+- **The garage after the cup** (owner idea): pick the cup, then the garage (racer, abilities, tune-ups) with START,
+  so the choice is made on purpose for that cup. One press more. Claude's view: docs/review-2026-11-11.md §3.
+- **Tracks per class:** forward at 50cc, reverse at 100cc, weather at 150cc is distinct, but the owner would like to
+  race any track at any class; a cup of every track on a planet would be long.
+- **Three classes or four:** 200cc may still be cut. Each class is distinct today, but 200cc is so powerful that
+  three classes (parts 0-1 / 5 / 9, 200cc detuned to the top) might be better; how it changes the AI profiles,
+  ability levels, unlocks, titles and Kestar.
+
 ## v0.9: cups are not resumable (owner, 2026-11-10; built, NOT yet seen in game)
 Design rule (DESIGN.md §13): like Mario Kart, leaving a Grand Prix loses it. A cup exists only from its first
 race's launch to the standings of its last race.
