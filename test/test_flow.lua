@@ -1,5 +1,5 @@
--- v0.2 / v0.8: a whole cup. GRAND PRIX tab -> 150cc -> Jakku Cup (Select starts it: no cup page); 4 races with points
--- for all 12 racers, standings after each, the trophy at the end; parts at the class level for each race and put back after.
+-- v0.2 / v0.8: a whole cup. GRAND PRIX tab -> CHALLENGER -> Jakku Cup (Select starts it: no cup page); 4 races with points
+-- for all 12 racers, standings after each, the trophy at the end; parts at the league level for each race and put back after.
 local M = require('mock')
 local W = require('world')
 local T = require('util')
@@ -7,9 +7,9 @@ T.boot(nil, { Progression = { On = false } }) -- (unlocks: test_prog, test_unloc
 T.check(W.tab.label == 'GRAND PRIX', 'tab added with the label GRAND PRIX')
 M.press('F6'); M.tick(6)
 T.check(T.logHas('[menu] home'), 'F6 opens the home screen')
-T.check(T.titles() == '50CC|100CC|150CC|200CC|GARAGE|RESET PROGRESS', 'home: the four classes, GARAGE, RESET (no EXIT) (' .. T.titles() .. ')')
-T.clickTitle('150CC'); M.tick(3)
-T.check(T.ntiles() == 7 and T.ntiles() == #require('config').Cups + 1, 'v0.11: 7 tiles - every cup of the class plus the title race on one page, no BACK (' .. T.ntiles() .. ')')
+T.check(T.titles() == 'RIFF-RAFF|CHALLENGER|ACE|GARAGE|RESET PROGRESS', 'home: the three leagues, GARAGE, RESET (no EXIT) (' .. T.titles() .. ')')
+T.clickTitle('CHALLENGER'); M.tick(3)
+T.check(T.ntiles() == 7 and T.ntiles() == #require('config').Cups + 1, 'v0.11: 7 tiles - every cup of the league plus the title race on one page, no BACK (' .. T.ntiles() .. ')')
 T.check(T.titles() == 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|TITLE RACE', 'the five planet cups, the Galactic Cup, the title race (' .. T.titles() .. ')')
 local L = require('config').CupsLayout
 T.check(L.cols * L.rows >= 7 and L.cols * (L.rows - 1) < 7 and L.w >= 400 and L.w <= 520 and L.h >= 270 and L.h <= 350,
@@ -33,9 +33,9 @@ end
 
 T.clickTitle('JAKKU CUP')
 T.check(M.called('LaunchQuickRace') == 1, 'Select on a cup launches race 1 straight away')
-T.check(rawget(M.lastCall('LaunchQuickRace').args[2], '__name'):find('EVT_MAS_LOOP_A_FWD_DAWN$') ~= nil, 'race 1 at 150cc = The War Fields at dawn')
-local parts = require('config').Classes[3].parts
-T.check(T.levels('VBD_Car_Base') == ('0=%d 1=%d 2=%d 3=%d 4=%d 5=%d'):format(parts, parts, parts, parts, parts, parts), '150cc: every part at ' .. parts)
+T.check(T.launched() == T.drawn()[1] and T.launched() == 'EVT_MAS_LOOP_A_REV_HARD', 'race 1 = the first race of the draw (' .. tostring(T.launched()) .. ')')
+local parts = require('config').Leagues[2].parts
+T.check(T.levels('VBD_Car_Base') == ('0=%d 1=%d 2=%d 3=%d 4=%d 5=%d'):format(parts, parts, parts, parts, parts, parts), 'Challenger: every part at ' .. parts)
 T.check(T.save().run and T.save().run.race == 1, 'the cup is in the save (race 1)')
 
 race(1, 2)
@@ -59,18 +59,18 @@ T.check(T.logHas('[menu] closed (menu key)', mark), 'F6 closes the page')
 M.press('F6'); M.tick(6)
 T.check(T.titles() == 'NEXT RACE' and T.save().run ~= nil and not T.logHas('dropped', mark), 'F6 again: the standings come back, the cup kept')
 
-local launches = { 'EVT_MAS_P2P_FWD', 'EVT_MAS_LOOP_B_FWD_HARD', 'EVT_MAS_LOOP_A_SHORT_02_HARD' } -- (v0.11: the 150cc list)
+local launches = { T.drawn()[2], T.drawn()[3], T.drawn()[4] } -- (v0.26: the draw, in order)
 for i, you in ipairs({ 1, 1, 3 }) do
   T.clickTitle('NEXT RACE')
   T.check(rawget(M.lastCall('LaunchQuickRace').args[2], '__name'):find(launches[i] .. '$') ~= nil, 'race ' .. (i + 1) .. ' = ' .. launches[i])
   race(i + 1, you)
 end
 -- you: 12 + 15 + 15 + 10 = 52; Biddy: 15 + 12 + 12 + 15 = 54
-T.check(T.logHas('cup over: 150 jakku - you 2nd with 52 points, SILVER trophy'), 'cup over: 2nd, silver')
+T.check(T.logHas('cup over: CHALLENGER jakku - you 2nd with 52 points, SILVER trophy'), 'cup over: 2nd, silver')
 T.check(T.logHas('[menu] standings (1 tiles)'), 'after race 4: the one ranking screen (trophy on top), CONTINUE only')
 sv = T.save()
 T.check(sv.run == nil, 'no cup in progress any more')
-T.check(sv.best['150'].jakku == 2 and sv.cups == 1 and sv.races == 4, 'best = 2nd saved; 1 cup, 4 races')
+T.check(sv.best['challenger'].jakku == 2 and sv.cups == 1 and sv.races == 4, 'best = 2nd saved; 1 cup, 4 races')
 -- after the last race B goes to the cups (no cup to leave), like CONTINUE
 mark = T.mark()
 M.press('BACKSPACE'); M.tick(5)
@@ -80,5 +80,5 @@ T.check(T.medals():find('^SILVER|') ~= nil, 'Jakku shows its silver (' .. T.meda
 M.press('BACKSPACE'); M.tick(3)
 T.check(T.logHas('[menu] home', mark), 'B from the cups goes home')
 T.check(not T.logHas('[cup]', mark), 'nothing dropped at home: no cup was alive')
-T.check((T.pips('150CC') or ''):gsub('[-.]', ''):len() == 1, 'v0.24: 150cc shows its one trophy as a medal pip (' .. T.marks() .. ')')
+T.check((T.pips('CHALLENGER') or ''):gsub('[-.]', ''):len() == 1, 'v0.24: Challenger shows its one trophy as a medal pip (' .. T.marks() .. ')')
 T.finish()

@@ -51,61 +51,74 @@ Variants: forward / reverse, `_HARD`, dawn / night / wet / snow / storm, Crait's
 Event paths are in the Underground config (`Planets`) and its TASKS.md lists. All proven to launch through quick race
 (`FrontEndGameMode:LaunchQuickRace`), including the 1 v 1 boss events.
 
-### Cups (v0.11, owner 2026-11-10: docs/PHILOSOPHY.md "Cups")
+### Cups (v0.26, owner 2026-11-12: random cups; docs/PHILOSOPHY.md "Cups")
 Full 12-car grids only. Knockouts, eliminators and 1 v 1 races are left out of points cups (no fair points).
-One cup per planet, four races, always on that planet; the race list changes with the class, so the same cup gets
-harder in character as well as speed. A cup never races the same base track twice ("base" = the track name without
-its direction / conditions: THE WAR FIELDS, THE WAR FIELDS (REVERSE) and THE WAR FIELDS (SCORCHING) are one track).
-A cup is fixed per class, so records and golds keep meaning one thing.
+One cup per planet, four races, always on that planet - **drawn at random when you pick the cup**: four base tracks
+from the planet's pool, each with a random variant (direction or conditions), never the same base track twice ("base"
+= the track name without its direction / conditions: THE WAR FIELDS, THE WAR FIELDS (REVERSE) and THE WAR FIELDS
+(SCORCHING) are one track). The same rule in every league (no leaning by league). The Galactic Cup: three races from
+three different planets, then The Galactic Gauntlet at Derven Acos (four planets).
 
-- **50cc** the classic forward layouts; **100cc** the reverse layouts where the planet has them, filled up with the
-  planet's other plain tracks (the old Outer Rim Cup's four went here); **150cc** the conditions; **200cc** the 150cc
-  lists at the extra speed.
+- **The pools** (config `Pools`): every base track in docs/tracks-by-planet.md with every race variant. Left out: the
+  eliminators, the knockouts, the two 1 v 1 arenas, the story acts, the campaign intro, the `EVT_SHK_*` challenge
+  events, the `EVT_DAL_CAR_Race_*` special car races and the Shakedown. Every path is checked against the game's event
+  list (docs/data/events-2026-11-12.txt, test_random_cups).
 
-| Cup | 50cc | 100cc | 150cc / 200cc |
-|---|---|---|---|
-| **Jakku** | The War Fields · Giants' Graveyard · Debris Dunes · Fallen Empire | War Fields (rev) · Giants' Graveyard · Debris Dunes (rev) · Scrap Spiral | War Fields (dawn) · Giants' Graveyard · Debris Dunes (scorching) · Fallen Empire (scorching) |
-| **Lantaana** | Griffin's Flight · Moro Kehn Tunnels · The Pyroducts · Ahlren Jungle Speedway | Moro Kehn (rev) · Geothermal Tour · Dhunkri River Circuit · Griffin's Flight | Griffin's Flight (night) · Moro Kehn (rev, wet) · Geothermal Tour (night) · Dhunkri River Circuit (wet) |
-| **Ando** | Ice Field Circuit · Monastery Mountains · Mountain to Sea · Vonium Pipeline | Ice Field (rev) · Monastery (rev) · Dai Bendu Ascension · Ando short circuit | Ice Field (night) · Monastery (snow) · Mountain to Sea (snow) · Vonium Pipeline (snow) |
-| **Crait** | Crimson Mines · Forgil Canyon · Rhodochrosite Run · Salt Circle | Crimson Mines (rev) · Crystal Caverns · Rhodochrosite Run · Forgil Canyon | Crimson Mines (mines, night) · Forgil Canyon (mines) · Rhodochrosite Run (mines) · Crystal Caverns (mines) |
-| **Sentinel** | Sentinel Lakes · Caustic Fields · Bool River Run · The Acid Ring (the game's default layouts are the reverse ones) | Sentinel Lakes (fwd, overcast) · Mineral Loop · Caustic Fields (fwd, overcast) · Corrosion Hypersphere | Caustic Fields (fwd, blue hour) · Bool River Run (fwd, overcast) · Mineral Loop (storm) · Corrosion Hypersphere (storm) |
-| **Galactic** (finale) | Overflow Rally · Andobi Edge · Skakoan Gambit · The Galactic Gauntlet | same | same |
+  | Pool | Races | Base tracks |
+  |---|---|---|
+  | Jakku | 13 | The War Fields (5 variants), The Giants' Graveyard (1), Debris Dunes (4), Fallen Empire (2), Scrap Spiral (1) |
+  | Lantaana | 22 | Griffin's Flight (3), Moro Kehn Tunnels (6), Geothermal Tour (3), The Pyroducts (3), Overflow Rally (2), Dhunkri River Circuit (2), Ahlren Jungle Speedway (3) |
+  | Ando Prime | 24 | Ice Field Circuit (6), Monastery Mountains (5), Mountain to Sea (3), Dai Bendu Ascension (3), Vonium Pipeline (3), Cloister Run (2), Andobi Edge (2) |
+  | Crait | 13 | Crimson Mines (5), Forgil Canyon (2), Rhodochrosite Run (2), Salt Circle (2), Crystal Caverns (2) |
+  | Sentinel I | 13 | Sentinel Lakes (2), Caustic Fields (3), Bool River Run (2), The Acid Ring (1), Skakoan Gambit (1), Mineral Loop (2), Corrosion Hypersphere (2) |
+  | Derven Acos | 1 | The Galactic Gauntlet (the race; the Galactic Cup's finals) |
 
-- Some planets have too few tracks to fill every class with new ones: Jakku has five tracks and only three with
-  conditions (Giants' Graveyard is in all three lists), Crait has five; Sentinel's forward layouts exist only
-  overcast. Twelve condition events the remix / conditions cups used are no longer raced (CHANGELOG v0.11.0).
-- The cups page shows the class's conditions on each cup tile and in the focused cup's info, so the tune-up choice
-  (HEAT SHIELD before a scorching cup...) is made before Select.
-- Gone in v0.11: the Outer Rim Cup, the remix cups (v0.6.2) and the conditions cups (v0.8).
-- **Title race** (v0.8): the Stadium Showdown against Kestar Bool (`EVT_WHP_SHORTBOSS_FAIR`), at every class.
-  **v0.21:** a 1 v 1 against the class leader on the first track of their cup (two-car grid); the Showdown is the
-  final boss after the 150cc title (§17).
-- Later: a podracer cup.
+- **Titles** in one style: the base track, then (direction, conditions) - "MORO KEHN TUNNELS (REVERSE, WET)". Jakku's
+  `_HARD` = SCORCHING; Sentinel's default layouts are the reverse ones, so its forward ones say FORWARD; Corgi Loop_B
+  SHORT_01 is CLOISTER RUN (v0.21). `kind` and `laps` are display only (the race runs the event's own laps): the new
+  variants take their layout's values.
+- **The draw** (gp.lua `K.draw`, `math.random` seeded once at load; tests inject their own): made when you pick a cup,
+  shown on the start screen (the cup, the league, the four races with their conditions - so the tune-ups are picked on
+  what you got), raced exactly by START, kept in the cup run in the save (`run.list`), so the trips through the main
+  menu between races keep it. B and picking the cup again draws again.
+- **Cup tiles** show the medal and the perfect-cup star, no conditions line; the focused cup's info names the planet's
+  tracks (the Galactic Cup: the planets it draws from, then its finals).
+- **Records** stay per exact event path; medals and perfect cups per league per cup ("won a Jakku Cup at Ace").
+- Ideas kept (owner: not now): leaning the draw by league; an occasional "Grand Tour" cup with every track of a
+  planet; a podracer cup.
+- History: v0.2-v0.10 fixed planet / remix / conditions / Outer Rim cups; v0.11-v0.25 one fixed race list per class
+  and planet (50cc classic, 100cc reverse, 150 / 200cc conditions; CHANGELOG v0.11.0).
+- **Title race** (v0.8): the Stadium Showdown against Kestar Bool at first; **v0.21:** a 1 v 1 against the league
+  leader (two-car grid); **v0.26:** on the first race of the leader's most recent cup run (saved with the leader), or,
+  before any cup, the first race of a random Jakku draw made once and kept. The Showdown is the final boss after the
+  Ace title (§17).
 
-## 4. Speed classes
+## 4. Leagues (v0.26; were the speed classes)
 The recon behind this: your parts make your vehicle much faster (5 levels on every part: a race went from 152 s to
 124 s, top speed 448 → 576 kph); AI pace comes from the rubber band (`DA_RaceTuneConfig`), which follows you; the AI's
-own part levels don't change its pace. So a class sets **your** part level, and the AI keeps up through the rubber
-band.
+own part levels don't change its pace. So a league sets **your** part level, and the AI keeps up through its profile.
 
-| | 50cc | 100cc | 150cc | 200cc |
-|---|---|---|---|---|
-| Your parts (all 6 slots) | 0 (no upgrades) | 3 | 7 (v0.8; was 6) | 9 (v0.10; was 10, maxed) |
-| AI profile (ai.lua, config `AI.Profiles`) | pressure -1 (Cadet) | 0 (the game's own) | 0.5, honest pacing, errors x0.5 | the 150cc one (v0.10; was 1.2, catch-up x1.15, perfect start 90) |
-| Role | open | open | opens from 100cc | the optional extra: opens from 150cc, opens nothing |
-| Abilities (yours and the AI's) | level 1 | level 1 | level 2 | level 3 |
+v0.26 (owner, 2026-11-12): three leagues named after the game's own racer ranks replace the four cc classes ("cc" is
+Mario Kart's word). The speed shows as 1-3 chevrons on each league's HOME poster, not words.
 
-(v0.3.6, owner: four classes, a no-upgrades 50cc up to a maxed 200cc. The first layout was 50 / 100 / 150cc with
-parts 3 / 6 / 10; saves were converted, every class moved up one.)
+| | RIFF-RAFF | CHALLENGER | ACE |
+|---|---|---|---|
+| Save key | `riffraff` | `challenger` | `ace` |
+| Your parts (all 6 slots) | 0 (no upgrades) | 5 | 9 |
+| Abilities (yours and the AI's) | level 1 | level 2 | level 3 |
+| Tune-up slots | 0 | 1 | 2 |
+| AI profile (ai.lua, config `AI.Profiles`) | the old 50cc one: pressure -1 (Cadet), mercy slowdown 0.4, forced errors | the old 150cc one: pressure 0, honest pacing, no easing off while you crash | the old 200cc one: the Challenger one plus pressure 0.5 |
+| AI tiers' tune-ups | none | Elite HEAT SHIELD | Elite HEAT SHIELD + ARMOUR, Challenger tier HEAT SHIELD |
+| Opens | from the start | a trophy in all five planet cups at Riff-Raff | a trophy in all five planet cups at Challenger |
+| Title race default opponent | Griff Halloran | Biddy Blas | Sen Fira |
+| Chevrons | 1 | 2 | 3 |
 
-Values are a starting point to tune. v0.10 (owner, docs/PHILOSOPHY.md "200cc"): 200cc is an optional extra like
-Mario Kart's: nothing depends on it (no class, cup or title race opens from its results; prog.lua checked),
-parts 9 instead of 10, the 150cc AI profile, no harsher conditions than 150cc. Tune it after the owner races it; cut
-it if it still feels silly. (Still harsher than 150cc: ability level 3, and the AI tiers' tune-ups at 200cc -
-Elite HEAT SHIELD + ARMOUR, Challenger HEAT SHIELD.)
+Kestar Bool, the final boss, follows the ACE title. An older save (the cc classes) gets a clean start at its first
+load: backed up, progress cleared, the garage kept (CHANGELOG v0.26.0). (History: v0.3.6 four classes 50 / 100 / 150 /
+200cc with parts 0 / 3 / 7 / 9-10; v0.10 200cc as the optional extra; the 100cc profile, mercy 0.45, went with v0.26.)
 
 The gap log (v0.10): after every race grandprix.log has one `[gaps]` line next to RESULT, e.g. `[gaps] THE WAR
-FIELDS 150cc: you 3rd 1:42.50; winner Biddy Blas -1.50 s; next ahead Kestar Bool -0.50 s; next behind Katja Mox
+FIELDS CHALLENGER: you 3rd 1:42.50; winner Biddy Blas -1.50 s; next ahead Kestar Bool -0.50 s; next behind Katja Mox
 +0.50 s; field spread 1st-11th 9.0 s` (each racer's `EventFinishTime`, read in the same 2 s field read as the
 positions; racers without a time are skipped). The most recent race's numbers are in the save as `last.gaps`.
 This is the number to put next to "did my clean race pull away?" when tuning the profiles. AI pressure and AI abilities use the
@@ -208,25 +221,27 @@ The game ends your race after too many crashes (wrecked). Two memory-only contro
   `ShouldNextCrashWreckVehicle()` on the player's race component).
 Recon R3 picks the one that works; set before launch, put back at the menu. Crashing still costs time.
 
-## 8. Progression and unlocks (owner asked for it, 2026-11-09; v0.11)
-- **50cc and 100cc are open from the start** (owner, 2026-11-10), with their five planet cups.
-- **150cc and 200cc each open with a trophy (bronze or better) in all five planet cups of the class below** (100 →
-  150 → 200cc). The rule is a setting (`Progression.Unlock = 'trophy' | 'gold'`), so it can be made stricter.
-- **The Galactic Cup** (the finale, `final = true`) opens at a class with a trophy (any colour; gold with
-  `Unlock = 'gold'`) in all five planet cups at that class.
-- **The title race** opens at a class with a trophy in the Galactic Cup at that class. Winning it makes you the class
-  champion. **The final boss** (v0.21, §17): Kestar Bool, a tile on the 150cc cups page once the 150cc title is won;
-  beating him unlocks him as a racer.
-- 200cc is the optional extra: nothing outside 200cc opens from its results.
-- Best trophy per cup and class saved, shown on the cup tiles. No money, no shop, no upgrades. The class tile counts
-  golds / trophies over the six cups (5 planets + Galactic).
-- Unlocks are worked out from the saved best finishes every time (nothing extra saved), so trophies won before
-  this was built count. Locked classes / cups / the title race show what opens them. The cup result says what it
-  unlocked ("UNLOCKED: 150cc - GALACTIC CUP at 100cc", "UNLOCKED: TITLE RACE at 100cc").
-- **Kept (v0.5.0):** a class or cup you've already raced through (or the title race once tried) stays open.
+## 8. Progression and unlocks (owner asked for it, 2026-11-09; v0.11; v0.26 leagues)
+- **Riff-Raff is open from the start** (v0.26, owner 2026-11-12), with its five planet cups.
+- **Challenger and Ace each open with a trophy (bronze or better) in all five planet cups of the league below**
+  (Riff-Raff → Challenger → Ace; the rule that opened 150cc from 100cc). The rule is a setting
+  (`Progression.Unlock = 'trophy' | 'gold'`), so it can be made stricter.
+- **The Galactic Cup** (the finale, `final = true`) opens at a league with a trophy (any colour; gold with
+  `Unlock = 'gold'`) in all five planet cups at that league.
+- **The title race** opens at a league with a trophy in the Galactic Cup at that league. Winning it makes you the
+  league champion. **The final boss** (v0.21, §17; v0.26: after Ace): Kestar Bool, a tile on the Ace cups page once
+  the Ace title is won; beating him unlocks him as a racer.
+- Ace is the top of the ladder: nothing outside Ace opens from its results but Kestar (after its title).
+- Best trophy per cup and league saved, shown on the cup tiles (a gold = "won a Jakku Cup at Ace": the races are
+  drawn). No money, no shop, no upgrades. The league poster shows a medal pip per cup and the title star.
+- Unlocks are worked out from the saved best finishes every time (nothing extra saved). Locked leagues / cups / the
+  title race show what opens them ("To open: 5 trophies at RIFF-RAFF"). The cup result says what it unlocked
+  ("UNLOCKED: CHALLENGER - GALACTIC CUP at RIFF-RAFF", "UNLOCKED: TITLE RACE at RIFF-RAFF").
+- **Kept (v0.5.0):** a league or cup you've already raced through (or the title race once tried) stays open.
   `Progression.On = false` switches the locks off.
-- **v0.11 save change:** the results of the removed cups (remix, conditions, Outer Rim) are dropped at the first
-  load, logged once; track records stay (per event path).
+- **v0.26 save change:** an older save (the cc classes) gets a clean start at its first load - backed up, progress
+  cleared, the garage kept (CHANGELOG v0.26.0). (v0.11 dropped the removed cups' results; v0.3.6 moved a three-class
+  save up one class: both gone with the clean start.)
 - **Reset progress** (owner, 2026-11-10, v0.3.11): RESET PROGRESS on HOME asks first (NO selected first). Clears
   every trophy and best finish, records, perfect cups, standings and the cups count; keeps your garage and race
   count. The save is copied to `save.backup-reset-<date>.lua` first. **v0.21 (owner): it clears ALL progress, titles
@@ -533,6 +548,8 @@ From docs/menu-review-2026-11-11.md. The title race is unchanged (Kestar Bool's 
   (`SD.margin` from the race's `K.gaps`; nothing without finish times). Review 9 (per-ability art) not done.
 
 ## 17. v0.21: the leader's title race, Kestar the final boss, no rival, less clutter (TASKS "Next, round 2" 1; built, not yet seen in game)
+(v0.26: the classes below are now the leagues - the title race at every league, its track the first race of the
+leader's most recent cup run, Kestar after the ACE title; §3, §4, §8.)
 The owner's answers after racing a 50cc and a 100cc cup (OWNER.md "Done", 2026-11-11 evening).
 - **A little harder at 50 / 100cc**: `AI.Profiles` MaxAiSlowdownScale 50cc 0.3 -> 0.4, 100cc 0.3 -> 0.45 (the mercy
   slowdown for bots ahead of their window; study: 0.3 gave the best bot ~123 s at The War Fields reverse 100cc, 0.5

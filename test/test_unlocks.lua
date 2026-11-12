@@ -1,25 +1,26 @@
--- v0.5 / v0.8 / v0.11: unlocks in the menus. A save with four 100cc golds: 150cc / 200cc, the Galactic Cup and the
--- title race are locked tiles that say what opens them and can't be entered. Winning the fifth planet cup at 100cc
--- opens 150cc and the 100cc Galactic Cup, said on the cup result screen; a Galactic Cup trophy opens the title race.
+-- v0.5 / v0.8 / v0.11 / v0.26: unlocks in the menus. A save with four Riff-Raff golds: Challenger / Ace, the Galactic
+-- Cup and the title race are locked tiles that say what opens them and can't be entered. Winning the fifth planet cup
+-- at Riff-Raff opens Challenger and the Riff-Raff Galactic Cup, said on the cup result screen; a Galactic Cup trophy
+-- opens the title race.
 -- (v0.9: the Sentinel cup left in the save is dropped at boot and raced whole.)
 local M = require('mock')
 local W = require('world')
 local T = require('util')
 
-T.boot({ version = 2, races = 30, cups = 4, class = '100', vehicle = 'car',
-  best = { ['100'] = { jakku = 1, lantaana = 1, ando = 1, crait = 1 } },
-  run = { class = '100', cup = 'sentinel', vehicle = 'car', race = 4, races = 4,
+T.boot({ version = 3, races = 30, cups = 4, class = 'riffraff',
+  best = { riffraff = { jakku = 1, lantaana = 1, ando = 1, crait = 1 } },
+  run = { class = 'riffraff', cup = 'sentinel', vehicle = 'car', race = 4, races = 4,
     points = { YOU = 45, ['Katja Mox'] = 30 }, last = {}, history = { {}, {}, {} } },
   restores = {}, abilityRestores = {} })
 local NCUPS = #dofile(T.dir .. '/Scripts/config.lua').Cups
-T.check(T.logHas('[cup] sentinel 100cc dropped at boot (race 4 of 4): cups cannot be resumed') and T.save().run == nil, 'the cup in the save dropped at boot')
+T.check(T.logHas('[cup] sentinel RIFF-RAFF dropped at boot (race 4 of 4): cups cannot be resumed') and T.save().run == nil, 'the cup in the save dropped at boot')
 M.press('F6'); M.tick(6)
-T.check(T.locks() == '||LOCKED|LOCKED||' and T.pips('100CC') == 'GGGG--.', 'home: 150cc and 200cc locked; 100cc: four golds as pips (' .. T.marks() .. ')')
-T.clickTitle('150CC'); M.tick(3)
-T.check(T.titles():find('^50CC|100CC') ~= nil, 'a locked class can\'t be entered')
-T.clickTitle('100CC'); M.tick(3)
+T.check(T.locks() == '|LOCKED|LOCKED||' and T.pips('RIFF-RAFF') == 'GGGG--.', 'home: Challenger and Ace locked; Riff-Raff: four golds as pips (' .. T.marks() .. ')')
+T.clickTitle('CHALLENGER'); M.tick(3)
+T.check(T.titles():find('RIFF-RAFF|CHALLENGER', 1, true) == 1, 'a locked league can\'t be entered')
+T.clickTitle('RIFF-RAFF'); M.tick(3)
 local b = T.badges()
-T.check(T.medals():find('^GOLD|GOLD|GOLD|GOLD||') ~= nil, '100cc: the four golds, Sentinel not raced (' .. T.medals() .. ')')
+T.check(T.medals():find('^GOLD|GOLD|GOLD|GOLD||') ~= nil, 'Riff-Raff: the four golds, Sentinel not raced (' .. T.medals() .. ')')
 -- locked: the Galactic Cup and the title race
 b = T.locks()
 T.check(select(2, b:gsub('LOCKED', '')) == 2 and b:find('|LOCKED|LOCKED$') ~= nil, 'the Galactic Cup and the title race locked until five trophies (' .. b .. ')')
@@ -48,29 +49,31 @@ local function cup()
   end
 end
 cup()
-T.check(T.logHas('unlocked: 150cc, GALACTIC CUP at 100cc'), 'the fifth gold unlocks 150cc and the 100cc Galactic Cup')
-T.check(T.save().best['100'].sentinel == 1, 'Sentinel gold saved')
+T.check(T.logHas('unlocked: CHALLENGER, GALACTIC CUP at RIFF-RAFF'), 'the fifth gold unlocks Challenger and the Riff-Raff Galactic Cup')
+T.check(T.save().best.riffraff.sentinel == 1, 'Sentinel gold saved')
 T.clickTitle('CONTINUE'); M.tick(3)
 b = T.badges()
-T.check(T.medals():find('^GOLD|GOLD|GOLD|GOLD|GOLD|') ~= nil, '100cc: five golds (' .. T.medals() .. ')')
+T.check(T.medals():find('^GOLD|GOLD|GOLD|GOLD|GOLD|') ~= nil, 'Riff-Raff: five golds (' .. T.medals() .. ')')
 b = T.locks()
-T.check(select(2, b:gsub('LOCKED', '')) == 1 and b:find('|LOCKED$') ~= nil, '100cc: the Galactic Cup open, the title race still locked (' .. b .. ')')
--- the Galactic Cup: four races on four planets; a trophy opens the title race
+T.check(select(2, b:gsub('LOCKED', '')) == 1 and b:find('|LOCKED$') ~= nil, 'Riff-Raff: the Galactic Cup open, the title race still locked (' .. b .. ')')
+-- the Galactic Cup: four races on four planets (the tests' draw: Jakku, Lantaana, Ando, then the finals); a trophy opens
+-- the title race
 local mark = T.mark()
 T.clickTitle('GALACTIC CUP')
-T.check(T.logHas('LAUNCH EVT_DAL_LOOP_A_SHORT_06 (OVERFLOW RALLY', mark), 'the Galactic Cup starts on Overflow Rally')
+T.check(T.logHas('LAUNCH EVT_MAS_LOOP_A_REV_HARD (THE WAR FIELDS (REVERSE, SCORCHING)', mark), 'the Galactic Cup starts on its first race drawn')
+T.check(T.drawn()[4] == 'EVT_WHP_LOOP_A_FWD_RACE', 'and ends on The Galactic Gauntlet')
 cup()
-T.check(T.logHas('unlocked: TITLE RACE at 100cc', mark), 'a Galactic Cup trophy unlocks the title race')
-T.check(T.save().best['100'].galactic == 1, 'Galactic gold saved')
+T.check(T.logHas('unlocked: TITLE RACE at RIFF-RAFF', mark), 'a Galactic Cup trophy unlocks the title race')
+T.check(T.save().best.riffraff.galactic == 1, 'Galactic gold saved')
 T.clickTitle('CONTINUE'); M.tick(3)
 b = T.badges()
 local ttd
 for _, it in ipairs(rawget(_G, 'GU_TEST_SCREENS').SCREENS.cups().items) do if it.title == 'TITLE RACE' then ttd = it.desc end end
-T.check(select(2, b:gsub('LOCKED', '')) == 0 and tostring(ttd):find('^vs ') ~= nil, '100cc: everything open, the title race names its opponent (v0.21: ' .. tostring(ttd) .. ')')
+T.check(select(2, b:gsub('LOCKED', '')) == 0 and tostring(ttd):find('^vs ') ~= nil, 'Riff-Raff: everything open, the title race names its opponent (v0.21: ' .. tostring(ttd) .. ')')
 M.press('BACKSPACE'); M.tick(3)
-T.check(T.locks() == '|||LOCKED||' and T.pips('100CC'):find('^[GSB][GSB][GSB][GSB][GSB][GSB]') ~= nil, 'home: 6 / 6 trophies at 100cc, 150cc open, 200cc still locked (' .. T.marks() .. ')')
-T.clickTitle('150CC'); M.tick(3)
+T.check(T.locks() == '||LOCKED||' and T.pips('RIFF-RAFF'):find('^[GSB][GSB][GSB][GSB][GSB][GSB]') ~= nil, 'home: 6 / 6 trophies at Riff-Raff, Challenger open, Ace still locked (' .. T.marks() .. ')')
+T.clickTitle('CHALLENGER'); M.tick(3)
 b = T.locks()
 T.check(T.titles() == 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|TITLE RACE' and select(2, b:gsub('LOCKED', '')) == 2,
-  '150cc: planet cups open, the Galactic Cup and title race locked (' .. b .. ')')
+  'Challenger: planet cups open, the Galactic Cup and title race locked (' .. b .. ')')
 T.finish()

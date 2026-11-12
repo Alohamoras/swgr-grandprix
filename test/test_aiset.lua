@@ -10,7 +10,7 @@ local R = require('race')
 local K = require('gp')
 local cfg = require('config')
 -- the writes below are checked against the v0.10-v0.17 150cc profile (v0.18 changed the real one; test_ai checks it)
-cfg.AI.Profiles['150'] = { pressure = 0.5, pacing = { MaxAiSlowdownScale = 1.0 }, errors = 0.5 }
+cfg.AI.Profiles['challenger'] = { pressure = 0.5, pacing = { MaxAiSlowdownScale = 1.0 }, errors = 0.5 }
 M.tick(5)
 
 local function count(s, from)
@@ -37,10 +37,10 @@ M.tick(50)
 T.check(count('[aiset] menu at boot') == 1, 'not repeated')
 
 -- a 150cc race (pacing MaxAiSlowdownScale 1.0): written on all three, the originals saved
-cfg.AI.Profiles['150'].catchup = 1.1
-local ev = { path = cfg.Cups[1].races['50'][1].path, title = 'X', kind = 'Circuit' }
+cfg.AI.Profiles['challenger'].catchup = 1.1
+local ev = { path = cfg.Pools.jakku[1].path, title = 'X', kind = 'Circuit' }
 local mark = T.mark()
-T.check(R.launch(ev, '150', 'car') == true, 'launched at 150cc')
+T.check(R.launch(ev, 'challenger', 'car') == true, 'launched at 150cc')
 T.check(W.ai.DefaultPacingSettings.MaxAiSlowdownScale == 1 and W.rp.Default.PacingSettingsConfig.MaxAiSlowdownScale == 1
   and W.rp.Honest.PacingSettingsConfig.MaxAiSlowdownScale == 1, 'honest pacing on DA_AIConfig, RP_Default and RP_Honest')
 T.check(math.abs(W.rp.Default.PacingSettingsConfig.MaxAiCatchupScale - 1.32) < 1e-9
@@ -50,11 +50,11 @@ T.check(rest[RPD] and rest[RPD]['PacingSettingsConfig.MaxAiSlowdownScale'] == 0.
   and rest[RPH] and rest[RPH]['PacingSettingsConfig.MaxAiCatchupScale'] == 1.25 and rest[RPH]['PacingSettingsConfig.MaxAiSlowdownScale'] == nil,
   'RP originals in the save (RP_Honest\'s slowdown was already 1: nothing to keep)')
 T.check(T.save().aiRestores[RPD] ~= nil, 'saved to disk before the race (a crash puts them back at the next boot)')
-T.check(T.logHas('[ai] class 150: pacing asset (RP_Default) PacingSettingsConfig.MaxAiCatchupScale 1.2 -> 1.32, PacingSettingsConfig.MaxAiSlowdownScale 0.75 -> 1', mark)
-  and T.logHas('[ai] class 150: pacing asset (RP_Honest) PacingSettingsConfig.MaxAiCatchupScale 1.25 -> 1.375, PacingSettingsConfig.MaxAiSlowdownScale 1 (as is)', mark),
+T.check(T.logHas('[ai] league challenger: pacing asset (RP_Default) PacingSettingsConfig.MaxAiCatchupScale 1.2 -> 1.32, PacingSettingsConfig.MaxAiSlowdownScale 0.75 -> 1', mark)
+  and T.logHas('[ai] league challenger: pacing asset (RP_Honest) PacingSettingsConfig.MaxAiCatchupScale 1.25 -> 1.375, PacingSettingsConfig.MaxAiSlowdownScale 1 (as is)', mark),
   'RP writes logged')
-T.check(count('[aiset] race class=150', mark) == 1, 'one [aiset] line at launch')
-local l = line('[aiset] race class=150', mark)
+T.check(count('[aiset] race league=challenger', mark) == 1, 'one [aiset] line at launch')
+local l = line('[aiset] race league=challenger', mark)
 T.check(l:find('DA_AIConfig: RacePacingLowestSpeedMph=150 MaxAiCatchupScale=1.43 MaxAiSlowdownScale=1', 1, true) ~= nil
   and l:find('ForcedErrorChance=7.5', 1, true) ~= nil, 'the read-back has the written DA_AIConfig values')
 T.check(l:find('| RP_Default: PacingConfigs.Num=5 RacePacingLowestSpeedMph=150 MaxAiCatchupScale=1.32 MaxAiSlowdownScale=1 AiAheadTimeToMaxSlowdown=1.5 AiBehindTimeToMaxCatchup=2 AiSlowdownDuringCrash=0.5 |', 1, true) ~= nil
@@ -64,8 +64,8 @@ T.check(l:find('| RP_Default: PacingConfigs.Num=5 RacePacingLowestSpeedMph=150 M
 local confs = W.tune(2)
 M.resetSweeps()
 W.race(11); M.tick(60)
-T.check(count('[aiset] race tune class=150', mark) == 1, 'one race tune line')
-T.check(line('[aiset] race tune class=150', mark):find('AiMaxTimeAheadModifier=1.25 AiMinTimeAheadModifier=0.75', 1, true) ~= nil
+T.check(count('[aiset] race tune league=challenger', mark) == 1, 'one race tune line')
+T.check(line('[aiset] race tune league=challenger', mark):find('AiMaxTimeAheadModifier=1.25 AiMinTimeAheadModifier=0.75', 1, true) ~= nil
   and line('[aiset] race tune', mark):find('TotalCrashAllowance=3', 1, true) ~= nil, 'race tune read back after the writes')
 T.check(M.sweepCount('RP_') == 0 and M.sweepCount('DA_AIConfig') == 0, 'no asset lookups during the race')
 T.check(count('[aiset]', mark) == 2, 'two [aiset] lines for the race (assets, tune)')
@@ -81,8 +81,8 @@ T.check(count('[aiset] menu at boot') == 1, 'no boot read-back after a race')
 
 -- a second race: its own [aiset] line
 mark = T.mark()
-R.launch(ev, '150', 'car')
-T.check(count('[aiset] race class=150', mark) == 1, 'a second race: one more [aiset] line')
+R.launch(ev, 'challenger', 'car')
+T.check(count('[aiset] race league=challenger', mark) == 1, 'a second race: one more [aiset] line')
 W.race(11); M.tick(60)
 W.finish(1); M.tick(25)
 t0 = os.time(); while os.time() - t0 < 3 do end
@@ -91,12 +91,12 @@ W.backToMenu(); M.tick(45)
 -- WritePacingAssets = false: DA_AIConfig only, the RP assets left alone (still read back)
 cfg.AI.WritePacingAssets = false
 mark = T.mark()
-R.launch(ev, '150', 'car')
+R.launch(ev, 'challenger', 'car')
 T.check(W.ai.DefaultPacingSettings.MaxAiSlowdownScale == 1 and W.rp.Default.PacingSettingsConfig.MaxAiSlowdownScale == 0.75
   and W.rp.Default.PacingSettingsConfig.MaxAiCatchupScale == 1.2 and W.rp.Honest.PacingSettingsConfig.MaxAiCatchupScale == 1.25,
   'WritePacingAssets=false: DA_AIConfig written, RP assets untouched')
 T.check(K.data.aiRestores[RPD] == nil and K.data.aiRestores[RPH] == nil and not T.logHas('pacing asset', mark), 'nothing saved or logged for them')
-T.check(line('[aiset] race class=150', mark):find('RP_Default: PacingConfigs.Num=5 RacePacingLowestSpeedMph=150 MaxAiCatchupScale=1.2 MaxAiSlowdownScale=0.75', 1, true) ~= nil,
+T.check(line('[aiset] race league=challenger', mark):find('RP_Default: PacingConfigs.Num=5 RacePacingLowestSpeedMph=150 MaxAiCatchupScale=1.2 MaxAiSlowdownScale=0.75', 1, true) ~= nil,
   'still read back')
 W.race(11); M.tick(60)
 W.finish(1); M.tick(25)
@@ -107,10 +107,10 @@ cfg.AI.WritePacingAssets = true
 
 -- a study profile's pacing goes the same way
 mark = T.mark()
-R.launch(ev, '150', 'car', nil, nil, { ai = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 1.0 } } })
+R.launch(ev, 'challenger', 'car', nil, nil, { ai = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 1.0 } } })
 T.check(W.rp.Default.PacingSettingsConfig.MaxAiCatchupScale == 1 and W.rp.Honest.PacingSettingsConfig.MaxAiCatchupScale == 1
   and W.ai.DefaultPacingSettings.MaxAiCatchupScale == 1, 'study profile pacing on all three')
-T.check(count('[aiset] race class=150 study', mark) == 1, 'study race: one [aiset] line')
+T.check(count('[aiset] race league=challenger study', mark) == 1, 'study race: one [aiset] line')
 W.race(11); M.tick(60)
 W.finish(1); M.tick(25)
 t0 = os.time(); while os.time() - t0 < 3 do end

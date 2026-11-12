@@ -5,6 +5,10 @@ From the game's own files: every race event under `Gameplay/Events/Planets` in t
 cup today** (config.lua). "Base track" = one layout; its variants are the direction (forward / reverse) and the
 conditions. Event paths: `/Game/Griffin/Gameplay/Events/Planets/<Planet>/<Layout>/<EVT name>`.
 
+**v0.26 (random cups):** every race variant below (the eliminators, knockouts, arenas and story / special events
+aside) is in its planet's pool (config `Pools`); the ✓ marks the ones raced by v0.25's fixed cups. The full event
+list is kept in docs/data/events-2026-11-12.txt.
+
 32 base tracks: Jakku 5, Lantaana 7, Ando Prime 7, Crait 5, Sentinel I 7, Derven Acos 1 (plus its two boss arenas).
 
 ## Jakku (Mastiff)

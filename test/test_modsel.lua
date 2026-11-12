@@ -58,8 +58,8 @@ check(#MS.groups() >= 5 and #MS.choices('Ramjet', nil, 0) == 2 and MS.count('Ram
 
 -- slots by class (min of MS.MAX and config)
 check(MS.MAX == 2, 'two slots at most')
-check(MS.slotsFor('50') == 0 and MS.slotsFor('100') >= 1 and MS.slotsFor('150') == 2 and MS.slotsFor('200') == 2 and MS.slotsFor('x') == 0,
-  ('slots 0 / %d / %d / %d'):format(MS.slotsFor('100'), MS.slotsFor('150'), MS.slotsFor('200')))
+check(MS.slotsFor('riffraff') == 0 and MS.slotsFor('challenger') == 1 and MS.slotsFor('ace') == 2 and MS.slotsFor('x') == 0,
+  ('slots 0 / %d / %d (v0.26: Riff-Raff, Challenger, Ace)'):format(MS.slotsFor('challenger'), MS.slotsFor('ace')))
 
 -- normalise
 local n = MS.normalize({ 'heat_shield', 'Conditions_FreezeProtection', 'armour' })
@@ -90,12 +90,12 @@ check(not dup and seen.heat_shield and seen.tenacious and not seen.firebug, 'a f
 
 -- what races with you
 list = { 'heat_shield', 'slipstreamer' }
-check(#MS.active(list, '50') == 0 and #MS.paths(list, '50') == 0, '50cc: nothing races')
-check(table.concat(MS.names(list, '100'), ',') == 'HEAT SHIELD' or MS.slotsFor('100') == 2, '100cc: the first slot (or two)')
-check(table.concat(MS.names(list, '200'), ',') == 'HEAT SHIELD,SLIPSTREAMER' and table.concat(MS.fitted(list, '200'), ',') == 'heat_shield,slipstreamer', '200cc: both')
-local p4 = MS.paths(list, '200')
-check(#p4 == 4 and p4[1]:find('BurningProtection', 1, true) and p4[4]:find('Cooled_GainWhileSlipstream', 1, true), '200cc: four affix paths, in package order')
-check(#MS.paths({ 'heat_shield', 'nonsense' }, '200') == 2 and #MS.paths({ 'Conditions_FreezeProtection', false }, '200') == 0, 'unknown keys skipped by paths()')
+check(#MS.active(list, 'riffraff') == 0 and #MS.paths(list, 'riffraff') == 0, 'Riff-Raff: nothing races')
+check(table.concat(MS.names(list, 'challenger'), ',') == 'HEAT SHIELD', 'Challenger: the first slot')
+check(table.concat(MS.names(list, 'ace'), ',') == 'HEAT SHIELD,SLIPSTREAMER' and table.concat(MS.fitted(list, 'ace'), ',') == 'heat_shield,slipstreamer', 'Ace: both')
+local p4 = MS.paths(list, 'ace')
+check(#p4 == 4 and p4[1]:find('BurningProtection', 1, true) and p4[4]:find('Cooled_GainWhileSlipstream', 1, true), 'Ace: four affix paths, in package order')
+check(#MS.paths({ 'heat_shield', 'nonsense' }, 'ace') == 2 and #MS.paths({ 'Conditions_FreezeProtection', false }, 'ace') == 0, 'unknown keys skipped by paths()')
 check(MS.assetName(p4[1]) == 'AFX_Conditions_BurningProtection', 'asset name from a path')
 local set = MS.assetNames({ 'heat_shield' })
 check(set.AFX_Conditions_BurningProtection and set.AFX_Conditions_FreezeProtection and not set.AFX_Shielded_GainOnRaceStart, 'asset-name set of packages')
@@ -104,8 +104,8 @@ check(#MS.pathsOf({ 'heat_shield', 'heat_shield' }) == 2, 'pathsOf: each path on
 
 -- the AI tiers (config TuneUps.AI) resolve to packages; the launch build never needs more than its 10 affix slots
 local T = cfg.TuneUps
-check(T.AI['150'].Elite[1] == 'heat_shield' and #T.AI['200'].Elite == 2 and T.AI['200'].Challenger[1] == 'heat_shield' and T.AI['50'] == nil and T.AI['100'] == nil,
-  'AI: Elite heat shield from 150cc, + armour at 200cc, Challenger heat shield at 200cc, none below')
+check(T.AI['challenger'].Elite[1] == 'heat_shield' and #T.AI['ace'].Elite == 2 and T.AI['ace'].Challenger[1] == 'heat_shield' and T.AI['riffraff'] == nil,
+  'AI: Elite heat shield from Challenger, + armour at Ace, the Challenger tier heat shield at Ace, none at Riff-Raff')
 local aiBad = {}
 for class, tiers in pairs(T.AI) do
   for tier, pk in pairs(tiers) do

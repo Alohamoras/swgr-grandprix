@@ -8,7 +8,7 @@ local EV = '/Game/Griffin/Gameplay/Events/Planets/'
 local RACERS = '/Game/Griffin/Narrative/CharacterDefs/Racers/DA_Racer_'
 
 -- 1. boot after a 'crash': the save says Kestar was in CharacterList.Player; the list (in memory) still shows it
-T.boot({ racer = 'Antagonist', titles = { ['150'] = { won = true, tries = 1 } }, -- (v0.15: Kestar unlocked by the 150cc title)
+T.boot({ version = 3, racer = 'Antagonist', titles = { ace = { won = true, tries = 1 } }, boss = { beaten = true, tries = 1 }, -- (v0.21: Kestar unlocked by beating him)
   racerRestore = { key = 'Antagonist', player = RACERS .. 'DarkEnigma', list = '/Game/Griffin/Narrative/CharacterDefs/DA_CharacterList' } },
   { Progression = { On = false }, Manual = true })
 rawget(W.chars, '__props').Player = W.racerDef('Antagonist')
@@ -45,7 +45,7 @@ T.check(RC.cycle(1).key == 'Protege', 'cycle forward from Shade: Ary Quill')
 for _ = 1, 12 do if RC.current().key ~= 'Antagonist' then RC.cycle(1) end end
 T.check(RC.current().key == 'Antagonist', 'Kestar picked')
 M.press('F6'); M.tick(6)
-T.clickTitle('150CC'); M.tick(3)
+T.clickTitle('CHALLENGER'); M.tick(3)
 T.clickTitle('JAKKU CUP')
 T.check(M.called('LaunchQuickRace') == 1, 'START CUP launches race 1')
 T.check(W.charsText() == 'Player=Antagonist Opp=Mercenary,ElegantProfessional,Star,InnerHonour,Thrall,Ghost,Rager,Nomad,Veteran,QuietStrength,Protege',
@@ -89,7 +89,7 @@ K.forfeit()
 for _ = 1, 14 do if RC.current().key ~= 'ElegantProfessional' then RC.cycle(1) end end
 T.check(RC.current().key == 'ElegantProfessional', 'Katja Mox picked')
 local ev = { path = EV .. 'Mastiff/EVT_MAS_LOOP_A_FWD', title = 'The War Fields', kind = 'circuit' }
-local ok, err = R.launch(ev, '150', 'car', nil, nil)
+local ok, err = R.launch(ev, 'challenger', 'car', nil, nil)
 T.check(ok == true, 'launch as Katja (' .. tostring(err) .. ')')
 T.check(W.charsText() == 'Player=ElegantProfessional Opp=Mercenary,DarkEnigma,Star,InnerHonour,Thrall,Ghost,Rager,Nomad,Veteran,QuietStrength,Protege',
   'at launch: Player = Katja, Opponents[2] = Shade (' .. W.charsText() .. ')')
@@ -108,7 +108,7 @@ T.check(R.run == nil, 'race over')
 
 -- 5. quitting before the settle: the menu return puts the list back
 for _ = 1, 14 do if RC.current().key ~= 'Antagonist' then RC.cycle(1) end end
-ok = R.launch(ev, '150', 'car', nil, nil)
+ok = R.launch(ev, 'challenger', 'car', nil, nil)
 T.check(ok == true and W.charsText():find('^Player=Antagonist') ~= nil, 'launch as Kestar again')
 W.race(11); M.tick(10)
 T.check(W.charsText():find('^Player=Antagonist') ~= nil, 'still swapped 1 s into the race')
@@ -119,7 +119,7 @@ T.check(T.logHas('[racer] Shade put back (main menu)', mark), 'put-back at the m
 
 -- 6. a failed launch puts it back at once
 rawget(W.fe, '__props').LaunchQuickRace = function() error('no race for you') end
-ok, err = R.launch(ev, '150', 'car', nil, nil)
+ok, err = R.launch(ev, 'challenger', 'car', nil, nil)
 T.check(ok == false and W.charsText():find('^Player=DarkEnigma') ~= nil and T.save().racerRestore == nil, 'launch failed: Shade back, record cleared')
 T.check(T.logHas('[racer] Shade put back (launch failed)'), 'put-back after the failed launch logged')
 
@@ -127,7 +127,7 @@ T.check(T.logHas('[racer] Shade put back (launch failed)'), 'put-back after the 
 rawget(W.fe, '__props').LaunchQuickRace = function() end
 for _ = 1, 14 do if RC.current().key ~= 'DarkEnigma' then RC.cycle(1) end end
 mark = T.mark()
-ok = R.launch(ev, '150', 'car', nil, nil)
+ok = R.launch(ev, 'challenger', 'car', nil, nil)
 T.check(ok == true and T.save().racerRestore == nil and T.logHas('[racer] racing as Shade (DA_Racer_DarkEnigma): the game\'s own pilot', mark), 'Shade: nothing to swap')
 W.race(11); M.tick(130)
 T.check(not T.logHas('put back', mark), 'nothing to settle as Shade')

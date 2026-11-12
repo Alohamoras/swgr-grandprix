@@ -111,7 +111,7 @@ function SD.cupSpec(r)
   local ev = r.ev or { title = '?' }
   local run = r.run
   local cup = run and K.cup(run.cup) or { name = '?' }
-  local cls = run and K.class(run.class) or { name = '?' }
+  local cls = run and K.league(run.class) or { name = '?' }
   local idx = r.trophy and TROPHY_INDEX[r.trophy]
   local medalColor = idx and ART.medalColor(idx) or nil
   local hero = { icon = idx and ART.medal(idx) or nil, color = medalColor, size = 190, lines = {} }

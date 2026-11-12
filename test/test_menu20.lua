@@ -19,8 +19,8 @@ local function findText(lines, s) for _, t in ipairs(texts(lines)) do if t:find(
 
 ---------------------------------------------------------------------------------------------------------------------
 -- 1. the cup result screen (spec level, from real results through K.record)
-T.boot({ version = 2, races = 0, cups = 0, class = '100', restores = {}, abilityRestores = {},
-  best = { ['100'] = { jakku = 1, lantaana = 1, ando = 1, crait = 1 } } })
+T.boot({ version = 3, races = 0, cups = 0, class = 'riffraff', restores = {}, abilityRestores = {},
+  best = { riffraff = { jakku = 1, lantaana = 1, ando = 1, crait = 1 } } })
 local H = rawget(_G, 'GU_TEST_SCREENS')
 local SC, S = H.SCREENS, H.S
 local K, ART, SD, PR, CU = require('gp'), require('art'), require('standings'), require('prog'), require('cup')
@@ -43,8 +43,8 @@ local function runCup(classKey, cupKey, places)
   return out
 end
 
--- a) the fifth 100cc gold: unlocks 150cc and the Galactic Cup; perfect; the medal gold
-local out = runCup('100', 'sentinel', { 1, 1, 1, 1 })
+-- a) the fifth Riff-Raff gold: unlocks Challenger and the Galactic Cup; perfect; the medal gold
+local out = runCup('riffraff', 'sentinel', { 1, 1, 1, 1 })
 S.result = out
 local spec = SC.standings()
 T.check(spec.title == '' and spec.hero ~= nil, 'the cup result is its own screen (a hero block; v0.22: no title)')
@@ -54,7 +54,7 @@ T.check(spec.hero.lines[1][1] == 'GOLD TROPHY' and spec.hero.lines[1][2] >= 44, 
 T.check(hasText(spec.hero.lines, 'PERFECT CUP'), 'PERFECT CUP as a badge (' .. joined(spec.hero.lines) .. ')')
 T.check(spec.table and #spec.table.rows == 3 and spec.table.rows[1].cells[2] == 'YOU' and spec.table.rows[1].cells[1] == '1st',
   'the final top 3 only (' .. (spec.table and #spec.table.rows or 0) .. ' rows)')
-T.check(hasText(spec.after, 'UNLOCKED:  150cc   -   GALACTIC CUP at 100cc'), 'what\'s next: what it unlocked (' .. joined(spec.after) .. ')')
+T.check(hasText(spec.after, 'UNLOCKED:  CHALLENGER   -   GALACTIC CUP at RIFF-RAFF'), 'what\'s next: what it unlocked (' .. joined(spec.after) .. ')')
 T.check(not findText(spec.after, 'Next:'), 'one what\'s-next line only')
 T.check(not findText(spec.after, 'Last race') and findText(spec.after, 'NEW RECORD') ~= nil, 'v0.22: no Last race line, its record kept (' .. joined(spec.after) .. ')')
 local cont = spec.items[1]
@@ -62,9 +62,9 @@ T.check(cont.title == 'CONTINUE' and cont.desc == 'Back to the cups' and S.focus
   'v0.21: CONTINUE lands on the cup just raced, the Sentinel Cup (' .. tostring(cont.desc) .. ', ' .. tostring(S.focusMem.cups) .. ')')
 T.check(cont.icon == ART.medal(1) and cont.iconColor == ART.medalColor(1), 'CONTINUE carries the gold medal')
 
--- b) 150cc: Jakku gold, Lantaana bronze, Ando silver now -> 2 more trophies open its Galactic Cup and 200cc
-K.data.best['150'] = { jakku = 1, lantaana = 3 }
-out = runCup('150', 'ando', { 2, 2, 2, 2 })
+-- b) Challenger: Jakku gold, Lantaana bronze, Ando silver now -> 2 more trophies open its Galactic Cup and Ace
+K.data.best['challenger'] = { jakku = 1, lantaana = 3 }
+out = runCup('challenger', 'ando', { 2, 2, 2, 2 })
 S.result = out
 spec = SC.standings()
 T.check(out.trophy == 'SILVER' and spec.hero.icon == ART.medal(2) and spec.hero.color == ART.medalColor(2), 'silver: the silver medal, tinted silver')
@@ -75,12 +75,14 @@ T.check(spec.items[1].desc == 'Back to the cups' and S.focusMem.cups == 3, 'v0.2
 -- v0.21: no rival - the winner's row plain, no call-out; the leader saved for the title race
 T.check(spec.table.rows[1].cells[2] == 'Biddy Blas' and spec.table.rows[1].color == require('ui').WHITE, 'v0.21: no RIVAL tag or colour')
 T.check(not findText(spec.after, 'RIVAL'), 'v0.21: no rival call-out on the cup result')
-T.check(K.data.rivals == nil and K.data.leader['150'].name == 'Biddy Blas' and K.data.leader['150'].cup == 'ando',
-  'v0.21: the 150cc leader saved: Biddy Blas from the Ando Cup')
+T.check(K.data.rivals == nil and K.data.leader['challenger'].name == 'Biddy Blas' and K.data.leader['challenger'].cup == 'ando',
+  'v0.21: the Challenger leader saved: Biddy Blas from the Ando Cup')
+T.check(K.raceByPath(K.data.leader['challenger'].path) ~= nil and K.planetOf(K.data.leader['challenger'].path).key == 'ando',
+  'v0.26: the leader saved with the first race of that cup run (an Ando race)')
 
--- c) 5th place, outside the top 3: your row under them; one race away from opening 150cc's Galactic Cup
-K.data.best['150'] = { jakku = 1, lantaana = 3, ando = 2, crait = 1 }
-out = runCup('150', 'sentinel', { 5, 5, 5, 5 })
+-- c) 5th place, outside the top 3: your row under them; one race away from opening Challenger's Galactic Cup
+K.data.best['challenger'] = { jakku = 1, lantaana = 3, ando = 2, crait = 1 }
+out = runCup('challenger', 'sentinel', { 5, 5, 5, 5 })
 S.result = out
 spec = SC.standings()
 T.check(spec.hero.icon == nil and spec.hero.lines[1][1] == '5TH PLACE', 'no trophy: no medal, 5TH PLACE')
@@ -88,14 +90,14 @@ T.check(#spec.table.rows == 4 and spec.table.rows[4].cells[2] == 'YOU' and spec.
 T.check(not findText(spec.after, 'Next:'), 'v0.22: no Next: line here either')
 
 -- d) nothing left to open at the class: the near miss on the race line, no Next: line
-local run = CU.new('100', 'jakku', 'car', 4)
+local run = CU.new('riffraff', 'jakku', 'car', 4)
 run.points, run.last, run.race = { YOU = 50, ['Sen Fira'] = 51, Shade = 20 }, { YOU = 2, ['Sen Fira'] = 1, Shade = 3 }, 5
 run.history = { {}, {}, {}, { { key = 'Sen Fira', place = 1, pts = 15 }, { key = 'YOU', place = 2, pts = 12 }, { key = 'Shade', place = 3, pts = 10 } } }
-K.data.best['100'] = { jakku = 3, lantaana = 1, ando = 1, crait = 1, sentinel = 1, galactic = 1 }
-K.data.titles = { ['100'] = { tries = 1, won = true } }
+K.data.best['riffraff'] = { jakku = 3, lantaana = 1, ando = 1, crait = 1, sentinel = 1, galactic = 1 }
+K.data.titles = { riffraff = { tries = 1, won = true } }
 S.result = { cupOver = true, run = run, ev = { title = 'X', race = 4, laps = 2 }, trophy = 'SILVER', rank = 2, pts = 50, pos = 2, time = 120 }
 spec = SC.standings()
-T.check(PR.nextUnlock(K.data, '100') == nil, 'nothing left to unlock at 100cc')
+T.check(PR.nextUnlock(K.data, 'riffraff') == nil, 'nothing left to unlock at Riff-Raff')
 T.check(findText(spec.after, '1 POINT FROM GOLD') ~= nil and not findText(spec.after, 'Next:'), 'what\'s next: the near miss (' .. joined(spec.after) .. ')')
 T.check(spec.items[1].desc == 'Back to the cups' and S.focusMem.cups == 1, 'v0.21: every other cup golden: CONTINUE still lands on the cup just raced (Jakku)')
 
@@ -121,7 +123,7 @@ T.check(findText(spec.lines, '2nd   -   1:40.40   -   0.4 s behind Biddy Blas') 
 -- f) HOME (v0.21: no Next: line, no blurbs), the same measure on every class tile, no League line; the cups page: no
 -- how-to, no blurb, no levels line
 K.data.titles = {}
-K.data.best = { ['100'] = { jakku = 1, lantaana = 1, ando = 2, crait = 3 } }
+K.data.best = { riffraff = { jakku = 1, lantaana = 1, ando = 2, crait = 3 } }
 local home = SC.home()
 T.check(#home.lines == 1 and home.lines[1][1] == '' and not findText(home.lines, 'Next:'), 'v0.21: HOME: no Next: line (' .. joined(home.lines) .. ')')
 T.check(not findText(home.lines, 'Galactic League') and not findText(home.lines, 'Cups finished'), 'HOME: no League line, no counts')
@@ -129,7 +131,7 @@ local infos = {}
 for _, it in ipairs(home.items) do infos[#infos + 1] = tostring(it.info) end
 T.check(not table.concat(infos, '|'):find('division', 1, true) and not table.concat(infos, '|'):find('League proper', 1, true),
   'v0.21: no class blurbs in HOME\'s info lines')
-T.check(not home.items[2].info:find('%a'), 'v0.22: a class has no info line (' .. home.items[2].info .. ')')
+T.check(not home.items[1].info:find('%a'), 'v0.22: an open league has no info line (' .. home.items[1].info .. ')')
 local measures = {}
 for _, it in ipairs(home.items) do
   if it.classKey and not it.disabled then
@@ -138,32 +140,30 @@ for _, it in ipairs(home.items) do
     measures[#measures + 1] = tostring(it.badge) .. '/' .. tostring(it.desc) .. '/' .. table.concat(p)
   end
 end
-T.check(table.concat(measures, ' ; ') == 'nil/nil/------- ; nil/nil/mmmm---', 'v0.24 HOME: no words, a medal pip per cup (4 trophies at 100cc) and the title star (' .. table.concat(measures, ' ; ') .. ')')
+T.check(table.concat(measures, ' ; ') == 'nil/nil/mmmm---', 'v0.24 HOME: no words, a medal pip per cup (4 trophies at Riff-Raff; the other leagues locked) and the title star (' .. table.concat(measures, ' ; ') .. ')')
 K.data.best = {}
 T.check(not findText(SC.home().lines, 'Next:'), 'v0.21: a fresh save: no Next: line either')
-S.class = '100'
+S.class = 'riffraff'
 local cups = SC.cups()
 T.check(not findText(cups.lines, 'Select a cup') and not findText(cups.lines, 'LANDSPEEDER') and not findText(cups.lines, 'Parts level')
   and not findText(cups.lines, 'League'), 'v0.21: the cups page: no how-to, no blurb, no levels line (' .. joined(cups.lines) .. ')')
--- a sprint's record on the cups page: no lap
-local sprintRace
-for _, cup in ipairs(K.cups()) do
-  for _, r in ipairs(K.races(cup, '100')) do if not sprintRace and SD.sprint(r) then sprintRace = { cup = cup, r = r } end end
-end
-T.check(sprintRace ~= nil, 'a sprint in the 100cc cups')
-K.data.records['100'] = { [sprintRace.r.path] = { time = 61, lap = 61 } }
+-- v0.26 (random cups): the focused cup's info names its planet's tracks, no race list and no records (the races are
+-- drawn when the cup is picked)
+local sprint = K.pool('jakku')[6]
+T.check(SD.sprint(sprint), 'a sprint in the Jakku pool')
+K.data.records['riffraff'] = { [sprint.path] = { time = 61, lap = 61 } }
 cups = SC.cups()
-local info
-for _, it in ipairs(cups.items) do if it.title == sprintRace.cup.name then info = it.info end end
-T.check(info and info:find('GRAVEYARD     1:01.00', 1, true) and not info:find('lap', 1, true), 'the cups page: a record is the time alone (v0.22) (' .. tostring(info) .. ')')
+local info = cups.items[1].info
+T.check(info and info:find("THE GIANTS' GRAVEYARD", 1, true) and not info:find('1:01.00', 1, true) and not info:find('lap', 1, true),
+  'the cups page: the planet\'s tracks, no records (' .. tostring(info) .. ')')
 K.data.records = {}
 T.finish()
 
 ---------------------------------------------------------------------------------------------------------------------
 -- 2. through the menu: HOME's focus on the class last raced, the label strip, the footer hidden and put back, medal tints
 T.reset()
-T.boot({ version = 2, races = 4, cups = 1, class = '50', restores = {}, abilityRestores = {},
-  last = { class = '100', title = 'X', pos = 1 }, best = { ['100'] = { jakku = 1, lantaana = 3 } } })
+T.boot({ version = 3, races = 4, cups = 1, class = 'riffraff', restores = {}, abilityRestores = {},
+  last = { class = 'challenger', title = 'X', pos = 1 }, best = { challenger = { jakku = 1, lantaana = 3 } } })
 H = rawget(_G, 'GU_TEST_SCREENS')
 S = H.S
 -- the menu's footer: a WBP_ActionBar_C two panels down from the root
@@ -179,22 +179,22 @@ end
 footerMenu()
 local mark = T.mark()
 M.press('F6'); M.tick(6)
-T.check(S.screen == 'home' and S.focus == 2, 'HOME opens with the focus on 100CC, the class last raced (' .. tostring(S.focus) .. ')')
+T.check(S.screen == 'home' and S.focus == 2, 'HOME opens with the focus on CHALLENGER, the league last raced (' .. tostring(S.focus) .. ')')
 T.check(T.logHas('[footer] found WBP_ActionBar_C_7 (WBP_ActionBar_C) at depth 2', mark) and T.logHas('hidden while the GRAND PRIX tab is up', mark),
   'the footer found and logged')
 T.check(bp.__vis == 1, 'the footer hidden (collapsed) on our tab')
 -- v0.24 (owner: no dark grey bars behind tile text): the label strip is off by default (config TileLabelStrip)
 T.check(not T.logHas('[tiles] label strip', mark), 'no label strip made')
--- B into 50CC and back: HOME remembers the tile; a fresh open goes to the class last raced again
+-- B into RIFF-RAFF and back: HOME remembers the tile; a fresh open goes to the class last raced again
 rawget(W.tiles[2], '__props').__focus = false
-rawget(W.tiles[1], '__props').__focus = true -- (the player moves to 50CC)
+rawget(W.tiles[1], '__props').__focus = true -- (the player moves to RIFF-RAFF)
 M.tick(3)
-T.clickTitle('50CC'); M.tick(3)
+T.clickTitle('RIFF-RAFF'); M.tick(3)
 M.press('BACKSPACE'); M.tick(5)
-T.check(S.screen == 'home' and S.focus == 1, 'back from 50cc: the focus stays on 50CC')
--- the medal icons on the 100cc cups: gold and bronze in their own colours (the brush tint)
+T.check(S.screen == 'home' and S.focus == 1, 'back from Riff-Raff: the focus stays on RIFF-RAFF')
+-- the medal icons on the Challenger cups: gold and bronze in their own colours (the brush tint)
 mark = #M.calls + 1
-T.clickTitle('100CC'); M.tick(3)
+T.clickTitle('CHALLENGER'); M.tick(3)
 local tints = {}
 for i = mark, #M.calls do
   local c = M.calls[i]
@@ -220,7 +220,7 @@ T.finish()
 -- 3. HideFooter = false and TileLabelStrip = false: the footer only found and logged, the tiles untouched; a menu
 -- without the footer says what its root holds
 T.reset()
-T.boot({ version = 2, races = 0, cups = 0, restores = {}, abilityRestores = {}, best = { ['100'] = { jakku = 1 } } },
+T.boot({ version = 3, races = 0, cups = 0, restores = {}, abilityRestores = {}, best = { riffraff = { jakku = 1 } } },
   { HideFooter = false, TileLabelStrip = false })
 H = rawget(_G, 'GU_TEST_SCREENS')
 S = H.S
@@ -232,11 +232,11 @@ T.check(T.logHas('not hidden (HideFooter = false)', mark) and bp.__vis == 4, 'Hi
 T.check(not T.logHas('[tiles] label strip', mark), 'TileLabelStrip = false: no strip')
 T.check(rawget(rawget(rawget(W.tiles[2], '__props').VB_ContentLayout, '__props'), '__kids')[2] == rawget(W.tiles[2], '__props').Txt_Label_Supplemental,
   'the badge left in place')
-T.check(S.focus == 1, 'no class raced yet: the focus on the first tile')
+T.check(S.focus == 1, 'no league raced yet: the focus on the first tile')
 T.finish()
 
 T.reset()
-T.boot({ version = 2, races = 0, cups = 0, restores = {}, abilityRestores = {} })
+T.boot({ version = 3, races = 0, cups = 0, restores = {}, abilityRestores = {} })
 mark = T.mark()
 M.press('F6'); M.tick(6)
 T.check(T.logHas('[footer] not found (', mark), 'no footer on the menu: logged with what the root holds')

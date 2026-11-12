@@ -1,15 +1,15 @@
 -- v0.15 (TASKS.md A6): the racer decides the vehicle. The racer -> build table for all 14 (config Racers[].vehicle,
--- matching the game's PreferredVehicleType read 2026-11-11); Kestar Bool locked until the 150cc title (an old save
--- with him picked races as Shade, logged; cycling skips him; he's back once the title is won); the garage's RACER tile
--- names the vehicle type and the lock; a mismatch with the game's byte is logged once; the class parts go on the
+-- matching the game's PreferredVehicleType read 2026-11-11); Kestar Bool locked until beaten after the Ace title (a
+-- save with him picked races as Shade, logged; cycling skips him; he's back once beaten); the garage's RACER tile
+-- names the vehicle type and the lock; a mismatch with the game's byte is logged once; the league's parts go on the
 -- racer's build and are put back.
 local M = require('mock')
 local W = require('world')
 local T = require('util')
 local EV = '/Game/Griffin/Gameplay/Events/Planets/'
 
--- an old save: Kestar picked, no title won, the old vehicle pick
-T.boot({ version = 2, races = 9, cups = 1, class = '150', vehicle = 'skimmer', racer = 'Antagonist', restores = {}, abilityRestores = {} },
+-- a save with Kestar picked, the boss not beaten
+T.boot({ version = 3, races = 9, cups = 1, class = 'challenger', racer = 'Antagonist', restores = {}, abilityRestores = {} },
   { Progression = { On = false } })
 local RC, K, R, cfg = require('racer'), require('gp'), require('race'), require('config')
 local H = rawget(_G, 'GU_TEST_SCREENS')
@@ -35,11 +35,10 @@ T.check(RC.vehicleText('Rager') == 'Speeder bike' and RC.vehicleText('DarkEnigma
   'the vehicle type in words')
 T.check(RC.vehicle('DarkEnigma').key == 'car', 'Shade: the base landspeeder')
 
--- 2. the old save: the vehicle pick dropped, Kestar locked -> Shade
-T.check(T.logHas('[save] the old vehicle pick (skimmer) is dropped'), 'the old vehicle pick dropped, logged')
-T.check(RC.locked('Antagonist') and not RC.locked('Mentor') and not RC.locked('DarkEnigma'), 'Kestar locked (no 150cc title), the others not')
+-- 2. Kestar locked -> Shade
+T.check(RC.locked('Antagonist') and not RC.locked('Mentor') and not RC.locked('DarkEnigma'), 'Kestar locked (not beaten), the others not')
 T.check(RC.current().key == 'DarkEnigma' and T.save().racer == 'DarkEnigma', 'Kestar picked but locked: Shade, saved')
-T.check(T.logHas('[racer] Kestar Bool is locked (to unlock: beat kestar bool after the 150cc title) - racing as Shade'), 'the fall back logged')
+T.check(T.logHas('[racer] Kestar Bool is locked (to unlock: beat kestar bool after the ace title) - racing as Shade'), 'the fall back logged')
 
 -- 3. cycling skips him while locked
 local seen, kestar = {}, false
@@ -63,17 +62,17 @@ for _, it in ipairs(items) do
 end
 T.check(racer and racer.title == 'BIDDY BLAS' and racer.desc == 'Speeder bike', 'the RACER tile: Biddy Blas, Speeder bike')
 T.check(racer and racer.info:find('^Biddy Blas %- speeder bike:  Hot%-headed') ~= nil, 'its info: "Biddy Blas - speeder bike: <bio>" (' .. tostring(racer and racer.info) .. ')')
-T.check(racer and racer.info:find('Kestar Bool is locked. To unlock: beat Kestar Bool after the 150cc title.', 1, true) ~= nil, 'and how to unlock Kestar')
+T.check(racer and racer.info:find('Kestar Bool is locked. To unlock: beat Kestar Bool after the ACE title.', 1, true) ~= nil, 'and how to unlock Kestar')
 -- HOME's GARAGE tile: the racer and the vehicle type
 local garage
 for _, it in ipairs(SC.home().items) do if it.title == 'GARAGE' then garage = it end end
 T.check(garage and garage.desc == 'Biddy Blas\nSpeeder bike', 'HOME\'s GARAGE tile: racer and vehicle type (' .. tostring(garage and garage.desc):gsub('\n', ' / ') .. ')')
 T.check(garage and not garage.info:find('%a'), 'v0.22: no info line on GARAGE (the tile names the racer)')
 
--- 4. v0.21: the 150cc title alone doesn't unlock him; beating him (the final boss) does: Kestar in the cycle, the lock
+-- 4. v0.21: the Ace title alone doesn't unlock him; beating him (the final boss) does: Kestar in the cycle, the lock
 -- line gone
-K.data.titles['150'] = { won = true, tries = 2, vs = 'Biddy Blas' }
-T.check(RC.locked('Antagonist'), 'v0.21: the 150cc title alone: Kestar still locked')
+K.data.titles['ace'] = { won = true, tries = 2, vs = 'Sen Fira' }
+T.check(RC.locked('Antagonist'), 'v0.21: the Ace title alone: Kestar still locked')
 K.data.boss = { beaten = true, tries = 1 }
 for _ = 1, 14 do if RC.cycle(1).key == 'Antagonist' then kestar = true; break end end
 T.check(kestar and RC.current().key == 'Antagonist' and RC.vehicle().key == 'car', 'boss beaten: Kestar in the cycle, a landspeeder')
@@ -81,16 +80,16 @@ for _, it in ipairs(SC.garage().items) do
   if it.kind == 'racer' then T.check(not it.info:find('locked', 1, true) and it.desc == 'Landspeeder', 'no lock line any more (' .. it.info .. ')') end
 end
 
--- 5. as Sebulba at 150cc: the skimmer build at parts 7, the others untouched, put back at the menu; the game's byte
+-- 5. as Sebulba at Challenger: the skimmer build at parts 5, the others untouched, put back at the menu; the game's byte
 -- read once from his def (matches: nothing logged)
 while RC.current().key ~= 'Mentor' do RC.cycle(1) end
 M.press('F6'); M.tick(6)
-T.clickTitle('150CC'); M.tick(3)
+T.clickTitle('CHALLENGER'); M.tick(3)
 T.clickTitle('JAKKU CUP')
 local args = M.lastCall('LaunchQuickRace').args
 T.check(rawget(args[1], '__name') == 'VA_Skimmer' and rawget(args[3], '__name'):find('VBD_Skimmer_Base', 1, true) ~= nil,
   'Sebulba races the skim speeder build')
-T.check(T.levels('VBD_Skimmer_Base') == '0=7 1=7 2=7 3=7 4=7 5=7', '150cc parts on the skimmer build')
+T.check(T.levels('VBD_Skimmer_Base') == '0=5 1=5 2=5 3=5 4=5 5=5', 'Challenger parts on the skimmer build')
 T.check(T.levels('VBD_Car_Base') == '0=0 1=0 2=0 3=0 4=0 5=0' and T.levels('VBD_Bike_Base') == '0=0 1=0 2=0 3=0 4=0 5=0', 'the car and bike builds untouched')
 T.check(T.logHas('vehicle=skimmer') and not T.logHas('PreferredVehicleType'), 'launch logged with the skimmer; the game\'s byte agrees (no mismatch line)')
 W.race(11); M.tick(10)
@@ -105,15 +104,15 @@ T.check(T.save().run == nil, 'cup left')
 rawget(W.racerDef('Nomad'), '__props').PreferredVehicleType = 2
 while RC.current().key ~= 'Nomad' do RC.cycle(1) end
 local ev = { path = EV .. 'Mastiff/EVT_MAS_LOOP_A_FWD', title = 'The War Fields', kind = 'circuit' }
-local ok = R.launch(ev, '100', RC.vehicle().key, nil, nil)
+local ok = R.launch(ev, 'ace', RC.vehicle().key, nil, nil)
 T.check(ok and T.logHas('[racer] Fola Kanjen: the game\'s PreferredVehicleType is 2, config says skimmer (arch 3) - racing the config\'s skimmer'),
   'mismatch logged; config wins (' .. tostring(ok) .. ')')
-T.check(T.levels('VBD_Skimmer_Base') == '0=3 1=3 2=3 3=3 4=3 5=3', 'the skimmer build at 100cc')
+T.check(T.levels('VBD_Skimmer_Base') == '0=9 1=9 2=9 3=9 4=9 5=9', 'the skimmer build at Ace')
 W.race(11); M.tick(10)
 W.backToMenu(); M.tick(45)
 T.check(T.levels('VBD_Skimmer_Base') == '0=0 1=0 2=0 3=0 4=0 5=0', 'put back')
 local mark = T.mark()
-ok = R.launch(ev, '100', RC.vehicle().key, nil, nil)
+ok = R.launch(ev, 'ace', RC.vehicle().key, nil, nil)
 T.check(ok and not T.logHas('PreferredVehicleType', mark), 'checked once per racer per session')
 W.race(11); M.tick(10)
 W.backToMenu(); M.tick(45)

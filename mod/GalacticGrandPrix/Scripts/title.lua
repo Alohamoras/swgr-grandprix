@@ -1,20 +1,21 @@
--- Galactic Grand Prix: the title race per class and the final boss (v0.8; v0.21 owner, OWNER.md "Done" 2026-11-11).
+-- Galactic Grand Prix: the title race per league and the final boss (v0.8; v0.21 owner, OWNER.md "Done" 2026-11-11).
 --
--- The title race (v0.21): a 1 v 1 on a NORMAL track against the class leader. It opens with a trophy in the Galactic
--- Cup at the class (prog.lua P.titleOpen). The leader = the best-placed bot in the final standings of your most recent
--- finished cup at that class (if you won it, the 2nd; else the cup winner), saved when a cup ends (gp.lua:
--- leader[class] = { name, cup }). The track = the first race of that cup's list at that class (its normal laps). No cup
--- finished at the class yet: config Title.Default[class] (a DA_Racer_ key) on the first planet cup's first race.
--- Winning makes you the class champion (saved: titles[class]). Your racer swap (racer.lua) still applies.
+-- The title race (v0.21): a 1 v 1 on a NORMAL track against the league leader. It opens with a trophy in the Galactic
+-- Cup at the league (prog.lua P.titleOpen). The leader = the best-placed bot in the final standings of your most recent
+-- finished cup at that league (if you won it, the 2nd; else the cup winner), saved when a cup ends (gp.lua:
+-- leader[league] = { name, cup, path }). v0.26 (random cups): the track = the first race of that cup run (path, saved
+-- with the leader). No cup finished at the league yet: config Title.Default[league] (a DA_Racer_ key) on the first race
+-- of a random draw of Title.DefaultCup (Jakku), made once per league and saved (titleTrack[league]), so the tile shows
+-- a stable track. Winning makes you the league champion (saved: titles[league]). Your racer swap (racer.lua) still
+-- applies.
 -- The two-car grid (KNOWLEDGE.md §3, RaceFlowSpike B6, raceflow-b6-20261111.log): before LaunchQuickRace the event's
 -- GridMakeup is set to 2 entrants (its first entry 2, the others 0) and CharacterList.Opponents cut to the one racer;
 -- both go back at the main menu, once (T.gridRestore, from race.lua R.restoreBuild). The originals are in the save
 -- (gridRestore) BEFORE anything changes, so a crash mid-race is put right at the next boot's menu.
 --
 -- The final boss (v0.21): Kestar Bool in the game's Stadium Showdown (the old title race, config Boss), a KESTAR BOOL
--- tile on the 150cc cups page once the 150cc title is won. Beating him saves boss = { beaten = true } and unlocks him
+-- tile on the Ace cups page once the Ace title is won (v0.26; was 150cc). Beating him saves boss = { beaten = true } and unlocks him
 -- as a racer (racer.lua unlockBoss). The Showdown's story cinematics are taken off for the race and put back (below).
--- Old saves: a 150cc title won before v0.21 was won against Kestar in the Showdown, so he counts as beaten (gp.lua).
 --
 -- Pure logic plus memory-only writes to two data assets, each through try / pcall; nothing kept between ticks.
 local C = require('core')
@@ -29,7 +30,7 @@ local function conf() return cfg.Title or {} end
 local function bconf() return cfg.Boss or {} end
 function T.on() return conf().On ~= false end
 function T.bossOn() return bconf().On ~= false and bconf().Event ~= nil end
-function T.bossClass() return bconf().Class or '150' end
+function T.bossClass() return bconf().League or 'ace' end
 function T.status(classKey) return (K.data.titles or {})[classKey] end
 
 ---------------------------------------------------------------------------------------------------------------------
@@ -37,7 +38,9 @@ function T.status(classKey) return (K.data.titles or {})[classKey] end
 
 local function racerByName(name) for _, r in ipairs(cfg.Racers or {}) do if r.name == name then return r end end return nil end
 local function racerByKey(key) for _, r in ipairs(cfg.Racers or {}) do if r.key == key then return r end end return nil end
-local function firstPlanetCup() for _, c in ipairs(K.cups()) do if not c.final then return c end end return K.cups()[1] end
+local function defaultCup()
+  return K.cup(conf().DefaultCup or 'jakku') or (function() for _, c in ipairs(K.cups()) do if not c.final then return c end end end)()
+end
 
 -- the best-placed bot of a finished cup (run = the cup state, cup.lua): its name, or nil
 function T.leaderOf(run)
@@ -54,14 +57,15 @@ local function yourKey()
   return r and r.key or nil
 end
 
--- the class leader: { key, name, cup = the cup key it came from (nil = the default), source = 'cup' | 'default' }.
--- Never your own racer (raced as the leader: the class's default, else the first other racer).
+-- the league leader: { key, name, cup = the cup key it came from (nil = the default), path = the first race of that
+-- cup run, source = 'cup' | 'default' }. Never your own racer (raced as the leader: the league's default, else the
+-- first other racer).
 function T.leader(classKey)
   local mine = yourKey()
   local l = (K.data.leader or {})[classKey]
   if type(l) == 'table' and type(l.name) == 'string' then
     local r = racerByName(l.name)
-    if r and r.key ~= mine then return { key = r.key, name = r.name, cup = l.cup, source = 'cup' } end
+    if r and r.key ~= mine then return { key = r.key, name = r.name, cup = l.cup, path = l.path, source = 'cup' } end
   end
   local dk = (conf().Default or {})[classKey]
   local r = dk and racerByKey(dk)
@@ -74,15 +78,32 @@ function T.leader(classKey)
 end
 function T.opponent(classKey) return T.leader(classKey).name end
 
--- the launchable title race: the first race of the leader's cup at the class (no leader yet: the first planet cup's),
--- plus the title flag the result read looks for and the opponent for the grid
+-- v0.26: the title race's track before any cup has finished at the league: the first race of a random draw of
+-- Title.DefaultCup, made once and saved (titleTrack[league]); a saved path no pool knows any more is drawn again
+local function defaultTrack(classKey)
+  K.data.titleTrack = K.data.titleTrack or {}
+  local r = K.raceByPath(K.data.titleTrack[classKey])
+  if r then return r end
+  local cup = defaultCup()
+  local d = cup and K.draw(cup)[1]
+  r = d and K.raceByPath(d.path)
+  if not r then return nil end
+  K.data.titleTrack[classKey] = r.path
+  K.save()
+  log(('[title] %s: no cup finished yet - the title race track is %s (a random %s draw, kept)'):format(K.leagueName(classKey),
+    r.title, cup.name))
+  return r
+end
+-- the launchable title race: the first race of the leader's most recent cup run at the league (no leader yet, or a
+-- path no pool knows: the default track), plus the title flag the result read looks for and the opponent for the grid
 function T.event(classKey)
   local l = T.leader(classKey)
-  local cup = (l.cup and K.cup(l.cup)) or firstPlanetCup()
-  local r = cup and K.races(cup, classKey)[1]
+  local r = l.source == 'cup' and K.raceByPath(l.path) or nil
+  if not r then r = defaultTrack(classKey) end
   if not r then return nil end
+  local p = K.planetOf(r.path)
   return { path = r.path, title = r.title, kind = r.kind, laps = r.laps, class = classKey, titleRace = true,
-    opponent = l.key, vs = l.name, trackCup = cup.key, leaderFrom = l.source }
+    opponent = l.key, vs = l.name, trackCup = p and p.key or nil, leaderFrom = l.source }
 end
 
 ---------------------------------------------------------------------------------------------------------------------
@@ -264,12 +285,12 @@ function T.record(ev, pos)
   local vs = ev.vs or T.opponent(cls)
   if won then t.won, t.at, t.vs = true, os.date('%Y-%m-%d'), vs end
   K.data.titles[cls] = t
-  log(('TITLE RACE %s: %s vs %s on %s (try %d)'):format(cls, won and 'WON - you are the champion' or (pos and ('lost, ' .. C.ordinal(pos)) or 'DNF'),
+  log(('TITLE RACE %s: %s vs %s on %s (try %d)'):format(K.leagueName(cls), won and 'WON - you are the champion' or (pos and ('lost, ' .. C.ordinal(pos)) or 'DNF'),
     vs, tostring(ev.title), t.tries))
   local out = { titleRace = true, won = won, vs = vs, tries = t.tries, firstWin = won and not was }
   if out.firstWin and cls == T.bossClass() and T.bossOn() and not T.bossBeaten() then
     out.bossOpened = true
-    log('unlocked: ' .. (bconf().Name or 'KESTAR BOOL') .. ' (the final boss) on the ' .. tostring(cls) .. 'cc cups page')
+    log('unlocked: ' .. (bconf().Name or 'KESTAR BOOL') .. ' (the final boss) on the ' .. K.leagueName(cls) .. ' cups page')
   end
   return out
 end

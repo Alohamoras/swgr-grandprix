@@ -7,12 +7,12 @@ local M = require('mock')
 local W = require('world')
 local T = require('util')
 
-local full = { version = 2, races = 44, cups = 11, class = '150', racer = 'Antagonist',
+local full = { version = 3, races = 44, cups = 11, class = 'challenger', racer = 'Antagonist',
   picks = { 'bolt.concuss', 'shield.impact', 'surge.impact', 'mine.double' }, mods = { 'heat_shield', 'armour' },
-  best = { ['50'] = { jakku = 1 }, ['150'] = { jakku = 1, galactic = 2 } }, perfect = { ['50'] = { jakku = true } },
-  records = { ['50'] = { ['/x'] = { time = 100 } } }, standings = { ['50'] = { jakku = { YOU = 60 } } },
-  titles = { ['150'] = { won = true, tries = 1, vs = 'Biddy Blas' } }, boss = { beaten = true, tries = 2 },
-  leader = { ['150'] = { name = 'Biddy Blas', cup = 'jakku' } }, last = { class = '150', title = 'X', pos = 1 },
+  best = { ['riffraff'] = { jakku = 1 }, ['challenger'] = { jakku = 1, galactic = 2 } }, perfect = { ['riffraff'] = { jakku = true } },
+  records = { ['riffraff'] = { ['/x'] = { time = 100 } } }, standings = { ['riffraff'] = { jakku = { YOU = 60 } } },
+  titles = { ['challenger'] = { won = true, tries = 1, vs = 'Biddy Blas' } }, boss = { beaten = true, tries = 2 },
+  leader = { ['challenger'] = { name = 'Biddy Blas', cup = 'jakku' } }, last = { class = 'challenger', title = 'X', pos = 1 },
   restores = {}, abilityRestores = {} }
 T.boot(full)
 local H = rawget(_G, 'GU_TEST_SCREENS')
@@ -40,7 +40,7 @@ T.clickTitle('RESET PROGRESS'); M.tick(3)
 T.check(T.titles() == 'NO|YES' and S.focus == 1, 'question 1: NO first, focused')
 T.check(S.confirm.text == 'Reset all progress? Every trophy, record and title is cleared.', 'question 1 text')
 T.clickTitle('NO'); M.tick(3)
-T.check(S.screen == 'home' and T.save().titles['150'].won == true, 'NO: HOME, nothing cleared')
+T.check(S.screen == 'home' and T.save().titles['challenger'].won == true, 'NO: HOME, nothing cleared')
 -- 2. YES, then NO on the second: nothing cleared
 T.clickTitle('RESET PROGRESS'); M.tick(3)
 T.clickTitle('YES'); M.tick(3)
@@ -68,7 +68,7 @@ T.finish()
 
 -- 4. a racer that isn't locked stays; PageBackdrop = true: the v0.20 grey panel
 T.reset()
-T.boot({ version = 2, races = 3, racer = 'Rager', best = { ['50'] = { jakku = 2 } }, restores = {}, abilityRestores = {} }, { PageBackdrop = true })
+T.boot({ version = 3, races = 3, racer = 'Rager', best = { ['riffraff'] = { jakku = 2 } }, restores = {}, abilityRestores = {} }, { PageBackdrop = true })
 M.press('F6'); M.tick(6)
 local a2
 for _, c in ipairs(M.calls) do

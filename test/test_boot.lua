@@ -34,9 +34,9 @@ local function count(s)
 end
 local function at(s) for i, l in ipairs(M.log) do if l:find(s, 1, true) then return i end end end
 local OPEN = '[boot] opening the GRAND PRIX tab (BootToGrandPrix)'
-local HOME = '50CC|100CC|150CC|200CC|GARAGE|RESET PROGRESS'
+local HOME = 'RIFF-RAFF|CHALLENGER|ACE|GARAGE|RESET PROGRESS'
 local function save(extra)
-  local s = { version = 2, races = 5, cups = 0, class = '50', best = {}, restores = {}, abilityRestores = {} }
+  local s = { version = 3, races = 5, cups = 0, class = 'riffraff', best = {}, restores = {}, abilityRestores = {} }
   for k, v in pairs(extra or {}) do s[k] = v end
   return s
 end
@@ -59,11 +59,11 @@ end
 
 if scenario == 'main' then
   -- an old cup run (race 2 of 4) and an AI put-back left in the save by a crash
-  T.boot(save({ run = { class = '100', cup = 'lantaana', vehicle = 'car', race = 2, races = 4, points = { YOU = 12 }, last = {}, history = { {} } },
+  T.boot(save({ run = { class = 'challenger', cup = 'lantaana', vehicle = 'car', race = 2, races = 4, points = { YOU = 12 }, last = {}, history = { {} } },
     aiRestores = { ['/Game/Griffin/AI/DA_AIConfig'] = { ForcedErrorChance = 15 } } }),
     { BootToGrandPrix = true, Progression = { On = false }, Manual = true })
   W.ai.ForcedErrorChance = 7.5
-  check(T.logHas('[cup] lantaana 100cc dropped at boot (race 2 of 4)') and T.save().run == nil, 'the old cup dropped at load')
+  check(T.logHas('[cup] lantaana CHALLENGER dropped at boot (race 2 of 4)') and T.save().run == nil, 'the old cup dropped at load')
   check(not T.logHas('[boot] opening'), 'nothing opened before the main menu')
   menu()
   M.tick(3)
@@ -100,7 +100,7 @@ if scenario == 'main' then
   -- a cup race: the standings come back after it (as before); afterwards nothing reopens
   M.press('F6'); M.tick(6)
   check(T.titles() == HOME, 'F6 still opens HOME')
-  T.clickTitle('50CC'); M.tick(3)
+  T.clickTitle('RIFF-RAFF'); M.tick(3)
   T.clickTitle('JAKKU CUP')
   check(M.called('LaunchQuickRace') == 1, 'race launched')
   W.race(11); M.tick(5)
@@ -144,7 +144,7 @@ elseif scenario == 'off' then
 elseif scenario == 'study' then
   -- after v0.21.0 study mode is gone (attic/): a study.lua left in the mod folder is ignored, the boot is as usual
   local f = io.open(T.dir .. '/study.lua', 'w')
-  f:write("return { { class = '50', cup = 'jakku', race = 1, label = 'a' } }\n")
+  f:write("return { { class = 'riffraff', cup = 'jakku', race = 1, label = 'a' } }\n")
   f:close()
   T.boot(save(), { BootToGrandPrix = true, Progression = { On = false }, Manual = true })
   menu(); M.tick(120)

@@ -5,14 +5,14 @@ local M = require('mock')
 local W = require('world')
 local T = require('util')
 local old = { offensive = 'shockwave.magnetic', defensive = 'shield.impact', utility = 'surge.impact', wildcard = 'scrubber.auto' }
-T.boot({ version = 2, races = 25, cups = 5, class = '200', vehicle = 'car', best = {},
+T.boot({ version = 3, races = 25, cups = 5, class = 'ace', vehicle = 'car', best = {},
   picks = old,
-  run = { class = '200', cup = 'jakku', vehicle = 'car', race = 3, races = 4, points = { YOU = 27 }, last = {}, history = { {}, {} },
+  run = { class = 'ace', cup = 'jakku', vehicle = 'car', race = 3, races = 4, points = { YOU = 27 }, last = {}, history = { {}, {} },
     picks = { offensive = 'shockwave.magnetic', defensive = 'shield.impact', utility = 'surge.impact', wildcard = 'scrubber.auto' } },
   restores = {}, abilityRestores = {} }, { Progression = { On = false } })
-T.check(T.logHas('[cup] jakku 200cc dropped at boot (race 3 of 4): cups cannot be resumed') and T.save().run == nil, 'the old cup dropped at boot')
+T.check(T.logHas('[cup] jakku ACE dropped at boot (race 3 of 4): cups cannot be resumed') and T.save().run == nil, 'the old cup dropped at boot')
 M.press('F6'); M.tick(6)
-T.clickTitle('200CC'); M.tick(3)
+T.clickTitle('ACE'); M.tick(3)
 T.clickTitle('JAKKU CUP')
 local slots = W.buildSlots['VBD_Car_Base']
 local function names(list) local t = {}; for i = 1, 4 do t[i] = rawget(list[i], '__dead') and '-' or rawget(list[i], '__name') end; return table.concat(t, ',') end

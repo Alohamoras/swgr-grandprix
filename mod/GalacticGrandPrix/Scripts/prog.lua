@@ -1,12 +1,14 @@
--- Galactic Grand Prix: progression - which classes and cups are open (DESIGN.md §8, v0.5). Pure logic, worked out
+-- Galactic Grand Prix: progression - which leagues and cups are open (DESIGN.md §8, v0.5). Pure logic, worked out
 -- from the saved best finishes every time (nothing extra saved), so trophies won before v0.5 count and RESET
 -- PROGRESS locks everything again.
---   Classes: those with `open = true` are open from the start (50cc, 100cc - owner, 2026-11-10). Each other class
---     opens with a trophy (or gold: Progression.Unlock) in every planet cup of the class before it.
+--   Leagues (v0.26): those with `open = true` are open from the start (Riff-Raff - owner, 2026-11-12). Each other league
+--     opens with a trophy (or gold: Progression.Unlock) in every planet cup of the league before it (Challenger from
+--     Riff-Raff, Ace from Challenger).
 --   The Galactic Cup (`final = true`, v0.11): a trophy (or gold: Unlock) in every planet cup at that class.
 --   The title race (title.lua, v0.11): a trophy (or gold: Unlock) in the Galactic Cup at that class.
 --   Kept: a class or cup you have already raced through (a best finish) or have a cup in progress in stays open,
 --     so v0.5 never takes away what you were playing.
+-- (v0.26: a league is what was a speed class; the code and the save keep the word "class" for it)
 local cfg = require('config')
 
 local P = {}
@@ -20,7 +22,7 @@ local function planetCups()
   return out
 end
 local function cupByKey(key) for _, c in ipairs(cfg.Cups or {}) do if c.key == key then return c end end return nil end
-local function classByKey(key) for _, c in ipairs(cfg.Classes or {}) do if c.key == key then return c end end return nil end
+local function classByKey(key) for _, c in ipairs(cfg.Leagues or {}) do if c.key == key then return c end end return nil end
 local function className(key) local c = classByKey(key); return c and c.name or key end
 -- how many planet cups at a class have a result at least `need` (1 = gold, 3 = any trophy)
 local function count(data, classKey, need)
@@ -38,7 +40,7 @@ local function raced(data, classKey, cupKey)
   return next((data.best or {})[classKey] or {}) ~= nil
 end
 
--- v0.14: the short form of what opens a locked thing, for its tile ('5 trophies at 100cc'; the full why goes in the
+-- v0.14: the short form of what opens a locked thing, for its tile ('5 trophies at RIFF-RAFF'; the full why goes in the
 -- screen's info line)
 local function shortCount(gold, of, name) return ('%d %s at %s'):format(of, gold and 'golds' or 'trophies', name) end
 local function titleCase(s) return (tostring(s):lower():gsub("(%a)([%w']*)", function(a, b) return a:upper() .. b end)) end
@@ -46,7 +48,7 @@ local function titleCase(s) return (tostring(s):lower():gsub("(%a)([%w']*)", fun
 -- is a class open? -> open, why (the text for a locked tile's info: what opens it), short (the same for the tile)
 function P.classOpen(data, classKey)
   if not P.on() then return true end
-  local list, prev = cfg.Classes or {}, nil
+  local list, prev = cfg.Leagues or {}, nil
   for i, c in ipairs(list) do
     if c.key == classKey then
       if c.open or i == 1 then return true end
@@ -97,11 +99,11 @@ function P.titleOpen(data, classKey)
     ('%s %s'):format(titleCase(fin.name), gold and 'gold' or 'trophy')
 end
 
--- everything open, as a set of names ('150cc', 'GALACTIC CUP at 100cc', 'TITLE RACE at 100cc') - compared before /
+-- everything open, as a set of names ('CHALLENGER', 'GALACTIC CUP at RIFF-RAFF', 'TITLE RACE at RIFF-RAFF') - compared before /
 -- after a cup to say what it unlocked
 function P.openSet(data)
   local s = {}
-  for _, c in ipairs(cfg.Classes or {}) do
+  for _, c in ipairs(cfg.Leagues or {}) do
     if P.classOpen(data, c.key) then
       s[c.name] = true
       for _, cup in ipairs(cfg.Cups or {}) do
@@ -115,10 +117,10 @@ end
 -- what's open in `after` and wasn't in `before`, in config order (classes first)
 function P.newlyOpen(before, after)
   local out = {}
-  for _, c in ipairs(cfg.Classes or {}) do
+  for _, c in ipairs(cfg.Leagues or {}) do
     if after[c.name] and not before[c.name] then out[#out + 1] = c.name end
   end
-  for _, c in ipairs(cfg.Classes or {}) do
+  for _, c in ipairs(cfg.Leagues or {}) do
     for _, cup in ipairs(cfg.Cups or {}) do
       local k = cup.name .. ' at ' .. c.name
       if after[k] and not before[k] then out[#out + 1] = k end
@@ -139,8 +141,8 @@ local function joinNames(list)
   return table.concat(list, ', ', 1, #list - 1) .. ' and ' .. list[#list]
 end
 -- -> nil (nothing locked that this class opens), or { need = n, opens = { names }, cup = the one cup still needed
--- (need 1) or nil, class = classKey, text = '2 more trophies at 100cc open the GALACTIC CUP and 150cc' / 'a trophy
--- in the Ando Cup at 150cc opens the GALACTIC CUP' / 'a trophy in the Galactic Cup at 100cc opens the TITLE RACE' }
+-- (need 1) or nil, class = classKey, text = '2 more trophies at RIFF-RAFF open the GALACTIC CUP and CHALLENGER' / 'a trophy
+-- in the Ando Cup at CHALLENGER opens the GALACTIC CUP' / 'a trophy in the Galactic Cup at RIFF-RAFF opens the TITLE RACE' }
 function P.nextUnlock(data, classKey)
   if not P.on() or not P.classOpen(data, classKey) then return nil end
   local gold = conf().Unlock == 'gold'
@@ -153,7 +155,7 @@ function P.nextUnlock(data, classKey)
   if n < of then
     local opens = {}
     if fin and not P.cupOpen(data, classKey, fin.key) then opens[#opens + 1] = fin.name end
-    local list = cfg.Classes or {}
+    local list = cfg.Leagues or {}
     for i, c in ipairs(list) do
       if c.key == classKey and list[i + 1] and not P.classOpen(data, list[i + 1].key) then opens[#opens + 1] = list[i + 1].name end
     end
@@ -191,9 +193,9 @@ function P.nextGoal(data, prefer)
     if not c then return end
     if not best or c.need < best.need or (c.need == best.need and c.class == prefer and best.class ~= prefer) then best = c end
   end
-  for _, c in ipairs(cfg.Classes or {}) do better(P.nextUnlock(data, c.key)) end
+  for _, c in ipairs(cfg.Leagues or {}) do better(P.nextUnlock(data, c.key)) end
   if best then return best end
-  for _, c in ipairs(cfg.Classes or {}) do
+  for _, c in ipairs(cfg.Leagues or {}) do
     if P.classOpen(data, c.key) then
       local missing, last = 0, nil
       for _, cup in ipairs(cfg.Cups or {}) do

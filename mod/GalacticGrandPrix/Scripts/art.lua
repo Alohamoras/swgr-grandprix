@@ -6,10 +6,11 @@ local A = {}
 local TEX = '/Game/Griffin/UI/Library/Textures/'
 local ARCADE = TEX .. 'Content/Arcade/T_UI_Arcade_'
 
--- the speed classes: the game's four difficulty banners (sage, gold, blue, red)
-local CLASS = { ['50'] = 1, ['100'] = 2, ['150'] = 3, ['200'] = 4 }
-function A.class(key)
-  local n = CLASS[tostring(key)]
+-- the leagues (v0.26; were the speed classes): three of the game's four difficulty banners - Riff-Raff sage,
+-- Challenger blue, Ace red (the gold one, the old 100cc's, is left out)
+local LEAGUE = { riffraff = 1, challenger = 3, ace = 4 }
+function A.league(key)
+  local n = LEAGUE[tostring(key)]
   return n and (TEX .. 'Backgrounds/T_UI_DifficultySettings0' .. n .. '_Bg') or nil
 end
 
@@ -81,13 +82,12 @@ A.SHOWDOWN = A.style('Antagonist')
 A.BACKDROP = TEX .. 'Backgrounds/T_UI_Scenario_Bg'
 
 -- v0.15.1 (seen in game 2026-11-11): the game brightens a FOCUSED tile's picture, and the white title on the
--- brightest pictures became hard to read (the 50cc / 100cc banners, Kestar's portrait). Those pictures are drawn
--- darker (the tile's picture tinted grey). Brightness under the title, 0-255, measured on the textures
--- (tools/art/iotex.py previews): 50cc 136, 100cc 130, Kestar 151; 150cc 104 and 200cc 112 read fine in game, so the
--- factor brings each to about 100.
+-- brightest pictures became hard to read (the sage / gold difficulty banners, Kestar's portrait). Those pictures are
+-- drawn darker (the tile's picture tinted grey). Brightness under the title, 0-255, measured on the textures
+-- (tools/art/iotex.py previews): sage (Riff-Raff) 136, gold 130 (not used since v0.26), Kestar 151; blue (Challenger) 104 and red (Ace) 112
+-- read fine in game, so the factor brings each to about 100.
 A.DIM = {
   T_UI_DifficultySettings01_Bg = 0.75,
-  T_UI_DifficultySettings02_Bg = 0.8,
   T_UI_RacerStyle_Antagonist_Bg = 0.7,
 }
 function A.dim(path)
@@ -99,7 +99,21 @@ end
 local ICONS = TEX .. 'Icons/'
 A.LOCK = ICONS .. 'T_UI_Lock_Icn'
 A.STAR = ICONS .. 'T_UI_Star_Lg_Icn'
-A.START = ICONS .. 'Leaderboard/T_UI_SimpleArrow_Icn'
+-- v0.26 (owner: the leagues' speed as a picture, 1-3 chevrons on each HOME poster): the game's plain right-pointing
+-- arrowhead (a solid wedge, 64 px; decoded from the paks with tools/art/iotex.py, 2026-11-12), drawn white in the
+-- poster's top right corner (ui.lua U.decorate it.corner), a little smaller than the corner icons so three sit beside
+-- the medal pips on a 760-wide poster
+A.SPEED = ICONS .. 'Leaderboard/T_UI_SimpleArrow_Icn'
+A.SPEED_COLOR = { 1, 1, 1 }
+A.SPEED_PX = 56
+-- a league's chevrons as corner pictures: n of them (nil for none)
+function A.speed(n)
+  n = tonumber(n) or 0
+  if n < 1 then return nil end
+  local out = {}
+  for i = 1, n do out[i] = { A.SPEED, A.SPEED_COLOR, nil, px = A.SPEED_PX } end
+  return out
+end
 A.GREY = { 0.55, 0.57, 0.6 }       -- a medal not won yet (drawn faint)
 A.LOCK_COLOR = { 0.9, 0.9, 0.92 }
 -- an ability family's big icon (Icons/Abilities/LargeAbilityIcons)

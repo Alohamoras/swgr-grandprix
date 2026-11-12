@@ -359,15 +359,12 @@ function W.raceEvent(path, laps, cond)
   M.assets[path .. '.' .. n] = e
   return e
 end
--- every event of the config's cups (call after T.boot: the config is loaded by then)
+-- every event of the config's race pools (v0.26; call after T.boot: the config is loaded by then)
 function W.cupEvents()
-  for _, cup in ipairs(require('config').Cups) do
-    local lists = cup.races[1] and { cup.races } or cup.races
-    for _, list in pairs(lists) do
-      for _, r in ipairs(list) do
-        local cond = r.cond and ('TrackCondition.' .. r.cond:gsub(',.*', ''):gsub('%s', '')) or 'TrackCondition.Sunset'
-        if not M.assets[r.path .. '.' .. r.path:match('([^/]+)$')] then W.raceEvent(r.path, r.laps, cond) end
-      end
+  for _, pool in pairs(require('config').Pools) do
+    for _, r in ipairs(pool) do
+      local cond = r.cond and ('TrackCondition.' .. r.cond:gsub(',.*', ''):gsub('%s', '')) or 'TrackCondition.Sunset'
+      if not M.assets[r.path .. '.' .. r.path:match('([^/]+)$')] then W.raceEvent(r.path, r.laps, cond) end
     end
   end
 end

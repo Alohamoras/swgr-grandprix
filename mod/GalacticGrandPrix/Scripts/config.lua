@@ -1,8 +1,8 @@
--- Galactic Grand Prix settings: speed classes, cups, vehicles (DESIGN.md §3-4).
+-- Galactic Grand Prix settings: leagues, race pools, cups, vehicles (DESIGN.md §3-4).
 local EV = '/Game/Griffin/Gameplay/Events/Planets/'
 
--- a race: path, the name shown, the kind, laps (the event's own lap count: events_dump.txt / GPRecon, 2026-11-10;
--- a sprint is 1 lap). The planet comes from the path's first folder (Planets below, gp.lua planetOf).
+-- a race in a pool: path, the name shown, the kind, laps (the event's own lap count: events_dump.txt / GPRecon,
+-- 2026-11-10; a sprint is 1 lap). The planet comes from the path's first folder (Planets below, gp.lua planetOf).
 -- v0.11: base = the track without its direction / conditions ('THE WAR FIELDS (REVERSE, SCORCHING)' -> 'THE WAR
 -- FIELDS'; a cup never races one twice), cond = the conditions in the title ('SCORCHING', 'MINES, NIGHT'; nil = none).
 local function race(path, title, kind, laps)
@@ -22,15 +22,16 @@ return {
     -- Tile layout on the tab's page (at 4K one UI unit is about one pixel)
     TabLayout = { TileWidth = 520, TileHeight = 350, Columns = 4, VisibleRows = 3, TextScale = 1.6, FocusScale = 1.04, DimOthers = 0.72 },
     -- The cups page (v0.11): the five planet cups, the Galactic Cup and the title race - 7 tiles, 4 + 3 at the home
-    -- page's tile size, no scrolling; v0.21: 8 at 150cc once its title is won (the KESTAR BOOL tile: 4 + 4).
+    -- page's tile size, no scrolling; v0.21: 8 at the boss's league once its title is won (the KESTAR BOOL tile: 4 + 4).
     -- cols / rows / w / h (nil = the TabLayout grid)
     CupsLayout = { cols = 4, rows = 2, w = 520, h = 350 },
     -- v0.23 (TASKS round 3 item 2): the cups page in rows, centred: the five planet cups in one row, then the Galactic
-    -- Cup two tiles wide, the title race and (150cc, after its title) Kestar Bool. nil = the CupsLayout grid.
+    -- Cup two tiles wide, the title race and (Ace, after its title) Kestar Bool. nil = the CupsLayout grid.
     CupsRows = { { w = 560, h = 380, n = 5 }, { w = 560, h = 380 } },
-    -- v0.24: HOME in rows: the four classes as tall posters (a medal per cup on each), RESET small below; the garage
-    -- (the start screen) at this tile size, START this tall
-    HomeRows = { { w = 600, h = 560, n = 4 }, { w = 600, h = 200 } },
+    -- v0.24: HOME in rows: the leagues as tall posters (a medal per cup on each), RESET small below; the garage
+    -- (the start screen) at this tile size, START this tall. v0.26: three leagues, wider (760: the medal pips top left
+    -- and the speed chevrons top right fit side by side)
+    HomeRows = { { w = 760, h = 560, n = 3 }, { w = 600, h = 200 } },
     GarageRows = { w = 470, h = 300, startH = 170 },
     -- v0.24 (owner): the garage is every race's start screen (cup -> garage with START focused -> race). false = the
     -- v0.23 way: a cup starts at once, the GARAGE tile on HOME.
@@ -95,61 +96,57 @@ return {
     GcStep = true,
     GcStepKB = 64,
 
-    -- Progression (v0.5, v0.11; DESIGN.md §8). Classes with open = true are open from the start (50cc, 100cc); each
-    -- other class opens with a trophy in every planet cup of the class before it (Unlock = 'gold': gold in every one).
-    -- The Galactic Cup (final = true) opens at a class with a trophy (or gold) in every planet cup at that class; the
-    -- title race with a trophy (or gold) in the Galactic Cup at that class. Anything you have already raced through
-    -- stays open. On = false switches every lock off.
+    -- Progression (v0.5, v0.11, v0.26; DESIGN.md §8). Leagues with open = true are open from the start (Riff-Raff);
+    -- each other league opens with a trophy in every planet cup of the league before it (Unlock = 'gold': gold in
+    -- every one) - Challenger from Riff-Raff, Ace from Challenger. The Galactic Cup (final = true) opens at a league
+    -- with a trophy (or gold) in every planet cup at that league; the title race with a trophy (or gold) in the
+    -- Galactic Cup at that league. Anything you have already raced through stays open. On = false switches every lock
+    -- off.
     Progression = { On = true, Unlock = 'trophy' },
 
-    -- Speed classes: every part of your vehicle at this level (the AI keeps pace through the game's rubber band)
-    Classes = {
-        -- parts = every part at this level; abilities = the level of everyone's abilities (yours and the AI's);
-        -- mods = how many of your mod slots are open (v0.4, owner: 50cc none - pure driving)
-        -- (v0.3.6, owner: four classes - 50cc with no upgrades at all, up to a maxed 200cc. Keys are used in the
-        -- save: never change them; the save was converted from the three-class layout, every class moved up one.)
-        -- Parts 0 / 3 / 7 / 10 (research 2026-11-10 §200cc: parts are back-loaded, 6 -> 10 was +120 kph; 7 spreads the
-        -- top two classes). v0.10 (owner, docs/PHILOSOPHY.md "200cc"): 200cc is an optional extra like Mario Kart's -
-        -- parts 9 (was 10), the 150cc AI profile, nothing opens from it. (v0.21: the class blurbs are gone - owner:
-        -- less clutter on HOME and the cups page.)
-        { key = '50', name = '50cc', parts = 0, mods = 0, abilities = 1, open = true },
-        { key = '100', name = '100cc', parts = 3, mods = 1, abilities = 1, open = true },
-        { key = '150', name = '150cc', parts = 7, mods = 2, abilities = 2 },
-        -- raceList (v0.11) = the class whose race lists this one races (200cc: the 150cc cups at the extra speed)
-        { key = '200', name = '200cc', parts = 9, mods = 2, abilities = 3, raceList = '150' },
+    -- v0.26 (owner, 2026-11-12, TASKS "Three leagues"): three leagues, named after the game's own racer ranks, replace
+    -- the four cc classes. Every part of your vehicle at `parts`; abilities = the level of everyone's abilities (yours
+    -- and the AI's); mods = how many tune-up slots are open; speed = the chevrons on the league's HOME poster (art.lua
+    -- A.SPEED: the speed as a picture, no words). key is used in the save (best / records / titles / leader / the cup
+    -- run's `class` field, which holds a league key): never change it. The AI profile per league: AI.Profiles below.
+    -- (Old saves - the cc classes '50' / '100' / '150' / '200' - get a clean start at their first load: gp.lua K.load.)
+    Leagues = {
+        { key = 'riffraff', name = 'RIFF-RAFF', parts = 0, mods = 0, abilities = 1, speed = 1, open = true },
+        { key = 'challenger', name = 'CHALLENGER', parts = 5, mods = 1, abilities = 2, speed = 2 },
+        { key = 'ace', name = 'ACE', parts = 9, mods = 2, abilities = 3, speed = 3 },
     },
 
     -- Points by place in each race (1st first); a racer who doesn't finish scores 0
     Points = { 15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 },
 
     -- Near misses on the standings (v0.12, docs/PHILOSOPHY.md point 4), shown only when this close so they stay
-    -- special: RecordSeconds = a finished race within this many seconds of your record at the class ("0.4 S OFF YOUR
+    -- special: RecordSeconds = a finished race within this many seconds of your record at the league ("0.4 S OFF YOUR
     -- RECORD"); TrophyPoints = a cup missing the next trophy colour up by this many points or fewer ("1 POINT FROM
     -- GOLD"). false = off.
     Near = { RecordSeconds = 1.0, TrophyPoints = 3 },
 
-    -- (v0.21: the rival per class is gone - owner, 2026-11-11. An old save's `rivals` is dropped at load.)
+    -- (v0.21: the rival per class is gone - owner, 2026-11-11.)
 
-    -- The title race (v0.8, title.lua; v0.21 owner): a 1 v 1 on a normal track against the class leader, at the end of
-    -- each class. Opens with a trophy in the Galactic Cup at the class (v0.11). The opponent = the best-placed bot in
-    -- the final standings of your most recent finished cup at that class (if you won it, the 2nd; else the winner),
-    -- saved per class when a cup ends (leader[class] = { name, cup }); the track = the first race of that cup's list at
-    -- that class, its normal laps. The grid is cut to the two of you for the race (GridMakeup 2 entrants,
-    -- CharacterList.Opponents = that racer: KNOWLEDGE.md §3, RaceFlowSpike B6), put back at the menu. Default = the
-    -- opponent (a DA_Racer_ key) before any cup has finished at the class: 50cc Griff Halloran, 100cc Lyren Shok,
-    -- 150cc Biddy Blas, 200cc Sen Fira (the campaign's Riff-Raff to Elite tiers); the track then the first planet cup's.
-    Title = { On = true, Name = 'TITLE RACE',
-        Default = { ['50'] = 'Veteran', ['100'] = 'Star', ['150'] = 'Rager', ['200'] = 'Thrall' } },
+    -- The title race (v0.8, title.lua; v0.21 owner; v0.26): a 1 v 1 on a normal track against the league leader, at
+    -- the end of each league. Opens with a trophy in the Galactic Cup at the league. The opponent = the best-placed bot
+    -- in the final standings of your most recent finished cup at that league (if you won it, the 2nd; else the
+    -- winner), saved per league when a cup ends (leader[league] = { name, cup, path }); the track = the first race of
+    -- that cup run (its path saved with the leader). The grid is cut to the two of you for the race (GridMakeup 2
+    -- entrants, CharacterList.Opponents = that racer: KNOWLEDGE.md §3, RaceFlowSpike B6), put back at the menu.
+    -- Default = the opponent (a DA_Racer_ key) before any cup has finished at the league: Riff-Raff Griff Halloran,
+    -- Challenger Biddy Blas, Ace Sen Fira; the track then the first race of a random draw of the DefaultCup, made once
+    -- per league and saved (titleTrack), so the tile shows a stable track.
+    Title = { On = true, Name = 'TITLE RACE', DefaultCup = 'jakku',
+        Default = { riffraff = 'Veteran', challenger = 'Rager', ace = 'Thrall' } },
 
-    -- The final boss (v0.21, owner): Kestar Bool in the game's Stadium Showdown (6 laps, about 5 minutes; he copies your
-    -- build), the old title race. A KESTAR BOOL tile on the cups page of Class once that class's title is won; raced at
-    -- that class's parts. Beating him saves `boss` and unlocks him as a racer (Racers, unlockBoss). The event's story
-    -- cinematics are taken off for the race and put back (title.lua). On = false: no boss tile.
-    Boss = { On = true, Event = EV .. 'Whippet/FINALBOSS/EVT_WHP_SHORTBOSS_FAIR', Name = 'KESTAR BOOL', Opponent = 'Kestar Bool', Class = '150' },
+    -- The final boss (v0.21, owner; v0.26: after the ACE title): Kestar Bool in the game's Stadium Showdown (6 laps,
+    -- about 5 minutes; he copies your build). A KESTAR BOOL tile on the cups page of League once that league's title is
+    -- won; raced at that league's parts. Beating him saves `boss` and unlocks him as a racer (Racers, unlockBoss). The
+    -- event's story cinematics are taken off for the race and put back (title.lua). On = false: no boss tile.
+    Boss = { On = true, Event = EV .. 'Whippet/FINALBOSS/EVT_WHP_SHORTBOSS_FAIR', Name = 'KESTAR BOOL', Opponent = 'Kestar Bool', League = 'ace' },
 
     -- The planets, by the codename in the event paths (Events/Planets/<codename>/...). name and line are the game's
-    -- own (PlanetDef). key doubles as the planet cup's key (jakku ... sentinel). Derven has no cup of its own (the
-    -- Galactic Cup ends there).
+    -- own (PlanetDef). key doubles as the planet's pool and cup key (jakku ... sentinel; derven = the finals' pool).
     Planets = {
         Mastiff   = { key = 'jakku',    name = 'Jakku',       line = 'Starship wrecks boil under the scorching heat of this desert world' },
         Dalmatian = { key = 'lantaana', name = 'Lantaana',    line = 'Deadly lava contrasts cool waters on this lush jungle planet' },
@@ -159,131 +156,140 @@ return {
         Whippet   = { key = 'derven',   name = 'Derven Acos', line = 'Home of the Galactic League, where racers face the ultimate challenge' },
     },
 
-    -- Cups of 4 races (full 12-car grids; no knockouts or 1 v 1s). key is used in the save: never change it.
-    -- v0.11 (owner, docs/PHILOSOPHY.md "Cups"): one cup per planet, always that planet, with a race list per class -
-    --   ['50']  the classic forward layouts (the v0.2-v0.10 planet cups),
-    --   ['100'] the reverse layouts where the planet has them, filled up with the planet's other plain tracks (the
-    --           old Outer Rim Cup's four went here; Sentinel's own default is reverse, so its 100cc is forward),
-    --   ['150'] the conditions: night / wet / overcast / dawn / scorching / snow / mines / storm / blue hour.
-    -- 200cc races the 150cc lists (Classes raceList). A cup never races the same base track twice (race(): base).
-    -- Every event was in this file before v0.11 (planet, remix, conditions, Outer Rim cups: checked in game or against
-    -- the events dump) except four plain layouts read from the UndergroundProto events_dump.txt (2026-11-08:
-    -- TeamRaceConfig, grid 12, Vehicle.Standard, laps as below): EVT_DAL_LOOP_B_REV, EVT_DAL_LOOP_B_SHORT_03,
-    -- EVT_COR_Loop_A_REV, EVT_COR_Loop_B_REV. Sentinel's forward layouts exist only under an overcast sky.
-    -- The Galactic Cup (final = true) races the same four at every class.
-    Cups = {
-        { key = 'jakku', name = 'JAKKU CUP', art = 'T_UI_FE_Tile_01', races = {
-            ['50'] = {
-                race('Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD', 'THE WAR FIELDS', 'Circuit', 2),
-                race('Mastiff/P2P_A/EVT_MAS_P2P_FWD', "THE GIANTS' GRAVEYARD", 'Sprint', 1),
-                race('Mastiff/Loop_B/EVT_MAS_LOOP_B_FWD', 'DEBRIS DUNES', 'Circuit', 2),
-                race('Mastiff/Loop_A/EVT_MAS_LOOP_A_SHORT_02', 'FALLEN EMPIRE', 'Short circuit', 6),
-            },
-            ['100'] = {
-                race('Mastiff/Loop_A/EVT_MAS_LOOP_A_REV', 'THE WAR FIELDS (REVERSE)', 'Circuit', 2),
-                race('Mastiff/P2P_A/EVT_MAS_P2P_FWD', "THE GIANTS' GRAVEYARD", 'Sprint', 1),
-                race('Mastiff/Loop_B/EVT_MAS_LOOP_B_REV', 'DEBRIS DUNES (REVERSE)', 'Circuit', 2),
-                race('Mastiff/Loop_B/EVT_MAS_LOOP_B_SHORT_01', 'SCRAP SPIRAL', 'Short circuit', 6),
-            },
-            ['150'] = {
-                race('Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD_DAWN', 'THE WAR FIELDS (DAWN)', 'Circuit', 2),
-                race('Mastiff/P2P_A/EVT_MAS_P2P_FWD', "THE GIANTS' GRAVEYARD", 'Sprint', 1),
-                race('Mastiff/Loop_B/EVT_MAS_LOOP_B_FWD_HARD', 'DEBRIS DUNES (SCORCHING)', 'Circuit', 2),
-                race('Mastiff/Loop_A/EVT_MAS_LOOP_A_SHORT_02_HARD', 'FALLEN EMPIRE (SCORCHING)', 'Short circuit', 4),
-            },
-        } },
-        { key = 'lantaana', name = 'LANTAANA CUP', art = 'T_UI_FE_Tile_02', races = {
-            ['50'] = {
-                race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_FWD', "GRIFFIN'S FLIGHT", 'Circuit', 2),
-                race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_FWD', 'MORO KEHN TUNNELS', 'Circuit', 2),
-                race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_SHORT_01', 'THE PYRODUCTS', 'Short circuit', 5),
-                race('Dalmatian/P2P/EVT_DAL_P2P_SHORT_05', 'AHLREN JUNGLE SPEEDWAY', 'Short circuit', 5),
-            },
-            ['100'] = {
-                race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_REV', 'MORO KEHN TUNNELS (REVERSE)', 'Circuit', 2),
-                race('Dalmatian/P2P/EVT_DAL_P2P_FWD', 'GEOTHERMAL TOUR', 'Sprint', 1),
-                race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_SHORT_03', 'DHUNKRI RIVER CIRCUIT', 'Short circuit', 6),
-                race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_FWD', "GRIFFIN'S FLIGHT", 'Circuit', 2),
-            },
-            ['150'] = {
-                race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_FWD_Night', "GRIFFIN'S FLIGHT (NIGHT)", 'Circuit', 2),
-                race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_REV_Overcast_Wet', 'MORO KEHN TUNNELS (REVERSE, WET)', 'Circuit', 2),
-                race('Dalmatian/P2P/EVT_DAL_P2P_FWD_Night', 'GEOTHERMAL TOUR (NIGHT)', 'Sprint', 1),
-                race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_SHORT_03_Overcast_Wet', 'DHUNKRI RIVER CIRCUIT (WET)', 'Short circuit', 5),
-            },
-        } },
-        { key = 'ando', name = 'ANDO CUP', art = 'T_UI_FE_Tile_05', races = {
-            ['50'] = {
-                race('Corgi/Loop_A/EVT_COR_Loop_A_FWD', 'ICE FIELD CIRCUIT', 'Circuit', 2),
-                race('Corgi/Loop_B/EVT_COR_Loop_B_FWD', 'MONASTERY MOUNTAINS', 'Circuit', 3),
-                race('Corgi/P2P/EVT_COR_P2P_FWD', 'MOUNTAIN TO SEA', 'Sprint', 1),
-                race('Corgi/Loop_A/EVT_COR_Loop_A_SHORT_02', 'VONIUM PIPELINE', 'Short circuit', 4),
-            },
-            -- (the short 01 has no player-facing name, a developer label only; a finished, lit 5-lap ice circuit on the
-            -- Monastery Mountains loop. v0.21: named CLOISTER RUN (owner: "something more on theme", Claude picked) -
-            -- records are kept by event path, so the rename changes nothing in the save)
-            ['100'] = {
-                race('Corgi/Loop_A/EVT_COR_Loop_A_REV', 'ICE FIELD CIRCUIT (REVERSE)', 'Circuit', 2),
-                race('Corgi/Loop_B/EVT_COR_Loop_B_REV', 'MONASTERY MOUNTAINS (REVERSE)', 'Circuit', 3),
-                race('Corgi/P2P/EVT_COR_P2P_REV', 'DAI BENDU ASCENSION', 'Sprint', 1),
-                race('Corgi/Loop_B/EVT_COR_Loop_B_SHORT_01', 'CLOISTER RUN', 'Short circuit', 5),
-            },
-            ['150'] = {
-                race('Corgi/Loop_A/EVT_COR_Loop_A_FWD_Night', 'ICE FIELD CIRCUIT (NIGHT)', 'Circuit', 2),
-                race('Corgi/Loop_B/EVT_COR_Loop_B_FWD_Overcast_Snow', 'MONASTERY MOUNTAINS (SNOW)', 'Circuit', 3),
-                race('Corgi/P2P/EVT_COR_P2P_FWD_Overcast_Snow', 'MOUNTAIN TO SEA (SNOW)', 'Sprint', 1),
-                race('Corgi/Loop_A/EVT_COR_Loop_A_SHORT_02_Overcast_Snow', 'VONIUM PIPELINE (SNOW)', 'Short circuit', 4),
-            },
-        } },
-        { key = 'crait', name = 'CRAIT CUP', art = 'T_UI_FE_Tile_A', races = {
-            ['50'] = {
-                race('Spaniel/Loop_A/EVT_SPA_Loop_A_FWD', 'CRIMSON MINES', 'Circuit', 2),
-                race('Spaniel/Loop_B/EVT_SPA_Loop_B_FWD', 'FORGIL CANYON', 'Circuit', 2),
-                race('Spaniel/Loop_B/EVT_SPA_Loop_B_P2P', 'RHODOCHROSITE RUN', 'Sprint', 1),
-                race('Spaniel/Loop_A/EVT_SPA_Loop_A_SHORT_01', 'SALT CIRCLE', 'Short circuit', 8),
-            },
-            ['100'] = {
-                race('Spaniel/Loop_A/EVT_SPA_Loop_A_REV', 'CRIMSON MINES (REVERSE)', 'Circuit', 2),
-                race('Spaniel/Loop_B/EVT_SPA_Loop_B_SHORT_02', 'CRYSTAL CAVERNS', 'Short circuit', 5),
-                race('Spaniel/Loop_B/EVT_SPA_Loop_B_P2P', 'RHODOCHROSITE RUN', 'Sprint', 1),
-                race('Spaniel/Loop_B/EVT_SPA_Loop_B_FWD', 'FORGIL CANYON', 'Circuit', 2),
-            },
-            ['150'] = {
-                race('Spaniel/Loop_A/EVT_SPA_Loop_A_FWD_MINES_Night', 'CRIMSON MINES (MINES, NIGHT)', 'Circuit', 2),
-                race('Spaniel/Loop_B/EVT_SPA_Loop_B_FWD_MINES', 'FORGIL CANYON (MINES)', 'Circuit', 2),
-                race('Spaniel/Loop_B/EVT_SPA_Loop_B_P2P_MINES', 'RHODOCHROSITE RUN (MINES)', 'Sprint', 1),
-                race('Spaniel/Loop_B/EVT_SPA_Loop_B_SHORT_02_MINES', 'CRYSTAL CAVERNS (MINES)', 'Short circuit', 5),
-            },
-        } },
-        { key = 'sentinel', name = 'SENTINEL CUP', art = 'T_UI_FE_Tile_01', races = {
-            ['50'] = {
-                race('Husky/LOOP_A/EVT_HSK_LOOP_A_REV', 'SENTINEL LAKES', 'Circuit', 3),
-                race('Husky/LOOP_B/EVT_HSK_LOOP_B_REV', 'CAUSTIC FIELDS', 'Circuit', 3),
-                race('Husky/P2P/EVT_HSK_P2P_REV', 'BOOL RIVER RUN', 'Sprint', 1),
-                race('Husky/LOOP_B/EVT_HSK_LOOP_B_SHORT_02', 'THE ACID RING', 'Short circuit', 6),
-            },
-            ['100'] = {
-                race('Husky/LOOP_A/EVT_HSK_LOOP_A_FWD_Overcast', 'SENTINEL LAKES (FORWARD, OVERCAST)', 'Circuit', 3),
-                race('Husky/P2P/EVT_HSK_P2P_SPEC_SHORT_01', 'MINERAL LOOP', 'Short circuit', 5),
-                race('Husky/LOOP_B/EVT_HSK_LOOP_B_FWD_Overcast', 'CAUSTIC FIELDS (FORWARD, OVERCAST)', 'Circuit', 3),
-                race('Husky/P2P/EVT_HSK_P2P_SPEC_SHORT_02', 'CORROSION HYPERSPHERE', 'Short circuit', 4),
-            },
-            ['150'] = {
-                race('Husky/LOOP_B/EVT_HSK_LOOP_B_FWD_BlueHour', 'CAUSTIC FIELDS (FORWARD, BLUE HOUR)', 'Circuit', 3),
-                race('Husky/P2P/EVT_HSK_P2P_FWD_Overcast', 'BOOL RIVER RUN (FORWARD, OVERCAST)', 'Sprint', 1),
-                race('Husky/P2P/EVT_HSK_P2P_SPEC_SHORT_01_ApproachingStorm', 'MINERAL LOOP (STORM)', 'Short circuit', 5),
-                race('Husky/P2P/EVT_HSK_P2P_SPEC_SHORT_02_ApproachingStorm', 'CORROSION HYPERSPHERE (STORM)', 'Short circuit', 4),
-            },
-        } },
-        { key = 'galactic', name = 'GALACTIC CUP', art = 'T_UI_FE_Tile_05', final = true, races = {
+    -- v0.26 (owner, 2026-11-12, TASKS "Random cups"): the race pool of every planet - every base track in
+    -- docs/tracks-by-planet.md with all its race variants (direction and conditions). A cup = 4 tracks drawn at random
+    -- from its planet's pool, each with a random variant, never the same base track twice (gp.lua K.draw); the same
+    -- rule in every league. Left out: eliminators, knockouts, the 1 v 1 arenas, the story acts, the campaign intro,
+    -- every EVT_SHK_ challenge event, the EVT_DAL_CAR_Race_ special car races and the Shakedown event. Every path is
+    -- checked against the game's event list (docs/data/events-2026-11-12.txt, test_random_cups). Folder spellings
+    -- are the ones raced since v0.2 (the engine's paths are case-insensitive: the list has DALMATIAN, Husky/Loop_A).
+    -- kind / laps = display only (the start screen, the title tile's info, the LAUNCH log line, the sprint rule of
+    -- standings.lua SD.sprint); the race itself runs the event's own laps. Entries raced before v0.26 keep the laps
+    -- read from the events dump; the new variants take their layout's (conditions don't change the lap count).
+    -- Records are kept per exact event path.
+    Pools = {
+        jakku = {
+            race('Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD', 'THE WAR FIELDS', 'Circuit', 2),
+            race('Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD_DAWN', 'THE WAR FIELDS (DAWN)', 'Circuit', 2),
+            race('Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD_HARD', 'THE WAR FIELDS (SCORCHING)', 'Circuit', 2),
+            race('Mastiff/Loop_A/EVT_MAS_LOOP_A_REV', 'THE WAR FIELDS (REVERSE)', 'Circuit', 2),
+            race('Mastiff/Loop_A/EVT_MAS_LOOP_A_REV_HARD', 'THE WAR FIELDS (REVERSE, SCORCHING)', 'Circuit', 2),
+            race('Mastiff/P2P_A/EVT_MAS_P2P_FWD', "THE GIANTS' GRAVEYARD", 'Sprint', 1),
+            race('Mastiff/Loop_B/EVT_MAS_LOOP_B_FWD', 'DEBRIS DUNES', 'Circuit', 2),
+            race('Mastiff/Loop_B/EVT_MAS_LOOP_B_FWD_HARD', 'DEBRIS DUNES (SCORCHING)', 'Circuit', 2),
+            race('Mastiff/Loop_B/EVT_MAS_LOOP_B_REV', 'DEBRIS DUNES (REVERSE)', 'Circuit', 2),
+            race('Mastiff/Loop_B/EVT_MAS_LOOP_B_REV_HARD', 'DEBRIS DUNES (REVERSE, SCORCHING)', 'Circuit', 2),
+            race('Mastiff/Loop_A/EVT_MAS_LOOP_A_SHORT_02', 'FALLEN EMPIRE', 'Short circuit', 6),
+            race('Mastiff/Loop_A/EVT_MAS_LOOP_A_SHORT_02_HARD', 'FALLEN EMPIRE (SCORCHING)', 'Short circuit', 4),
+            race('Mastiff/Loop_B/EVT_MAS_LOOP_B_SHORT_01', 'SCRAP SPIRAL', 'Short circuit', 6),
+        },
+        lantaana = {
+            race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_FWD', "GRIFFIN'S FLIGHT", 'Circuit', 2),
+            race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_FWD_Night', "GRIFFIN'S FLIGHT (NIGHT)", 'Circuit', 2),
+            race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_FWD_Overcast_Wet', "GRIFFIN'S FLIGHT (WET)", 'Circuit', 2),
+            race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_FWD', 'MORO KEHN TUNNELS', 'Circuit', 2),
+            race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_FWD_Night', 'MORO KEHN TUNNELS (NIGHT)', 'Circuit', 2),
+            race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_FWD_Overcast_Wet', 'MORO KEHN TUNNELS (WET)', 'Circuit', 2),
+            race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_REV', 'MORO KEHN TUNNELS (REVERSE)', 'Circuit', 2),
+            race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_REV_Night', 'MORO KEHN TUNNELS (REVERSE, NIGHT)', 'Circuit', 2),
+            race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_REV_Overcast_Wet', 'MORO KEHN TUNNELS (REVERSE, WET)', 'Circuit', 2),
+            race('Dalmatian/P2P/EVT_DAL_P2P_FWD', 'GEOTHERMAL TOUR', 'Sprint', 1),
+            race('Dalmatian/P2P/EVT_DAL_P2P_FWD_Night', 'GEOTHERMAL TOUR (NIGHT)', 'Sprint', 1),
+            race('Dalmatian/P2P/EVT_DAL_P2P_FWD_Overcast_Wet', 'GEOTHERMAL TOUR (WET)', 'Sprint', 1),
+            race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_SHORT_01', 'THE PYRODUCTS', 'Short circuit', 5),
+            race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_SHORT_01_Night', 'THE PYRODUCTS (NIGHT)', 'Short circuit', 5),
+            race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_SHORT_01_Overcast_Wet', 'THE PYRODUCTS (WET)', 'Short circuit', 5),
             race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_SHORT_06', 'OVERFLOW RALLY', 'Short circuit', 4),
+            race('Dalmatian/Loop_A/EVT_DAL_LOOP_A_SHORT_06_Overcast_Wet', 'OVERFLOW RALLY (WET)', 'Short circuit', 4),
+            race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_SHORT_03', 'DHUNKRI RIVER CIRCUIT', 'Short circuit', 6),
+            race('Dalmatian/Loop_B/EVT_DAL_LOOP_B_SHORT_03_Overcast_Wet', 'DHUNKRI RIVER CIRCUIT (WET)', 'Short circuit', 5),
+            race('Dalmatian/P2P/EVT_DAL_P2P_SHORT_05', 'AHLREN JUNGLE SPEEDWAY', 'Short circuit', 5),
+            race('Dalmatian/P2P/EVT_DAL_P2P_SHORT_05_Night', 'AHLREN JUNGLE SPEEDWAY (NIGHT)', 'Short circuit', 5),
+            race('Dalmatian/P2P/EVT_DAL_P2P_SHORT_05_Overcast_Wet', 'AHLREN JUNGLE SPEEDWAY (WET)', 'Short circuit', 5),
+        },
+        -- (Corgi Loop_B SHORT_01 has no player-facing name, a developer label only; a finished, lit 5-lap ice circuit on
+        -- the Monastery Mountains loop, named CLOISTER RUN in v0.21 - owner: "something more on theme", Claude picked)
+        ando = {
+            race('Corgi/Loop_A/EVT_COR_Loop_A_FWD', 'ICE FIELD CIRCUIT', 'Circuit', 2),
+            race('Corgi/Loop_A/EVT_COR_Loop_A_FWD_Night', 'ICE FIELD CIRCUIT (NIGHT)', 'Circuit', 2),
+            race('Corgi/Loop_A/EVT_COR_Loop_A_FWD_Overcast_Snow', 'ICE FIELD CIRCUIT (SNOW)', 'Circuit', 2),
+            race('Corgi/Loop_A/EVT_COR_Loop_A_REV', 'ICE FIELD CIRCUIT (REVERSE)', 'Circuit', 2),
+            race('Corgi/Loop_A/EVT_COR_Loop_A_REV_Night', 'ICE FIELD CIRCUIT (REVERSE, NIGHT)', 'Circuit', 2),
+            race('Corgi/Loop_A/EVT_COR_Loop_A_REV_Overcast_Snow', 'ICE FIELD CIRCUIT (REVERSE, SNOW)', 'Circuit', 2),
+            race('Corgi/Loop_B/EVT_COR_Loop_B_FWD', 'MONASTERY MOUNTAINS', 'Circuit', 3),
+            race('Corgi/Loop_B/EVT_COR_Loop_B_FWD_Night', 'MONASTERY MOUNTAINS (NIGHT)', 'Circuit', 3),
+            race('Corgi/Loop_B/EVT_COR_Loop_B_FWD_Overcast_Snow', 'MONASTERY MOUNTAINS (SNOW)', 'Circuit', 3),
+            race('Corgi/Loop_B/EVT_COR_Loop_B_REV', 'MONASTERY MOUNTAINS (REVERSE)', 'Circuit', 3),
+            race('Corgi/Loop_B/EVT_COR_Loop_B_REV_Overcast_Snow', 'MONASTERY MOUNTAINS (REVERSE, SNOW)', 'Circuit', 3),
+            race('Corgi/P2P/EVT_COR_P2P_FWD', 'MOUNTAIN TO SEA', 'Sprint', 1),
+            race('Corgi/P2P/EVT_COR_P2P_FWD_Night', 'MOUNTAIN TO SEA (NIGHT)', 'Sprint', 1),
+            race('Corgi/P2P/EVT_COR_P2P_FWD_Overcast_Snow', 'MOUNTAIN TO SEA (SNOW)', 'Sprint', 1),
+            race('Corgi/P2P/EVT_COR_P2P_REV', 'DAI BENDU ASCENSION', 'Sprint', 1),
+            race('Corgi/P2P/EVT_COR_P2P_REV_Night', 'DAI BENDU ASCENSION (NIGHT)', 'Sprint', 1),
+            race('Corgi/P2P/EVT_COR_P2P_REV_Overcast_Snow', 'DAI BENDU ASCENSION (SNOW)', 'Sprint', 1),
+            race('Corgi/Loop_A/EVT_COR_Loop_A_SHORT_02', 'VONIUM PIPELINE', 'Short circuit', 4),
+            race('Corgi/Loop_A/EVT_COR_Loop_A_SHORT_02_Night', 'VONIUM PIPELINE (NIGHT)', 'Short circuit', 4),
+            race('Corgi/Loop_A/EVT_COR_Loop_A_SHORT_02_Overcast_Snow', 'VONIUM PIPELINE (SNOW)', 'Short circuit', 4),
+            race('Corgi/Loop_B/EVT_COR_Loop_B_SHORT_01', 'CLOISTER RUN', 'Short circuit', 5),
+            race('Corgi/Loop_B/EVT_COR_Loop_B_SHORT_01_Overcast_Snow', 'CLOISTER RUN (SNOW)', 'Short circuit', 5),
             race('Corgi/P2P/EVT_COR_P2P_SHORT_05', 'ANDOBI EDGE', 'Short circuit', 4),
+            race('Corgi/P2P/EVT_COR_P2P_SHORT_05_Overcast_Snow', 'ANDOBI EDGE (SNOW)', 'Short circuit', 4),
+        },
+        crait = {
+            race('Spaniel/Loop_A/EVT_SPA_Loop_A_FWD', 'CRIMSON MINES', 'Circuit', 2),
+            race('Spaniel/Loop_A/EVT_SPA_Loop_A_FWD_MINES', 'CRIMSON MINES (MINES)', 'Circuit', 2),
+            race('Spaniel/Loop_A/EVT_SPA_Loop_A_FWD_MINES_Night', 'CRIMSON MINES (MINES, NIGHT)', 'Circuit', 2),
+            race('Spaniel/Loop_A/EVT_SPA_Loop_A_REV', 'CRIMSON MINES (REVERSE)', 'Circuit', 2),
+            race('Spaniel/Loop_A/EVT_SPA_Loop_A_REV_MINES', 'CRIMSON MINES (REVERSE, MINES)', 'Circuit', 2),
+            race('Spaniel/Loop_B/EVT_SPA_Loop_B_FWD', 'FORGIL CANYON', 'Circuit', 2),
+            race('Spaniel/Loop_B/EVT_SPA_Loop_B_FWD_MINES', 'FORGIL CANYON (MINES)', 'Circuit', 2),
+            race('Spaniel/Loop_B/EVT_SPA_Loop_B_P2P', 'RHODOCHROSITE RUN', 'Sprint', 1),
+            race('Spaniel/Loop_B/EVT_SPA_Loop_B_P2P_MINES', 'RHODOCHROSITE RUN (MINES)', 'Sprint', 1),
+            race('Spaniel/Loop_A/EVT_SPA_Loop_A_SHORT_01', 'SALT CIRCLE', 'Short circuit', 8),
+            race('Spaniel/Loop_A/EVT_SPA_Loop_A_SHORT_01_MINES', 'SALT CIRCLE (MINES)', 'Short circuit', 8),
+            race('Spaniel/Loop_B/EVT_SPA_Loop_B_SHORT_02', 'CRYSTAL CAVERNS', 'Short circuit', 5),
+            race('Spaniel/Loop_B/EVT_SPA_Loop_B_SHORT_02_MINES', 'CRYSTAL CAVERNS (MINES)', 'Short circuit', 5),
+        },
+        -- (Sentinel's default layouts are the reverse ones; its forward layouts exist only under an overcast sky or at
+        -- blue hour, so those titles say FORWARD)
+        sentinel = {
+            race('Husky/LOOP_A/EVT_HSK_LOOP_A_REV', 'SENTINEL LAKES', 'Circuit', 3),
+            race('Husky/LOOP_A/EVT_HSK_LOOP_A_FWD_Overcast', 'SENTINEL LAKES (FORWARD, OVERCAST)', 'Circuit', 3),
+            race('Husky/LOOP_B/EVT_HSK_LOOP_B_REV', 'CAUSTIC FIELDS', 'Circuit', 3),
+            race('Husky/LOOP_B/EVT_HSK_LOOP_B_FWD_Overcast', 'CAUSTIC FIELDS (FORWARD, OVERCAST)', 'Circuit', 3),
+            race('Husky/LOOP_B/EVT_HSK_LOOP_B_FWD_BlueHour', 'CAUSTIC FIELDS (FORWARD, BLUE HOUR)', 'Circuit', 3),
+            race('Husky/P2P/EVT_HSK_P2P_REV', 'BOOL RIVER RUN', 'Sprint', 1),
+            race('Husky/P2P/EVT_HSK_P2P_FWD_Overcast', 'BOOL RIVER RUN (FORWARD, OVERCAST)', 'Sprint', 1),
+            race('Husky/LOOP_B/EVT_HSK_LOOP_B_SHORT_02', 'THE ACID RING', 'Short circuit', 6),
             race('Husky/P2P/EVT_HSK_P2P_SHORT_01', 'SKAKOAN GAMBIT', 'Short circuit', 6),
+            race('Husky/P2P/EVT_HSK_P2P_SPEC_SHORT_01', 'MINERAL LOOP', 'Short circuit', 5),
+            race('Husky/P2P/EVT_HSK_P2P_SPEC_SHORT_01_ApproachingStorm', 'MINERAL LOOP (STORM)', 'Short circuit', 5),
+            race('Husky/P2P/EVT_HSK_P2P_SPEC_SHORT_02', 'CORROSION HYPERSPHERE', 'Short circuit', 4),
+            race('Husky/P2P/EVT_HSK_P2P_SPEC_SHORT_02_ApproachingStorm', 'CORROSION HYPERSPHERE (STORM)', 'Short circuit', 4),
+        },
+        -- the finals: The Galactic Gauntlet's race only (its knockouts and the two 1 v 1 arenas are left out)
+        derven = {
             race('Whippet/KNOCKOUT/EVT_WHP_LOOP_A_FWD_RACE', 'THE GALACTIC GAUNTLET', 'Circuit', 2),
-        } },
+        },
     },
 
-    -- Abilities (v0.3, DESIGN.md §5). You pick four before a cup (Rule below); the class sets their level, and
+    -- Cups of 4 races (full 12-car grids). key is used in the save: never change it. pool = the Pools key a planet cup
+    -- draws its races from (v0.26). The Galactic Cup (final = true) draws one race from each of `planets` different
+    -- pools of `from`; `last` = a pool whose race always closes it (the finals at Derven Acos, as before v0.26; nil =
+    -- every race drawn alike). art = the fallback picture (art.lua A.cup draws the planet's poster).
+    Cups = {
+        { key = 'jakku', name = 'JAKKU CUP', art = 'T_UI_FE_Tile_01', pool = 'jakku' },
+        { key = 'lantaana', name = 'LANTAANA CUP', art = 'T_UI_FE_Tile_02', pool = 'lantaana' },
+        { key = 'ando', name = 'ANDO CUP', art = 'T_UI_FE_Tile_05', pool = 'ando' },
+        { key = 'crait', name = 'CRAIT CUP', art = 'T_UI_FE_Tile_A', pool = 'crait' },
+        { key = 'sentinel', name = 'SENTINEL CUP', art = 'T_UI_FE_Tile_01', pool = 'sentinel' },
+        { key = 'galactic', name = 'GALACTIC CUP', art = 'T_UI_FE_Tile_05', final = true, planets = 4,
+          from = { 'jakku', 'lantaana', 'ando', 'crait', 'sentinel', 'derven' }, last = 'derven' },
+    },
+    -- the races a planet cup draws
+    CupRaces = 4,
+
+    -- Abilities (v0.3, DESIGN.md §5). You pick four before a cup (Rule below); the league sets their level, and
     -- at levels 2 and 3 you pick the branch. The AI racers get four each the same way (Racers below). Autopilot is
     -- never offered or given.
     Abilities = {
@@ -339,7 +345,7 @@ return {
             Vent_Flame = 'Flame Vent', Vent_Acid = 'Corrosive Vent',
         },
         -- The AI racers' four (DA_Racer_<key>; name = English fallback), sorted from the Underground's signature kits
-        -- by their style in the game's data. The same every race; the class sets the level.
+        -- by their style in the game's data. The same every race; the league sets the level.
         AI = true,
         Racers = {
             Antagonist          = { name = 'Kestar Bool',    offensive = 'bolt.concuss',       defensive = 'shield.impact',  utility = 'surge.impact',   wildcard = 'shockwave.vectored' },
@@ -395,17 +401,17 @@ return {
         { key = 'Antagonist',          name = 'Kestar Bool',    vehicle = 'car',     line = 'Galactic League Champion, proud son of the Bool family', unlockBoss = true },
     },
 
-    -- AI strength per class (ai.lua; DESIGN.md §4, docs/research-2026-11-10.md "Difficulty"). Everything is
+    -- AI strength per league (ai.lua; DESIGN.md §4, docs/research-2026-11-10.md "Difficulty"). Everything is
     -- memory-only and put back at the menu. Enabled = false switches all of it off.
     AI = {
         Enabled = true,
-        -- Hidden tuning dial: added to every class's pressure (e.g. 0.25 = every class a notch harder). Keep 0.
+        -- Hidden tuning dial: added to every league's pressure (e.g. 0.25 = every league a notch harder). Keep 0.
         Adjust = 0,
         -- v0.16.1: every pacing write (pacing / catchup below) also goes to the pacing assets RP_Default and
         -- RP_Honest (their PacingSettingsConfig, a second copy of the same scales), put back with DA_AIConfig.
         -- false = DA_AIConfig only (as up to v0.16.0).
         WritePacingAssets = true,
-        -- One profile per class key. pressure (-1..2): the rubber band on the game's race tune data, the way its own
+        -- One profile per league key. pressure (-1..2): the rubber band on the game's race tune data, the way its own
         -- difficulties set it - -1 = Cadet (AI max time ahead x0.65 / min -3 s, abilities -0.25, aggression -0.35,
         -- slam countdown +0.8 s), 0 = the game's own, 1 = Nightmare (+2.5 s / +1.5 s, abilities +0.5, aggression +1,
         -- cooldown x0.75), 2 = Champion (+5 s / +3 s, abilities +1.25, aggression +2.5, cooldown x0.5); in between is
@@ -434,23 +440,22 @@ return {
         -- the difficulty could be a little tougher"): from 100cc up the bots no longer ease off while you crash
         -- (AiSlowdownDuringCrash 1.0; the game's: RP_Default 0.9, DA_AIConfig 0.5 - 50cc keeps them), and 200cc a
         -- notch above 150cc (pressure 0.5).
+        -- v0.26 (owner, 2026-11-12): one profile per league - Riff-Raff today's 50cc one, Challenger today's 150cc
+        -- one, Ace today's 200cc one (pressure 0.5). (The 100cc profile - mercy 0.45 - went with its class.)
         Profiles = {
-            ['50'] = { pressure = -1, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.4 },
-                       config = { SpeedMatchingMaxMatchers = 0 } },
-            ['100'] = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.45, AiSlowdownDuringCrash = 1.0 }, errors = 0,
-                        config = { SpeedMatchingMaxMatchers = 0 } },
-            ['150'] = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 1.0, AiSlowdownDuringCrash = 1.0 }, errors = 0,
-                        config = { SpeedMatchingMaxMatchers = 0 } },
-            -- 200cc: the 150cc profile plus pressure 0.5 (v0.21: a notch harsher; was the same as 150cc)
-            ['200'] = { pressure = 0.5, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 1.0, AiSlowdownDuringCrash = 1.0 }, errors = 0,
-                        config = { SpeedMatchingMaxMatchers = 0 } },
+            riffraff = { pressure = -1, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.4 },
+                         config = { SpeedMatchingMaxMatchers = 0 } },
+            challenger = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 1.0, AiSlowdownDuringCrash = 1.0 }, errors = 0,
+                           config = { SpeedMatchingMaxMatchers = 0 } },
+            ace = { pressure = 0.5, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 1.0, AiSlowdownDuringCrash = 1.0 }, errors = 0,
+                    config = { SpeedMatchingMaxMatchers = 0 } },
         },
     },
 
     -- Tune-ups (v0.8, research 2026-11-10 "Vehicle mods"): the vehicle's mods trimmed to twelve named packages, picked
     -- in place on the garage tile (modsel.lua). Each bundles one to three of the catalogue's affixes (mods.lua keys:
     -- protection and plain playstyle effects only - nothing tagged "check", no pure-speed ones) at their top step;
-    -- the class sets how many you fit (Classes[].mods). key is used in the save: never change it. line = what it does,
+    -- the league sets how many you fit (Leagues[].mods). key is used in the save: never change it. line = what it does,
     -- one line (60 characters at most; v0.14: in the garage's info line when the tile is focused - the tile shows the
     -- name only, ui.lua U.FIT); group = the catalogue group whose picture the tile shows (art.lua).
     TuneUps = {
@@ -479,15 +484,15 @@ return {
         { key = 'tenacious', name = 'TENACIOUS', group = 'Status protection', line = 'Corroded crashes you 200% slower and never chokes you',
           mods = { 'Conditions_CorrodeResistance', 'Corrode_NoLongerChokes' } },
 
-        -- The AI's tune-ups (loadout.lua): per class, per tier, the packages those bots race with; a bot in no tier
-        -- (or at a class not listed) gets none. Tiers = the campaign's own ranking (research 2026-11-10: Elite = Sen
+        -- The AI's tune-ups (loadout.lua): per league (v0.26: Challenger = the 150cc lists, Ace = the 200cc), per tier, the packages those bots race with; a bot in no tier
+        -- (or at a league not listed) gets none. Tiers = the campaign's own ranking (research 2026-11-10: Elite = Sen
         -- Fira, Biddy Blas, Lyren Shok; Challenger = Goli & 02-R0), as DA_Racer_<key> keys (Abilities.Racers).
         -- The bots copy the launch build, so it carries your packages plus theirs at launch and each racer's race
         -- copy loses what isn't theirs at load (yours included). AIExtra = false: the AI only keeps what you also
         -- carry (the launch build = yours only) - the fallback if clearing your own race copy turns out not to work.
         AI = {
-            ['150'] = { Elite = { 'heat_shield' } },
-            ['200'] = { Elite = { 'heat_shield', 'armour' }, Challenger = { 'heat_shield' } },
+            challenger = { Elite = { 'heat_shield' } },
+            ace = { Elite = { 'heat_shield', 'armour' }, Challenger = { 'heat_shield' } },
         },
         Tiers = { Elite = { 'Thrall', 'Rager', 'Star' }, Challenger = { 'Ghost' } },
         AIExtra = true,

@@ -1,7 +1,7 @@
 -- Galactic Grand Prix: your tune-ups (v0.8; was the v0.4-0.6 mod picker). Pure logic (test/test_modsel.lua).
 -- A tune-up is a named package of one to three catalogue affixes (config TuneUps, keys from mods.lua). Your picks are
--- MS.MAX slots { package key or false, ... }, kept in the save (data.mods); the class opens the first N (config
--- Classes[].mods: 50cc 0, then 1 / 2 / 2). One package per slot, never the same one twice. Picked in place on the
+-- MS.MAX slots { package key or false, ... }, kept in the save (data.mods); the league opens the first N (config
+-- Leagues[].mods: Riff-Raff 0, Challenger 1, Ace 2). One package per slot, never the same one twice. Picked in place on the
 -- garage tile: MS.cycle gives the next / previous package for a slot, MS.line its one-line description (the info line).
 local cfg = require('config')
 local DATA = require('mods')
@@ -51,7 +51,7 @@ function MS.effect(key) return key and PK[key] or nil end -- the package (name, 
 function MS.line(key) local p = MS.effect(key); return p and p.line or '' end
 function MS.catalogue(key) return key and BY[key] or nil end -- a catalogue affix by its key (tests, the AI's lists)
 function MS.slotsFor(classKey)
-  for _, c in ipairs(cfg.Classes or {}) do if c.key == classKey then return math.min(MS.MAX, c.mods or 0) end end
+  for _, c in ipairs(cfg.Leagues or {}) do if c.key == classKey then return math.min(MS.MAX, c.mods or 0) end end
   return 0
 end
 

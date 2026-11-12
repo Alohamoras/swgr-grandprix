@@ -51,12 +51,12 @@ function RC.locked(r)
   if not (type(r) == 'table' and r.unlockBoss) then return false end
   return not require('title').bossBeaten(K.data)
 end
--- 'To unlock: beat Kestar Bool after the 150cc title' (nil when the racer has no lock)
+-- 'To unlock: beat Kestar Bool after the ACE title' (nil when the racer has no lock)
 function RC.unlockText(r)
   if type(r) == 'string' then r = RC.get(r) end
   if not (type(r) == 'table' and r.unlockBoss) then return nil end
   local TI = require('title')
-  local c = K.class(TI.bossClass())
+  local c = K.league(TI.bossClass())
   return ('To unlock: beat %s after the %s title'):format(TI.bossName(), c and c.name or TI.bossClass())
 end
 -- the pick; a locked pick (an old save, or a lock come back) is Shade, saved and logged

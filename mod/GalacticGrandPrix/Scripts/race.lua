@@ -297,7 +297,7 @@ end
 -- states already there; extra = fields for the run (oldFe)
 local function startRun(ev, classKey, p, skip, extra)
   ev.class = classKey
-  log(('LAUNCH %s (%s - %s) class=%s vehicle=%s tag=%s mode=%s'):format(ev.path:match('([^/]+)$'), ev.title, ev.kind or '',
+  log(('LAUNCH %s (%s - %s) league=%s vehicle=%s tag=%s mode=%s'):format(ev.path:match('([^/]+)$'), ev.title, ev.kind or '',
     tostring(classKey), p.veh.key, tostring(p.tag), C.idname(try(function() return p.e.EventMode end))))
   R.run = { ev = ev, at = C.clock, skip = skip, phase = 'loading', top = 0, field = {}, ticks = 0, ai = p.ai }
   for k, v in pairs(extra or {}) do R.run[k] = v end

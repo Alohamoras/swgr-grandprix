@@ -10,10 +10,9 @@ local cfg = require('config')
 -- checked at the end
 local REAL = cfg.AI.Profiles
 cfg.AI.Profiles = {
-  ['50'] = { pressure = -1 },
-  ['100'] = { pressure = 0 },
-  ['150'] = { pressure = 0.5, pacing = { MaxAiSlowdownScale = 1.0 }, errors = 0.5 },
-  ['200'] = { pressure = 0.5, pacing = { MaxAiSlowdownScale = 1.0 }, errors = 0.5 },
+  ['riffraff'] = { pressure = -1 },
+  ['challenger'] = { pressure = 0.5, pacing = { MaxAiSlowdownScale = 1.0 }, errors = 0.5 },
+  ['ace'] = { pressure = 0.5, pacing = { MaxAiSlowdownScale = 1.0 }, errors = 0.5 },
 }
 
 -- pressure -> ops
@@ -25,34 +24,34 @@ o = A.opFor(1.5, 'AiAggressionVPlayerCooldownMultiplier')
 T.check(math.abs(o[2] - 0.625) < 1e-9, 'between Nightmare and Champion the cooldown multiplier blends')
 o = A.opFor(3, 'AiMaxTimeAheadModifier')
 T.check(o[1] == 5, 'pressure above 2 is held at Champion')
-T.check(A.pressure('50') == -1 and A.pressure('100') == 0 and A.pressure('150') == 0.5 and A.pressure('200') == 0.5,
-  'class pressures -1 / 0 / 0.5 / 0.5 (v0.10: 200cc races the 150cc profile)')
+T.check(A.pressure('riffraff') == -1 and A.pressure('challenger') == 0.5 and A.pressure('ace') == 0.5,
+  'league pressures -1 / 0.5 / 0.5 (the pinned stand-ins)')
 T.check(A.pressure('nope') == 0, 'an unknown class: the game\'s own')
 cfg.AI.Adjust = 0.5
-T.check(A.pressure('150') == 1 and A.pressure('200') == 1 and A.pressure('50') == -0.5, 'Adjust 0.5 moves every class up')
+T.check(A.pressure('challenger') == 1 and A.pressure('ace') == 1 and A.pressure('riffraff') == -0.5, 'Adjust 0.5 moves every class up')
 cfg.AI.Adjust = 2
-T.check(A.pressure('200') == 2, 'Adjust never takes a class past 2')
+T.check(A.pressure('ace') == 2, 'Adjust never takes a class past 2')
 cfg.AI.Adjust = 0
-T.check(math.abs(A.tuneValue('150', 'AiAbilityChanceMultiplier', 1) - 1.25) < 1e-9, '150cc: ability chance 1 -> 1.25')
-T.check(A.tuneValue('50', 'AiAbilityChanceMultiplier', 0.1) == 0, 'a multiplier never goes below 0')
-cfg.AI.Profiles['150'].ops = { AiAbilityChanceMultiplier = { 0.5, 2 } }
-T.check(math.abs(A.tuneValue('150', 'AiAbilityChanceMultiplier', 1) - 3) < 1e-9, 'an explicit op comes after the pressure (1.25 x 2 + 0.5)')
-cfg.AI.Profiles['150'].ops = nil
+T.check(math.abs(A.tuneValue('challenger', 'AiAbilityChanceMultiplier', 1) - 1.25) < 1e-9, '150cc: ability chance 1 -> 1.25')
+T.check(A.tuneValue('riffraff', 'AiAbilityChanceMultiplier', 0.1) == 0, 'a multiplier never goes below 0')
+cfg.AI.Profiles['challenger'].ops = { AiAbilityChanceMultiplier = { 0.5, 2 } }
+T.check(math.abs(A.tuneValue('challenger', 'AiAbilityChanceMultiplier', 1) - 3) < 1e-9, 'an explicit op comes after the pressure (1.25 x 2 + 0.5)')
+cfg.AI.Profiles['challenger'].ops = nil
 T.check(A.label(-1) == 'RELAXED' and A.label(0) == 'NORMAL' and A.label(0.5) == 'TOUGH' and A.label(1.2) == 'HARD' and A.label(2) == 'CHAMPION', 'labels')
 
 -- the AI config plan. v0.10: 200cc races the 150cc profile; the catch-up and perfect-start levers are still
 -- tested here on a stand-in 200cc profile (the one it had up to v0.9), put back at the end of the test
-local PRO200 = cfg.AI.Profiles['200']
-cfg.AI.Profiles['200'] = { pressure = 1.2, pacing = { MaxAiSlowdownScale = 1.0 }, catchup = 1.15, errors = 0.5, perfectStart = 90 }
-local p = A.plan('200')
+local PRO200 = cfg.AI.Profiles['ace']
+cfg.AI.Profiles['ace'] = { pressure = 1.2, pacing = { MaxAiSlowdownScale = 1.0 }, catchup = 1.15, errors = 0.5, perfectStart = 90 }
+local p = A.plan('ace')
 T.check(p['DefaultPacingSettings.MaxAiSlowdownScale'].set == 1 and math.abs(p['DefaultPacingSettings.MaxAiCatchupScale'].mul - 1.15) < 1e-9
   and p.ForcedErrorChance.mul == 0.5 and p.DefaultPercentageChancePerfectStart.set == 90, '200cc plan: honest, catch-up x1.15, errors x0.5, perfect start 90')
-T.check(next(A.plan('50')) == nil and next(A.plan('100')) == nil, '50cc / 100cc: the AI config is left alone')
+T.check(next(A.plan('riffraff')) == nil, 'Riff-Raff (stand-in): the AI config is left alone')
 T.check(math.abs(A.planned(p['DefaultPacingSettings.MaxAiCatchupScale'], 1.3) - 1.495) < 1e-9, 'catch-up 1.3 x 1.15 = 1.495')
 
 -- launch at 150cc: the asset written, the originals in the save
 M.press('F6'); M.tick(6)
-T.clickTitle('150CC'); M.tick(3)
+T.clickTitle('CHALLENGER'); M.tick(3)
 T.clickTitle('JAKKU CUP')
 T.check(M.called('LaunchQuickRace') == 1, 'launched')
 T.check(W.ai.DefaultPacingSettings.MaxAiSlowdownScale == 1 and W.ai.ForcedErrorChance == 7.5, 'DA_AIConfig: honest pacing, errors halved')
@@ -61,8 +60,8 @@ T.check(W.ai.DefaultPacingSettings.MaxAiCatchupScale == 1.3 and W.ai.DefaultPerc
 local sv = T.save()
 local rest = sv.aiRestores and sv.aiRestores['/Game/Griffin/AI/DA_AIConfig']
 T.check(rest and rest['DefaultPacingSettings.MaxAiSlowdownScale'] == 0.75 and rest.ForcedErrorChance == 15, 'originals in the save (aiRestores)')
-T.check(T.logHas('[ai] class 150: pressure 0.50 (TOUGH)'), 'pressure logged')
-T.check(T.logHas('[ai] class 150: AI config (DA_AIConfig) DefaultPacingSettings.MaxAiSlowdownScale 0.75 -> 1, ForcedErrorChance 15 -> 7.5'), 'AI config writes logged')
+T.check(T.logHas('[ai] league challenger: pressure 0.50 (TOUGH)'), 'pressure logged')
+T.check(T.logHas('[ai] league challenger: AI config (DA_AIConfig) DefaultPacingSettings.MaxAiSlowdownScale 0.75 -> 1, ForcedErrorChance 15 -> 7.5'), 'AI config writes logged')
 
 -- the race loads: three tune objects (in the game one shared asset + the fallback), changed once each
 local confs, rtds = W.tune(3)
@@ -99,13 +98,13 @@ T.check(T.levels('VBD_Car_Base') == '0=0 1=0 2=0 3=0 4=0 5=0', 'the build put ba
 -- 50cc: Cadet pressure, the AI config untouched
 M.press('BACKSPACE'); M.tick(3) -- leave the cup (v0.9: B on the standings asks; YES first)
 T.clickTitle('YES'); M.tick(3)
-T.clickTitle('50CC'); M.tick(3)
+T.clickTitle('RIFF-RAFF'); M.tick(3)
 mark = T.mark()
 T.clickTitle('JAKKU CUP'); M.tick(3)
 T.check(M.called('LaunchQuickRace') == 2, 'launched at 50cc')
 T.check(W.ai.DefaultPacingSettings.MaxAiSlowdownScale == 0.75 and next(T.save().aiRestores) == nil and not T.logHas('AI config (DA_AIConfig)', mark),
   '50cc: DA_AIConfig untouched, nothing saved')
-T.check(T.logHas('[ai] class 50: pressure -1.00 (RELAXED)', mark), 'Cadet pressure logged')
+T.check(T.logHas('[ai] league riffraff: pressure -1.00 (RELAXED)', mark), 'Cadet pressure logged')
 confs = W.tune(1)
 W.race(11); M.tick(5)
 c = confs[1]
@@ -119,13 +118,13 @@ T.check(c.AiMaxTimeAheadMultiplier == 1 and c.AiMinTimeAheadModifier == 0, '50cc
 -- 200cc (stand-in profile) through the API (the class is locked in the menu flow): catch-up and perfect start too
 local R = require('race')
 local K = require('gp')
-local ok = R.launch({ path = cfg.Cups[1].races['50'][1].path, title = 'X', kind = 'Circuit' }, '200', 'car')
+local ok = R.launch({ path = cfg.Pools.jakku[1].path, title = 'X', kind = 'Circuit' }, 'ace', 'car')
 T.check(ok == true, 'launched at 200cc')
 T.check(W.ai.DefaultPacingSettings.MaxAiSlowdownScale == 1 and math.abs(W.ai.DefaultPacingSettings.MaxAiCatchupScale - 1.495) < 1e-9
   and W.ai.ForcedErrorChance == 7.5 and W.ai.DefaultPercentageChancePerfectStart == 90, '200cc: honest, catch-up 1.495, errors 7.5, perfect start 90')
 rest = K.data.aiRestores['/Game/Griffin/AI/DA_AIConfig']
 T.check(rest['DefaultPacingSettings.MaxAiCatchupScale'] == 1.3 and rest.DefaultPercentageChancePerfectStart == 75, '200cc originals saved')
-T.check(T.logHas('[ai] class 200: pressure 1.20 (HARD)'), '200cc pressure logged')
+T.check(T.logHas('[ai] league ace: pressure 1.20 (HARD)'), '200cc pressure logged')
 -- the launch failing: everything back at once
 W.race(11); M.tick(5)
 W.finish(1); M.tick(25)
@@ -133,26 +132,27 @@ t0 = os.time(); while os.time() - t0 < 3 do end
 W.backToMenu(); M.tick(45)
 T.check(W.ai.DefaultPacingSettings.MaxAiCatchupScale == 1.3 and W.ai.DefaultPercentageChancePerfectStart == 75 and next(K.data.aiRestores) == nil, '200cc put back')
 rawget(W.fe, '__props').LaunchQuickRace = function() error('boom') end
-ok = R.launch({ path = cfg.Cups[1].races['50'][1].path, title = 'X', kind = 'Circuit' }, '200', 'car')
+ok = R.launch({ path = cfg.Pools.jakku[1].path, title = 'X', kind = 'Circuit' }, 'ace', 'car')
 T.check(ok == false and W.ai.DefaultPacingSettings.MaxAiSlowdownScale == 0.75 and next(K.data.aiRestores) == nil, 'a failed launch puts the AI config straight back')
-cfg.AI.Profiles['200'] = PRO200
-p = A.plan('200')
+cfg.AI.Profiles['ace'] = PRO200
+p = A.plan('ace')
 T.check(p['DefaultPacingSettings.MaxAiSlowdownScale'].set == 1 and p.ForcedErrorChance.mul == 0.5 and p['DefaultPacingSettings.MaxAiCatchupScale'] == nil
   and p.DefaultPercentageChancePerfectStart == nil, 'v0.10: the 200cc plan = 150cc\'s (honest, errors x0.5, no catch-up or perfect-start change)')
 -- v0.18: the study's profiles - no catch-up anywhere, speed matching off, the mercy slowdown shrinking by class,
 -- forced errors kept at 50cc only
 -- (v0.21, owner: a little harder at 50 / 100cc: slowdown 0.4 and 0.45)
-local want = { ['50'] = 0.4, ['100'] = 0.45, ['150'] = 1.0, ['200'] = 1.0 }
+-- (v0.26: Riff-Raff = the 50cc profile, Challenger = 150cc, Ace = 200cc)
+local want = { ['riffraff'] = 0.4, ['challenger'] = 1.0, ['ace'] = 1.0 }
 cfg.AI.Profiles = REAL
 for cls, slow in pairs(want) do
   local q = A.plan(cls)
   T.check(q['DefaultPacingSettings.MaxAiCatchupScale'].set == 1 and math.abs(q['DefaultPacingSettings.MaxAiSlowdownScale'].set - slow) < 1e-9
-    and q.SpeedMatchingMaxMatchers.set == 0, 'v0.21 ' .. cls .. 'cc: catch-up 1.0, slowdown ' .. slow .. ', speed matching off')
-  T.check((cls == '50') == (q.ForcedErrorChance == nil), 'v0.18 ' .. cls .. 'cc: forced errors ' .. (cls == '50' and 'kept' or 'off'))
+    and q.SpeedMatchingMaxMatchers.set == 0, 'v0.21 ' .. cls .. ': catch-up 1.0, slowdown ' .. slow .. ', speed matching off')
+  T.check((cls == 'riffraff') == (q.ForcedErrorChance == nil), 'v0.18 ' .. cls .. ': forced errors ' .. (cls == 'riffraff' and 'kept' or 'off'))
   -- v0.21 (owner, 200cc: "i crash a lot and still get ~2nd place"): no easing off while you crash from 100cc up
   local crash = q['DefaultPacingSettings.AiSlowdownDuringCrash']
-  if cls == '50' then T.check(crash == nil, 'v0.21 50cc: the game\'s slowdown while you crash kept')
-  else T.check(crash and crash.set == 1, 'v0.21 ' .. cls .. 'cc: AiSlowdownDuringCrash 1.0 (the bots don\'t ease off while you crash)') end
+  if cls == 'riffraff' then T.check(crash == nil, 'v0.21 50cc: the game\'s slowdown while you crash kept')
+  else T.check(crash and crash.set == 1, 'v0.21 ' .. cls .. ': AiSlowdownDuringCrash 1.0 (the bots don\'t ease off while you crash)') end
 end
-T.check(A.pressure('50') == -1 and A.pressure('100') == 0 and A.pressure('150') == 0 and A.pressure('200') == 0.5, 'v0.21 pressures -1 / 0 / 0 / 0.5 (200cc a notch above 150cc)')
+T.check(A.pressure('riffraff') == -1 and A.pressure('challenger') == 0 and A.pressure('ace') == 0.5, 'v0.26 pressures -1 / 0 / 0.5 (Ace a notch above Challenger)')
 T.finish()

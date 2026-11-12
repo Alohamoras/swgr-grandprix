@@ -1,9 +1,11 @@
--- v0.21 (owner, OWNER.md "Done" 2026-11-11): the title race is a 1 v 1 on a NORMAL track against the class leader
--- (the best bot of your most recent finished cup at the class; the class default before any cup), launched with the
+-- v0.21 (owner, OWNER.md "Done" 2026-11-11): the title race is a 1 v 1 on a NORMAL track against the league leader
+-- (the best bot of your most recent finished cup at the league; the league default before any cup), launched with the
 -- two-car grid (the event's GridMakeup 2 entrants, CharacterList.Opponents cut to that racer; RaceFlowSpike B6) and
 -- both put back at the menu exactly once - after a crash at the next boot. Never part of a cup, no points, no cup
--- records. Kestar Bool is the final boss: a KESTAR BOOL tile on the 150cc cups page once the 150cc title is won (8
--- tiles, 4 + 4), the Stadium Showdown, beating him unlocks him; an old save's 150cc title (won against him) counts.
+-- records. v0.26: its track = the first race of the leader's most recent cup run (saved with the leader); before any
+-- cup, the first race of a random Jakku draw, made once and kept. Kestar Bool is the final boss: a KESTAR BOOL tile on
+-- the Ace cups page once the Ace title is won (8 tiles, 4 + 4), the Stadium Showdown, beating him unlocks him; an old
+-- save (the cc classes) gets a clean start, which locks him again.
 local M = require('mock')
 local W = require('world')
 local T = require('util')
@@ -20,54 +22,60 @@ end
 local function wait3() local t0 = os.time(); while os.time() - t0 < 3 do end end
 
 ---------------------------------------------------------------------------------------------------------------------
--- 1. no cup finished at 100cc: the class default (Lyren Shok) on the first planet cup's first race; you race as Sen Fira
-T.boot({ version = 2, races = 20, cups = 5, class = '100', racer = 'Thrall', best = { ['100'] = five },
+-- 1. no cup finished at Riff-Raff: the league default (Griff Halloran) on the first race of a Jakku draw; you race as Sen Fira
+T.boot({ version = 3, races = 20, cups = 5, class = 'riffraff', racer = 'Thrall', best = { riffraff = five },
   restores = {}, abilityRestores = {} }, { Progression = { On = false } })
 W.cupEvents()
 local cfg = require('config')
 local EV = '/Game/Griffin/Gameplay/Events/Planets/'
-local JAKKU1 = EV .. 'Mastiff/Loop_A/EVT_MAS_LOOP_A_REV'
-local CRAIT1 = EV .. 'Spaniel/Loop_A/EVT_SPA_Loop_A_REV'
+local JAKKU1 = EV .. 'Mastiff/Loop_A/EVT_MAS_LOOP_A_REV_HARD' -- (the tests' Jakku draw: race 1)
+local CRAIT1 = EV .. 'Spaniel/Loop_A/EVT_SPA_Loop_A_REV_MINES' -- (the tests' Crait draw: race 1)
 M.press('F6'); M.tick(6)
-T.clickTitle('100CC'); M.tick(3)
-T.check(T.titles():find('|TITLE RACE$') ~= nil and T.ntiles() == 7, 'the TITLE RACE tile is the last of 7 on the 100cc cups page (' .. T.titles() .. ')')
+T.clickTitle('RIFF-RAFF'); M.tick(3)
+T.check(T.titles():find('|TITLE RACE$') ~= nil and T.ntiles() == 7, 'the TITLE RACE tile is the last of 7 on the Riff-Raff cups page (' .. T.titles() .. ')')
 local H = rawget(_G, 'GU_TEST_SCREENS')
 local tt
 for _, it in ipairs(H.SCREENS.cups().items) do if it.title == 'TITLE RACE' then tt = it end end
-T.check(tt and tt.desc == 'vs Lyren Shok' and tt.badge == nil, 'the tile names the default opponent: vs Lyren Shok (' .. tostring(tt and tt.desc) .. ')')
-T.check(tt and tt.info:find('1 v 1 against Lyren Shok on THE WAR FIELDS (REVERSE), 2 laps', 1, true) ~= nil, 'its info: the track and laps (' .. tostring(tt and tt.info) .. ')')
+T.check(tt and tt.desc == 'vs Griff Halloran' and tt.badge == nil, 'the tile names the default opponent: vs Griff Halloran (' .. tostring(tt and tt.desc) .. ')')
+T.check(tt and tt.info:find('1 v 1 against Griff Halloran on THE WAR FIELDS (REVERSE, SCORCHING), 2 laps', 1, true) ~= nil, 'its info: the track and laps (' .. tostring(tt and tt.info) .. ')')
+T.check(T.save().titleTrack.riffraff == JAKKU1 and T.logCount('the title race track is THE WAR FIELDS (REVERSE, SCORCHING) (a random JAKKU CUP draw, kept)') == 1,
+  'v0.26: the default track drawn once from Jakku and saved (titleTrack), logged once')
+require('gp').random = function(n) return 1 end -- (another draw would differ: the saved track must not)
+for _, it in ipairs(H.SCREENS.cups().items) do if it.title == 'TITLE RACE' then tt = it end end
+T.check(tt.info:find('THE WAR FIELDS (REVERSE, SCORCHING)', 1, true) ~= nil and T.save().titleTrack.riffraff == JAKKU1, 'the tile shows a stable track')
+require('gp').random = T.RND
 local mark = T.mark()
 T.clickTitle('TITLE RACE')
-T.check(M.called('LaunchQuickRace') == 1 and rawget(M.lastCall('LaunchQuickRace').args[2], '__name') == 'EVT_MAS_LOOP_A_REV',
-  'Select launches a normal track: the Jakku Cup\'s first 100cc race')
+T.check(M.called('LaunchQuickRace') == 1 and rawget(M.lastCall('LaunchQuickRace').args[2], '__name') == 'EVT_MAS_LOOP_A_REV_HARD',
+  'Select launches a normal track: the saved Jakku race')
 T.check(grid(JAKKU1) == '2', 'the event\'s grid make-up: 2 entrants (' .. grid(JAKKU1) .. ')')
-T.check(W.charsText() == 'Player=Thrall Opp=Star', 'the character list: you as Sen Fira, Opponents = Lyren Shok only (' .. W.charsText() .. ')')
-T.check(T.logHas('[title] grid cut for the title race: EVT_MAS_LOOP_A_REV make-up 12 -> 2 entrants; CharacterList.Opponents 11 -> Star only', mark), 'the cut logged')
+T.check(W.charsText() == 'Player=Thrall Opp=Veteran', 'the character list: you as Sen Fira, Opponents = Griff Halloran only (' .. W.charsText() .. ')')
+T.check(T.logHas('[title] grid cut for the title race: EVT_MAS_LOOP_A_REV_HARD make-up 12 -> 2 entrants; CharacterList.Opponents 11 -> Veteran only', mark), 'the cut logged')
 local sv = T.save()
 T.check(sv.gridRestore and sv.gridRestore.event == JAKKU1 and #sv.gridRestore.opponents == 11 and sv.gridRestore.entries[1] == 12,
   'the originals in the save before the race (gridRestore)')
 T.check(sv.run == nil, 'no cup started')
-local parts = cfg.Classes[2].parts
-T.check(T.levels('VBD_Bike_Base') == ('0=%d 1=%d 2=%d 3=%d 4=%d 5=%d'):format(parts, parts, parts, parts, parts, parts), '100cc parts on Sen Fira\'s bike')
+local parts = cfg.Leagues[1].parts
+T.check(T.levels('VBD_Bike_Base') == ('0=%d 1=%d 2=%d 3=%d 4=%d 5=%d'):format(parts, parts, parts, parts, parts, parts), 'Riff-Raff parts on Sen Fira\'s bike')
 -- the race: the racer settles 10 s in (Player back), the cut list stays for the race
 W.race(1); M.tick(115)
-T.check(W.charsText() == 'Player=DarkEnigma Opp=Star', 'the racer settled in the race: Player back, the grid cut kept (' .. W.charsText() .. ')')
+T.check(W.charsText() == 'Player=DarkEnigma Opp=Veteran', 'the racer settled in the race: Player back, the grid cut kept (' .. W.charsText() .. ')')
 W.finish(2, 130.5, 60); M.tick(25)
 wait3()
 W.backToMenu(); M.tick(45)
-T.check(T.logHas('TITLE RACE 100: lost, 2nd vs Lyren Shok on THE WAR FIELDS (REVERSE) (try 1)'), 'the loss logged')
+T.check(T.logHas('TITLE RACE RIFF-RAFF: lost, 2nd vs Griff Halloran on THE WAR FIELDS (REVERSE, SCORCHING) (try 1)'), 'the loss logged')
 T.check(grid(JAKKU1) == '12' and W.charsText() == 'Player=DarkEnigma Opp=' .. ORIG_OPP, 'at the menu: the make-up and the list put back (' .. W.charsText() .. ')')
 T.check(T.logCount('[title] grid put back') == 1 and T.logHas('[title] grid put back (main menu): make-up done (12 entrants); Opponents done (11:'),
   'put back exactly once, logged')
 T.check(T.logHas('[menu] titleResult'), 'the title result screen')
 sv = T.save()
-T.check(sv.titles['100'] and sv.titles['100'].tries == 1 and not sv.titles['100'].won and sv.races == 21 and sv.gridRestore == nil,
+T.check(sv.titles.riffraff and sv.titles.riffraff.tries == 1 and not sv.titles.riffraff.won and sv.races == 21 and sv.gridRestore == nil,
   'saved: one try, not won; the race counted; nothing left to put back')
-T.check(next((sv.records or {})['100'] or {}) == nil, 'a title race sets no cup track record')
+T.check(next((sv.records or {}).riffraff or {}) == nil, 'a title race sets no cup track record')
 M.tick(30)
 T.check(T.logCount('[title] grid put back') == 1, 'still put back only once')
 
--- 2. a finished cup at 100cc: Biddy Blas wins the Crait Cup -> the leader; the title race on Crait's first race
+-- 2. a finished cup at Riff-Raff: Biddy Blas wins the Crait Cup -> the leader; the title race on that cup run's first race
 T.clickTitle('CONTINUE'); M.tick(3)
 local K, CU = require('gp'), require('cup')
 local BOTS = { 'Biddy Blas', 'Sen Fira', 'Katja Mox', 'Lyren Shok', 'Ary Quill', 'Nik Skandaro', 'Shade', 'Fola Kanjen', 'Soren Zaks', 'Malis Vazosk', 'Griff Halloran' }
@@ -79,37 +87,41 @@ local function field(you)
   end
   return f
 end
-K.startCup('100', 'crait', 'bike')
+K.startCup('riffraff', 'crait', 'bike')
 for i = 1, 4 do K.record(K.nextRace(), 3, field(3), { time = 100 + i }) end
-T.check(K.data.leader['100'].name == 'Biddy Blas' and K.data.leader['100'].cup == 'crait', 'the cup over: Biddy Blas (the winner) is the 100cc leader')
-T.check(T.logHas('[title] 100cc leader: Biddy Blas (best bot of the crait) - the title race opponent'), 'the leader logged')
+T.check(K.data.leader.riffraff.name == 'Biddy Blas' and K.data.leader.riffraff.cup == 'crait' and K.data.leader.riffraff.path == CRAIT1,
+  'the cup over: Biddy Blas (the winner) is the Riff-Raff leader, saved with the cup run\'s first race')
+T.check(T.logHas('[title] RIFF-RAFF leader: Biddy Blas (best bot of the crait) - the title race opponent, on CRIMSON MINES (REVERSE, MINES)'), 'the leader logged')
 -- (you won a cup: the 2nd is the leader)
-K.startCup('50', 'jakku', 'car')
+K.startCup('challenger', 'jakku', 'car')
 for i = 1, 4 do K.record(K.nextRace(), 1, field(1), { time = 100 + i }) end
-T.check(K.data.leader['50'].name == 'Biddy Blas' and require('title').leaderOf({ points = { YOU = 60, A = 40, B = 41 }, last = {} }) == 'B',
+T.check(K.data.leader.challenger.name == 'Biddy Blas' and require('title').leaderOf({ points = { YOU = 60, A = 40, B = 41 }, last = {} }) == 'B',
   'you won: the best bot (2nd overall) is the leader')
 M.press('BACKSPACE'); M.tick(5)
-T.clickTitle('100CC'); M.tick(3)
+T.clickTitle('RIFF-RAFF'); M.tick(3)
 for _, it in ipairs(H.SCREENS.cups().items) do if it.title == 'TITLE RACE' then tt = it end end
-T.check(tt.desc == 'vs Biddy Blas' and tt.info:find('on CRIMSON MINES (REVERSE)', 1, true) ~= nil, 'the tile: vs Biddy Blas, on the Crait Cup\'s first race (' .. tt.info .. ')')
+T.check(tt.desc == 'vs Biddy Blas' and tt.info:find('on CRIMSON MINES (REVERSE, MINES)', 1, true) ~= nil, 'the tile: vs Biddy Blas, on the Crait Cup run\'s first race (' .. tt.info .. ')')
 T.clickTitle('TITLE RACE')
-T.check(rawget(M.lastCall('LaunchQuickRace').args[2], '__name') == 'EVT_SPA_Loop_A_REV' and grid(CRAIT1) == '2' and W.charsText() == 'Player=Thrall Opp=Rager',
-  'launched on Crait\'s first race, the grid you and Biddy Blas (' .. W.charsText() .. ')')
+T.check(rawget(M.lastCall('LaunchQuickRace').args[2], '__name') == 'EVT_SPA_Loop_A_REV_MINES' and grid(CRAIT1) == '2' and W.charsText() == 'Player=Thrall Opp=Rager',
+  'launched on that race, the grid you and Biddy Blas (' .. W.charsText() .. ')')
 W.race(1); M.tick(5)
 W.finish(1, 120, 55); M.tick(25)
 wait3()
 W.backToMenu(); M.tick(45)
-T.check(T.logHas('TITLE RACE 100: WON - you are the champion vs Biddy Blas on CRIMSON MINES (REVERSE) (try 2)'), 'the win logged')
+T.check(T.logHas('TITLE RACE RIFF-RAFF: WON - you are the champion vs Biddy Blas on CRIMSON MINES (REVERSE, MINES) (try 2)'), 'the win logged')
 sv = T.save()
-T.check(sv.titles['100'].won == true and sv.titles['100'].tries == 2 and sv.titles['100'].vs == 'Biddy Blas', 'saved: won on the second try, vs Biddy Blas')
+T.check(sv.titles.riffraff.won == true and sv.titles.riffraff.tries == 2 and sv.titles.riffraff.vs == 'Biddy Blas', 'saved: won on the second try, vs Biddy Blas')
 T.check(grid(CRAIT1) == '12' and W.charsText() == 'Player=DarkEnigma Opp=' .. ORIG_OPP, 'put back again')
 T.clickTitle('CONTINUE'); M.tick(3)
 T.check(T.marks():find('|GOLD$') ~= nil and not T.badges():find('CHAMPION', 1, true), 'v0.24: the title tile shows a gold medal (no CHAMPION word) (' .. T.marks() .. ')')
-T.check(not T.titles():find('KESTAR BOOL', 1, true), 'no boss tile at 100cc')
--- the leader is your own racer: never a mirror match (the class default instead)
-K.data.leader['100'] = { name = 'Sen Fira', cup = 'jakku' }
-local ev = require('title').event('100')
-T.check(ev.opponent == 'Star' and ev.vs == 'Lyren Shok', 'racing as Sen Fira, the leader Sen Fira: the class default instead (' .. ev.vs .. ')')
+T.check(not T.titles():find('KESTAR BOOL', 1, true), 'no boss tile at Riff-Raff')
+-- the leader is your own racer: never a mirror match (the league default instead)
+K.data.leader.riffraff = { name = 'Sen Fira', cup = 'jakku', path = CRAIT1 }
+local ev = require('title').event('riffraff')
+T.check(ev.opponent == 'Veteran' and ev.vs == 'Griff Halloran' and ev.path == JAKKU1, 'racing as Sen Fira, the leader Sen Fira: the league default instead, on the default track (' .. ev.vs .. ')')
+-- a leader saved before v0.26 (no path) or with a path no pool knows: the default track
+K.data.leader.riffraff = { name = 'Biddy Blas', cup = 'crait' }
+T.check(require('title').event('riffraff').path == JAKKU1, 'a leader without a track: the default track')
 
 ---------------------------------------------------------------------------------------------------------------------
 -- 3. a crash mid title race: the grid and the list stay cut in memory, the save holds the originals; at the next boot
@@ -123,7 +135,7 @@ T.reset()
 T.boot(save, { Progression = { On = false }, Manual = true })
 W.cupEvents()
 -- what the crashed game left (memory survives in this fake: the cut grid and list)
-rawget(M.assets[JAKKU1 .. '.EVT_MAS_LOOP_A_REV'], '__props').GridMakeup.Entries[1].NumEntrants = 2
+rawget(M.assets[JAKKU1 .. '.EVT_MAS_LOOP_A_REV_HARD'], '__props').GridMakeup.Entries[1].NumEntrants = 2
 local cp = rawget(W.chars, '__props')
 cp.Opponents = M.tarr({ W.racerDef('Star') })
 T.check(W.charsText() == 'Player=DarkEnigma Opp=Star' and grid(JAKKU1) == '2', 'crashed: the grid and the list as the title race left them')
@@ -134,23 +146,22 @@ T.check(T.save().gridRestore == nil and T.logCount('[title] grid put back') == 1
 T.finish()
 
 ---------------------------------------------------------------------------------------------------------------------
--- 4. the final boss: the 150cc title won (v0.21 style, vs the leader): the KESTAR BOOL tile on the 150cc page (8 tiles,
+-- 4. the final boss: the Ace title won (vs the leader): the KESTAR BOOL tile on the Ace page (8 tiles,
 -- 4 + 4, no scrolling); Kestar locked until beaten; beating him unlocks him
 T.reset()
-local all150 = { jakku = 1, lantaana = 1, ando = 1, crait = 1, sentinel = 1, galactic = 1 }
-T.boot({ version = 2, races = 30, cups = 7, class = '150', best = { ['150'] = all150, ['100'] = all150 },
-  titles = { ['150'] = { won = true, tries = 1, vs = 'Biddy Blas' }, ['100'] = { won = true, tries = 1, vs = 'Sen Fira' } },
+local all = { jakku = 1, lantaana = 1, ando = 1, crait = 1, sentinel = 1, galactic = 1 }
+T.boot({ version = 3, races = 30, cups = 7, class = 'ace', best = { ace = all, challenger = all },
+  titles = { ace = { won = true, tries = 1, vs = 'Sen Fira' }, challenger = { won = true, tries = 1, vs = 'Biddy Blas' } },
   restores = {}, abilityRestores = {} }, { Progression = { On = false } })
 W.cupEvents()
 local RC = require('racer')
-T.check(not T.logHas('counts as beaten'), 'a v0.21 150cc title (vs Biddy Blas): no migration')
 T.check(RC.locked('Antagonist'), 'Kestar still locked: the title alone doesn\'t unlock him')
 M.press('F6'); M.tick(6)
-T.clickTitle('100CC'); M.tick(3)
-T.check(T.ntiles() == 7 and not T.titles():find('KESTAR', 1, true), '100cc: 7 tiles, no boss')
+T.clickTitle('CHALLENGER'); M.tick(3)
+T.check(T.ntiles() == 7 and not T.titles():find('KESTAR', 1, true), 'Challenger (its title won too): 7 tiles, no boss')
 M.press('BACKSPACE'); M.tick(5)
-T.clickTitle('150CC'); M.tick(3)
-T.check(T.ntiles() == 8 and T.titles():find('|GALACTIC CUP|TITLE RACE|KESTAR BOOL$') ~= nil, '150cc: 8 tiles, KESTAR BOOL last (' .. T.titles() .. ')')
+T.clickTitle('ACE'); M.tick(3)
+T.check(T.ntiles() == 8 and T.titles():find('|GALACTIC CUP|TITLE RACE|KESTAR BOOL$') ~= nil, 'Ace: 8 tiles, KESTAR BOOL last (' .. T.titles() .. ')')
 local spec = H and rawget(_G, 'GU_TEST_SCREENS').SCREENS.cups()
 T.check(spec.rows and #spec.rows == 2 and spec.rows[1].n == 5 and #spec.items == 8 and spec.center,
   'v0.23: two rows, centred: the five planets, then the Galactic Cup, the title race and Kestar (no scrolling)')
@@ -164,7 +175,7 @@ T.check(T.marks():find('|$') ~= nil and not T.badges():find('BOSS', 1, true), 'v
 mark = T.mark()
 T.clickTitle('KESTAR BOOL')
 T.check(rawget(M.lastCall('LaunchQuickRace').args[2], '__name') == 'EVT_WHP_SHORTBOSS_FAIR', 'the Stadium Showdown')
-T.check(T.levels('VBD_Car_Base') == '0=7 1=7 2=7 3=7 4=7 5=7', '150cc parts')
+T.check(T.levels('VBD_Car_Base') == '0=9 1=9 2=9 3=9 4=9 5=9', 'Ace parts')
 T.check(not T.logHas('[title] grid cut', mark), 'no grid cut for the boss (the Showdown is a 2-car grid already)')
 W.race(1); M.tick(5)
 W.finish(1, 300, 50); M.tick(25)
@@ -179,19 +190,18 @@ T.check(T.marks():find('|GOLD$') ~= nil, 'v0.24: the boss tile shows a gold meda
 T.finish()
 
 ---------------------------------------------------------------------------------------------------------------------
--- 5. an old save: the 150cc title won the old way (vs Kestar in the Showdown) counts as Kestar beaten; Kestar picked
--- stays; the rivals are dropped, once
+-- 5. v0.26: an old save (the cc classes: the 150cc title won the old way, vs Kestar in the Showdown, and the v0.20
+-- rivals) gets a clean start - the title, the boss and the rivals gone, Kestar locked again (Shade raced instead)
 T.reset()
 T.boot({ version = 2, races = 40, cups = 8, racer = 'Antagonist', titles = { ['150'] = { won = true, tries = 3, vs = 'Kestar Bool', at = '2026-11-10' } },
+  boss = { beaten = true, tries = 0, migrated = true },
   rivals = { ['100'] = { name = 'Sen Fira', scores = { ['Sen Fira'] = 30 } } }, restores = {}, abilityRestores = {} })
 sv = T.save()
-T.check(sv.boss and sv.boss.beaten == true and sv.boss.migrated == true, 'old 150cc title: Kestar counts as beaten')
-T.check(T.logHas('[save] the 150cc title was won against Kestar Bool before v0.21: he counts as beaten'), 'logged')
-T.check(sv.rivals == nil and T.logHas('[save] the rivals are dropped (v0.21: no rival any more): 100=Sen Fira'), 'the rivals dropped, logged')
-T.check(sv.racer == 'Antagonist' and not require('racer').locked('Antagonist'), 'Kestar still picked and unlocked')
-T.check(sv.titles['150'].won == true, 'the 150cc title kept')
+T.check(sv.version == 3 and sv.boss == nil and next(sv.titles) == nil and sv.rivals == nil, 'clean start: no title, no boss, no rivals')
+T.check(sv.racer == 'DarkEnigma' and require('racer').locked('Antagonist'), 'Kestar locked again: the pick back to Shade')
+T.check(T.logHas('[save] v0.26: three leagues - a clean start (backup save.backup-v2-') and T.logHas('Racer Kestar Bool is locked again: racing as Shade.'), 'logged once, with the fall back')
 T.finish()
 T.reset()
 T.boot(sv)
-T.check(not T.logHas('[save] the rivals are dropped') and not T.logHas('counts as beaten'), 'the next boot: nothing to migrate again')
+T.check(not T.logHas('a clean start'), 'the next boot: nothing to clean again')
 T.finish()

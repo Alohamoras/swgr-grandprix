@@ -96,7 +96,7 @@ function L.begin(classKey, modNames, yourKeys)
   if not L.enabled() and not hasMods then return nil end
   if L.enabled() then
     local n, bad = L.preload(classKey)
-    log(('[loadout] class %s: AI racers get their four abilities at load (%d abilities ready%s)'):format(tostring(classKey), n - bad,
+    log(('[loadout] league %s: AI racers get their four abilities at load (%d abilities ready%s)'):format(tostring(classKey), n - bad,
       bad > 0 and (', ' .. bad .. ' missing') or ''))
   end
   local mods

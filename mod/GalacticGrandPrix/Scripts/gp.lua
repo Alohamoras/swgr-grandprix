@@ -1,7 +1,9 @@
--- Galactic Grand Prix: the save file, the classes, cups and vehicles (config.lua).
+-- Galactic Grand Prix: the save file, the leagues, the race pools and the cup draw, cups and vehicles (config.lua).
 -- Save (save.lua, the mod's own file, never the game's): what's needed to put launch builds back after a crash, the
--- cup in progress (run, see cup.lua), the best finish per class and cup (best[class][cup] = 1 gold / 2 silver /
+-- cup in progress (run, see cup.lua), the best finish per league and cup (best[league][cup] = 1 gold / 2 silver /
 -- 3 bronze / 4+), and counts.
+-- (v0.26: the four cc classes became three leagues. The save and the cup run keep their field name `class` - it holds
+-- a league key: 'riffraff', 'challenger', 'ace'.)
 local C = require('core')
 local cfg = require('config')
 local CU = require('cup')
@@ -9,55 +11,9 @@ local PR = require('prog')
 local log = C.log
 
 local K = { data = nil }
-K.SAVE_VERSION = 2
-
--- v2 (v0.3.6): four classes instead of three. What was 50cc (parts 3) is now 100cc, 100cc (6) is 150cc, 150cc (10)
--- is 200cc, so everything stored by class key moves up one: best finishes, the cup in progress, the last class.
-local SHIFT = { ['150'] = '200', ['100'] = '150', ['50'] = '100' }
-function K.convert(d, from)
-  if from < 2 then
-    local best = {}
-    for k, v in pairs(d.best or {}) do best[SHIFT[k] or k] = v end
-    d.best = best
-    if type(d.run) == 'table' and d.run.class then d.run.class = SHIFT[d.run.class] or d.run.class end
-    if d.class then d.class = SHIFT[d.class] or d.class end
-    if type(d.last) == 'table' and d.last.class then d.last.class = SHIFT[d.last.class] or d.last.class end
-  end
-  d.version = K.SAVE_VERSION
-  return d
-end
-
--- v0.11: the remix cups (*_remix), conditions cups (*_cond) and the Outer Rim Cup are gone (folded into the planet
--- cups' per-class race lists). Their best finishes, perfect cups and final standings are dropped from the save, once,
--- with one log line; track records stay (they are kept per event path, not per cup). Returns what was dropped.
-local GONE = { '_remix$', '_cond$', '^outerrim$' }
-local function gone(key)
-  if type(key) ~= 'string' then return false end
-  for _, pat in ipairs(GONE) do if key:find(pat) then return true end end
-  return false
-end
-function K.dropOldCups(d)
-  local out = {}
-  for _, field in ipairs({ 'best', 'perfect', 'standings' }) do
-    local byClass = type(d[field]) == 'table' and d[field] or {}
-    local classes = {}
-    for cls in pairs(byClass) do classes[#classes + 1] = cls end
-    table.sort(classes, function(a, b) return (tonumber(a) or 0) < (tonumber(b) or 0) end)
-    for _, cls in ipairs(classes) do
-      local t = byClass[cls]
-      if type(t) == 'table' then
-        local keys = {}
-        for k in pairs(t) do if gone(k) then keys[#keys + 1] = k end end
-        table.sort(keys)
-        for _, k in ipairs(keys) do
-          out[#out + 1] = ('%s %s %s'):format(field, cls, k)
-          t[k] = nil
-        end
-      end
-    end
-  end
-  return out
-end
+-- v3 (v0.26): the three leagues. An older save (v1 / v2: the cc classes) gets a clean start at its first load
+-- (K.cleanStart): backed up, every bit of progress cleared, the garage kept.
+K.SAVE_VERSION = 3
 
 local function fill(d)
   d.version = tonumber(d.version) or K.SAVE_VERSION
@@ -72,30 +28,32 @@ local function fill(d)
   -- the launch builds' own Affixes / UnlockedAffixSlots, put back at the menu like the parts and abilities.
   d.mods = type(d.mods) == 'table' and d.mods or nil
   d.modRestores = type(d.modRestores) == 'table' and d.modRestores or {}
-  d.class = type(d.class) == 'string' and d.class or nil -- the class picked last
-  -- (v0.15: no vehicle pick - the racer decides the vehicle, racer.lua RC.vehicle; an old save's `vehicle` is dropped
-  -- in K.load)
+  d.class = type(d.class) == 'string' and d.class or nil -- the league picked last
   d.racer = type(d.racer) == 'string' and d.racer or nil -- v0.8: your pilot (racer.lua, config Racers key); nil = the game's own. racerRestore = the list to put back
-  -- v0.2: the cup in progress (nil = none; v0.9: dropped at boot, K.drop - cups cannot be resumed) and best finishes
+  -- v0.2: the cup in progress (nil = none; v0.9: dropped at boot, K.drop - cups cannot be resumed) and best finishes.
+  -- v0.26: run.list = the cup's four drawn races (K.draw), saved with it, so the trips through the main menu between
+  -- races keep them
   d.run = type(d.run) == 'table' and d.run or nil
   d.best = type(d.best) == 'table' and d.best or {}
   d.cups = tonumber(d.cups) or 0
-  -- v0.8 (records): per class, the best race time and best lap per track
-  --   records[classKey][eventPath] = { time = s, lap = s, at = 'YYYY-MM-DD', vehicle = key }
+  -- v0.8 (records): per league, the best race time and best lap per track (exact event path)
+  --   records[league][eventPath] = { time = s, lap = s, at = 'YYYY-MM-DD', vehicle = key }
   -- (the time only from a finished race; the lap from any race), the cups won with 1st in every race
-  -- (perfect[classKey][cupKey] = true) and every finished cup's final points (standings[classKey][cupKey] =
-  -- { [racerName] = points, YOU = points }: the class champion is worked out from these). Filled when missing,
-  -- so the save version stays 2.
+  -- (perfect[league][cupKey] = true) and every finished cup's final points (standings[league][cupKey] =
+  -- { [racerName] = points, YOU = points }: the league champion is worked out from these).
   d.records = type(d.records) == 'table' and d.records or {}
   d.perfect = type(d.perfect) == 'table' and d.perfect or {}
   d.standings = type(d.standings) == 'table' and d.standings or {}
-  d.titles = type(d.titles) == 'table' and d.titles or {} -- v0.8: the title races won per class (title.lua)
-  -- v0.21: the title race's opponent per class, from the most recent finished cup there (title.lua):
-  --   leader[classKey] = { name = 'Biddy Blas', cup = 'jakku' }
+  d.titles = type(d.titles) == 'table' and d.titles or {} -- v0.8: the title races won per league (title.lua)
+  -- v0.21: the title race's opponent per league, from the most recent finished cup there (title.lua); v0.26: path =
+  -- the first race of that cup run (the title race's track):
+  --   leader[league] = { name = 'Biddy Blas', cup = 'jakku', path = '/Game/.../EVT_MAS_LOOP_A_REV' }
   d.leader = type(d.leader) == 'table' and d.leader or {}
+  -- v0.26: the title race's track per league before any cup has finished there (the first race of a random draw of
+  -- config Title.DefaultCup, made once): titleTrack[league] = event path
+  d.titleTrack = type(d.titleTrack) == 'table' and d.titleTrack or {}
   -- v0.21: the final boss (title.lua): boss = { beaten = true, tries = n, at = 'YYYY-MM-DD' } or nil (not raced)
   d.boss = type(d.boss) == 'table' and d.boss or nil
-  -- (v0.13-v0.20 `rivals` is dropped at load: K.migrate21)
   return d
 end
 
@@ -112,6 +70,63 @@ function K.save()
   return ok
 end
 
+-- v0.21 (owner, OWNER.md "Done" 2026-11-11): RESET clears ALL progress, titles included: trophies, golds, best
+-- finishes, records, perfect cups, cup standings, titles, the final boss, the leaders, the counts, the last race and
+-- the cup in progress - everything except the garage picks (racer, abilities, tune-ups; Kestar Bool falls back to
+-- Shade, locked again) and the put-back records (what the game's assets still need back: never dropped). The save
+-- is copied to save.backup-reset-<date>.lua first. Returns the backup's name. (main.lua asks twice.) v0.26: the same
+-- list is what an old save keeps at its clean start (K.cleanStart).
+K.KEEP_ON_RESET = { 'version', 'racer', 'picks', 'mods', 'restores', 'abilityRestores', 'modRestores', 'aiRestores',
+  'racerRestore', 'titleRestore', 'gridRestore' }
+local function keepGarage(was)
+  local d = {}
+  for _, k in ipairs(K.KEEP_ON_RESET) do d[k] = was[k] end
+  return d
+end
+-- Kestar Bool is locked again once the boss is cleared: racing as him falls back to the first racer (Shade).
+-- -> ' Racer X is locked again: racing as Shade.' or ''
+local function relockRacer()
+  local okR, RC = pcall(require, 'racer')
+  if okR and K.data.racer and RC.locked and RC.locked(K.data.racer) then
+    local fell = (' Racer %s is locked again: racing as %s.'):format(RC.displayName(K.data.racer), RC.list()[1].name)
+    K.data.racer = RC.list()[1].key
+    return fell
+  end
+  return ''
+end
+local function backup(name, text)
+  local b = io.open(C.DIR .. '/' .. name, 'w')
+  if not b then return false end
+  b:write(text)
+  b:close()
+  return true
+end
+
+-- v0.26 (owner, 2026-11-12: "a clean start"): an older save (the cc classes, save version 1 or 2) at its first load.
+-- Backed up as save.backup-v<N>-<date>.lua; every bit of progress cleared (medals, records, perfect cups, standings,
+-- titles, the boss, the leaders, the counts, the last race, the cup in progress); only the garage kept - the racer,
+-- the four ability picks and the tune-up picks (normalised to the slots) - with the put-back records. Kestar Bool is
+-- locked again (the boss is cleared), so a Kestar pick goes back to Shade, as RESET does. Logged once. t = the old
+-- save's table, was = its version, text = its file. Returns the backup's name (nil: none could be written).
+function K.cleanStart(t, was, text)
+  local name = ('save.backup-v%d-%s.lua'):format(was, os.date('%Y%m%d-%H%M%S'))
+  if not backup(name, text) then
+    log('[save] v0.26: could not write the backup of the old save - its progress is cleared all the same (the old file stays until the next save)')
+    name = nil
+  end
+  local d = keepGarage(t)
+  d.version = K.SAVE_VERSION
+  local okA, AB = pcall(require, 'abil')
+  if okA and d.picks ~= nil then d.picks = AB.normalize(d.picks, 3) end
+  local okM, MS = pcall(require, 'modsel')
+  if okM and d.mods ~= nil then d.mods = MS.normalize(d.mods) end
+  K.data = fill(d)
+  local fell = relockRacer()
+  if name then K.save() end
+  log(('[save] v0.26: three leagues - a clean start (backup %s); kept: racer, abilities, tune-ups.%s'):format(name or 'none', fell))
+  return name
+end
+
 function K.load()
   local f = io.open(C.DIR .. '/save.lua', 'r')
   if f then
@@ -121,29 +136,7 @@ function K.load()
     if chunk then ok, t = pcall(chunk) end
     if ok and type(t) == 'table' then
       local was = tonumber(t.version) or 1
-      if was < K.SAVE_VERSION then
-        -- keep the old save next to the new one before converting
-        local name = ('save.backup-v%d-%s.lua'):format(was, os.date('%Y%m%d-%H%M%S'))
-        local b = io.open(C.DIR .. '/' .. name, 'w'); if b then b:write(s); b:close() end
-        K.data = fill(K.convert(t, was))
-        K.save()
-        log(('save converted from version %d to %d (four classes; old save kept as %s)'):format(was, K.SAVE_VERSION, name))
-      else
-        K.data = fill(t)
-      end
-      -- v0.15: the vehicle pick is gone (the racer decides the vehicle); an old save's is dropped once, the racer stays
-      if K.data.vehicle ~= nil then
-        log(('[save] the old vehicle pick (%s) is dropped: the racer decides the vehicle now (v0.15); racer kept: %s'):format(
-          tostring(K.data.vehicle), tostring(K.data.racer or 'the default')))
-        K.data.vehicle = nil
-        K.save()
-      end
-      K.migrate21(K.data)
-      local dropped = K.dropOldCups(K.data)
-      if #dropped > 0 then
-        K.save()
-        log('[cups] dropped from the save (remix, conditions and Outer Rim cups are gone; records kept): ' .. table.concat(dropped, ', '))
-      end
+      if was < K.SAVE_VERSION then K.cleanStart(t, was, s) else K.data = fill(t) end
       -- one-off fix: race_fix.txt in the mod folder holds a number to add to the race count, then is deleted
       -- (v0.3.7: the v0.3.4 bug recorded one race ~200 times)
       local fx = io.open(C.DIR .. '/race_fix.txt', 'r')
@@ -151,17 +144,17 @@ function K.load()
         local n = tonumber((fx:read('a') or ''):match('%-?%d+')); fx:close()
         os.remove(C.DIR .. '/race_fix.txt')
         if n then
-          local was = K.data.races
+          local was2 = K.data.races
           K.data.races = math.max(0, K.data.races + n)
           K.save()
-          log(('race count corrected: %d -> %d (race_fix.txt)'):format(was, K.data.races))
+          log(('race count corrected: %d -> %d (race_fix.txt)'):format(was2, K.data.races))
         end
       end
       log(('save loaded: %d races'):format(K.data.races))
       return
     end
     log('save.lua unreadable - starting a new save (old file kept as save_bad.lua)')
-    local b = io.open(C.DIR .. '/save_bad.lua', 'w'); if b then b:write(s); b:close() end
+    backup('save_bad.lua', s)
   end
   K.data = fill({})
   K.save()
@@ -169,44 +162,99 @@ function K.load()
 end
 
 ---------------------------------------------------------------------------------------------------------------------
--- classes, cups, vehicles
+-- leagues, cups, race pools, vehicles
 
-function K.classes() return cfg.Classes or {} end
-function K.class(key)
-  for _, c in ipairs(K.classes()) do if c.key == key then return c end end
+function K.leagues() return cfg.Leagues or {} end
+function K.league(key)
+  for _, c in ipairs(K.leagues()) do if c.key == key then return c end end
   return nil
+end
+-- a league's name for the screen and the log ('RIFF-RAFF'), or the key itself
+function K.leagueName(key)
+  local c = K.league(key)
+  return c and c.name or tostring(key)
 end
 function K.cups() return cfg.Cups or {} end
 function K.cup(key)
   for _, c in ipairs(K.cups()) do if c.key == key then return c end end
   return nil
 end
--- v0.11: a cup's races at a class. A planet cup has a list per class (races['50'] / ['100'] / ['150']; a class
--- with raceList races that class's lists: 200cc -> 150cc); the Galactic Cup one list for every class. cup = a cup
--- or its key; no class = the first class.
-function K.raceClass(classKey)
-  local c = K.class(classKey)
-  return c and c.raceList or classKey
+
+-- v0.26: a planet's race pool (config Pools, by key: 'jakku' ... 'derven'), {} when none
+function K.pool(key) return (cfg.Pools or {})[key] or {} end
+-- every race in every pool, by event path (a race of a pool, or nil)
+function K.raceByPath(path)
+  if type(path) ~= 'string' then return nil end
+  for _, pool in pairs(cfg.Pools or {}) do
+    for _, r in ipairs(pool) do if r.path == path then return r end end
+  end
+  return nil
 end
-function K.races(cup, classKey)
-  if type(cup) ~= 'table' then cup = K.cup(cup) end
-  local r = cup and cup.races
-  if type(r) ~= 'table' then return {} end
-  if r[1] ~= nil then return r end
-  local k = K.raceClass(classKey or (K.classes()[1] or {}).key)
-  return r[k] or {}
-end
--- the distinct conditions of a cup's races at a class, in race order: { 'NIGHT', 'WET' } (empty: none)
-function K.cupConditions(cup, classKey)
-  local out, seen = {}, {}
-  for _, r in ipairs(K.races(cup, classKey)) do
-    for w in (r.cond or ''):gmatch('[^,]+') do
-      w = w:match('^%s*(.-)%s*$')
-      if not seen[w] then seen[w] = true; out[#out + 1] = w end
-    end
+-- a pool grouped by base track, in pool order: { { base = 'THE WAR FIELDS', races = { r, r, ... } }, ... }
+local function byBase(pool)
+  local out, at = {}, {}
+  for _, r in ipairs(pool) do
+    local b = r.base or r.title
+    if not at[b] then at[b] = #out + 1; out[#out + 1] = { base = b, races = {} } end
+    local g = out[at[b]]
+    g.races[#g.races + 1] = r
   end
   return out
 end
+-- a planet cup's base tracks (the pool's, in pool order): { 'THE WAR FIELDS', "THE GIANTS' GRAVEYARD", ... }
+function K.bases(cup)
+  if type(cup) ~= 'table' then cup = K.cup(cup) end
+  local out = {}
+  for _, g in ipairs(byBase(K.pool(cup and (cup.pool or cup.key)))) do out[#out + 1] = g.base end
+  return out
+end
+
+-- v0.26 (owner, 2026-11-12, TASKS "Random cups"): the draw. A planet cup = config CupRaces (4) base tracks drawn at
+-- random from its planet's pool, each with a random variant (direction / conditions): never the same base track twice.
+-- The Galactic Cup = one race from each of `planets` different pools of `from` (`last`'s race closes it). The same
+-- rule in every league. rnd(n) -> 1..n (default K.random, math.random seeded once at load in main.lua; tests pass
+-- their own). Returns the races as plain copies (they go into the save with the cup run): { path, title, kind, laps,
+-- base, cond }.
+K.random = function(n) return math.random(n) end
+local function copyRace(r)
+  return { path = r.path, title = r.title, kind = r.kind, laps = r.laps, base = r.base, cond = r.cond }
+end
+local function shuffle(list, rnd)
+  for i = #list, 2, -1 do
+    local j = rnd(i)
+    list[i], list[j] = list[j], list[i]
+  end
+  return list
+end
+local function drawFrom(pool, n, rnd)
+  local groups = shuffle(byBase(pool), rnd)
+  local out = {}
+  for i = 1, math.min(n, #groups) do
+    local g = groups[i]
+    out[i] = copyRace(g.races[rnd(#g.races)])
+  end
+  return out
+end
+function K.draw(cup, rnd)
+  rnd = rnd or K.random
+  if type(cup) ~= 'table' then cup = K.cup(cup) end
+  if not cup then return {} end
+  local n = tonumber(cfg.CupRaces) or 4
+  if not cup.final then return drawFrom(K.pool(cup.pool or cup.key), n, rnd) end
+  local from = {}
+  for _, k in ipairs(cup.from or {}) do
+    if k ~= cup.last and #K.pool(k) > 0 then from[#from + 1] = k end
+  end
+  shuffle(from, rnd)
+  local out = {}
+  local want = (tonumber(cup.planets) or n) - (cup.last and 1 or 0)
+  for i = 1, math.min(want, #from) do out[#out + 1] = drawFrom(K.pool(from[i]), 1, rnd)[1] end
+  if cup.last and #K.pool(cup.last) > 0 then out[#out + 1] = drawFrom(K.pool(cup.last), 1, rnd)[1] end
+  return out
+end
+-- a cup run's races (the draw saved with it), {} when none
+function K.runRaces(run) return type(run) == 'table' and type(run.list) == 'table' and run.list or {} end
+
 function K.vehicles() return cfg.Vehicles or {} end
 function K.vehicle(key)
   for _, v in ipairs(K.vehicles()) do if v.key == key then return v end end
@@ -219,32 +267,10 @@ function K.planetOf(path)
   local code = type(path) == 'string' and path:match('/Planets/([^/]+)/')
   return code and (cfg.Planets or {})[code] or nil
 end
--- one line of a cup's track list: 'THE WAR FIELDS  -  Jakku  -  circuit, 2 laps' ('sprint' for one lap)
-function K.raceLine(r)
-  local planet = K.planetOf(r.path)
-  local kind = (r.kind or 'race'):lower()
-  local laps = tonumber(r.laps)
-  local what
-  if laps == 1 or kind == 'sprint' then what = 'sprint'
-  elseif laps then what = ('%s, %d laps'):format(kind, laps)
-  else what = kind end
-  return ('%s  -  %s  -  %s'):format(r.title, planet and planet.name or '?', what)
-end
--- the distinct planet names of a cup's races (at a class), in race order: { 'Jakku' } or { 'Lantaana', 'Ando
--- Prime', ... } (for a tile badge: one name, or 'N PLANETS')
-function K.cupPlanets(cup, classKey)
-  local out, seen = {}, {}
-  for _, r in ipairs(cup and K.races(cup, classKey) or {}) do
-    local p = K.planetOf(r.path)
-    local name = p and p.name or '?'
-    if not seen[name] then seen[name] = true; out[#out + 1] = name end
-  end
-  return out
-end
 
--- every part slot (0-5) at the class's level
-function K.levelsFor(classKey)
-  local c = K.class(classKey)
+-- every part slot (0-5) at the league's level
+function K.levelsFor(leagueKey)
+  local c = K.league(leagueKey)
   local lv = c and c.parts or 0
   local t = {}
   for s = 0, 5 do t[s] = lv end
@@ -262,55 +288,44 @@ function K.run() return K.data.run end
 function K.drop(where)
   local run = K.data.run
   if not run then return false end
-  local c = K.class(run.class)
-  log(('[cup] %s %s dropped %s (race %d of %d): cups cannot be resumed'):format(run.cup, c and c.name or run.class,
+  log(('[cup] %s %s dropped %s (race %d of %d): cups cannot be resumed'):format(run.cup, K.leagueName(run.class),
     where or '?', run.race, run.races))
   K.data.run = nil
   K.save()
   return true
 end
-function K.startCup(classKey, cupKey, vehicleKey, picks, mods)
+-- list = the cup's drawn races (K.draw; v0.26: picked on the start screen, raced exactly as shown); nil = a fresh draw
+function K.startCup(leagueKey, cupKey, vehicleKey, picks, mods, list)
   if K.data.run then K.forfeit() end -- (v0.9: a run left over from a race that never loaded; nothing can resume it)
-  local cup = K.cup(cupKey)
-  K.data.run = CU.new(classKey, cupKey, vehicleKey, cup and #K.races(cup, classKey) or 4)
+  if type(list) ~= 'table' or #list == 0 then list = K.draw(cupKey) end
+  local copy = {}
+  for i, r in ipairs(list) do copy[i] = copyRace(r) end
+  K.data.run = CU.new(leagueKey, cupKey, vehicleKey, #copy)
+  K.data.run.list = copy
   K.data.run.picks = picks
   K.data.run.mods = mods
   K.save()
-  log(('cup started: %s %s, %s'):format(classKey, cupKey, vehicleKey))
+  local names = {}
+  for i, r in ipairs(copy) do names[i] = r.title end
+  log(('cup started: %s %s, %s - %s'):format(K.leagueName(leagueKey), cupKey, vehicleKey, table.concat(names, ' / ')))
   return K.data.run
 end
 -- give up the cup (no trophy, nothing saved but the count)
 function K.forfeit()
   local run = K.data.run
   if not run then return end
-  log(('cup forfeited: %s %s after %d of %d races'):format(run.class, run.cup, run.race - 1, run.races))
+  log(('cup forfeited: %s %s after %d of %d races'):format(K.leagueName(run.class), run.cup, run.race - 1, run.races))
   K.data.run = nil
   K.save()
 end
--- v0.21 (owner, OWNER.md "Done" 2026-11-11): RESET clears ALL progress, titles included: trophies, golds, best
--- finishes, records, perfect cups, cup standings, titles, the final boss, the leaders, the counts, the last race and
--- the cup in progress - everything except the garage picks (racer, abilities, tune-ups; Kestar Bool falls back to
--- Shade, locked again) and the put-back records (what the game's assets still need back: never dropped). The save
--- is copied to save.backup-reset-<date>.lua first. Returns the backup's name. (main.lua asks twice.)
-K.KEEP_ON_RESET = { 'version', 'racer', 'picks', 'mods', 'restores', 'abilityRestores', 'modRestores', 'aiRestores',
-  'racerRestore', 'titleRestore', 'gridRestore' }
 function K.reset()
   local name = ('save.backup-reset-%s.lua'):format(os.date('%Y%m%d-%H%M%S'))
-  local b = io.open(C.DIR .. '/' .. name, 'w')
-  if not b then log('reset: could not write the backup - nothing reset'); return nil end
-  b:write('-- Galactic Grand Prix save\nreturn ', C.serialize(K.data), '\n')
-  b:close()
-  local was = K.data
-  local d = {}
-  for _, k in ipairs(K.KEEP_ON_RESET) do d[k] = was[k] end
-  K.data = fill(d)
-  -- Kestar Bool is locked again (the boss is cleared): racing as him falls back to the first racer (Shade)
-  local okR, RC = pcall(require, 'racer')
-  local fell = ''
-  if okR and K.data.racer and RC.locked and RC.locked(K.data.racer) then
-    fell = (' Racer %s is locked again: racing as %s.'):format(RC.displayName(K.data.racer), RC.list()[1].name)
-    K.data.racer = RC.list()[1].key
+  if not backup(name, '-- Galactic Grand Prix save\nreturn ' .. C.serialize(K.data) .. '\n') then
+    log('reset: could not write the backup - nothing reset'); return nil
   end
+  local was = K.data
+  K.data = fill(keepGarage(was))
+  local fell = relockRacer()
   K.save()
   log(('progress reset: everything cleared - trophies, golds, best finishes, records, perfect cups, standings, titles, '
     .. 'the final boss, leaders, counts (%d races, %d cups) and the cup in progress; kept: racer, abilities, tune-ups.%s (backup %s)'):format(
@@ -318,45 +333,15 @@ function K.reset()
   return name
 end
 
--- v0.21: an old save's changes, once, logged. The rival per class is gone (`rivals` dropped); a 150cc title won
--- before v0.21 was won against Kestar Bool in the Showdown (the old title race), so he counts as beaten (the final
--- boss) and stays unlocked. Returns true when something changed.
-function K.migrate21(d)
-  local changed = false
-  if d.rivals ~= nil then
-    local names = {}
-    if type(d.rivals) == 'table' then
-      local keys = {}
-      for k in pairs(d.rivals) do keys[#keys + 1] = k end
-      table.sort(keys)
-      for _, k in ipairs(keys) do
-        local e = d.rivals[k]
-        names[#names + 1] = k .. '=' .. tostring(type(e) == 'table' and e.name or '-')
-      end
-    end
-    log('[save] the rivals are dropped (v0.21: no rival any more): ' .. (#names > 0 and table.concat(names, ', ') or 'none'))
-    d.rivals = nil
-    changed = true
-  end
-  local bc = (cfg.Boss or {}).Class or '150'
-  local t = type(d.titles) == 'table' and d.titles[bc]
-  if d.boss == nil and type(t) == 'table' and t.won and (t.vs == nil or t.vs == ((cfg.Boss or {}).Opponent or 'Kestar Bool')) then
-    d.boss = { beaten = true, tries = 0, at = t.at, migrated = true }
-    log(('[save] the %scc title was won against Kestar Bool before v0.21: he counts as beaten (the final boss), still unlocked'):format(bc))
-    changed = true
-  end
-  if changed then K.save() end
-  return changed
-end
 -- the next race of the cup in progress, as a launchable event
 function K.nextRace()
   local run = K.data.run
-  local cup = run and K.cup(run.cup)
-  local r = cup and K.races(cup, run.class)[run.race]
+  local r = run and K.runRaces(run)[run.race]
   if not r then return nil end
   return { path = r.path, title = r.title, kind = r.kind, laps = r.laps, cup = run.cup, race = run.race, class = run.class }
 end
-function K.best(classKey, cupKey) return (K.data.best[classKey] or {})[cupKey] end
+
+function K.best(leagueKey, cupKey) return (K.data.best[leagueKey] or {})[cupKey] end
 
 local function names(rows)
   local p = {}
@@ -365,7 +350,7 @@ local function names(rows)
 end
 
 ---------------------------------------------------------------------------------------------------------------------
--- v0.8: track records, perfect cups, cup standings and the class champion (pure; test/test_records.lua)
+-- v0.8: track records, perfect cups, cup standings and the league champion (pure; test/test_records.lua)
 
 -- seconds -> '2:04.31' (nil / not a number -> '-')
 function K.fmtTime(s)
@@ -374,48 +359,34 @@ function K.fmtTime(s)
   local cs = math.floor(s * 100 + 0.5)
   return ('%d:%02d.%02d'):format(cs // 6000, (cs % 6000) // 100, cs % 100)
 end
--- the record for a track at a class: { time, lap, at, vehicle } or nil
-function K.recordFor(classKey, path) return ((K.data.records or {})[classKey] or {})[path] end
--- the final standings of a finished cup at a class: { [name] = points, YOU = points } or nil
-function K.standings(classKey, cupKey) return ((K.data.standings or {})[classKey] or {})[cupKey] end
--- was the cup won with 1st place in every race at that class?
-function K.perfect(classKey, cupKey) return ((K.data.perfect or {})[classKey] or {})[cupKey] == true end
+-- the record for a track at a league: { time, lap, at, vehicle } or nil
+function K.recordFor(leagueKey, path) return ((K.data.records or {})[leagueKey] or {})[path] end
+-- the final standings of a finished cup at a league: { [name] = points, YOU = points } or nil
+function K.standings(leagueKey, cupKey) return ((K.data.standings or {})[leagueKey] or {})[cupKey] end
+-- was the cup won with 1st place in every race at that league?
+function K.perfect(leagueKey, cupKey) return ((K.data.perfect or {})[leagueKey] or {})[cupKey] == true end
 -- how many of the cups (every cup in the config: the five planet cups and the Galactic Cup) have a best finish at
 -- least `need`
-local function countBest(classKey, need)
+local function countBest(leagueKey, need)
   local n = 0
   for _, c in ipairs(K.cups()) do
-    local b = K.best(classKey, c.key)
+    local b = K.best(leagueKey, c.key)
     if b and b <= need then n = n + 1 end
   end
   return n, #K.cups()
 end
--- golds at a class -> golds, cups in all
-function K.golds(classKey) return countBest(classKey, 1) end
--- trophies (gold, silver or bronze) at a class -> trophies, cups in all
-function K.trophies(classKey) return countBest(classKey, 3) end
--- the cup page's record lines, one per race: 'THE WAR FIELDS  2:04.31 / lap 0:58.10' (a lap but no time:
--- 'no time yet / lap 0:58.10'; nothing: 'no time yet'). cup = a cup (config) or its key.
--- Returns the lines joined with newlines, and the list of lines.
-function K.recordsText(cup, classKey)
-  if type(cup) ~= 'table' then cup = K.cup(cup) end
-  local lines = {}
-  for _, r in ipairs(cup and K.races(cup, classKey) or {}) do
-    local rec = K.recordFor(classKey, r.path)
-    local s = rec and rec.time and K.fmtTime(rec.time) or 'no time yet'
-    if rec and rec.lap then s = s .. ' / lap ' .. K.fmtTime(rec.lap) end
-    lines[#lines + 1] = r.title .. '  ' .. s
-  end
-  return table.concat(lines, '\n'), lines
-end
+-- golds at a league -> golds, cups in all
+function K.golds(leagueKey) return countBest(leagueKey, 1) end
+-- trophies (gold, silver or bronze) at a league -> trophies, cups in all
+function K.trophies(leagueKey) return countBest(leagueKey, 3) end
 -- a planet cup: not the Galactic Cup (final)
 local function planetCup(c) return not c.final end
--- the class champion: the racer (never you) with the most points over the planet cups finished at that class
+-- the league champion: the racer (never you) with the most points over the planet cups finished at that league
 -- -> name, points; nil when no planet cup has been finished there. Ties: the first name in alphabetical order.
-function K.champion(classKey)
+function K.champion(leagueKey)
   local sum, any = {}, false
   for _, c in ipairs(K.cups()) do
-    local st = planetCup(c) and K.standings(classKey, c.key)
+    local st = planetCup(c) and K.standings(leagueKey, c.key)
     if st then
       any = true
       for name, pts in pairs(st) do
@@ -459,8 +430,7 @@ local function updateRecord(ev, out, extra, vehicle)
   if extra.time and extra.time > 0 and (not rec.time or extra.time < rec.time) then
     out.oldTime, out.newRecord, changed = rec.time, true, true
     rec.time = extra.time
-    local c = K.class(ev.class)
-    log(('NEW RECORD %s %s: %s%s'):format(ev.title or ev.path:match('([^/]+)$'), c and c.name or ev.class,
+    log(('NEW RECORD %s %s: %s%s'):format(ev.title or ev.path:match('([^/]+)$'), K.leagueName(ev.class),
       K.fmtTime(extra.time), out.oldTime and (' (was ' .. K.fmtTime(out.oldTime) .. ')') or ''))
   elseif extra.time and extra.time > 0 and rec.time then
     out.offBy = extra.time - rec.time -- v0.12: a finished race that didn't beat the record (0 = equal to it)
@@ -504,11 +474,10 @@ function K.gaps(field)
   end
   return g
 end
--- the log line of K.gaps: 'THE WAR FIELDS 150cc: you 1st 1:42.39; next behind Goli & 02-R0 +1.84 s; winner -;
+-- the log line of K.gaps: 'THE WAR FIELDS CHALLENGER: you 1st 1:42.39; next behind Goli & 02-R0 +1.84 s; winner -;
 -- field spread 1st-12th 14.2 s' (not 1st: 'winner X -2.31 s; next ahead Y -0.42 s; next behind Z +0.80 s')
 function K.gapsLine(ev, g)
-  local c = ev and ev.class and K.class(ev.class)
-  local head = ('%s %s: '):format(ev and ev.title or '?', c and c.name or tostring(ev and ev.class or '?'))
+  local head = ('%s %s: '):format(ev and ev.title or '?', ev and ev.class and K.leagueName(ev.class) or '?')
   if not g then return head .. 'no finish times read' end
   local function gap(x) return x and ('%s %+.2f s'):format(x.name, x.gap) or '-' end
   local p = {}
@@ -571,28 +540,30 @@ function K.record(ev, pos, field, extra)
       local was = K.data.best[run.class][run.cup]
       if rank and (not was or rank < was) then K.data.best[run.class][run.cup] = rank; out.newBest = true end
       K.data.cups = K.data.cups + 1
-      -- v0.8: the final points of every racer (the class champion is read from these), and a perfect cup
+      -- v0.8: the final points of every racer (the league champion is read from these), and a perfect cup
       local final = {}
       for k, p in pairs(run.points) do final[k] = p end
       K.data.standings[run.class] = K.data.standings[run.class] or {}
       K.data.standings[run.class][run.cup] = final
-      -- v0.21: the class leader for the title race - the best-placed bot of this cup (title.lua)
+      -- v0.21: the league leader for the title race - the best-placed bot of this cup (title.lua); v0.26: with the
+      -- first race of this cup run, the title race's track
       local lead
       for _, r in ipairs(CU.standings(run)) do if r.key ~= CU.YOU then lead = r.key; break end end
       if lead then
-        K.data.leader[run.class] = { name = lead, cup = run.cup }
-        local c = K.class(run.class)
-        log(('[title] %s leader: %s (best bot of the %s) - the title race opponent'):format(c and c.name or run.class, lead, run.cup))
+        local first = K.runRaces(run)[1]
+        K.data.leader[run.class] = { name = lead, cup = run.cup, path = first and first.path or nil }
+        log(('[title] %s leader: %s (best bot of the %s) - the title race opponent, on %s'):format(K.leagueName(run.class),
+          lead, run.cup, first and first.title or '?'))
       end
       out.perfect = CU.perfect(run)
       if out.perfect then
         K.data.perfect[run.class] = K.data.perfect[run.class] or {}
         K.data.perfect[run.class][run.cup] = true
       end
-      log(('cup over: %s %s - you %s with %d points%s%s'):format(run.class, run.cup, C.ordinal(rank), pts,
+      log(('cup over: %s %s - you %s with %d points%s%s'):format(K.leagueName(run.class), run.cup, C.ordinal(rank), pts,
         out.trophy and (', ' .. out.trophy .. ' trophy') or '', out.perfect and ' - PERFECT CUP' or ''))
       K.data.run = nil
-      -- v0.5: what this cup opened (a class, the Galactic Cup, a title race)
+      -- v0.5: what this cup opened (a league, the Galactic Cup, a title race)
       out.unlocked = PR.newlyOpen(before, PR.openSet(K.data))
       if #out.unlocked > 0 then log('unlocked: ' .. table.concat(out.unlocked, ', ')) end
     end

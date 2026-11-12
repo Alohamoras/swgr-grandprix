@@ -14,7 +14,7 @@ local kml = StaticFindObject('/Script/Engine.Default__KismetMathLibrary')
 local ticks = 638000000000000000
 rawget(kml, '__props').Now = function() ticks = ticks + 3000; return { Ticks = ticks } end
 M.press('F6'); M.tick(6)
-T.clickTitle('50CC'); M.tick(3)
+T.clickTitle('RIFF-RAFF'); M.tick(3)
 T.clickTitle('JAKKU CUP')
 W.race(11); M.tick(30)   -- loading + the first seconds (the AI loadout, the first racer sweep)
 local real, count = _G.FindAllOf, {}
@@ -39,7 +39,7 @@ W.backToMenu(); M.tick(45)
 local results = 0
 for _, l in ipairs(M.log) do if l:find('RESULT THE WAR FIELDS', 1, true) then results = results + 1 end end
 T.check(results == 1, 'the race is recorded exactly once (' .. results .. ')')
-T.check(T.logHas('PERF THE WAR FIELDS: tick gaps') and T.logHas('Lua memory: start'), 'PERF line written, with Lua memory')
+T.check(T.logHas('PERF THE WAR FIELDS (REVERSE, SCORCHING): tick gaps') and T.logHas('Lua memory: start'), 'PERF line written, with Lua memory')
 T.check(T.logHas('our tick (real clock):'), 'our tick timed with the real clock')
 T.check(T.save().races == 1, 'races = 1')
 T.finish()

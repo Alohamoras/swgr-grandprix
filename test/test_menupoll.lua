@@ -34,7 +34,7 @@ M.press('F6'); M.tick(6)
 T.check(T.titles():find('GARAGE', 1, true) ~= nil, 'HOME is up again on the new menu')
 
 -- our launch: the menu is gone with it; back at the menu after the race the notification brings it back
-T.clickTitle('50CC'); M.tick(3)
+T.clickTitle('RIFF-RAFF'); M.tick(3)
 T.clickTitle('JAKKU CUP')
 T.check(R.run ~= nil and not R.menuUp(), 'launching a race: the menu counts as gone')
 W.race(11); M.tick(30)

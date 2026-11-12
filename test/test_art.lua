@@ -14,7 +14,8 @@ local function real(p) return p ~= nil and (have[p] or have[MM .. p]) == true en
 
 local bad = {}
 local function each(p, what) if not real(p) then bad[#bad + 1] = what .. ' -> ' .. tostring(p) end end
-for _, c in ipairs(cfg.Classes) do each(ART.class(c.key), 'class ' .. c.key) end
+for _, c in ipairs(cfg.Leagues) do each(ART.league(c.key), 'league ' .. c.key) end
+each(ART.SPEED, 'speed chevron')
 local cups = 0
 for _, cup in ipairs(cfg.Cups) do
   for _, v in ipairs(cfg.Vehicles) do each(ART.cup(cup, v.key), cup.key .. ' / ' .. v.key) end
@@ -24,7 +25,7 @@ for b = 1, 3 do each(ART.medal(b), 'medal ' .. b) end
 for _, g in ipairs(MS.groups()) do each(ART.modGroup(g), 'mod group ' .. g) end
 for _, v in ipairs(cfg.Vehicles) do each(ART.vehicle(v.key), 'vehicle ' .. v.key) end
 each(ART.ABILITIES, 'abilities'); each(ART.MODS, 'mods'); each(ART.SHOWDOWN, 'showdown'); each(ART.BACKDROP, 'backdrop')
-check(#bad == 0, 'every picture exists in the game (' .. cups .. ' cups x 3 vehicles, classes, medals, groups)' ..
+check(#bad == 0, 'every picture exists in the game (' .. cups .. ' cups x 3 vehicles, leagues, the chevron, medals, groups)' ..
   (#bad > 0 and (': ' .. table.concat(bad, '; ')) or ''))
 
 check(ART.cup({ key = 'jakku' }, 'bike'):find('Mas_Bike_Tile$') ~= nil, 'Jakku on a bike: the Jakku bike poster')
@@ -32,13 +33,17 @@ check(ART.cup({ key = 'crait' }, 'car'):find('Spa_Bike_Tile$') ~= nil, 'Crait ha
 check(ART.cup({ key = 'sentinel' }, 'skimmer'):find('Hus_Car_Tile$') ~= nil, 'Sentinel has only a car poster')
 check(ART.cup({ key = 'galactic', final = true }, 'bike'):find('Whp_Bike_Tile$') ~= nil, 'the Galactic Cup: the Derven poster')
 check(ART.cup({ key = 'jakku_remix' }, 'car') == nil and ART.cup({ key = 'outerrim' }, 'car') == nil, 'v0.11: no art for the removed cups')
-check(ART.cup({ key = 'nowhere' }, 'car') == nil and ART.medal(4) == nil and ART.class('75') == nil, 'unknown -> nil (the old tile is kept)')
+check(ART.cup({ key = 'nowhere' }, 'car') == nil and ART.medal(4) == nil and ART.league('50') == nil, 'unknown -> nil (the old tile is kept)')
 local seen, dup = {}, false
-for _, c in ipairs(cfg.Classes) do if seen[ART.class(c.key)] then dup = true end; seen[ART.class(c.key)] = true end
-check(not dup, 'each class its own banner')
+for _, c in ipairs(cfg.Leagues) do if seen[ART.league(c.key)] then dup = true end; seen[ART.league(c.key)] = true end
+check(not dup, 'each league its own banner')
+-- v0.26: the speed as 1-3 chevrons (corner pictures) per league
+local sp = {}
+for _, c in ipairs(cfg.Leagues) do local l = ART.speed(c.speed); sp[#sp + 1] = l and #l or 0; if l then for _, x in ipairs(l) do if x[1] ~= ART.SPEED or not x.px then dup = true end end end end
+check(table.concat(sp, ',') == '1,2,3' and not dup and ART.speed(0) == nil, 'the leagues show 1 / 2 / 3 chevrons (' .. table.concat(sp, ',') .. ')')
 -- v0.15.1: the brightest pictures are drawn darker (seen in game: a white title on a focused bright tile)
-check(ART.dim(ART.class('50')) == 0.75 and ART.dim(ART.class('100')) == 0.8, '50cc and 100cc banners dimmed')
-check(ART.dim(ART.class('150')) == nil and ART.dim(ART.class('200')) == nil, '150cc and 200cc banners left alone')
+check(ART.dim(ART.league('riffraff')) == 0.75, 'the Riff-Raff (sage) banner dimmed')
+check(ART.dim(ART.league('challenger')) == nil and ART.dim(ART.league('ace')) == nil, 'the Challenger and Ace banners left alone')
 check(ART.dim(ART.SHOWDOWN) == 0.7, "Kestar's portrait dimmed")
 local unknown = {}
 for base in pairs(ART.DIM) do

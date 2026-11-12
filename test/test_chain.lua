@@ -16,7 +16,8 @@ local T = require('util')
 
 local TIMES = { 101.25, 62.5, 99.75, 71.0 }
 local PLACES = { 2, 1, 1, 3 } -- yours in races 1-4 (test_flow's: you 52 points, Biddy Blas 54)
-local TRACKS = { 'EVT_MAS_LOOP_A_FWD_DAWN', 'EVT_MAS_P2P_FWD', 'EVT_MAS_LOOP_B_FWD_HARD', 'EVT_MAS_LOOP_A_SHORT_02_HARD' }
+-- (v0.26: the Jakku Cup's draw under the tests' fixed rnd, util.lua T.RND)
+local TRACKS = { 'EVT_MAS_LOOP_A_REV_HARD', 'EVT_MAS_P2P_FWD', 'EVT_MAS_LOOP_B_REV_HARD', 'EVT_MAS_LOOP_A_SHORT_02_HARD' }
 local SAVE = { racer = 'Thrall' } -- Sen Fira, one of the 11 opponents (the swap puts Shade in her grid slot); a bike
 local MENU_TICKS = 90 -- after the results go to the menu: the race noticed gone (2 s), the menu settled (5 s), the launch
 
@@ -27,7 +28,7 @@ local function start(cfg)
   T.boot(SAVE, cfg)
   W.cupEvents()
   M.press('F6'); M.tick(6)
-  T.clickTitle('150CC'); M.tick(3)
+  T.clickTitle('CHALLENGER'); M.tick(3)
 end
 -- the race on now: the bots and you finish (`k` = the cup's race number), 11 s of racing first (the racer settles at 10 s)
 local function runRace(k)
@@ -72,7 +73,7 @@ end
 local function lastLaunch() return rawget(M.lastCall('LaunchQuickRace').args[2], '__name') end
 -- the set-up and put-back lines of a whole cup (A's are the reference for B)
 local COUNTS = { 'LAUNCH ', 'RESULT ', '[gaps] ', 'PERF ', 'build for this race: VBD_Bike_Base 0=7 1=7 2=7 3=7 4=7 5=7',
-  'your abilities for this race:', '[ai] class 150: pressure', '[aiset] race class=150', '[loadout] 150, 11 racers',
+  'your abilities for this race:', '[ai] league challenger: pressure', '[aiset] race league=challenger', '[loadout] challenger, 11 racers',
   '[racer] racing as Sen Fira (DA_Racer_Thrall): CharacterList.Player set', '[racer] racing as Sen Fira (DA_Racer_Thrall); Shade put back',
   'build put back (', 'ability slots put back (', '[ai] AI config put back (main menu): DA_AIConfig' }
 local function counts()
@@ -107,7 +108,7 @@ for k = 1, 4 do
 end
 T.check(M.sweepCount('WBP_SimpleRaceResultsScreen_C') == 0, 'A: the results screen never looked for')
 T.check(M.called('LaunchQuickRace') == 4 and W.resets == 0, 'A: 4 launches from the menu, no reset')
-T.check(T.logHas('cup over: 150 jakku - you 2nd with 52 points, SILVER trophy'), 'A: cup over, 2nd, silver')
+T.check(T.logHas('cup over: CHALLENGER jakku - you 2nd with 52 points, SILVER trophy'), 'A: cup over, 2nd, silver')
 T.check(T.logCount('[menu] standings') == 4, 'A: the standings page after every race (4)')
 local refSave, refCounts = outcome(T.save()), counts()
 ended('A')
@@ -134,7 +135,7 @@ for k = 1, 3 do
     and txt:find(('race %d of 4'):format(k), 1, true), 'B: race ' .. k .. ': the panel has the cup line and the table')
   -- v0.21: no rival marked on the panel
   T.check(not txt:find('RIVAL', 1, true), 'B: race ' .. k .. ': no RIVAL on the panel (v0.21)')
-  local nxt = require('config').Cups[1].races['150'][k + 1].title
+  local nxt = T.save().run.list[k + 1].title
   T.check(txt:find(('NEXT RACE: race %d of 4, %s.   B: leave the cup.'):format(k + 1, nxt), 1, true) and not txt:find('CONTINUE:', 1, true),
     'B: race ' .. k .. ': the prompt says what NEXT RACE and B do (no CONTINUE)')
   T.check(W.contVis == 1, 'B: race ' .. k .. ': the game\'s CONTINUE hidden (Collapsed)')
@@ -185,11 +186,11 @@ T.check(W.ai.DefaultPacingSettings.MaxAiCatchupScale == 1.3 and W.ai.DefaultPaci
   and W.rp.Default.PacingSettingsConfig.MaxAiCatchupScale == 1.2, 'B: DA_AIConfig and RP_Default back to the game\'s values')
 T.check(W.charsText():find('^Player=DarkEnigma Opp=Mercenary,ElegantProfessional,Star,InnerHonour,Thrall,') ~= nil, 'B: the character list as the game had it')
 local sv = T.save()
-T.check(sv.run == nil and sv.races == 4 and sv.cups == 1 and sv.best['150'].jakku == 2, 'B: the cup over, silver, 4 races')
+T.check(sv.run == nil and sv.races == 4 and sv.cups == 1 and sv.best['challenger'].jakku == 2, 'B: the cup over, silver, 4 races')
 local diffs = {}
 same(refSave, outcome(sv), 'save', diffs)
 T.check(#diffs == 0, 'B: points, records, best, standings, rival, last race: identical to the menu flow (A)' .. (#diffs > 0 and (' - ' .. table.concat(diffs, '; ')) or ''))
-T.check(T.logHas('cup over: 150 jakku - you 2nd with 52 points, SILVER trophy'), 'B: cup over, 2nd, silver (as A)')
+T.check(T.logHas('cup over: CHALLENGER jakku - you 2nd with 52 points, SILVER trophy'), 'B: cup over, 2nd, silver (as A)')
 T.check(require('chain').via == nil, 'B: no via-the-menu request left over')
 ended('B')
 
@@ -210,7 +211,7 @@ M.press('BACKSPACE'); M.tick(3)
 T.check(T.logHas('[chain] B on the results screen (Backspace / Escape): to the main menu, then "Leave the cup?"', mark), 'C1: B logged')
 T.check(W.continued == 1 and T.logHas('[chain] the results screen\'s CONTINUE pressed', mark), 'C1: the hidden CONTINUE pressed from code')
 W.backToMenu(); M.tick(MENU_TICKS)
-T.check(T.logHas('[chain] B on the results screen: "Leave the cup?" at the main menu (150 jakku, race 2 of 4 next)', mark), 'C1: straight to the question, logged')
+T.check(T.logHas('[chain] B on the results screen: "Leave the cup?" at the main menu (CHALLENGER jakku, race 2 of 4 next)', mark), 'C1: straight to the question, logged')
 T.check(T.titles() == 'YES|NO' and T.logHas('[menu] confirm', mark) and not T.logHas('[menu] standings', mark), 'C1: "Leave the cup?" (YES / NO as before), no standings page first')
 T.check(not T.logHas('[chain] via the menu', mark) and M.called('LaunchQuickRace') == 1, 'C1: no via-the-menu launch')
 T.check(T.logCount('RESULT ') == 1 and T.save().races == 1, 'C1: the race recorded once (on the results screen, not again at the menu)')
@@ -232,7 +233,7 @@ T.check(T.logHas('[chain] B on the results screen (the pad\'s B): to the main me
 W.backToMenu(); M.tick(MENU_TICKS)
 T.check(T.titles() == 'YES|NO', 'C2: "Leave the cup?"')
 T.clickTitle('YES'); M.tick(3)
-T.check(T.logHas('cup forfeited: 150 jakku after 1 of 4 races') and T.save().run == nil, 'C2: YES: the cup is left')
+T.check(T.logHas('cup forfeited: CHALLENGER jakku after 1 of 4 races') and T.save().run == nil, 'C2: YES: the cup is left')
 T.check(T.logCount('build put back (') == 1 and M.called('LaunchQuickRace') == 1, 'C2: nothing put back twice, nothing launched')
 ended('C2')
 -- C3: the results screen closes by itself (the game's own back handling took B first; CONTINUE was hidden) -> the
@@ -293,10 +294,9 @@ ended('D')
 ---------------------------------------------------------------------------------------------------------------------
 -- J. the Galactic Cup (a new planet every race) chains via the menu like any cup
 start()
-local gal
-for _, c in ipairs(require('config').Cups) do if c.final then gal = c end end
-local g2 = gal.races[2].path:match('([^/]+)$')
 T.clickTitle('GALACTIC CUP')
+local g2 = T.drawn()[2]
+T.check(g2 and require('gp').planetOf(T.save().run.list[2].path) ~= require('gp').planetOf(T.save().run.list[1].path), 'J: the draw puts race 2 on another planet')
 W.race(11)
 mark = T.mark()
 runRace(1)

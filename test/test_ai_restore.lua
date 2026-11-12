@@ -27,7 +27,7 @@ T.check(T.logHas('build put back') == false, 'nothing else was pending')
 
 -- AI off: a launch changes nothing, the race's tune objects are left alone
 M.press('F6'); M.tick(6)
-T.clickTitle('150CC'); M.tick(3)
+T.clickTitle('CHALLENGER'); M.tick(3)
 T.clickTitle('JAKKU CUP'); M.tick(3)
 local mark = T.mark()
 T.check(M.called('LaunchQuickRace') == 1, 'launched')

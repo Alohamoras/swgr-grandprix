@@ -73,7 +73,7 @@ function CH.plan(r)
   if ev.titleRace or not (run and ev.cup == run.cup and ev.race == run.race and ev.class == run.class) then
     return { quiet = true, why = 'not a cup race' }
   end
-  local nxt = K.races(K.cup(run.cup), run.class)[(ev.race or 0) + 1]
+  local nxt = K.runRaces(run)[(ev.race or 0) + 1]
   if not nxt then return { why = ('race %d of %d: the cup result at the main menu'):format(ev.race or 0, run.races) } end
   return { want = true, next = nxt, how = 'NEXT RACE via the menu' }
 end

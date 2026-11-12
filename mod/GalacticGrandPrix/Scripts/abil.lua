@@ -32,9 +32,9 @@ function AB.family(pick) return tostring(pick or ''):match('^(%w+)%.') end
 function AB.label(pick, level) return AB.name(AB.rel(pick, level)) end
 function AB.blurb(pick) return (conf().Blurb or {})[AB.family(pick) or ''] or '' end
 
--- the class's ability level
+-- the league's ability level (v0.26)
 function AB.levelFor(classKey)
-  for _, c in ipairs(cfg.Classes or {}) do if c.key == classKey then return c.abilities or 1 end end
+  for _, c in ipairs(cfg.Leagues or {}) do if c.key == classKey then return c.abilities or 1 end end
   return 1
 end
 

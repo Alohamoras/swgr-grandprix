@@ -64,5 +64,5 @@ local k = AB.racerPicks('Antagonist')
 check(k.offensive == 'bolt.concuss' and k.wildcard == 'shockwave.vectored', 'Kestar\'s four (the AI keeps categories)')
 check(#AB.classPaths(k, 2, true) == 4, 'an AI four -> four class paths')
 check(AB.racerPicks('Nobody').utility == 'surge.impact', 'an unknown racer gets the defaults')
-check(AB.levelFor('200') == 3 and AB.levelFor('150') == 2 and AB.levelFor('100') == 1 and AB.levelFor('50') == 1, 'class levels 1 / 1 / 2 / 3')
+check(AB.levelFor('ace') == 3 and AB.levelFor('challenger') == 2 and AB.levelFor('riffraff') == 1 and AB.levelFor('nope') == 1, 'league levels 1 / 2 / 3 (an unknown key: 1)')
 if failed then os.exit(1) end

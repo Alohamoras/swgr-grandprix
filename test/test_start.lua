@@ -1,24 +1,27 @@
--- v0.24 (owner): the garage is every race's start screen. HOME has no GARAGE tile (four classes as tall posters with
--- medal pips, RESET); a cup opens the garage with START focused, the cup's name and conditions on top; START races;
--- B goes back to the cups. The pictures on the tiles: lock, medals, pips, ability and tune-up icons.
+-- v0.24 (owner): the garage is every race's start screen. HOME has no GARAGE tile (v0.26: three leagues as tall
+-- posters with medal pips and 1-3 speed chevrons, RESET); a cup opens the garage with START focused, the cup's name,
+-- the league and (v0.26) its four drawn races on top; START races exactly those; B goes back to the cups. The pictures
+-- on the tiles: lock, medals, pips, chevrons, ability and tune-up icons.
 local M = require('mock')
 local W = require('world')
 local T = require('util')
-T.boot({ version = 2, best = { ['100'] = { jakku = 1, lantaana = 3 } } }, { StartScreen = true, Progression = { On = false } })
+T.boot({ version = 3, best = { challenger = { jakku = 1, lantaana = 3 } } }, { StartScreen = true, Progression = { On = false } })
 local H = rawget(_G, 'GU_TEST_SCREENS')
 local S = H.S
 local ART = require('art')
 M.press('F6'); M.tick(6)
 
 -- HOME
-T.check(T.titles() == '50CC|100CC|150CC|200CC|RESET PROGRESS', 'HOME: the four classes and RESET, no GARAGE (' .. T.titles() .. ')')
+T.check(T.titles() == 'RIFF-RAFF|CHALLENGER|ACE|RESET PROGRESS', 'HOME: the three leagues and RESET, no GARAGE (' .. T.titles() .. ')')
 T.check(S.ui.rows and S.ui.nav ~= nil, 'HOME in rows (the D-pad map made)')
-T.check(T.pips('100CC') == 'GB----.', '100cc: gold, bronze, four faint medals, the title star not won (' .. tostring(T.pips('100CC')) .. ')')
-T.check(T.badges() == '||||', 'no words on the HOME tiles (' .. T.badges() .. ')')
-T.check(S.ui.nav[1].down == 5 and S.ui.nav[5].up ~= nil, 'down from 50CC reaches RESET, and back up')
+T.check(T.pips('CHALLENGER') == 'GB----.', 'Challenger: gold, bronze, four faint medals, the title star not won (' .. tostring(T.pips('CHALLENGER')) .. ')')
+T.check(T.badges() == '|||', 'no words on the HOME tiles (' .. T.badges() .. ')')
+T.check(T.marks():find('^SPEED pips:%S+|SPEED SPEED pips:%S+|SPEED SPEED SPEED pips:%S+|$') ~= nil,
+  'v0.26: the speed as 1 / 2 / 3 chevrons in each poster\'s corner, the medal pips stay (' .. T.marks() .. ')')
+T.check(S.ui.nav[1].down == 4 and S.ui.nav[4].up ~= nil, 'down from RIFF-RAFF reaches RESET, and back up')
 
 -- the cups page -> the start screen
-T.clickTitle('150CC'); M.tick(3)
+T.clickTitle('CHALLENGER'); M.tick(3)
 local mark = T.mark()
 local calls = #M.calls
 T.clickTitle('JAKKU CUP'); M.tick(5)
@@ -34,9 +37,13 @@ for _, it in ipairs(its) do
   if it.kind == 'ability' then abil = abil + 1; T.check(it.glyph and it.glyph[1]:find('LargeAbilityIcons', 1, true), 'ability ' .. abil .. ': the game\'s ability icon') end
   if it.kind == 'tuneup' then tune = tune + 1 end
 end
-T.check(abil == 4 and tune == 2, 'four abilities, two tune-up slots at 150cc')
+T.check(abil == 4 and tune == 2, 'four abilities, two tune-up slots (the second opens at Ace)')
 local H1 = S.ui and H.SCREENS.garage()
-T.check(H1.title == 'JAKKU CUP' and H1.lines[1][1]:find('^150CC   %-   ') ~= nil, 'the cup and its class and conditions on top (' .. tostring(H1.lines[1][1]) .. ')')
+local head = {}
+for i = 1, 5 do head[i] = tostring((H1.lines[i] or {})[1]) end
+T.check(H1.title == 'JAKKU CUP' and head[1] == 'CHALLENGER', 'v0.26: the cup, then the league on top (' .. head[1] .. ')')
+T.check(head[2] == '1   THE WAR FIELDS (REVERSE, SCORCHING)' and head[3] == "2   THE GIANTS' GRAVEYARD" and head[4] == '3   DEBRIS DUNES (REVERSE, SCORCHING)'
+  and head[5] == '4   FALLEN EMPIRE (SCORCHING)', 'v0.26: then the four drawn races with their conditions (' .. table.concat(head, ' | ', 2) .. ')')
 
 -- B goes back to the cups, nothing started
 M.press('BACKSPACE'); M.tick(3)
@@ -53,7 +60,8 @@ calls = #M.calls
 T.clickTitle('START'); M.tick(5)
 launched = false
 for i = calls + 1, #M.calls do if M.calls[i].name == 'LaunchQuickRace' then launched = true end end
-T.check(launched and T.save().run and T.save().run.cup == 'jakku' and T.save().run.class == '150', 'START: the Jakku Cup at 150cc, race 1 launched')
+T.check(launched and T.save().run and T.save().run.cup == 'jakku' and T.save().run.class == 'challenger', 'START: the Jakku Cup at Challenger, race 1 launched')
+T.check(T.launched() == 'EVT_MAS_LOOP_A_REV_HARD' and T.drawn()[1] == T.launched(), 'START launches race 1 of the draw shown')
 T.check(T.save().run.mods and T.save().run.mods[1] == 'heat_shield', 'the cup keeps the tune-up picked on its start screen')
 T.check(S.start == nil, 'the start request is used up')
 T.finish()

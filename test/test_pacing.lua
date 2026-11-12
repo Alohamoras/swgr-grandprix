@@ -1,5 +1,5 @@
 -- v0.12: the unlock pacing check (docs/PHILOSOPHY.md point 6: always one thing just out of reach, never a flood).
--- A fresh save is walked through the progression cup by cup (two orders: 50cc first, and 100cc first). At every
+-- A fresh save is walked through the progression cup by cup (v0.26: the league ladder, bronzes and golds). At every
 -- step, while anything is locked:
 --   * at least one locked thing is one step away - racing only what is open now can open it - and the player can see
 --     it: a LOCKED tile on HOME (a class) or on an open class's cups page (the Galactic Cup, the title race) whose
@@ -8,7 +8,7 @@
 local M = require('mock')
 local W = require('world')
 local T = require('util')
-T.boot({ version = 2, races = 0, cups = 0, vehicle = 'car', restores = {}, abilityRestores = {} })
+T.boot({ version = 3, races = 0, cups = 0, vehicle = 'car', restores = {}, abilityRestores = {} })
 local K = require('gp')
 local PR = require('prog')
 local cfg = require('config')
@@ -27,10 +27,10 @@ local function lockedTiles()
   local seen = {}
   M.press('F6'); M.tick(6)
   local titles, badges, ds = split(T.titles()), split(T.locks()), descs()
-  for i, c in ipairs(K.classes()) do
+  for i, c in ipairs(K.leagues()) do
     if titles[i] == c.name:upper() and badges[i] == 'LOCKED' then seen[c.name] = ds[i] end
   end
-  for _, c in ipairs(K.classes()) do
+  for _, c in ipairs(K.leagues()) do
     if PR.classOpen(K.data, c.key) then
       T.clickTitle(c.name:upper()); M.tick(3)
       titles, badges, ds = split(T.titles()), split(T.locks()), descs()
@@ -48,7 +48,7 @@ local function lockedTiles()
 end
 -- every lockable thing, as openSet names
 local ALL = {}
-for _, c in ipairs(K.classes()) do
+for _, c in ipairs(K.leagues()) do
   ALL[#ALL + 1] = c.name
   for _, cup in ipairs(K.cups()) do if cup.final then ALL[#ALL + 1] = cup.name .. ' at ' .. c.name end end
   ALL[#ALL + 1] = 'TITLE RACE at ' .. c.name
@@ -57,7 +57,7 @@ local function copyBest(b) local o = {}; for k, v in pairs(b) do o[k] = {}; for 
 -- the cups open now: { class, cup }
 local function openCups(data)
   local out = {}
-  for _, c in ipairs(K.classes()) do
+  for _, c in ipairs(K.leagues()) do
     for _, cup in ipairs(K.cups()) do if PR.cupOpen(data, c.key, cup.key) then out[#out + 1] = { c.key, cup.key } end end
   end
   return out
@@ -115,8 +115,8 @@ local function walk(name, classOrder, colour)
   for _, x in ipairs(ALL) do if not open[x] then all = false end end
   T.check(all, name .. ': everything open at the end of the walk')
 end
-walk('50cc first, bronzes', { '50', '100', '150', '200' }, 3)
-walk('100cc first, golds', { '100', '150', '200', '50' }, 1)
+walk('bronzes', { 'riffraff', 'challenger', 'ace' }, 3)
+walk('golds', { 'riffraff', 'challenger', 'ace' }, 1)
 T.check(#problems == 0, ('every step (%d) shows a visible goal one step away and no cup opens more than two things%s'):format(steps,
   #problems > 0 and (': ' .. table.concat(problems, '; ')) or ''))
 T.check(maxFlood == 2, 'the most one cup opens is two things (' .. floodAt .. ')')

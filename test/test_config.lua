@@ -1,6 +1,6 @@
--- config.lua and gp.lua's read helpers on their own: the classes (parts 0 / 3 / 7 / 9, mods 0 / 1 / 2 / 2), the
--- 6 cups and their race list per class (v0.11), every race's laps, planet and base track, the Planets table,
--- planetOf / raceLine / cupPlanets / cupConditions.
+-- config.lua and gp.lua's read helpers on their own: the leagues (v0.26: parts 0 / 5 / 9, tune-up slots 0 / 1 / 2,
+-- abilities 1 / 2 / 3), the 6 cups and the race pools per planet (v0.26), every race's laps, planet and base track,
+-- the Planets table, planetOf / bases / raceByPath / leagueName.
 local here = arg[0]:match('^(.*)/test/[^/]+$') or '.'
 package.path = here .. '/mod/GalacticGrandPrix/Scripts/?.lua;' .. package.path
 -- gp.lua only needs core's log at load time
@@ -9,145 +9,137 @@ local cfg = require('config')
 local K = require('gp')
 local failed = false
 local function check(c, what) io.stdout:write((c and 'PASS ' or 'FAIL ') .. what .. '\n'); if not c then failed = true end end
-local function keys(list, field) local out = {}; for _, x in ipairs(list) do out[#out + 1] = x[field or 'key'] end; return table.concat(out, ',') end
+local function keys(list, field) local out = {}; for _, x in ipairs(list) do out[#out + 1] = tostring(x[field or 'key']) end; return table.concat(out, ',') end
 
--- classes
-check(keys(cfg.Classes) == '50,100,150,200', 'class keys unchanged (used in the save)')
-check(keys(cfg.Classes, 'parts') == '0,3,7,9', 'parts 0 / 3 / 7 / 9 (v0.10: 200cc the extra at 9) (' .. keys(cfg.Classes, 'parts') .. ')')
--- v0.10: 200cc races the 150cc AI profile (a deep compare, so tuning one apart later shows up here)
+-- leagues (v0.26, owner 2026-11-12)
+check(cfg.Classes == nil, 'v0.26: no Classes table any more')
+check(keys(cfg.Leagues) == 'riffraff,challenger,ace', 'league keys (used in the save) (' .. keys(cfg.Leagues) .. ')')
+check(keys(cfg.Leagues, 'name') == 'RIFF-RAFF,CHALLENGER,ACE', 'league names on screen, no "cc" (' .. keys(cfg.Leagues, 'name') .. ')')
+check(keys(cfg.Leagues, 'parts') == '0,5,9', 'parts 0 / 5 / 9 (' .. keys(cfg.Leagues, 'parts') .. ')')
+check(keys(cfg.Leagues, 'mods') == '0,1,2', 'tune-up slots 0 / 1 / 2 (' .. keys(cfg.Leagues, 'mods') .. ')')
+check(keys(cfg.Leagues, 'abilities') == '1,2,3', 'ability levels 1 / 2 / 3')
+check(keys(cfg.Leagues, 'speed') == '1,2,3', 'speed chevrons 1 / 2 / 3')
+check(cfg.Leagues[1].open == true and not cfg.Leagues[2].open and not cfg.Leagues[3].open, 'only Riff-Raff is open from the start')
+check(K.leagueName('ace') == 'ACE' and K.leagueName('nope') == 'nope', 'leagueName: the name, or the key itself')
 local function same(a, b)
   if type(a) ~= 'table' or type(b) ~= 'table' then return a == b end
   for k, v in pairs(a) do if not same(v, b[k]) then return false end end
   for k in pairs(b) do if a[k] == nil then return false end end
   return true
 end
--- (v0.21: 200cc = the 150cc profile plus pressure 0.5, owner: "the difficulty could be a little tougher")
-local p200 = {}
-for k, v in pairs(cfg.AI.Profiles['200']) do p200[k] = v end
-p200.pressure = 0
-check(same(p200, cfg.AI.Profiles['150']) and cfg.AI.Profiles['200'].pressure == 0.5, 'v0.21: 200cc AI profile = the 150cc one plus pressure 0.5')
-check(keys(cfg.Classes, 'mods') == '0,1,2,2', 'mod slots 0 / 1 / 2 / 2 (' .. keys(cfg.Classes, 'mods') .. ')')
-check(keys(cfg.Classes, 'abilities') == '1,1,2,3', 'ability levels 1 / 1 / 2 / 3')
--- v0.21 (owner: less clutter): the class blurbs are gone
+-- the AI profiles: Riff-Raff = today's 50cc (pressure -1, mercy 0.4, forced errors kept), Challenger = 150cc (honest,
+-- pressure 0), Ace = 200cc (the Challenger one plus pressure 0.5)
+local P = cfg.AI.Profiles
+check(keys({ { key = P.riffraff and 'r' }, { key = P.challenger and 'c' }, { key = P.ace and 'a' } }) == 'r,c,a' and P['50'] == nil and P['150'] == nil,
+  'one AI profile per league, none per cc class')
+check(P.riffraff.pressure == -1 and P.riffraff.pacing.MaxAiSlowdownScale == 0.4 and P.riffraff.errors == nil, 'Riff-Raff: the 50cc profile')
+check(P.challenger.pressure == 0 and P.challenger.pacing.MaxAiSlowdownScale == 1.0 and P.challenger.pacing.AiSlowdownDuringCrash == 1.0, 'Challenger: the 150cc profile')
+local pAce = {}
+for k, v in pairs(P.ace) do pAce[k] = v end
+pAce.pressure = 0
+check(same(pAce, P.challenger) and P.ace.pressure == 0.5, 'Ace: the Challenger profile plus pressure 0.5 (the 200cc one)')
+check(cfg.TuneUps.AI.challenger and cfg.TuneUps.AI.ace and cfg.TuneUps.AI['150'] == nil and cfg.TuneUps.AI.riffraff == nil,
+  "the AI tiers' tune-ups: Challenger (was 150cc) and Ace (was 200cc)")
 local blurbs = false
-for _, c in ipairs(cfg.Classes) do blurbs = blurbs or c.blurb ~= nil end
-check(not blurbs, 'v0.21: no class blurbs')
+for _, c in ipairs(cfg.Leagues) do blurbs = blurbs or c.blurb ~= nil end
+check(not blurbs, 'v0.21: no league blurbs')
 check(cfg.Rival == nil, 'v0.21: no Rival config')
 check(cfg.PageBackdrop == false, 'v0.21: PageBackdrop = false (no grey page panel)')
-check(cfg.Boss and cfg.Boss.Class == '150' and cfg.Boss.Event:find('EVT_WHP_SHORTBOSS_FAIR', 1, true) and cfg.Title.Event == nil,
-  'v0.21: the Showdown is the final boss at 150cc, no longer the title race')
+check(cfg.Boss and cfg.Boss.League == 'ace' and cfg.Boss.Class == nil and cfg.Boss.Event:find('EVT_WHP_SHORTBOSS_FAIR', 1, true) and cfg.Title.Event == nil,
+  'v0.26: the Showdown is the final boss after the Ace title')
 local defOk = true
-for _, c in ipairs(cfg.Classes) do
+for _, c in ipairs(cfg.Leagues) do
   local k = cfg.Title.Default[c.key]
   local found = false
   for _, r in ipairs(cfg.Racers) do if r.key == k and not r.unlockBoss then found = true end end
   defOk = defOk and found
 end
-check(defOk, 'v0.21: every class has a default title opponent, a racer in config (not Kestar)')
-check(cfg.Progression.RemixClass == nil and cfg.Classes[4].raceList == '150' and cfg.Classes[3].raceList == nil,
-  'v0.11: no RemixClass; 200cc races the 150cc lists')
+check(defOk, 'every league has a default title opponent, a racer in config (not Kestar)')
+check(cfg.Title.Default.riffraff == 'Veteran' and cfg.Title.Default.challenger == 'Rager' and cfg.Title.Default.ace == 'Thrall',
+  'default title opponents: Griff Halloran, Biddy Blas, Sen Fira')
+check(K.cup(cfg.Title.DefaultCup) ~= nil and cfg.Title.DefaultCup == 'jakku', 'the title track before any cup: a Jakku draw')
 
--- cups (v0.11): five planet cups with a list per class, then the Galactic Cup (the same four at every class)
+-- cups: five planet cups, each drawing from its pool, then the Galactic Cup
 check(#cfg.Cups == 6, '6 cups (' .. #cfg.Cups .. ')')
 check(keys(cfg.Cups) == 'jakku,lantaana,ando,crait,sentinel,galactic', 'cup order: the five planets, then Galactic (' .. keys(cfg.Cups) .. ')')
 local flagsOk = true
 for i, cup in ipairs(cfg.Cups) do
-  flagsOk = flagsOk and (cup.final == true) == (i == 6) and not (cup.bonus or cup.remix or cup.conditions or cup.planet)
+  flagsOk = flagsOk and (cup.final == true) == (i == 6) and cup.races == nil and not (cup.bonus or cup.remix or cup.conditions or cup.planet)
+    and (cup.final or (cup.pool == cup.key and #K.pool(cup.pool) > 0))
 end
-check(flagsOk, 'only the Galactic Cup is final; no bonus / remix / conditions flags left')
+check(flagsOk, 'only the Galactic Cup is final; every planet cup has its pool, no fixed race lists')
+local gal = K.cup('galactic')
+check(gal.planets == 4 and gal.last == 'derven' and keys({ { key = gal.from[1] }, { key = gal.from[6] } }) == 'jakku,derven' and #gal.from == 6,
+  'the Galactic Cup: 4 planets out of the five and Derven, the finals last')
+check(cfg.CupRaces == 4, 'a cup is 4 races')
+
+-- the pools
 local KINDS = { Circuit = true, Sprint = true, ['Short circuit'] = true }
-local fourEach, lapsOk, sprintsOk, planetsOk, noRepeat, samePlanet, baseOk = true, true, true, true, true, true, true
-local repeats = {}
-local events = {}
-for _, cup in ipairs(cfg.Cups) do
-  for _, c in ipairs(cfg.Classes) do
-    local list = K.races(cup, c.key)
-    fourEach = fourEach and #list == 4
-    local bases = {}
-    for _, r in ipairs(list) do
-      lapsOk = lapsOk and math.type(r.laps) == 'integer' and r.laps >= 1 and r.laps <= 8 and KINDS[r.kind] == true
-      sprintsOk = sprintsOk and ((r.kind == 'Sprint') == (r.laps == 1))
-      local p = K.planetOf(r.path)
-      planetsOk = planetsOk and p ~= nil
-      if not cup.final then samePlanet = samePlanet and p ~= nil and p.key == cup.key end
-      baseOk = baseOk and type(r.base) == 'string' and #r.base > 0 and not r.base:find('(', 1, true)
-        and r.title:sub(1, #r.base) == r.base
-      if bases[r.base] then noRepeat = false; repeats[#repeats + 1] = cup.key .. ' ' .. c.key .. ': ' .. r.base end
-      bases[r.base] = true
-      events[r.path] = true
-    end
+local lapsOk, sprintsOk, planetsOk, samePlanet, baseOk, uniq = true, true, true, true, true, true
+local seen, sizes = {}, {}
+for key, pool in pairs(cfg.Pools) do
+  sizes[key] = #pool
+  for _, r in ipairs(pool) do
+    lapsOk = lapsOk and math.type(r.laps) == 'integer' and r.laps >= 1 and r.laps <= 8 and KINDS[r.kind] == true
+    sprintsOk = sprintsOk and ((r.kind == 'Sprint') == (r.laps == 1))
+    local p = K.planetOf(r.path)
+    planetsOk = planetsOk and p ~= nil
+    samePlanet = samePlanet and p ~= nil and p.key == key
+    baseOk = baseOk and type(r.base) == 'string' and #r.base > 0 and not r.base:find('(', 1, true) and r.title:sub(1, #r.base) == r.base
+    if seen[r.path] then uniq = false end
+    seen[r.path] = true
   end
 end
-check(fourEach, 'every cup has four races at every class')
 check(lapsOk, 'every race has a lap count (1-8) and a known kind')
 check(sprintsOk, 'sprints are the one-lap races and nothing else is')
 check(planetsOk, 'every race path names a known planet')
-check(samePlanet, 'a planet cup races only on its own planet, at every class')
+check(samePlanet, 'a pool holds only its own planet\'s races')
 check(baseOk, 'every race has its base track: the title without the (direction / conditions)')
-check(noRepeat, 'no cup at any class races the same base track twice' .. (#repeats > 0 and (': ' .. table.concat(repeats, '; ')) or ''))
-local n = 0
-for _ in pairs(events) do n = n + 1 end
-check(n == 59, 'distinct events across the cups and classes: 59 (' .. n .. ')')
--- the base by hand for the tricky titles
+check(uniq, 'no event twice in the pools')
+local sz = ('%d,%d,%d,%d,%d,%d'):format(sizes.jakku, sizes.lantaana, sizes.ando, sizes.crait, sizes.sentinel, sizes.derven)
+check(sz == '13,22,24,13,13,1', 'pool sizes: Jakku 13, Lantaana 22, Ando 24, Crait 13, Sentinel 13, Derven 1 (' .. sz .. ')')
+-- the base tracks per planet (docs/tracks-by-planet.md: 32 base tracks, Derven's arenas left out)
+local nb = 0
+for _, cup in ipairs(cfg.Cups) do if not cup.final then nb = nb + #K.bases(cup) end end
+check(nb + #K.pool('derven') == 32 and #K.bases('jakku') == 5 and #K.bases('lantaana') == 7 and #K.bases('ando') == 7 and #K.bases('crait') == 5
+  and #K.bases('sentinel') == 7, 'base tracks: Jakku 5, Lantaana 7, Ando 7, Crait 5, Sentinel 7, Derven 1 = 32 (' .. nb .. ' + 1)')
+check(table.concat(K.bases('jakku'), ',') == "THE WAR FIELDS,THE GIANTS' GRAVEYARD,DEBRIS DUNES,FALLEN EMPIRE,SCRAP SPIRAL", 'bases: Jakku in pool order')
+-- every race lasts the same laps as its layout's other variants, except the two raced before v0.26 with the events
+-- dump's own counts (Fallen Empire scorching 4, Dhunkri River Circuit wet 5)
+local lapsBy, odd = {}, {}
+for _, pool in pairs(cfg.Pools) do
+  for _, r in ipairs(pool) do
+    local was = lapsBy[r.base]
+    if was and was ~= r.laps then odd[#odd + 1] = r.title end
+    lapsBy[r.base] = was or r.laps
+  end
+end
+table.sort(odd)
+check(table.concat(odd, ',') == 'DHUNKRI RIVER CIRCUIT (WET),FALLEN EMPIRE (SCORCHING)', 'laps: conditions keep their layout\'s laps (' .. table.concat(odd, ',') .. ')')
+-- titles: today's style
 local function find(title)
-  for _, cup in ipairs(cfg.Cups) do for _, c in ipairs(cfg.Classes) do for _, r in ipairs(K.races(cup, c.key)) do
-    if r.title == title then return r end end end end
+  for _, pool in pairs(cfg.Pools) do for _, r in ipairs(pool) do if r.title == title then return r end end end
 end
 check(find('MORO KEHN TUNNELS (REVERSE, WET)').base == 'MORO KEHN TUNNELS' and find('MORO KEHN TUNNELS (REVERSE, WET)').cond == 'WET',
   'base and cond: MORO KEHN TUNNELS (REVERSE, WET)')
 check(find('THE WAR FIELDS (REVERSE)').cond == nil and find("THE GIANTS' GRAVEYARD").base == "THE GIANTS' GRAVEYARD", 'a reverse is no condition; a plain title is its own base')
 check(find('CRIMSON MINES (MINES, NIGHT)').base == 'CRIMSON MINES' and find('CRIMSON MINES (MINES, NIGHT)').cond == 'MINES, NIGHT', 'Crimson Mines with mines: the base is the track name')
--- per class
-local function titles(cupKey, cls) local out = {}; for _, r in ipairs(K.races(cupKey, cls)) do out[#out + 1] = r.title end; return table.concat(out, ',') end
-check(titles('jakku', '50') == "THE WAR FIELDS,THE GIANTS' GRAVEYARD,DEBRIS DUNES,FALLEN EMPIRE", '50cc: the classic Jakku Cup (' .. titles('jakku', '50') .. ')')
-local sameAll, same200 = true, true
-for _, cup in ipairs(cfg.Cups) do
-  same200 = same200 and K.races(cup, '200') == K.races(cup, '150') and titles(cup.key, '200') == titles(cup.key, '150')
-  if cup.final then sameAll = titles(cup.key, '50') == titles(cup.key, '100') and titles(cup.key, '100') == titles(cup.key, '150') end
-end
-check(same200, 'the 200cc lists are the 150cc ones, every cup')
-check(sameAll, 'the Galactic Cup: the same four at every class')
-local revOk, condOk = true, true
-for _, cup in ipairs(cfg.Cups) do
-  if not cup.final then
-    for _, r in ipairs(K.races(cup, '50')) do revOk = revOk and r.cond == nil and not r.title:find('(', 1, true) end
-    local nc = 0
-    for _, r in ipairs(K.races(cup, '150')) do if r.cond then nc = nc + 1 end end
-    condOk = condOk and nc >= 3 and #K.cupConditions(cup, '150') > 0
-  end
-end
-check(revOk, '50cc: plain titles, no conditions')
-check(condOk, '150cc: at least three races under conditions in every planet cup')
-local OR = { 'Mastiff/Loop_B/EVT_MAS_LOOP_B_SHORT_01', 'Dalmatian/P2P/EVT_DAL_P2P_FWD', 'Corgi/P2P/EVT_COR_P2P_REV', 'Spaniel/Loop_B/EVT_SPA_Loop_B_SHORT_02' }
-local orOk = true
-for i, cupKey in ipairs({ 'jakku', 'lantaana', 'ando', 'crait' }) do
-  local hit = false
-  for _, r in ipairs(K.races(cupKey, '100')) do if r.path:find(OR[i] .. '$') then hit = true end end
-  orOk = orOk and hit
-end
-check(orOk, 'the Outer Rim tracks moved into the 100cc lists (Scrap Spiral, Geothermal Tour, Dai Bendu Ascension, Crystal Caverns)')
-check(table.concat(K.cupConditions('lantaana', '150'), ',') == 'NIGHT,WET' and #K.cupConditions('lantaana', '50') == 0, 'cupConditions: Lantaana at 150cc is night and wet')
-check(table.concat(K.cupConditions('ando', '200'), ',') == 'NIGHT,SNOW', 'cupConditions: Ando at 200cc (the 150cc list) night and snow')
+check(find('THE WAR FIELDS (REVERSE, SCORCHING)').path:find('EVT_MAS_LOOP_A_REV_HARD$') ~= nil, 'Mastiff _HARD = SCORCHING')
+check(find('SENTINEL LAKES').path:find('EVT_HSK_LOOP_A_REV$') ~= nil and find('CAUSTIC FIELDS (FORWARD, BLUE HOUR)').cond == 'BLUE HOUR',
+  "Sentinel: the default layouts are the reverse ones")
+check(find('CLOISTER RUN (SNOW)').path:find('EVT_COR_Loop_B_SHORT_01_Overcast_Snow$') ~= nil, 'Corgi Loop_B SHORT_01 = CLOISTER RUN')
+check(K.raceByPath(find('ANDOBI EDGE (SNOW)').path) == find('ANDOBI EDGE (SNOW)') and K.raceByPath('/x') == nil and K.raceByPath(nil) == nil,
+  'raceByPath: a pool race by its path, nil for anything else')
+check(#K.pool('derven') == 1 and K.pool('derven')[1].title == 'THE GALACTIC GAUNTLET' and #K.pool('nowhere') == 0, "Derven's pool: The Galactic Gauntlet only")
 
 -- planets
 check(keys({ cfg.Planets.Mastiff, cfg.Planets.Dalmatian, cfg.Planets.Corgi, cfg.Planets.Spaniel, cfg.Planets.Husky, cfg.Planets.Whippet })
-  == 'jakku,lantaana,ando,crait,sentinel,derven', 'six planets by codename, keyed like the planet cups')
+  == 'jakku,lantaana,ando,crait,sentinel,derven', 'six planets by codename, keyed like the pools')
 check(cfg.Planets.Corgi.name == 'Ando Prime' and cfg.Planets.Husky.name == 'Sentinel I' and cfg.Planets.Whippet.name == 'Derven Acos', 'the game\'s planet names')
 local lines = true
 for _, p in pairs(cfg.Planets) do lines = lines and type(p.line) == 'string' and #p.line > 20 end
 check(lines, 'every planet has its flavour line')
 check(K.planetOf('/Game/Griffin/Gameplay/Events/Planets/Whippet/KNOCKOUT/EVT_WHP_LOOP_A_FWD_RACE').name == 'Derven Acos', 'planetOf: Derven from the path')
 check(K.planetOf('/Game/Griffin/Gameplay/Arcade/Events/X') == nil and K.planetOf(nil) == nil, 'planetOf: nil for anything else')
-
--- raceLine and cupPlanets
-local jakku = K.races('jakku', '50')
-check(K.raceLine(jakku[1]) == 'THE WAR FIELDS  -  Jakku  -  circuit, 2 laps', 'raceLine: circuit (' .. K.raceLine(jakku[1]) .. ')')
-check(K.raceLine(jakku[2]) == "THE GIANTS' GRAVEYARD  -  Jakku  -  sprint", 'raceLine: a sprint has no lap count (' .. K.raceLine(jakku[2]) .. ')')
-check(K.raceLine(jakku[4]) == 'FALLEN EMPIRE  -  Jakku  -  short circuit, 6 laps', 'raceLine: short circuit (' .. K.raceLine(jakku[4]) .. ')')
-check(K.raceLine(K.races('ando', '150')[2]) == 'MONASTERY MOUNTAINS (SNOW)  -  Ando Prime  -  circuit, 3 laps', 'raceLine: the conditions in the title (' .. K.raceLine(K.races('ando', '150')[2]) .. ')')
-check(K.raceLine({ path = '/x', title = 'X', kind = 'Circuit' }) == 'X  -  ?  -  circuit', 'raceLine: no planet, no laps')
-check(table.concat(K.cupPlanets(K.cup('jakku'), '150'), ',') == 'Jakku', 'cupPlanets: one planet')
-check(table.concat(K.cupPlanets(K.cup('galactic'), '100'), ',') == 'Lantaana,Ando Prime,Sentinel I,Derven Acos', 'cupPlanets: the Galactic Cup ends on Derven')
-check(#K.cupPlanets(nil) == 0, 'cupPlanets: nothing for no cup')
 
 if failed then os.exit(1) end

@@ -1,5 +1,74 @@
 # Changelog
 
+## v0.26.0 (2026-11-12): three leagues (RIFF-RAFF, CHALLENGER, ACE) and random cups
+The owner's decisions of 2026-11-12 (TASKS "Three leagues" and "Random cups"). Tested against the fake game, **not
+yet seen in game**; 27 race variants have never been raced by the Grand Prix (OWNER.md has the list to launch once).
+- **Three leagues replace the four cc classes**, named after the game's racer ranks. Save keys `riffraff`,
+  `challenger`, `ace` (config `Leagues`; the save and the cup run keep the field name `class` for a league).
+
+  | | RIFF-RAFF | CHALLENGER | ACE |
+  |---|---|---|---|
+  | Parts (every slot) | 0 | 5 | 9 |
+  | Ability level | 1 | 2 | 3 |
+  | Tune-up slots | 0 | 1 | 2 |
+  | AI profile | the 50cc one (pressure -1, mercy 0.4, forced errors) | the 150cc one (honest, pressure 0) | the 200cc one (pressure 0.5) |
+  | AI tiers' tune-ups | none | Elite: HEAT SHIELD | Elite: HEAT SHIELD + ARMOUR, Challenger tier: HEAT SHIELD |
+
+  - **No "cc" anywhere a player sees it**: HOME's posters, the cups page title, the start screen, the cup result, the
+    title result ("ACE CHAMPION"), the lock texts ("To open: 5 trophies at RIFF-RAFF"), the tune-up slot info
+    ("Tune-up 2: from ACE."), Kestar's lock ("beat Kestar Bool after the ACE title") and the log lines
+    (`[ai] league ace: ...`, `LAUNCH ... league=challenger`, `cup over: CHALLENGER jakku ...`).
+  - **The speed as a picture**: 1, 2 or 3 chevrons in each league poster's top right corner (the game's
+    `Icons/Leaderboard/T_UI_SimpleArrow_Icn`, a solid right-pointing wedge, white, 56 px; art.lua `A.speed`); the medal
+    pips stay top left. The posters are wider (`HomeRows` 760, three of them) so both fit. Banners: Riff-Raff the
+    sage difficulty banner, Challenger the blue, Ace the red (the gold one is no longer used).
+  - **Unlocks** (prog.lua, the rule that opened 150cc from 100cc): Riff-Raff is open from the start; Challenger opens
+    with a trophy in all five planet cups at Riff-Raff, Ace with one in all five at Challenger. Galactic Cup and title
+    race per league as before.
+  - **Title race at every league**, a 1 v 1 against the league leader; defaults before any cup: Riff-Raff Griff
+    Halloran, Challenger Biddy Blas, Ace Sen Fira. Never your own racer.
+  - **Kestar Bool is the final boss after the ACE title** (config `Boss.League = 'ace'`); beating him unlocks him.
+  - **A clean start for older saves** (save version 3): at the first load a v1 / v2 save is copied to
+    `save.backup-v<N>-<date>.lua`, every bit of progress is cleared (medals, records, perfect cups, standings, titles,
+    the boss, leaders, counts, the last race, the cup in progress) and only the garage is kept - the racer, the four
+    ability picks and the tune-ups (normalised to the slots) - with the put-back records. Kestar is locked again (a
+    Kestar pick races as Shade). One log line: `[save] v0.26: three leagues - a clean start (backup save.backup-v2-...);
+    kept: racer, abilities, tune-ups. Racer Kestar Bool is locked again: racing as Shade.` The old migrations (v1 class
+    shift, the v0.11 cup drop, the v0.21 rival drop / boss migration, the v0.15 vehicle drop) are gone with it.
+- **Random cups** (config `Pools`, gp.lua `K.draw`):
+  - **A planet cup = 4 base tracks drawn at random from its planet's pool, each with a random variant**, never the
+    same base track twice, the same rule in every league. The pools: every base track in docs/tracks-by-planet.md with
+    every race variant - Jakku 13, Lantaana 22, Ando Prime 24, Crait 13, Sentinel I 13 (85 races, 31 base tracks), plus
+    Derven Acos 1 (The Galactic Gauntlet). Left out: eliminators, knockouts, the 1 v 1 arenas, the story acts, the
+    campaign intro, every `EVT_SHK_*` challenge event, the `EVT_DAL_CAR_Race_*` special car races, the Shakedown.
+  - **The Galactic Cup**: 3 races from 3 different planets drawn from the five, then The Galactic Gauntlet at Derven
+    Acos - 4 planets (config `last = 'derven'`; `nil` draws all four alike).
+  - **New titles** in today's style: "THE WAR FIELDS (REVERSE, SCORCHING)", "MORO KEHN TUNNELS (REVERSE, NIGHT)",
+    "CLOISTER RUN (SNOW)" ... `kind` / `laps` are display only (the start screen, the title tile, the LAUNCH line,
+    `SD.sprint`); the new variants take their layout's values (the races raced before keep the events dump's own).
+  - **The draw happens when you pick the cup**; the start screen shows the cup, the league and the four races with
+    their conditions (one per line, in place of the single header line); START races exactly those. The draw is kept
+    in the cup run in the save (`run.list`), so it survives the trips through the main menu between races. B and
+    picking the cup again draws again. Logged: `[cup] ACE jakku drawn: ... / ... / ... / ...`. `math.random`, seeded
+    once at load (tests inject their own: `K.random`).
+  - **Cup tiles**: the medal and the perfect star, no conditions line. The focused cup's info names its planet's
+    tracks (the Galactic Cup: the planets, then the finals); no per-race records there any more.
+  - **Records stay per exact event path** (unchanged); medals and perfect cups per league per cup - a gold means
+    "won a Jakku Cup at Ace".
+  - **The title race track**: the first race of the leader's most recent cup run at that league (saved with the
+    leader: `leader[league].path`). No leader yet: the first race of a random Jakku draw, made once per league and
+    saved (`titleTrack`), so the title tile shows a stable track.
+- **Removed** (no dead code): the per-class race lists, `Classes`, `raceList`, `K.races`, `K.raceClass`,
+  `K.cupConditions`, `K.cupPlanets`, `K.raceLine`, `K.recordsText`, the cups page's conditions line, main.lua's unused
+  `modsText` / `picksText`, the 100cc AI profile, and the old save migrations above.
+- **Tests** (`SANDBOX_DIR=/tmp/gp_v26 test/all.sh`): reworked for three leagues and drawn cups (a fixed draw in the
+  tests, `T.RND`), and two new files: `test_random_cups.lua` (every pool path is in the game's event list,
+  docs/data/events-2026-11-12.txt, and every other planet race but the left-out kinds is pooled; 300 draws per cup
+  never repeat a base track; the Galactic Cup spans four planets; the draw on the start screen, saved, surviving a
+  reload mid-cup; START and NEXT RACE launch the draw; records per path) and `test_leagues.lua` (the clean start, the
+  leagues' parts / abilities / slots / AI on real launches, the unlock ladder, Kestar after the Ace title).
+  test_tiletext checks every pool title on the NEXT RACE tile.
+
 ## v0.25.0 (2026-11-11 night): fixes from the first look in game at v0.22-v0.24
 Claude's in-game check (owner away; save backed up and restored, md5 checked; autopilot). Seen working: the faster
 tab (1-2 s), HOME's medal pips and title stars, the cups page in rows with clear gold / bronze medals, the start

@@ -434,7 +434,7 @@ end
 -- drawn over a rows tile, each the game's own icon tinted (the icons are one-colour shapes):
 --   it.icon / it.iconColor  the medal, top right (U.MEDAL_PX)
 --   it.corner = { {tex, color}, ... }  more small icons beside it, top right (the lock, the perfect-cup star)
---   it.pips = { {tex, color, alpha}, ... }  a row of small icons top left, where the badge was (a class's medals)
+--   it.pips = { {tex, color, alpha}, ... }  a row of small icons top left, where the badge was (a league's medals)
 --   it.glyph = {tex, color, px}  one big icon, top middle (an ability's or a tune-up's icon)
 U.PIP_PX, U.CORNER_PX = 66, 72
 function U.hasDecor(it) return (it.icon or it.corner or it.pips or it.glyph) and true or false end
@@ -477,7 +477,8 @@ function U.decorate(make, ov, it)
     place(ov, tex and picture(make, tex, it.glyph[2], it.glyph[3] or 150, it.glyph[4]), 2, 1, { Left = 0, Top = 34, Right = 0, Bottom = 0 })
   end
   local corner = {}
-  for _, c in ipairs(it.corner or {}) do corner[#corner + 1] = { c[1], c[2], c[3], px = U.CORNER_PX } end
+  -- (v0.26: an entry may carry its own size, c.px - the leagues' speed chevrons)
+  for _, c in ipairs(it.corner or {}) do corner[#corner + 1] = { c[1], c[2], c[3], px = c.px or U.CORNER_PX } end
   if it.icon then corner[#corner + 1] = { it.icon, it.iconColor, px = U.MEDAL_PX } end
   if #corner > 0 then place(ov, pictureRow(make, corner, U.CORNER_PX, 6), 3, 1, { Left = 0, Top = 10, Right = 14, Bottom = 0 }) end
   if it.pips and #it.pips > 0 then

@@ -5,6 +5,22 @@ local T = { failed = false }
 T.main = os.getenv('MOD_MAIN')
 T.dir = T.main:match('^(.*)/Scripts/main.lua$')
 
+-- v0.26: the tests' cup draw (see T.boot)
+function T.RND(n) return n end
+-- the drawn races of the cup in progress (from the save), as event names: { 'EVT_MAS_LOOP_A_REV_HARD', ... }
+function T.drawn()
+  local run = T.save().run
+  local out = {}
+  for i, r in ipairs(run and run.list or {}) do out[i] = r.path:match('([^/]+)$') end
+  return out
+end
+-- the event name of the last LaunchQuickRace call
+function T.launched()
+  local M2 = require('mock')
+  local c = M2.lastCall('LaunchQuickRace')
+  return c and tostring(rawget(c.args[2], '__name')) or nil
+end
+
 -- cfg: config overrides. The Grand Prix is a tab on the game's main menu: a menu with a tab bar is set up and given
 -- time to settle (the mod waits ~3 s before touching it), unless cfg.NoTabMenu.
 function T.boot(save, cfg)
@@ -25,6 +41,10 @@ function T.boot(save, cfg)
   end
   local ok, err = pcall(dofile, T.main)
   assert(ok, 'load failed: ' .. tostring(err))
+  -- v0.26: the cup draw made predictable (gp.lua K.random): rnd(n) = n keeps every pool in config order and takes each
+  -- base track's last variant - Jakku = THE WAR FIELDS (REVERSE, SCORCHING), THE GIANTS' GRAVEYARD, DEBRIS DUNES
+  -- (REVERSE, SCORCHING), FALLEN EMPIRE (SCORCHING). cfg.Rnd = a function of your own; test_random_cups varies it.
+  require('gp').random = cfg.Rnd or T.RND
   if not cfg.NoTabMenu and not cfg.Manual then W.tabMenu(); M.tick(18) end
 end
 -- v0.19: a fresh start inside the same test file (test_chain runs several scenarios): the fake engine's objects, loops,
@@ -96,7 +116,7 @@ function T.medals()
   end
   return table.concat(all, '|')
 end
--- v0.24: the pictures over each tile of the page shown (ui.lua U.decorate): 'LOCK', the medal ('GOLD'...), 'STAR'
+-- v0.24: the pictures over each tile of the page shown (ui.lua U.decorate): 'LOCK', the medal ('GOLD'...), 'STAR', (v0.26) a speed chevron 'SPEED'
 -- (corner), and a class tile's pips as 'pips:GSB---*' (G / S / B a medal, - none yet; * the title won, . not yet)
 function T.marks()
   local H = rawget(_G, 'GU_TEST_SCREENS')
@@ -105,7 +125,7 @@ function T.marks()
   local all = {}
   for _, it in ipairs(ui and ui.items or {}) do
     local m = {}
-    for _, c in ipairs(it.corner or {}) do m[#m + 1] = (c[1] == ART.LOCK and 'LOCK') or (c[1] == ART.STAR and 'STAR') or '?' end
+    for _, c in ipairs(it.corner or {}) do m[#m + 1] = (c[1] == ART.LOCK and 'LOCK') or (c[1] == ART.STAR and 'STAR') or (c[1] == ART.SPEED and 'SPEED') or '?' end
     if it.icon then m[#m + 1] = (tostring(it.icon):match('Medals_(%a+)') or '?'):upper() end
     if it.pips then
       local p = {}

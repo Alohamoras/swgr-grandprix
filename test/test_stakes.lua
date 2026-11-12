@@ -12,7 +12,7 @@ local P = cfg.Points
 
 -- a cup after `done` races with these points (YOU among them) and the latest race's places (for ties)
 local function cup(points, last, done, races)
-  local st = CU.new('100', 'jakku', 'car', races or 4)
+  local st = CU.new('riffraff', 'jakku', 'car', races or 4)
   st.points, st.last = points, last or {}
   for _ = 1, done do st.history[#st.history + 1] = {} end
   st.race = done + 1
@@ -56,7 +56,7 @@ eq(cup({ YOU = 10, ['Biddy Blas'] = 40, ['Sen Fira'] = 24, ['Katja Mox'] = 24, [
   'a bunched field: silver not promised, the gap given')
 -- an actual DNF through CU.addRace
 do
-  local st = CU.new('100', 'jakku', 'car')
+  local st = CU.new('riffraff', 'jakku', 'car')
   local function f(youPos, finished)
     local out = { { name = 'Dwayne', you = true, pos = youPos, finished = finished ~= false } }
     for i, n in ipairs({ 'Biddy Blas', 'Sen Fira', 'Katja Mox' }) do out[#out + 1] = { name = n, pos = i < youPos and i or i + 1, finished = true } end
@@ -174,7 +174,7 @@ end
 math.randomseed(20261111)
 local kinds, bad, n = {}, nil, 0
 local function randomCup(bots, races, done)
-  local st = CU.new('100', 'jakku', 'car', races)
+  local st = CU.new('riffraff', 'jakku', 'car', races)
   local fs = fields(bots)
   for _ = 1, done do
     -- mostly you mid-pack; sometimes a DNF; bots in a random order

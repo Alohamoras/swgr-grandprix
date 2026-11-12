@@ -14,7 +14,7 @@ end
 local BOTS = { 'Kestar Bool', 'Shade', 'Katja Mox', 'Sen Fira', 'Lyren Shok', 'Ary Quill', 'Biddy Blas', 'Nik Skandaro',
   'Fola Kanjen', 'Goli & 02-R0', 'Griff Halloran' }
 
-local st = CU.new('100', 'jakku', 'car')
+local st = CU.new('riffraff', 'jakku', 'car')
 local rows = CU.addRace(st, field(BOTS, 2))
 check(rows[1].key == 'Kestar Bool' and rows[1].pts == 15, 'race 1: 1st gets 15')
 check(rows[2].key == CU.YOU and rows[2].pts == 12, 'race 1: you 2nd, 12 points (as YOU, not your pilot name)')
@@ -39,7 +39,7 @@ check(CU.trophy(rank) == 'SILVER', 'silver trophy')
 check(CU.trophy(4) == nil, 'no trophy for 4th')
 
 -- a racer missing from a race keeps their points
-local st2 = CU.new('50', 'ando', 'bike')
+local st2 = CU.new('riffraff', 'ando', 'bike')
 CU.addRace(st2, { { name = 'A', pos = 1, finished = true }, { name = 'Dwayne', you = true, pos = 2, finished = true } })
 CU.addRace(st2, { { name = 'B', pos = 1, finished = true }, { name = 'Dwayne', you = true, pos = 2, finished = true } })
 local s2 = CU.standings(st2)
@@ -50,7 +50,7 @@ check(s2[2].key == 'B' and s2[2].pts == 15 and s2[3].key == 'A' and s2[3].pts ==
 local tb = CU.table(st)
 check(#tb == 12 and tb[1].key == 'Kestar Bool' and tb[1].total == 54 and tb[1].gain == 12, 'table: Kestar 1st, 54, +12 this race')
 check(tb[2].you and tb[2].total == 42 and tb[2].gain == 15 and tb[2].move == 2, 'table: you 2nd (from 4th: up 2), +15; Shade 3rd on the same 42')
-local st3 = CU.new('50', 'x', 'car')
+local st3 = CU.new('riffraff', 'x', 'car')
 CU.addRace(st3, field(BOTS, 12))     -- you last
 check(CU.table(st3)[12].you and CU.table(st3)[12].move == nil, 'after race 1: no moves yet')
 CU.addRace(st3, field(BOTS, 1))      -- you win: 1 + 15 = 16

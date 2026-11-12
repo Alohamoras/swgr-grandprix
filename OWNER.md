@@ -16,6 +16,38 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - [ ] **Ideas from your Google Doc** (realism mode, a podracer cup): send the details when you want them on the list.
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.26, three leagues and random cups (not installed yet).**
+  - **The first boot is a clean start**, as you chose: your save is copied to `save.backup-v2-<date>.lua` in the mod
+    folder, then every medal, record, title, the boss and the leaders are cleared. Kept: your racer, your four
+    abilities and your tune-ups. Kestar is locked again (if you race as him, you'll be Shade until you beat him after
+    the Ace title). The log says it once: `[save] v0.26: three leagues - a clean start (backup ...)`.
+  - HOME: RIFF-RAFF, CHALLENGER, ACE with 1 / 2 / 3 chevrons in the top right corner and the medal pips top left. Do
+    the chevrons read as "speed", and do the pips and chevrons sit side by side without touching?
+  - Pick a cup: the start screen lists the four races drawn for it, with their conditions. B and pick it again gives
+    a new draw. Does a drawn cup feel like a real season? Is the Galactic Cup (three planets, then the Gauntlet) right?
+  - Riff-Raff (parts 0, the old 50cc AI), Challenger (parts 5, the old 150cc AI), Ace (parts 9, the old 200cc AI):
+    does the ladder feel right?
+  - **Never raced by the Grand Prix - the risk.** The in-game check should launch each of these once (a quick race
+    from the cup is enough: it loads, 12 cars, the right track and conditions). 27 variants (the doc's not-✓ ones);
+    the 12 marked * were in the v0.6-v0.10 remix / conditions cups, the other 15 have never been in any version:
+    - Jakku: THE WAR FIELDS (SCORCHING)* `EVT_MAS_LOOP_A_FWD_HARD`; THE WAR FIELDS (REVERSE, SCORCHING)
+      `EVT_MAS_LOOP_A_REV_HARD`; DEBRIS DUNES (REVERSE, SCORCHING)* `EVT_MAS_LOOP_B_REV_HARD`.
+    - Lantaana: GRIFFIN'S FLIGHT (WET)* `EVT_DAL_LOOP_A_FWD_Overcast_Wet`; MORO KEHN TUNNELS (NIGHT)*
+      `EVT_DAL_LOOP_B_FWD_Night`; MORO KEHN TUNNELS (WET) `EVT_DAL_LOOP_B_FWD_Overcast_Wet`; MORO KEHN TUNNELS
+      (REVERSE, NIGHT) `EVT_DAL_LOOP_B_REV_Night`; GEOTHERMAL TOUR (WET) `EVT_DAL_P2P_FWD_Overcast_Wet`; THE PYRODUCTS
+      (NIGHT) `EVT_DAL_LOOP_A_SHORT_01_Night`; THE PYRODUCTS (WET)* `EVT_DAL_LOOP_A_SHORT_01_Overcast_Wet`; OVERFLOW
+      RALLY (WET) `EVT_DAL_LOOP_A_SHORT_06_Overcast_Wet`; AHLREN JUNGLE SPEEDWAY (NIGHT)* `EVT_DAL_P2P_SHORT_05_Night`;
+      AHLREN JUNGLE SPEEDWAY (WET) `EVT_DAL_P2P_SHORT_05_Overcast_Wet`.
+    - Ando Prime: ICE FIELD CIRCUIT (SNOW) `EVT_COR_Loop_A_FWD_Overcast_Snow`; ICE FIELD CIRCUIT (REVERSE, NIGHT)
+      `EVT_COR_Loop_A_REV_Night`; ICE FIELD CIRCUIT (REVERSE, SNOW)* `EVT_COR_Loop_A_REV_Overcast_Snow`; MONASTERY
+      MOUNTAINS (NIGHT) `EVT_COR_Loop_B_FWD_Night`; MONASTERY MOUNTAINS (REVERSE, SNOW)*
+      `EVT_COR_Loop_B_REV_Overcast_Snow`; MOUNTAIN TO SEA (NIGHT) `EVT_COR_P2P_FWD_Night`; DAI BENDU ASCENSION (NIGHT)
+      `EVT_COR_P2P_REV_Night`; DAI BENDU ASCENSION (SNOW) `EVT_COR_P2P_REV_Overcast_Snow`; VONIUM PIPELINE (NIGHT)*
+      `EVT_COR_Loop_A_SHORT_02_Night`; CLOISTER RUN (SNOW) `EVT_COR_Loop_B_SHORT_01_Overcast_Snow`; ANDOBI EDGE (SNOW)
+      `EVT_COR_P2P_SHORT_05_Overcast_Snow`.
+    - Crait: CRIMSON MINES (MINES)* `EVT_SPA_Loop_A_FWD_MINES`; CRIMSON MINES (REVERSE, MINES)*
+      `EVT_SPA_Loop_A_REV_MINES`; SALT CIRCLE (MINES)* `EVT_SPA_Loop_A_SHORT_01_MINES`.
+    - Sentinel I: none (every variant was already raced).
 - [ ] **v0.24:** pick a cup and you land on the garage with START selected - quick enough? The medal row on each
   class tile on HOME, the lock and medal pictures, the ability and tune-up icons: pretty, readable? No grey bars
   behind tile text any more: does the text still read on the bright pictures?

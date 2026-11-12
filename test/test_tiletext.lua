@@ -1,11 +1,11 @@
 -- v0.14 (TASKS.md A7, owner 2026-11-10: "can't fully read the tune-up tiles in the garage"): the text of every tile
 -- any menu can show fits that tile (ui.lua U.FIT / U.tileFits: the budgets and how they were measured). Every
 -- screen is built from its spec (main.lua's SCREENS, the test hook) in every state that changes a tile's text:
--- HOME and the cups pages at every class with nothing / every trophy / a place / perfect cups / titles won and every
+-- HOME and the cups pages at every league (v0.26) with nothing / every trophy / a place / perfect cups / titles won and every
 -- possible champion, every lock; the garage at every class level with every racer (v0.15: naming their vehicle type;
 -- HOME's GARAGE tile with each racer too), ability in each slot and
--- tune-up in both slots; the standings before every race of every cup at every class and after a cup; the title
--- result; the confirms; the offline page.
+-- tune-up in both slots; the standings before every race of every cup at every league and after a cup; (v0.26) the
+-- NEXT RACE tile naming every race of every pool; the title result; the confirms; the offline page.
 local M = require('mock')
 local W = require('world')
 local T = require('util')
@@ -47,12 +47,12 @@ local function cupsAt(cls, where) S.class = cls; return check(where .. ' cups ' 
 -- 1. a fresh save: locked classes, locked Galactic Cups and title races (every class's page, open or not)
 K.reset()
 check('fresh home', SC.home())
-for _, c in ipairs(K.classes()) do cupsAt(c.key, 'fresh') end
+for _, c in ipairs(K.leagues()) do cupsAt(c.key, 'fresh') end
 
 -- 2. progress: every cup at every class with the same result, for each result; titles won or tried
 for _, b in ipairs({ 1, 2, 3, 5, 12 }) do
   K.data.best, K.data.perfect, K.data.titles = {}, {}, {}
-  for _, c in ipairs(K.classes()) do
+  for _, c in ipairs(K.leagues()) do
     K.data.best[c.key], K.data.perfect[c.key] = {}, {}
     for _, cup in ipairs(K.cups()) do
       K.data.best[c.key][cup.key] = b
@@ -61,23 +61,23 @@ for _, b in ipairs({ 1, 2, 3, 5, 12 }) do
     K.data.titles[c.key] = { tries = 3, won = b == 1 }
   end
   check('home best ' .. b, SC.home())
-  for _, c in ipairs(K.classes()) do cupsAt(c.key, 'best ' .. b) end
+  for _, c in ipairs(K.leagues()) do cupsAt(c.key, 'best ' .. b) end
 end
 -- trophies in some planet cups only (the Galactic Cup / title race locked on an open class, part counts on HOME)
 K.data.best, K.data.perfect, K.data.titles = {}, {}, {}
-for _, c in ipairs(K.classes()) do K.data.best[c.key] = { jakku = 1, lantaana = 3 } end
+for _, c in ipairs(K.leagues()) do K.data.best[c.key] = { jakku = 1, lantaana = 3 } end
 check('home part', SC.home())
-for _, c in ipairs(K.classes()) do cupsAt(c.key, 'part') end
+for _, c in ipairs(K.leagues()) do cupsAt(c.key, 'part') end
 
 -- 3. v0.21: every possible title race opponent on the TITLE RACE tile ('vs Griff Halloran': any racer the leader can
--- be), with the title open and won; and the KESTAR BOOL tile (the boss) on the 150cc page, beaten and not
+-- be), with the title open and won; and the KESTAR BOOL tile (the boss) on the Ace page, beaten and not
 local opened = {}
-for _, c in ipairs(K.classes()) do opened[c.key] = { jakku = 1, lantaana = 1, ando = 1, crait = 1, sentinel = 1, galactic = 1 } end
+for _, c in ipairs(K.leagues()) do opened[c.key] = { jakku = 1, lantaana = 1, ando = 1, crait = 1, sentinel = 1, galactic = 1 } end
 K.data.best = opened
 for _, r in ipairs(cfg.Racers or {}) do
-  for _, c in ipairs(K.classes()) do
+  for _, c in ipairs(K.leagues()) do
     K.data.leader = { [c.key] = { name = r.name, cup = 'crait' } }
-    K.data.titles = { [c.key] = { won = r.key == 'Ghost', tries = 1 }, ['150'] = { won = true, tries = 1 } }
+    K.data.titles = { [c.key] = { won = r.key == 'Ghost', tries = 1 }, ace = { won = true, tries = 1 } }
     K.data.boss = (r.key == 'Ghost') and { beaten = true } or nil
     cupsAt(c.key, 'leader ' .. r.name)
   end
@@ -104,7 +104,7 @@ end
 -- (v0.15: no VEHICLE tile; the RACER tile names the racer's vehicle type, and HOME's GARAGE tile the racer and it.
 -- Kestar Bool unlocked here (v0.21: the boss beaten), so every racer is on the tile.)
 K.data.boss = { beaten = true, tries = 1 }
-for _, c in ipairs(K.classes()) do
+for _, c in ipairs(K.leagues()) do
   local items = garage(c.key)
   T.check(find(items, '^VEHICLE') == nil, 'no VEHICLE tile in the garage at ' .. c.key)
   for _ = 1, #(cfg.Racers or {}) do
@@ -136,7 +136,7 @@ for _, v in ipairs(K.vehicles()) do
 end
 for _, r in ipairs(cfg.Racers or {}) do if not seenRacer[r.name:upper()] then missing[#missing + 1] = r.name end end
 for _, p in ipairs(MS.all()) do if not seenTu[p.name:upper()] then missing[#missing + 1] = p.name end end
-for _, c in ipairs(K.classes()) do
+for _, c in ipairs(K.leagues()) do
   local level = AB.levelFor(c.key)
   for _, fam in ipairs(AB.families()) do
     for br in pairs(cfg.Abilities.Lines[fam]) do
@@ -149,7 +149,7 @@ T.check(#missing == 0, 'the garage showed every vehicle, racer, ability and tune
 
 -- 5. the standings: before every race of every cup at every class (NEXT RACE), and after a cup (CONTINUE)
 local races = 0
-for _, c in ipairs(K.classes()) do
+for _, c in ipairs(K.leagues()) do
   for _, cup in ipairs(K.cups()) do
     local run = K.startCup(c.key, cup.key, 'car', K.data.picks, K.data.mods)
     for n = 1, run.races do
@@ -165,13 +165,28 @@ for _, c in ipairs(K.classes()) do
     end
   end
 end
-T.check(races == 4 * 4 * #K.cups(), 'the standings before every race (' .. races .. ')')
+T.check(races == #K.leagues() * 4 * #K.cups(), 'the standings before every race (' .. races .. ')')
+-- v0.26 (random cups): any race of any pool can be the NEXT RACE tile's name - each one there, at its tile size
+local pooled = 0
+for key, pool in pairs(cfg.Pools) do
+  for _, r in ipairs(pool) do
+    local run = K.startCup('ace', key == 'derven' and 'galactic' or key, 'car', K.data.picks, K.data.mods, { r, r })
+    run.race = 2
+    S.result = { ev = K.nextRace(), run = run, pos = 3 }
+    local spec = check(('next race %s'):format(r.title), SC.standings())
+    local it = spec.items[1]
+    T.check(it.title == 'NEXT RACE' and (it.desc == r.title or it.desc == r.base), 'NEXT RACE names ' .. r.title .. ' (' .. tostring(it.desc) .. ')')
+    pooled = pooled + 1
+    K.data.run = nil
+  end
+end
+T.check(pooled == 86, 'every pool race on the NEXT RACE tile (' .. pooled .. ')')
 
 -- 6. the title result, the confirms, the offline page
 for _, won in ipairs({ true, false }) do
-  S.result = { titleRace = true, won = won, vs = 'Griff Halloran', pos = won and 1 or 2, ev = { class = '150' }, bossOpened = won }
+  S.result = { titleRace = true, won = won, vs = 'Griff Halloran', pos = won and 1 or 2, ev = { class = 'challenger' }, bossOpened = won }
   check('title result', SC.titleResult())
-  S.result = { boss = true, won = won, vs = 'Kestar Bool', pos = won and 1 or 2, ev = { class = '150' }, firstWin = won }
+  S.result = { boss = true, won = won, vs = 'Kestar Bool', pos = won and 1 or 2, ev = { class = 'challenger' }, firstWin = won }
   check('boss result', SC.titleResult())
 end
 S.confirm = { text = 'Reset all progress? Every trophy, record and title is cleared.', back = 'home', noFirst = true }
@@ -184,22 +199,22 @@ S.blocked = 'matchmaking is running'
 check('offline', SC.offline())
 S.blocked = nil
 
--- v0.14.1 (seen in game 2026-11-11: 'Champion: GRIFF / HALLORAN' wrapped on the focused 50CC tile): a class tile on
+-- v0.14.1 (seen in game 2026-11-11: 'Champion: GRIFF / HALLORAN' wrapped on the focused 50CC tile): a league tile on
 -- HOME names only YOUR title; another champion's name is in the info line
 K.data.best, K.data.perfect, K.data.titles = {}, {}, {}
-for _, c in ipairs(K.classes()) do K.data.best[c.key] = { jakku = 1 } end
+for _, c in ipairs(K.leagues()) do K.data.best[c.key] = { jakku = 1 } end
 local descs = {}
 for _, it in ipairs(SC.home().items or {}) do
-  if it.title and it.title:match('CC$') then descs[#descs + 1] = tostring(it.desc) end
+  if it.classKey then descs[#descs + 1] = tostring(it.desc) end
 end
-T.check(not table.concat(descs, '|'):find('Champion: %u%u+ %u'), 'no other champion on a class tile (' .. table.concat(descs, '|') .. ')')
-K.data.titles = { ['100'] = { won = true, tries = 1 } }
+T.check(#descs >= 1 and not table.concat(descs, '|'):find('Champion: %u%u+ %u'), 'no other champion on a league tile (' .. table.concat(descs, '|') .. ')')
+K.data.titles = { riffraff = { won = true, tries = 1 } }
 local home = SC.home().items or {}
 local got
 local star
-for _, it in ipairs(home) do if it.title == '100CC' then got = it.desc; star = it.pips and it.pips[#it.pips] end end
+for _, it in ipairs(home) do if it.title == 'RIFF-RAFF' then got = it.desc; star = it.pips and it.pips[#it.pips] end end
 T.check(got == nil and star and star[1] == require('art').STAR and not star[3], 'v0.24: your title is the gold star at the end of the pips, no words (' .. tostring(got) .. ')')
-for _, it in ipairs(home) do if it.title == '100CC' then T.check(not tostring(it.info):find('Champion', 1, true), 'v0.21: not repeated in the info line (less clutter)') end end
+for _, it in ipairs(home) do if it.title == 'RIFF-RAFF' then T.check(not tostring(it.info):find('Champion', 1, true), 'v0.21: not repeated in the info line (less clutter)') end end
 
 T.check(#bad == 0, ('every tile\'s text fits its tile (%d tiles checked)%s'):format(count,
   #bad > 0 and (':\n  ' .. table.concat(bad, '\n  ')) or ''))

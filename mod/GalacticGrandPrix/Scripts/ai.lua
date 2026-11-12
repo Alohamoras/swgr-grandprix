@@ -224,7 +224,7 @@ function A.launch(classKey, prof)
     else
       local k, parts = writePlan(A.CONFIG, obj, plan)
       n = n + k
-      log(('[ai] class %s: AI config (%s) %s'):format(who, short(A.CONFIG), table.concat(parts, ', ')))
+      log(('[ai] league %s: AI config (%s) %s'):format(who, short(A.CONFIG), table.concat(parts, ', ')))
     end
     local rp = A.pacingPlan(plan)
     if A.writePacingAssets() and next(rp) ~= nil then
@@ -234,12 +234,12 @@ function A.launch(classKey, prof)
         else
           local k, parts = writePlan(path, o, rp)
           n = n + k
-          log(('[ai] class %s: pacing asset (%s) %s'):format(who, short(path), table.concat(parts, ', ')))
+          log(('[ai] league %s: pacing asset (%s) %s'):format(who, short(path), table.concat(parts, ', ')))
         end
       end
     end
   end
-  local ok, err = pcall(A.readback, ('race class=%s%s'):format(tostring(classKey), prof and ' study' or ''), objs, plan)
+  local ok, err = pcall(A.readback, ('race league=%s%s'):format(tostring(classKey), prof and ' study' or ''), objs, plan)
   if not ok then log('[aiset] read-back failed: ' .. tostring(err)) end
   return n
 end
@@ -352,7 +352,7 @@ function A.begin(classKey, prof)
   if not A.enabled() then return nil end
   local p = A.pressure(classKey, prof)
   local adj = tonumber(aiCfg().Adjust) or 0
-  log(('[ai] class %s%s: pressure %.2f (%s)%s'):format(tostring(classKey), prof and ' (study profile)' or '', p, A.label(p),
+  log(('[ai] league %s%s: pressure %.2f (%s)%s'):format(tostring(classKey), prof and ' (study profile)' or '', p, A.label(p),
     adj ~= 0 and (' - Adjust %+g'):format(adj) or ''))
   return { class = classKey, prof = prof, p = p, at = C.clock, done = {}, orig = {}, last = -1e9, logged = 0 }
 end
@@ -398,7 +398,7 @@ function A.apply(st, started, sinceStart)
         local parts = {}
         for _, f in ipairs(FIELDS) do parts[#parts + 1] = f .. '=' .. readShow(conf, f) end
         parts[#parts + 1] = 'TotalCrashAllowance=' .. readShow(conf, 'TotalCrashAllowance')
-        log(('[aiset] race tune class=%s%s | %s'):format(tostring(st.class), st.prof and ' study' or '', table.concat(parts, ' ')))
+        log(('[aiset] race tune league=%s%s | %s'):format(tostring(st.class), st.prof and ' study' or '', table.concat(parts, ' ')))
       end
       n = n + 1
     end

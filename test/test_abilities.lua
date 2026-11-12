@@ -5,7 +5,7 @@ local W = require('world')
 local T = require('util')
 T.boot(nil, { Progression = { On = false } }) -- (unlocks: test_prog, test_unlocks)
 M.press('F6'); M.tick(6)
-T.clickTitle('150CC'); M.tick(3)   -- (the garage shows the picks at the level of the class picked last)
+T.clickTitle('CHALLENGER'); M.tick(3)   -- (the garage shows the picks at the level of the class picked last)
 M.press('BACKSPACE'); M.tick(3)
 T.clickTitle('GARAGE'); M.tick(5)
 T.check(T.titles():find('CONCUSSIVE BOLT|IMPACT SHIELD|IMPACT SURGE|CONCUSSION MINE II', 1, true) ~= nil, 'free pick: your four by name, defaults at 150cc (' .. T.titles() .. ')')
@@ -36,14 +36,14 @@ local p = T.save().picks
 T.check(p[1] == 'shockwave.vectored' and p[2] == 'shield.impact' and p[3] == 'vent.flame' and p[4] == 'bolt.multi', 'picks saved as a list')
 
 M.press('BACKSPACE'); M.tick(3)
-T.clickTitle('150CC'); M.tick(3)
+T.clickTitle('CHALLENGER'); M.tick(3)
 T.clickTitle('JAKKU CUP')
 local slots = W.buildSlots['VBD_Car_Base']
 local function names(list) local t = {}; for i = 1, 4 do t[i] = rawget(list[i], '__dead') and '-' or rawget(list[i], '__name') end; return table.concat(t, ',') end
 T.check(names(slots) == 'BP_Ability_Shockwave_Punch_C,BP_Ability_Shield_Charged_C,BP_Ability_Vent_Flame_C,BP_Ability_Disruptor_Multi_C',
   'launch build: your four at level 2 (' .. names(slots) .. ')')
 T.check(T.save().run.picks[3] == 'vent.flame', 'the cup keeps its own copy of the picks')
-T.check(T.logHas('[loadout] class 150: AI racers get their four'), 'AI loadout armed')
+T.check(T.logHas('[loadout] league challenger: AI racers get their four'), 'AI loadout armed')
 
 W.race(11); M.tick(5)
 T.check(W.slots(W.bots[2]) == 'BP_Ability_Disruptor_Concuss_C,BP_Ability_Shield_Charged_C,BP_Ability_Surge_Aggressive_C,BP_Ability_Shockwave_Punch_C',
