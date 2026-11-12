@@ -48,6 +48,8 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
   - No goals lines; later, **progress badges on the right side of the screen** showing every unlock / achievement
     (like the base game's badge screen) - on the to-do list.
   - The Ando short track: name it something more on theme (Claude picks).
+  - **No CONTINUE on the results screen between cup races**: it's the same as leaving the cup, so redundant and
+    misleading. Only NEXT RACE; B leaves the cup (with the question).
 - 2026-11-11 evening: v0.20 checked in game (footer gone, label strips, rival in light blue, cup result screen,
   CONTINUE to the next cup, HOME "Next:" line).
 - 2026-11-11: run AI batches with the autopilot (done: docs/ai-study-2026-11-11.md); boot into the Grand Prix
