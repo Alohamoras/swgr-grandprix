@@ -4,8 +4,6 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
-- [ ] **150cc difficulty.** Now that it's fully honest, the autopilot finished 2nd–3rd in most races of a 150cc cup.
-  Is that the "earned win" you want, or too hard? (Answer after racing it, see below.)
 - [ ] **Ideas from your Google Doc** (realism mode, a podracer cup): send the details when you want them on the list.
 
 ## Playtests (only a real race can tell)
@@ -48,6 +46,9 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
   - No goals lines; later, **progress badges on the right side of the screen** showing every unlock / achievement
     (like the base game's badge screen) - on the to-do list.
   - The Ando short track: name it something more on theme (Claude picks).
+  - **200cc "fast and brutal", but crashing a lot still gets ~2nd: overall a little tougher.** (200cc Jakku: 2nd,
+    3rd, 2nd, 1st = gold; 150cc Galactic: silver.) v0.21: bots no longer ease off while you crash (100cc+), 200cc a
+    notch above 150cc.
   - **No CONTINUE on the results screen between cup races**: it's the same as leaving the cup, so redundant and
     misleading. Only NEXT RACE; B leaves the cup (with the question).
 - 2026-11-11 evening: v0.20 checked in game (footer gone, label strips, rival in light blue, cup result screen,
