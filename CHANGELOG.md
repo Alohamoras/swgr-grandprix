@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.25.0 (2026-11-11 night): fixes from the first look in game at v0.22-v0.24
+Claude's in-game check (owner away; save backed up and restored, md5 checked; autopilot). Seen working: the faster
+tab (1-2 s), HOME's medal pips and title stars, the cups page in rows with clear gold / bronze medals, the start
+screen (header, START focused, ability and tune-up icons), NEXT RACE alone on the results panel, B on the results
+panel -> "Leave the cup?", the cup result, CONTINUE -> the cup just raced, RESET's two questions. Fixed:
+- **HOME opened on RESET** instead of the class last raced: the game hands focus to a tile of its own the moment a
+  page appears; for the first second our focus is now kept (config `FocusHoldMs`, 1000).
+- **Unfocused tiles looked milky** on the menu's pale art (they were faded): a rows page now darkens them instead.
+- **Tile text without the grey bars** was hard to read on bright art when focused: a dark drop shadow on every
+  tile's title, badge and description (config `TileTextShadow = false`: none).
+- **The racers' portraits drew broken** (Kestar's tile: white with scraps of picture; the game's large
+  `Content/Characters/*_Fallback` textures don't work through the tile's picture): none are used, the stadium
+  picture is back (config `Portraits = {}`).
+- Bigger medal pips on HOME (66 px).
+- The yes / no questions centred in a row; the standings page and the cup result centred; the MOVED column only
+  once someone has moved.
+
 ## v0.24.0 (2026-11-11): the garage is the start screen; pictures, not words, on the tiles
 TASKS.md "Round 3: the UI" item 3 (owner: "build it into v0.24 ... i don't like the look of the text on the tiles
 that has a dark grey background behind it, the title race should just get a medal when you complete it, the

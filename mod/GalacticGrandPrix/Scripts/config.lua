@@ -35,6 +35,11 @@ return {
     -- v0.24 (owner): the garage is every race's start screen (cup -> garage with START focused -> race). false = the
     -- v0.23 way: a cup starts at once, the GARAGE tile on HOME.
     StartScreen = true,
+    -- v0.25: ms after a page appears in which the game's own focus moves are undone (it hands focus to a tile of its
+    -- own choosing at once - HOME opened on RESET)
+    FocusHoldMs = 1000,
+    -- v0.25: a dark drop shadow on tile text (no grey strips since v0.24); false = none
+    TileTextShadow = true,
     -- v0.23: racers' faces on the title race and final boss tiles, by racer key. v0.25 (seen in game 2026-11-11): the
     -- game's large character pictures (Content/Characters/*_Fallback) draw broken through the tile's picture (a white
     -- tile with scraps), so none are listed; the stadium picture stays. Format: { RacerKey = '/Game/...texture' }.

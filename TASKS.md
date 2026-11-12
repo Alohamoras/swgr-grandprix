@@ -244,7 +244,7 @@ Each step is its own version, checked in game (owner away) before the next.
          up. Fix: look every 200 ms while a new menu settles, settle on ~1 s of time, open our page as soon as the tab
          is in. Check for crashes over several boots and race returns.
    - [x] Old code to attic/ (study mode, the chain reset route; owner: "take it out and save it somewhere as old code").
-2. **v0.23: a layout per screen, the cups page first.** **Built as v0.23.0 (2026-11-11), not yet seen in game.**
+2. **v0.23: a layout per screen, the cups page first.** **Built as v0.23.0 (2026-11-11); seen in game 2026-11-11 night, fixed in v0.25.**
    - [x] ui.lua: rows of tiles, each row its own tile size (in place of the one uniform grid), the page centred.
          Check the pad / D-pad moves between rows of different sizes.
    - [x] Cups page: the five planets in one row; GALACTIC CUP wide below, TITLE RACE and KESTAR BOOL as portrait
@@ -272,6 +272,11 @@ Each step is its own version, checked in game (owner away) before the next.
   like 150cc; the study's 100cc open runs were level with a clean autopilot, 0-4 s faster than the owner).
   Proposal (not built): v0.25 with those four numbers, no rubber band anywhere, then a cup at each class.
   Ties in with "three classes or four" (parts 0-1 / 5 / 9).
+  **Measured 2026-11-11 night** (autopilot, the 150cc title race, The War Fields (dawn), 1 v 1 so no traffic):
+  parts 7: 101.45 / 103.80 / 103.79 s; parts 6: 105.67 / 103.78 / 102.69 s - **about 1 s for a level, not 3-4**.
+  And Biddy got slower too (about +6 s behind at parts 7, +10 s at parts 6): the game seems to scale the AI's pace
+  to your car, so a slower car may not make the bots relatively faster at all. The autopilot is itself the game's
+  AI driving your car, so it can't settle this; only the owner's own races can. The parts lever looks weak.
 - **The title race's bot is slow** (owner's 150cc title race, 2026-11-11 21:13, v0.21: vs Biddy Blas on The War
   Fields (dawn), racing as Ary Quill). The owner: he "either crashed a few times on his own or just went slow for a
   while". The log: won by **+16.0 s** (2:05.66), against a few seconds in a full cup; the grid cut and put-back,
@@ -285,6 +290,16 @@ Each step is its own version, checked in game (owner away) before the next.
   no slowdown, no forced errors, no speed matching) and **Surge_Aggressive in the bot's four** (a surge fired off the
   line, with a 75% perfect-start chance, fits a wall hit at the start). To separate them: a 1 v 1 with
   Surge_Aggressive swapped out, and one on the game's stock AI settings.
+  **Tested 2026-11-11 night (autopilot):** title race vs Biddy: won by 1.9 / 11.3 / 5.4 s (parts 7), Biddy 103-115 s
+  - a lone bot's pace swings ~10 s race to race, and nothing hides it in a 1 v 1. Held on the line 28 s: Biddy won by
+  30.3 s in 101.5 s - **a bot leading by a lot does not slow down or wait**. So the owner's 40 s slower Biddy was his
+  own crashes or knock-offs, which a full grid hides. Kestar: veered left off the line in the first second
+  (screenshot `n2-boss1.png`), then lost by 20 s over 6 laps - **a weak final boss**. The Showdown was probably built
+  around the game's own catch-up, which our 150cc profile switches off. Options: the boss race keeps the game's own
+  AI settings, or a boss profile of its own (more pressure, aggression). Owner decides (it's a rubber band).
+- **A DNF skips the results panel** (seen 2026-11-11 night: the autopilot knocked out 5 times at The War Fields
+  (dawn)): our panel waits for the race's finish flag, which a DNF never sets, so the game's own results show with
+  CONTINUE; our standings come after it at the main menu and the cup goes on. Fix later: also act on elimination.
 - **Tune-ups gated by class:** tune-ups 1 and 2 are "great packs of abilities" but shouldn't be gated by cc class.
   Gated some other way (trophies, golds, titles: an unlock to play for) or not at all? Ties in with the "no top"
   point in the review (rewards to come back for).

@@ -4,6 +4,10 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
+- [ ] **Kestar is a weak final boss** (Claude's tests, 2026-11-11 night: he veers left off the line, then loses by
+  20 s over 6 laps even to the autopilot). The Showdown was likely built around the game's own catch-up, which our
+  150cc settings switch off. Give the boss race the game's own AI (a rubber band, but only for him), a boss profile
+  of its own, or leave him? (TASKS "Discussions")
 - [ ] **Review and UI plan** (docs/review-2026-11-11.md): pick the order. Proposal: A, the quiet pass (cut stray
   text) -> B, a layout per screen (cups page first: medal icons, faces on the title tiles, a centred page without
   the grey box) -> a feature freeze while you race a full season -> progress badges.
@@ -50,6 +54,11 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - [ ] **v1.0 pass:** every cup at every class, once the above feel right.
 
 ## Done (moved here when answered)
+- 2026-11-11 night, Claude's in-game check (owner away, save restored, md5 checked): v0.22-v0.24 seen working
+  (CHANGELOG v0.25.0); fixed in v0.25: HOME opening on RESET, milky unfocused tiles, hard-to-read tile text, broken
+  portraits. Title race: a lone bot's pace swings ~10 s; a leading bot doesn't wait (your 40 s slower Biddy was his
+  own crashes or knock-offs). One parts level measured at only ~1 s (TASKS "Discussions": harder opponents).
+  Screenshots: ~/Projects/swgr-underground/autotest/shots/n*.png.
 - 2026-11-11 evening, after racing a 50cc and a 100cc cup (owner's answers):
   - Difficulty "pretty good, most wins felt earned"; catching up a little harder than before, more so at 100cc, but
     still possible after a crash or two: **make it a little harder**.
