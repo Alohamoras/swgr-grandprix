@@ -55,7 +55,16 @@ T.check(T.logHas('mods in the launch build for this race: AFX_Conditions_Burning
 T.check(T.save().run.mods[2] == 'slipstreamer', 'the cup keeps its own copy of the tune-ups')
 T.check(T.save().modRestores.VBD_Car_Base == nil and next(T.save().modRestores) ~= nil, 'the build\'s own list saved before the race')
 
+-- (AI driving spike step 1: logbuilds.txt in the mod folder -> every racer's race copy logged at load, read only)
+local lbf = io.open(T.dir .. '/logbuilds.txt', 'w'); lbf:write(''); lbf:close()
+local bmark = T.mark()
 W.race(11); M.tick(5)
+os.remove(T.dir .. '/logbuilds.txt')
+local nb = 0
+for i = bmark + 1, #M.log do if M.log[i]:find('[builds]', 1, true) then nb = nb + 1 end end
+T.check(T.logHas('[builds] Biddy Blas pilot=', bmark) and T.logHas(' (YOU) pilot=', bmark) and T.logHas(' power=', bmark) and T.logHas('affixes AFX_Conditions_BurningProtection', bmark)
+  and not T.logHas('[builds] read failed', bmark) and not T.logHas('read error', bmark),
+  'logbuilds.txt: every racer\'s race copy logged at load, before our changes (' .. nb .. ' lines)')
 T.check(T.logHas('[loadout] mods: you=HEAT SHIELD Elite=HEAT SHIELD (Biddy Blas, Sen Fira, Lyren Shok) (64 bot slots cleared)'),
   'logged: 8 bots x 4 copies x 2 affixes = 64 cleared, the Elite keep theirs, nothing from your copy')
 T.check(W.affixes(W.bots[1]) == 'AFX_Conditions_BurningProtection,AFX_Conditions_FreezeProtection,-,-', 'Biddy Blas (Elite): HEAT SHIELD only (' .. W.affixes(W.bots[1]) .. ')')

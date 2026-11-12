@@ -119,6 +119,15 @@ end
 -- the writes a profile asks for: field path -> { set = value } and / or { mul = factor } (set first, then mul)
 function A.plan(classKey, profOverride)
   local prof = A.profile(classKey, profOverride)
+  local exp = A.experiment()
+  if exp and type(exp.config) == 'table' then
+    local merged = {}
+    for k, v in pairs(prof) do merged[k] = v end
+    merged.config = {}
+    for k, v in pairs(prof.config or {}) do merged.config[k] = v end
+    for k, v in pairs(exp.config) do merged.config[k] = v end
+    prof = merged
+  end
   local w = {}
   local function want(path, t)
     w[path] = w[path] or {}
@@ -140,6 +149,23 @@ function A.planned(t, cur)
   local v = t.set ~= nil and t.set or cur
   if t.mul then v = v * t.mul end
   return v
+end
+
+-- AI driving spike, step 2 (TASKS.md section 1; test-only): a file `experiment.lua` in the mod folder, read at every
+-- launch, returns a table that changes this race's AI on top of the league's profile - nothing when the file isn't
+-- there. Keys: label (logged), styles = { Car = { Field = value }, Bike = {...}, Skimmer = {...} } (the driving style
+-- assets DS_<type>_Base, written like the AI config: originals into the save, put back at the menu), config = { path =
+-- value } (more DA_AIConfig writes), botStacks = n (added to every bot's stacking part upgrades at load, loadout.lua),
+-- botStacksBy = { ['Racer Name'] = n } (per racer, instead of botStacks for them).
+A.STYLES = '/Game/Griffin/AI/DS_%s_Base'
+function A.experiment()
+  local path = C.DIR .. '/experiment.lua'
+  local f = io.open(path, 'r')
+  if not f then return nil end
+  f:close()
+  local ok, t = pcall(dofile, path)
+  if not ok or type(t) ~= 'table' then log('[exp] experiment.lua unreadable: ' .. tostring(t)); return nil end
+  return t
 end
 
 local function restores()
@@ -235,6 +261,25 @@ function A.launch(classKey, prof)
           local k, parts = writePlan(path, o, rp)
           n = n + k
           log(('[ai] league %s: pacing asset (%s) %s'):format(who, short(path), table.concat(parts, ', ')))
+        end
+      end
+    end
+  end
+  local exp = A.experiment()
+  if exp then
+    log(('[exp] experiment "%s" for this race'):format(tostring(exp.label or '?')))
+    for _, kind in ipairs({ 'Car', 'Bike', 'Skimmer' }) do
+      local want = exp.styles and exp.styles[kind]
+      if type(want) == 'table' and next(want) ~= nil then
+        local path = A.STYLES:format(kind)
+        local o = C.asset(path)
+        if not alive(o) then log('[exp] driving style not found: ' .. path)
+        else
+          local sp = {}
+          for fp, v in pairs(want) do if type(v) == 'number' then sp[fp] = { set = v } end end
+          local k, parts = writePlan(path, o, sp)
+          n = n + k
+          log(('[exp] driving style %s: %s'):format(short(path), table.concat(parts, ', ')))
         end
       end
     end

@@ -208,6 +208,12 @@ function W.aiConfig()
     EnableSpeedMatchingZone = true, SpeedMatchingMaxMatchers = 2, SpeedMatchingSpeedLag = 5,
   }
   M.assets['/Game/Griffin/AI/DA_AIConfig.DA_AIConfig'] = M.new('DA_AIConfig', W.ai, 'RaceAIComponentConfig')
+  -- the driving styles (MenuRecon 2026-11-12, the boost rules): W.ds.Car / Bike / Skimmer
+  W.ds = {}
+  for kind, v in pairs({ Car = { 0.4, 3.0, 55 }, Bike = { 0.5, 2.5, 30 }, Skimmer = { 0.4, 3.0, 55 } }) do
+    W.ds[kind] = { MinEnergyForAfterburner = v[1], MinBoostTime = v[2], MaxDegreesOffHeadingForBoost = v[3], MinTimeBetweenBoosts = 1.0 }
+    M.assets['/Game/Griffin/AI/DS_' .. kind .. '_Base.DS_' .. kind .. '_Base'] = M.new('DS_' .. kind .. '_Base', W.ds[kind], kind .. 'AIDrivingStyleDef')
+  end
   W.pacingAssets()
   return W.ai
 end
@@ -277,7 +283,13 @@ local function buildCopies(slots)
     for j = 1, 4 do list[j] = slots[j] or CreateInvalidObject() end
     local aff = {}
     for j = 1, math.max(4, #mods) do aff[j] = { PrimaryAffix = mods[j] or CreateInvalidObject(), Status = mods[j] and 1 or 0 } end
-    copies[i] = { AbilitySlots = M.tarr(list), AffixSlots = M.tarr(aff) }
+    -- (the game's race copies carry your part upgrades too: in game 2026-11-12, Upgrade_<stat>_Max x5 at Challenger)
+    local ups = {}
+    for j, nm in ipairs({ 'Grip_Max', 'Acceleration_Max', 'Resilience_Max', 'Boost_Max', 'Battery_05', 'Advanced_Max' }) do
+      local stacking = nm:find('_Max$') ~= nil
+      ups[j] = { TunesetToApply = M.new('TNS_Upgrade_' .. nm, {}, 'TuneSet'), StacksToApply = stacking and 5 or 1, PowerLevel = 5, UserFacingStatIncrease = 5 }
+    end
+    copies[i] = { AbilitySlots = M.tarr(list), AffixSlots = M.tarr(aff), UpgradeSlots = M.tarr(ups), PowerLevel = 30 }
   end
   return M.tarr(copies)
 end

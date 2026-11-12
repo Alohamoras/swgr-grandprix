@@ -62,9 +62,10 @@ realism here so i'm open to ideas. We could make all the enemy vehicles a little
 
 **Steps** (house rules: no hooks, no per-tick lookups in races, nothing kept between ticks, writes memory only and
 put back at the menu, key binds only set flags):
-- [ ] 1. Recon, read only (tools/recon/AIDriveRecon, one launch): at the menu log every field of the three driving
-      styles, the operations of the four AI tune sets, the two AFX_AI affixes' definitions, DA_AIConfig's avoidance
-      fields; at race load each bot's race-copy `PowerLevel`, `OverridenPowerLevel`, `UpgradeSlots` and affix slots.
+- [x] 1. Recon, read only (2026-11-12, one launch): **docs/ai-driving-results-2026-11-12.md.** Every bot drives an
+      exact copy of YOUR car (same parts, power 30) - nothing in the cars tells pilots apart; no hidden handicap
+      affixes at load (TNS_AI_General helps the bots); the boost rules are cautious, the bike's most of all. Step 2's
+      switch (`experiment.lua`: styles, config, bot parts, a fixed event, every racer's time) is built (v0.27.7).
 - [ ] 2. Held-race batches (TestAutopilot `hold.txt`: your car stays on the line, the 11 bots race each other - a clean
       measure; the autopilot uses the same driving styles, so never measure against it). One change at a time against
       an untouched baseline, 3 races each on one track (The Giants' Graveyard, Challenger), plus one snow track (Cloister
@@ -82,8 +83,8 @@ put back at the menu, key binds only set flags):
 - [ ] Does the game's own track intro (flyover) show in our races now StreamlineCampaign is off? If yes: drop the
       race list from the start screen header (`startHeader`, main.lua) for a cinematic intro instead.
 - [ ] v0.27.5: the tab at game start (no auto-open; ~1 s sooner; `TabSettleS = 1.0` if the menu misbehaves).
-- [ ] The parts slot-to-stat mapping (CORNERING / AFTERBURNER / RESILIENCE / RAMJET / BATTERY / DRIFT vs
-      `EVehiclePartSlot` 0-5) - unconfirmed.
+- [ ] The parts slot-to-stat mapping: slots confirmed in game 2026-11-12 (0 Grip, 1 Acceleration, 2 Resilience,
+      3 Boost, 4 Battery, 5 Advanced); which on-screen bar each drives is still a guess by name.
 - [ ] Riff-Raff's brief "Stock engines" now it has parts 2 (e.g. "Hot-rodded junkers")?
 - [ ] 27 never-launched race variants from the random pools (OWNER.md v0.26) - launch each once.
 - [ ] Do the AI fire their abilities, Shields included (R7)?

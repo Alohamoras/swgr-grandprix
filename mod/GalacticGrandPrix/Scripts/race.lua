@@ -317,6 +317,17 @@ function R.launch(ev, classKey, vehKey, picks, mods, opts)
   require('chain').leaveAsk = nil -- (v0.21: and any "Leave the cup?" request from the results screen)
   local fe, why = R.atMainMenu()
   if not fe then return false, 'Cannot launch: ' .. why end
+  -- AI driving spike (test-only): experiment.lua's `event` (a race's title in the pools) replaces the race launched,
+  -- so every test race is on the same track
+  local exp = AI.experiment()
+  if exp and type(exp.event) == 'string' then
+    local found
+    for _, pool in pairs(require('config').Pools or {}) do
+      for _, r in ipairs(pool) do if r.title == exp.event then found = r end end
+    end
+    if found then log(('[exp] event: %s instead of %s'):format(found.title, tostring(ev and ev.title))); ev = found
+    else log('[exp] event not in the pools: ' .. exp.event) end
+  end
   local p, msg = prepare(ev, classKey, vehKey, picks, mods, opts)
   if not p then return false, msg end
   local skip = worldKeys()
@@ -524,6 +535,17 @@ local function recordRace(r)
   end)
   -- v0.10: the time gaps (gp.lua K.gaps, worked out in K.record from the field read above)
   pcall(function() log('[gaps] ' .. K.gapsLine(r.ev, out.gaps)) end)
+  -- AI driving spike (test-only): every racer's finish time, fastest first, while experiment.lua is there
+  pcall(function()
+    local exp = AI.experiment()
+    if not exp then return end
+    local t = {}
+    for _, f in ipairs(fl) do t[#t + 1] = f end
+    table.sort(t, function(a, b) return (a.time or 1e9) < (b.time or 1e9) end)
+    local parts = {}
+    for _, f in ipairs(t) do parts[#parts + 1] = ('%s %s'):format(f.you and 'YOU' or f.name, f.time and K.fmtTime(f.time) or 'DNF') end
+    log(('[exp] result "%s" %s: %s'):format(tostring(exp.label or '?'), r.ev.title, table.concat(parts, ', ')))
+  end)
   local okP, line = pcall(perfLine, r)
   log('PERF ' .. r.ev.title .. ': ' .. (okP and line or ('(error: ' .. tostring(line) .. ')')))
   return out

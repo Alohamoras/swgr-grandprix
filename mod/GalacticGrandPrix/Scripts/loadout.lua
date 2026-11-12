@@ -226,6 +226,84 @@ local function equip(ps, paths)
   return table.concat(labels, '+') .. (short and ' (too few slots)' or '') .. (bad > 0 and (' (' .. bad .. ' slots emptied)') or ''), bad
 end
 
+-- AI driving spike, step 1 (TASKS.md section 1): with a file `logbuilds.txt` in the mod folder, every racer's race
+-- copy is logged once at load, BEFORE any of our changes - read only: plain ints and object names (no TMap / TOptional
+-- / soft pointers; the AI build state's maps are never touched). Lines start `[builds]`.
+local function nameOf(o) return alive(o) and (try(function() return o:GetFName():ToString() end) or '?') or '-' end
+local function buildLine(b)
+  local up = {}
+  local us = b.UpgradeSlots
+  for i = 1, (try(function() return us:GetArrayNum() end) or 0) do
+    local u = us[i]
+    up[#up + 1] = ('%s:p%s/s%s/+%s'):format((nameOf(try(function() return u.TunesetToApply end)):gsub('^TNS_', '')),
+      tostring(try(function() return u.PowerLevel end)), tostring(try(function() return u.StacksToApply end)),
+      tostring(try(function() return u.UserFacingStatIncrease end)))
+  end
+  local af = {}
+  local as = b.AffixSlots
+  for i = 1, (try(function() return as:GetArrayNum() end) or 0) do
+    local a = as[i]
+    af[#af + 1] = nameOf(try(function() return a.PrimaryAffix end)) .. '/' .. nameOf(try(function() return a.SecondaryAffix end))
+  end
+  return ('%s arch=%s power=%s override=%s remainder=%s resil=%s | upgrades %s | affixes %s'):format(
+    nameOf(try(function() return b.VehicleBuildDef end)), tostring(try(function() return b.BuildArchetype end)),
+    tostring(try(function() return b.PowerLevel end)), tostring(try(function() return b.OverridenPowerLevel end)),
+    tostring(try(function() return b.PowerLevelMaxRemainder end)), tostring(try(function() return b.BaseResilienceOverride end)),
+    #up > 0 and table.concat(up, ' ') or '-', #af > 0 and table.concat(af, ' ') or '-')
+end
+local function listNames(arr)
+  local out = {}
+  for i = 1, (try(function() return arr:GetArrayNum() end) or 0) do out[#out + 1] = nameOf(try(function() return arr[i] end)) end
+  return #out > 0 and table.concat(out, ',') or '-'
+end
+function L.logBuilds(all)
+  local f = io.open(C.DIR .. '/logbuilds.txt', 'r')
+  if not f then return end
+  f:close()
+  for _, ps in ipairs(all) do
+    local rb = ps.RacerBuildState
+    local vb = rb.VehicleBuilds
+    log(('[builds] %s%s pilot=%s style=%s passives=%s modifiers=%s'):format(psName(ps) or '?', isBot(ps) and '' or ' (YOU)',
+      nameOf(try(function() return ps.Pilot end)), nameOf(try(function() return ps.RacerStyle end)),
+      listNames(rb.AppliedPassives), listNames(rb.AppliedModifiers)))
+    for b = 1, (try(function() return vb:GetArrayNum() end) or 0) do
+      local ok, line = pcall(buildLine, vb[b])
+      log('[builds]   ' .. (ok and line or ('read error: ' .. tostring(line))))
+    end
+  end
+end
+
+-- AI driving spike, step 2 (test-only, ai.lua A.experiment): each bot's stacking part upgrades (StacksToApply > 1,
+-- the `_Max` ones) moved by botStacks / botStacksBy[name] on its race copy, at load, before the upgrades are applied.
+-- Its PowerLevel field follows. Nothing to put back: the copies go with the race world.
+function L.botParts(bots, exp)
+  if not exp or (exp.botStacks == nil and exp.botStacksBy == nil) then return end
+  local parts = {}
+  for _, ps in ipairs(bots) do
+    local name = psName(ps) or '?'
+    local d = (type(exp.botStacksBy) == 'table' and exp.botStacksBy[name]) or tonumber(exp.botStacks) or 0
+    if d ~= 0 then
+      local vb = ps.RacerBuildState.VehicleBuilds
+      local changed, lvl = 0, nil
+      for b = 1, (try(function() return vb:GetArrayNum() end) or 0) do
+        local us = vb[b].UpgradeSlots
+        for i = 1, (try(function() return us:GetArrayNum() end) or 0) do
+          local u = us[i]
+          local s = try(function() return u.StacksToApply end)
+          if type(s) == 'number' and s > 1 then
+            local nv = math.max(1, s + d)
+            pcall(function() u.StacksToApply = nv end)
+            pcall(function() u.PowerLevel = nv end)
+            if try(function() return u.StacksToApply end) == nv then changed = changed + 1; lvl = nv end
+          end
+        end
+      end
+      parts[#parts + 1] = ('%s %+d (%d upgrades, now %s)'):format(name, d, changed, tostring(lvl))
+    end
+  end
+  log('[exp] bot parts: ' .. (#parts > 0 and table.concat(parts, ', ') or 'none changed'))
+end
+
 function L.apply(st)
   if not st or st.done then return end
   if C.clock - st.at > GIVE_UP_MS then
@@ -245,6 +323,15 @@ function L.apply(st)
   end
   if #bots == 0 then return end
   st.done = true
+  do
+    local all = {}
+    if me then all[1] = me end
+    for _, b in ipairs(bots) do all[#all + 1] = b end
+    local okB, errB = pcall(L.logBuilds, all)
+    if not okB then log('[builds] read failed: ' .. tostring(errB)) end
+    local okE, errE = pcall(L.botParts, bots, require('ai').experiment())
+    if not okE then log('[exp] bot parts failed: ' .. tostring(errE)) end
+  end
   if st.mods then
     local okS, err = pcall(sortMods, bots, me, st.mods)
     if not okS then log('[loadout] could not sort the mods out between the racers: ' .. tostring(err)) end

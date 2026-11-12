@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.27.7 (2026-11-12): AI driving spike tools (test-only, nothing changes without their files)
+Step 1 done (docs/ai-driving-results-2026-11-12.md); step 2's switches:
+- `logbuilds.txt` in the mod folder: every racer's race copy logged at load (`[builds]`), read only.
+- `experiment.lua` in the mod folder (ai.lua `A.experiment`): driving style writes (DS_Car / Bike / Skimmer_Base,
+  put back like the AI config), extra DA_AIConfig fields, the bots' part stacks at load (`botStacks`,
+  `botStacksBy`), a fixed `event`, and `[exp] result` with every racer's time. test_experiment.
+- tools/recon/MenuRecon: LoopInGameThreadWithDelay (house rule); the AI dump list and log in `ai-2026-11-12/`.
+
 ## v0.27.6 (2026-11-12): a press while the next race waits can't start the campaign
 The owner, mid-cup (Sentinel, Challenger): after race 3 the game went to the campaign's paddock. The log: NEXT RACE
 -> the main menu under the loading cover, waiting 5 s to settle before launching race 4; at 15:50:20 the launch found

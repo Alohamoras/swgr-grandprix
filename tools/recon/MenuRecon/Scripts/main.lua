@@ -157,20 +157,20 @@ local function atMenu()
   return false
 end
 
-local busy = false
-LoopAsync(1000, function()
-  if busy or not exists('dump.txt') then return false end
-  busy = true
-  ExecuteInGameThread(function()
-    local ok, err = pcall(function()
-      os.remove(DIR .. 'dump.txt')
-      log(os.date('%H:%M:%S') .. ' dump: at menu = ' .. tostring(atMenu())); flush()
-      for _, c in ipairs(lines('classes.txt')) do dumpClass(c) end
-      for _, p in ipairs(lines('assets.txt')) do dumpAsset(p) end
-      log(os.date('%H:%M:%S') .. ' dump done'); flush()
-    end)
-    if not ok then log('dump error: ' .. tostring(err)); flush() end
-    busy = false
+-- (2026-11-12: LoopInGameThreadWithDelay, not LoopAsync -> ExecuteInGameThread - house rule)
+local function check()
+  if not exists('dump.txt') then return end
+  local ok, err = pcall(function()
+    os.remove(DIR .. 'dump.txt')
+    log(os.date('%H:%M:%S') .. ' dump: at menu = ' .. tostring(atMenu())); flush()
+    for _, c in ipairs(lines('classes.txt')) do dumpClass(c) end
+    for _, p in ipairs(lines('assets.txt')) do dumpAsset(p) end
+    log(os.date('%H:%M:%S') .. ' dump done'); flush()
   end)
-  return false
-end)
+  if not ok then log('dump error: ' .. tostring(err)); flush() end
+end
+if type(LoopInGameThreadWithDelay) == 'function' then
+  LoopInGameThreadWithDelay(1000, function() pcall(check) end)
+else
+  LoopAsync(1000, function() ExecuteInGameThread(function() pcall(check) end); return false end)
+end

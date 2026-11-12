@@ -1,0 +1,8 @@
+# AI driving spike step 1 (TASKS.md section 1): what the 2026-11-10 dumps don't have
+/Game/Griffin/AI/DS_Car_Base
+/Game/Griffin/AI/DS_Bike_Base
+/Game/Griffin/AI/DS_Skimmer_Base
+/Game/Griffin/AI/TNS_AI_ReducedPower
+/Game/Griffin/AI/AFX_AI_TemporarilySlower
+/Game/Griffin/AI/AFX_AI_SlowerCrashRecovery
+/Game/Griffin/AI/DA_AIConfig

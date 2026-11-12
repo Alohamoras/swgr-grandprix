@@ -1,0 +1,241 @@
+16:49:35 dump: at menu = true
+== asset /Game/Griffin/AI/DS_Car_Base
+  asset CarAIDrivingStyleDef /Game/Griffin/AI/DS_Car_Base.DS_Car_Base
+  [CarAIDrivingStyleDef]
+    DriftSteeringPIDConfig (Struct) = {PGain=0.350, IGain=0.001, DGain=0.070, IntegralRange=0.200} (PIDConfig)
+    DriftingVelocitySteeringWeighting (Float) = 0.200
+    MinimumSpeedForDrifting (Float) = 175.0
+    LookAheadDistance (Float) = 15000.0
+    DriftCornerRadius (Float) = 12000.0
+  [RaceAIDrivingStyleDef]
+    VelocitySteeringWeighting (Float) = 0.0
+    MinLookAheadDistance (Float) = 5250.0
+    MaxLookAheadDistance (Float) = 10000.0
+    LookAheadFactor (Float) = 0.750
+    MinAimPointDistance (Float) = 1800.0
+    MaxAimPointDistance (Float) = 4800.0
+    DangerOutsideExtents (Float) = 0.600
+    SteeringPIDConfig (Struct) = {PGain=0.053, IGain=0.000, DGain=0.008, IntegralRange=0.500} (PIDConfig)
+    ThrottlePIDConfig (Struct) = {PGain=0.200, IGain=0.0, DGain=0.001, IntegralRange=1.0} (PIDConfig)
+    SteeringPIDConfigFrozen (Struct) = {PGain=0.250, IGain=0.001, DGain=0.020, IntegralRange=0.200} (PIDConfig)
+    VelocitySteeringWeightingFrozen (Float) = 0.500
+    MinAimPointDistanceFrozen (Float) = 2000.0
+    MaxAimPointDistanceFrozen (Float) = 6500.0
+    AvoidanceWidthMultiplier (Float) = 0.950
+    AvoidanceLengthMultiplier (Float) = 1.0
+    CatchupTuneSet (Object) = <TuneSet /Game/Griffin/AI/Pacing/Default/TNS_AI_Catchup_Boost.TNS_AI_Catchup_Boost>
+    CatchupSteeringPIDConfig (Struct) = {PGain=0.050, IGain=0.000, DGain=0.001, IntegralRange=0.500} (PIDConfig)
+    MinBoostTime (Float) = 3.0
+    MinRacePacingFactorForBoost (Float) = 0.990
+    MinThrottleForBoost (Float) = 0.100
+    MinEnergyForAfterburner (Float) = 0.400
+    MinTimeBetweenBoosts (Float) = 1.0
+    BoostTopSpeedThresholdRatio (Float) = 0.800
+    MaxDegreesOffHeadingForBoost (Float) = 55.0
+    RamjetExtrapolationTime (Float) = 0.700
+    CornerExtrapolationTime (Float) = 0.800
+  [DataAsset]
+    NativeClass (Class) = <Class /Script/Griffin.CarAIDrivingStyleDef>
+
+
+== asset /Game/Griffin/AI/DS_Bike_Base
+  asset BikeAIDrivingStyleDef /Game/Griffin/AI/DS_Bike_Base.DS_Bike_Base
+  [BikeAIDrivingStyleDef]
+    ActivateEnergyBrakingBelowCornerRadius (Float) = 10000.0
+    ActivateEnergyBrakingAboveHeadingDelta (Float) = 30.0
+    EnergyBrakingCooldown (Float) = 0.500
+    StopEnergyBrakingBelowHeadingAngle (Float) = 10.0
+  [RaceAIDrivingStyleDef]
+    VelocitySteeringWeighting (Float) = 0.0
+    MinLookAheadDistance (Float) = 2250.0
+    MaxLookAheadDistance (Float) = 10000.0
+    LookAheadFactor (Float) = 0.600
+    MinAimPointDistance (Float) = 1500.0
+    MaxAimPointDistance (Float) = 4100.0
+    DangerOutsideExtents (Float) = 0.600
+    SteeringPIDConfig (Struct) = {PGain=0.045, IGain=0.000, DGain=0.007, IntegralRange=1.0} (PIDConfig)
+    ThrottlePIDConfig (Struct) = {PGain=0.320, IGain=0.0, DGain=0.005, IntegralRange=1.0} (PIDConfig)
+    SteeringPIDConfigFrozen (Struct) = {PGain=0.350, IGain=0.001, DGain=0.020, IntegralRange=0.200} (PIDConfig)
+    VelocitySteeringWeightingFrozen (Float) = 0.500
+    MinAimPointDistanceFrozen (Float) = 2100.0
+    MaxAimPointDistanceFrozen (Float) = 6500.0
+    AvoidanceWidthMultiplier (Float) = 1.0
+    AvoidanceLengthMultiplier (Float) = 1.0
+    CatchupTuneSet (Object) = <TuneSet /Game/Griffin/AI/Pacing/Default/TNS_AI_Catchup_Boost.TNS_AI_Catchup_Boost>
+    CatchupSteeringPIDConfig (Struct) = {PGain=0.008, IGain=0.000, DGain=0.000, IntegralRange=1.0} (PIDConfig)
+    MinBoostTime (Float) = 2.500
+    MinRacePacingFactorForBoost (Float) = 0.990
+    MinThrottleForBoost (Float) = 0.900
+    MinEnergyForAfterburner (Float) = 0.500
+    MinTimeBetweenBoosts (Float) = 1.0
+    BoostTopSpeedThresholdRatio (Float) = 0.900
+    MaxDegreesOffHeadingForBoost (Float) = 30.0
+    RamjetExtrapolationTime (Float) = 0.700
+    CornerExtrapolationTime (Float) = 0.800
+  [DataAsset]
+    NativeClass (Class) = <Class /Script/Griffin.BikeAIDrivingStyleDef>
+
+
+== asset /Game/Griffin/AI/DS_Skimmer_Base
+  asset SkimmerAIDrivingStyleDef /Game/Griffin/AI/DS_Skimmer_Base.DS_Skimmer_Base
+  [SkimmerAIDrivingStyleDef]
+    KnifingSteeringPIDConfig (Struct) = {PGain=0.100, IGain=0.000, DGain=0.001, IntegralRange=0.400} (PIDConfig)
+    KnifingVelocitySteeringWeighting (Float) = 0.0
+    MinimumSpeedForKnifing (Float) = 175.0
+    LookAheadDistance (Float) = 15000.0
+    CornerAngleThresholdForKnifing (Float) = 80.0
+    KnifingDistanceIncreaseFactor (Float) = 0.100
+    CornerAngleThresholdForKnifingFrozen (Float) = 28.0
+  [RaceAIDrivingStyleDef]
+    VelocitySteeringWeighting (Float) = 0.0
+    MinLookAheadDistance (Float) = 2250.0
+    MaxLookAheadDistance (Float) = 10000.0
+    LookAheadFactor (Float) = 0.600
+    MinAimPointDistance (Float) = 1800.0
+    MaxAimPointDistance (Float) = 4500.0
+    DangerOutsideExtents (Float) = 0.600
+    SteeringPIDConfig (Struct) = {PGain=0.043, IGain=0.000, DGain=0.007, IntegralRange=0.500} (PIDConfig)
+    ThrottlePIDConfig (Struct) = {PGain=0.320, IGain=0.0, DGain=0.030, IntegralRange=1.0} (PIDConfig)
+    SteeringPIDConfigFrozen (Struct) = {PGain=0.080, IGain=0.001, DGain=0.010, IntegralRange=0.200} (PIDConfig)
+    VelocitySteeringWeightingFrozen (Float) = 0.500
+    MinAimPointDistanceFrozen (Float) = 2000.0
+    MaxAimPointDistanceFrozen (Float) = 6500.0
+    AvoidanceWidthMultiplier (Float) = 0.800
+    AvoidanceLengthMultiplier (Float) = 1.0
+    CatchupTuneSet (Object) = <TuneSet /Game/Griffin/AI/Pacing/Default/TNS_AI_Catchup_Boost.TNS_AI_Catchup_Boost>
+    CatchupSteeringPIDConfig (Struct) = {PGain=0.030, IGain=0.000, DGain=0.001, IntegralRange=1.0} (PIDConfig)
+    MinBoostTime (Float) = 3.0
+    MinRacePacingFactorForBoost (Float) = 0.990
+    MinThrottleForBoost (Float) = 0.100
+    MinEnergyForAfterburner (Float) = 0.400
+    MinTimeBetweenBoosts (Float) = 1.0
+    BoostTopSpeedThresholdRatio (Float) = 0.800
+    MaxDegreesOffHeadingForBoost (Float) = 55.0
+    RamjetExtrapolationTime (Float) = 0.700
+    CornerExtrapolationTime (Float) = 0.800
+  [DataAsset]
+    NativeClass (Class) = <Class /Script/Griffin.SkimmerAIDrivingStyleDef>
+
+
+== asset /Game/Griffin/AI/TNS_AI_ReducedPower
+  asset TuneSet /Game/Griffin/AI/TNS_AI_ReducedPower.TNS_AI_ReducedPower
+  [TuneSet]
+    Operations (Array) = [Struct x1: {Priority=0, FloatParam=0.0, IntParam=10, Vector2DParam={X=0.0, Y=0.0} (Vector2D), VectorParam={X=0.0, Y=0.0, Z=0.0} (Vector), Operation=14, Category="VehicleGameplayConfig", Property="Power"} (TuneOperation)]
+    PlaneOperations (Array) = [Struct x0: ]
+    CoreVehicleOperations (Array) = [Struct x0: ]
+  [DataAsset]
+    NativeClass (Class) = <Class /Script/Griffin.TuneSet>
+
+
+== asset /Game/Griffin/AI/AFX_AI_TemporarilySlower
+  asset AffixPassiveConfig /Game/Griffin/AI/AFX_AI_TemporarilySlower.AFX_AI_TemporarilySlower
+  [AffixPassiveConfig]
+    FaultyPlayerFacingDescription (Text) = ""
+    Rarity (Enum) = 0
+    EconomyGroup (Struct) = {TagName="None"} (GameplayTag)
+    FaultyRules (Array) = [Struct x0: ]
+    UnlockedBy (Struct) = {TagName="None"} (GameplayTag)
+    bShowInBuild (Bool) = true
+    PercentProperties (Map) = <Map>
+    IntProperties (Map) = <Map>
+    FaultyPercentProperties (Map) = <Map>
+    FaultyIntProperties (Map) = <Map>
+  [PassiveConfig]
+    PlayerFacingName (Text) = ""
+    PlayerFacingDescription (Text) = ""
+    Icon (SoftObject) = <SoftObject>
+    LargeIcon (SoftObject) = <SoftObject>
+    PassiveRule (Array) = [Struct x2: {UseOnce=false, Requirements=[Object x0: ], OneTimeEffects=[Object x0: ], TrackedEffects=[Object x0: ], TuneSetsToApply=[Object x1: <TuneSet /Game/Griffin/AI/TNS_AI_ReducedPower.TNS_AI_ReducedPower>], RemoveTuneSetsWhenDestroyed=true} (PassiveRuleConfig), {UseOnce=false, Requirements=[Object x1: <TimerRequirementConfig /Game/Griffin/AI/AFX_AI_TemporarilySlower.AFX_AI_TemporarilySlower:TimerRequirementConfig_0>], OneTimeEffects=[Object x2: <RemoveAppliedTuneSetsPassiveEffectConfig /Game/Griffin/AI/AFX_AI_TemporarilySlower.AFX_AI_TemporarilySlower:RemoveAppliedTuneSetsPassiveEffectConfig_0>, <RemoveItselfPassiveEffectConfig /Game/Griffin/AI/AFX_AI_TemporarilySlower.AFX_AI_TemporarilySlower:RemoveItselfPassiveEffectConfig_0>], TrackedEffects=[Object x0: ], TuneSetsToApply=[Object x0: ], RemoveTuneSetsWhenDestroyed=true} (PassiveRuleConfig)]
+  [DataAsset]
+    NativeClass (Class) = <Class /Script/Griffin.AffixPassiveConfig>
+
+
+== asset /Game/Griffin/AI/AFX_AI_SlowerCrashRecovery
+  asset AffixPassiveConfig /Game/Griffin/AI/AFX_AI_SlowerCrashRecovery.AFX_AI_SlowerCrashRecovery
+  [AffixPassiveConfig]
+    FaultyPlayerFacingDescription (Text) = ""
+    Rarity (Enum) = 0
+    EconomyGroup (Struct) = {TagName="None"} (GameplayTag)
+    FaultyRules (Array) = [Struct x0: ]
+    UnlockedBy (Struct) = {TagName="None"} (GameplayTag)
+    bShowInBuild (Bool) = true
+    PercentProperties (Map) = <Map>
+    IntProperties (Map) = <Map>
+    FaultyPercentProperties (Map) = <Map>
+    FaultyIntProperties (Map) = <Map>
+  [PassiveConfig]
+    PlayerFacingName (Text) = ""
+    PlayerFacingDescription (Text) = ""
+    Icon (SoftObject) = <SoftObject>
+    LargeIcon (SoftObject) = <SoftObject>
+    PassiveRule (Array) = [Struct x2: {UseOnce=false, Requirements=[Object x1: <VehicleResetAfterCrashRequirementConfig /Game/Griffin/AI/AFX_AI_SlowerCrashRecovery.AFX_AI_SlowerCrashRecovery:VehicleResetAfterCrashRequirementConfig_0>], OneTimeEffects=[Object x1: <AddPassiveRuleEffectConfig /Game/Griffin/AI/AFX_AI_SlowerCrashRecovery.AFX_AI_SlowerCrashRecovery:AddPassiveRuleEffectConfig_0>], TrackedEffects=[Object x0: ], TuneSetsToApply=[Object x0: ], RemoveTuneSetsWhenDestroyed=true} (PassiveRuleConfig), {UseOnce=false, Requirements=[Object x1: <TrackedVehicleConditionRequirementConfig /Game/Griffin/AI/AFX_AI_SlowerCrashRecovery.AFX_AI_SlowerCrashRecovery:TrackedVehicleConditionRequirementConfig_1>], OneTimeEffects=[Object x0: ], TrackedEffects=[Object x1: <VehicleTrackedConditionPassiveEffectConfig /Game/Griffin/AI/AFX_AI_SlowerCrashRecovery.AFX_AI_SlowerCrashRecovery:VehicleTrackedConditionPassiveEffectConfig_0>], TuneSetsToApply=[Object x1: <TuneSet /Game/Griffin/Vehicles/Common/Upgrades/Affixes/TNS_Affix_Condition_Frozen_IncreasePotency_50pc.TNS_Affix_Condition_Frozen_IncreasePotency_50pc>], RemoveTuneSetsWhenDestroyed=true} (PassiveRuleConfig)]
+  [DataAsset]
+    NativeClass (Class) = <Class /Script/Griffin.AffixPassiveConfig>
+
+
+== asset /Game/Griffin/AI/DA_AIConfig
+  asset RaceAIComponentConfig /Game/Griffin/AI/DA_AIConfig.DA_AIConfig
+  [RaceAIComponentConfig]
+    GeneralAITuneSet (Object) = <TuneSet /Game/Griffin/AI/TNS_AI_General.TNS_AI_General>
+    ExtraEvadeLength (Float) = 250.0
+    MinAvoidDistanceVehicleAndObstacle (Float) = 0.0
+    DefaultPacingCurves (Struct) = {AIMaxTimeAhead={CurveTable=<CurveTable /Game/Griffin/AI/Pacing/Default/CT_RP_DefaultCurves.CT_RP_DefaultCurves>, RowName="Challengers - Max Time Ahead"} (CurveTableRowHandle), AIMinTimeAhead={CurveTable=<CurveTable /Game/Griffin/AI/Pacing/Default/CT_RP_DefaultCurves.CT_RP_DefaultCurves>, RowName="Challengers - Min Time Ahead"} (CurveTableRowHandle)} (VehiclePacingConfig)
+    DefaultPacingSettings (Struct) = {RacePacingLowestSpeedMph=150.0, MaxAiCatchupScale=1.300, MaxAiSlowdownScale=0.750, AiAheadTimeToMaxSlowdown=1.500, AiBehindTimeToMaxCatchup=2.0, AiSlowdownDuringCrash=0.500} (PacingSettingsConfig)
+    EnableSpeedMatchingZone (Bool) = true
+    SpeedMatchingMinPlayerSpeedInMph (Float) = 150.0
+    SpeedMatchingMaxMatchers (Int) = 2
+    SpeedMatchingSpeedLag (Float) = 0.500
+    SpeedMatchingMaxTimeMatching (Float) = 10.0
+    SpeedMatchingCooldown (Float) = 4.0
+    SpeedMatchingTimeAhead (Float) = 2.0
+    SpeedMatchingTimeBehind (Float) = 2.0
+    SpeedMatchingUseSpeedMatchingCurve (Bool) = true
+    AllowSpeedMatchingWhenBoosting (Bool) = false
+    SpeedMatchingFactorCurve (Struct) = {EditorCurveData={Keys=[Struct x6: {...} (RichCurveKey), {...} (RichCurveKey), {...} (RichCurveKey), {...} (RichCurveKey), {...} (RichCurveKey), {...} (RichCurveKey)]} (RichCurve), ExternalCurve=<CurveFloat /Game/Griffin/AI/CVF_RP_SpeedMatching.CVF_RP_SpeedMatching>} (RuntimeFloatCurve)
+    ForcedErrorZoneLengthAhead (Float) = 35000.0
+    ForcedErrorZoneLengthBehind (Float) = 15000.0
+    ForcedErrorTickRate (Float) = 1.0
+    ForcedErrorChance (Float) = 15.0
+    ForcedErrorDuration (Float) = 8.0
+    SpectacleZoneLengthAhead (Float) = 20000.0
+    AggressionConfig (Struct) = {RaceTimeBeforeAggression=10.0, SlamDuration=0.500, MinTargetSpeedInMph=150.0, SpaceBetween=250.0, LateralMatchPID={PGain=1.0, IGain=0.0, DGain=0.500, IntegralRange=1.0} (PIDConfig), TargetZoneLengthMultiplier=2.0, TargetZoneWidth=700.0, AggressionStopTargettingDist=2000.0, TuneSet=<TuneSet /Game/Griffin/AI/Aggression/TNS_AI_Aggression_Boost.TNS_AI_Aggression_Boost>, VersusAI={EnableAggression=true, Cooldown=4.0, Chance=100.0, TimeBeforeSlam=0.300} (AggressionVersusConfig), AggressionVersusPlayerZoneLength=750.0, VersusPlayer={EnableAggression=true, Cooldown=2.0, Chance=50.0, TimeBeforeSlam=0.0} (AggressionVersusConfig)} (AggressionConfig)
+    TakedownNumAIVictims (Int) = 2
+    TakedownEventZoneLength (Float) = 1000.0
+    TakedownTargetsUpdateCooldown (Float) = 1.500
+    TakedownPacingMinTimeAhead (Float) = 0.300
+    TakedownPacingMinTimeSpread (Float) = 0.600
+    TakedownPacingMinMaxWindow (Float) = 1.0
+    EnableImpactSteering (Bool) = true
+    HorizontalThreshold (Float) = 0.150
+    UseDominance (Bool) = false
+    DominanceSteeringFactor (Float) = 1.0
+    ImpactSteeringFactor (Float) = 20.0
+    ImpactLerpToNormalTime (Float) = 0.500
+    AbilityConfigCollection (Object) = <AIAbilityConfigCollection /Game/Griffin/AI/Abilities/DA_AIAbilityConfigCollection.DA_AIAbilityConfigCollection>
+    RouteConfigCollection (Object) = <AIRouteConfigCollection /Game/Griffin/AI/Routes/DA_AIRouteConfigCollection.DA_AIRouteConfigCollection>
+    RoutePlayerIgnoreTags (Struct) = {GameplayTags=[Struct x2: {TagName="Routes.Conditions.Acid"} (GameplayTag), {TagName="Routes.Conditions.NoAutoPilot"} (GameplayTag)], ParentTags=[Struct x2: {TagName="Routes.Conditions"} (GameplayTag), {TagName="Routes"} (GameplayTag)]} (GameplayTagContainer)
+    AIControllerClass (Class) = <BlueprintGeneratedClass /Game/Griffin/AI/BP_AiController.BP_AiController_C>
+    DefaultPercentageChancePerfectStart (Float) = 75.0
+    SabotageSteeringInput (Float) = 0.300
+    AllowAIToContinuePlayerBoost (Bool) = true
+    TakedownCameraMaxDistanceToExtents (Float) = 2500.0
+    TakeControlInputActions (Array) = [Object x4: <InputAction /Game/Griffin/Config/Input/IA_Veh_Steering.IA_Veh_Steering>, <InputAction /Game/Griffin/Config/Input/IA_Veh_ChangeBoost.IA_Veh_ChangeBoost>, <InputAction /Game/Griffin/Config/Input/IA_Veh_Brake.IA_Veh_Brake>, <InputAction /Game/Griffin/Config/Input/IA_Veh_Pitch.IA_Veh_Pitch>]
+    KeepRacingPostRace (Bool) = false
+    PostRaceRacingDuration (Float) = 15.0
+    PostRaceP2PLockBrakeTime (Float) = 3.0
+    PostRaceTimeToConditionApplicationMap (Map) = <Map>
+    TimeBeforeCornerOnRaceLine (Float) = 0.500
+    TimeToMoveToRaceLineBeforeCorner (Float) = 2.0
+    Car (Object) = <CarAIDrivingStyleDef /Game/Griffin/AI/DS_Car_Base.DS_Car_Base>
+    CarClasses (Map) = <Map>
+    Plane (Object) = <PlaneAIDrivingStyleDef /Game/Griffin/AI/DS_Plane_Base.DS_Plane_Base>
+    PlaneClasses (Map) = <Map>
+    Bike (Object) = <BikeAIDrivingStyleDef /Game/Griffin/AI/DS_Bike_Base.DS_Bike_Base>
+    BikeClasses (Map) = <Map>
+    Skimmer (Object) = <SkimmerAIDrivingStyleDef /Game/Griffin/AI/DS_Skimmer_Base.DS_Skimmer_Base>
+    SkimmerClasses (Map) = <Map>
+  [DataAsset]
+    NativeClass (Class) = <Class /Script/Griffin.RaceAIComponentConfig>
+
+
+16:49:35 dump done
