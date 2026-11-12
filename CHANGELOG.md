@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.27.6 (2026-11-12): a press while the next race waits can't start the campaign
+The owner, mid-cup (Sentinel, Challenger): after race 3 the game went to the campaign's paddock. The log: NEXT RACE
+-> the main menu under the loading cover, waiting 5 s to settle before launching race 4; at 15:50:20 the launch found
+the main menu already gone ("Cannot launch: not at the main menu") - the game was loading the campaign. The cover
+takes no input, and the menu under it sat on the game's Recommended page with the campaign tile focused, so an A press
+in those seconds started the campaign. The cup was lost; the put-backs had all run first.
+- While the next race waits under the cover, our tab is picked with a **wait page** (one tile that does nothing; B
+  does nothing; picked again if the tab is left), so stray presses land on it. The launch drops the page without the
+  usual trip back to the game's first tab. Log: `[chain] via the menu: the wait page in our tab under the cover`.
+
+## v0.27.5 (2026-11-12): the tab at game start
+- `BootToGrandPrix = false`: the game opens on its own main menu; pick GRAND PRIX (or F6).
+- The tab appears sooner: while the menu is up without our tab, the mod looks every 200 ms (was 1 s, for 5 s at
+  most); `TabSettleS` 1.0 -> 0.5 (1.0 if the menu misbehaves).
+
 ## v0.27.4 (2026-11-12): the garage's icons and tune-up slots
 The owner (via another session): some garage icons stretched tall; tune-ups hard to tell from abilities.
 - **Icons keep their shape** (ui.lua `picture`): the size given is the height, the width comes from the texture's own

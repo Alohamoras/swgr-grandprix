@@ -20,7 +20,7 @@
 -- them), the Galactic Cup 4 from 4 planets. (The code and the save keep the word "class" for a league.)
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.27.5'
+local VERSION = '0.27.6'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -563,6 +563,22 @@ SCREENS.standings = function()
   return spec
 end
 
+-- v0.27.6 (owner 2026-11-12: "after a track it sent me to the campaign in the paddock"): while the next cup race waits
+-- at the main menu under the cover (viaMenu), the game's own menu underneath had the focus - its Recommended page,
+-- on the campaign tile - so an A press in those ~6 s (the cover takes no input) started the campaign. Now our tab is
+-- picked under the cover with this page: one tile that does nothing, B does nothing, so stray presses land here.
+SCREENS.wait = function()
+  local run, nxt = K.run(), K.nextRace()
+  local cup = run and K.cup(run.cup)
+  return {
+    key = 'wait', title = cup and cup.name or 'GRAND PRIX',
+    lines = { { 'Next race loading...', 22 } },
+    items = { { title = 'NEXT RACE', art = (cup and run and ART.cup(cup, run.vehicle)) or 'T_UI_FE_Tile_Campaign_Hero',
+      badge = run and ('RACE %d / %d'):format(run.race, run.races) or nil, desc = nxt and nxt.title or nil,
+      act = function() return nil end } },
+  }
+end
+
 SCREENS.confirm = function()
   local c = S.confirm or { text = '?' }
   S.focusMem.confirm = nil -- (v0.21: every question opens on its first tile - NO on the RESET questions)
@@ -713,6 +729,7 @@ local function handle(name)
   elseif name == 'accept' then press(S.focus)
   elseif name == 'back' then
     if S.blocked then close('back')
+    elseif S.screen == 'wait' then show()
     elseif S.screen == 'confirm' then S.screen = (S.confirm and S.confirm.back) or 'home'; S.confirm = nil; show()
     elseif S.screen == 'standings' and K.run() then leaveCup()
     elseif BACK[S.screen] then go(BACK[S.screen]); show() else close('back') end
@@ -806,6 +823,15 @@ local function viaMenu()
     return drop(('the cup is not at race %d any more (%s)'):format(v.race, run and nxt and ('race ' .. nxt.race) or 'no cup'))
   end
   local ready = R.menuUp() and not R.run and not R.pendingRestore()
+  -- v0.27.6: our tab (the wait page) under the cover, so a press can't reach the game's menu (SCREENS.wait); again
+  -- if the tab was left (Q / E), at most once a second
+  if ready and not (S.ui and S.screen == 'wait') and C.clock - (v.waitTry or -1e9) >= 1000 and TB.ready() then
+    v.waitTry = C.clock
+    if S.ui then close('next cup race') end
+    S.screen = 'wait'
+    if not v.waitLogged then v.waitLogged = true; log('[chain] via the menu: the wait page in our tab under the cover (presses land on it, not the game\'s menu)') end
+    show()
+  end
   if not ready then
     v.readyAt = nil
     if C.clock - (S.openAt or C.clock) > VIA_GIVEUP_MS then return drop(('the main menu did not settle in %d s'):format(VIA_GIVEUP_MS // 1000)) end
@@ -813,7 +839,7 @@ local function viaMenu()
   end
   v.readyAt = v.readyAt or C.clock
   if C.clock - v.readyAt < CHm.settleMs() then return true end
-  if S.ui then close('next cup race'); return true end
+  if S.ui and S.screen ~= 'wait' then close('next cup race'); return true end
   CHm.via = nil
   local ok, why = R.launch(nxt, cupArgs(run))
   if not ok then
@@ -823,6 +849,7 @@ local function viaMenu()
     return false
   end
   S.openAt, S.message, S.chainCover = nil, nil, true
+  if S.ui then dropBack(); S.ui = nil; log('[menu] closed (race launched)') end -- (not close: no trip to the game's tab)
   log(('[chain] via the menu: race %d of %d launched from the main menu (%.1f s after the results) - no standings page'):format(
     v.race, v.races or 4, (C.clock - (v.at or C.clock)) / 1000))
   return true
@@ -952,7 +979,7 @@ TB.onEnter = function()
   S.screen = S.pendingScreen or S.screen or 'home'
   S.pendingScreen = nil
   show()
-  if S.ui then pcall(U.cover, false) end
+  if S.ui and S.screen ~= 'wait' then pcall(U.cover, false) end
 end
 TB.onLeave = function() if S.ui then close('tab left') end end
 -- the menu holding our page was freed: drop the page without touching its widgets (they went with it)

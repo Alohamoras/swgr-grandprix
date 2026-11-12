@@ -4,6 +4,9 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
+- [ ] **AI pilots: fixed strength + small form, or fully random?** For the AI driving spike (TASKS.md section 1).
+  Claude's pick: each pilot a fixed strength (Sen Fira, Biddy, Lyren always quick; Malis, Ary always slow) plus a
+  small swing race to race, so the same rivals are usually the ones to beat but an underdog can have a good day.
 - [ ] **Kestar is a weak final boss** (Claude's tests, 2026-11-11 night: he veers left off the line, then loses by
   20 s over 6 laps even to the autopilot). The Showdown was likely built around the game's own catch-up, which our
   150cc settings switch off. Give the boss race the game's own AI (a rubber band, but only for him), a boss profile

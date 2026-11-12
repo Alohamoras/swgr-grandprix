@@ -158,7 +158,19 @@ for k = 1, 3 do
     'B: race ' .. k .. ': the results screen\'s CONTINUE pressed for you, no reset')
   -- the game goes to the main menu
   local m2 = T.mark()
-  W.backToMenu(); M.tick(MENU_TICKS)
+  W.backToMenu(); M.tick(25)
+  -- v0.27.6 (owner: a press while the next race waited under the cover started the campaign): our tab is picked
+  -- under the cover with the wait page; A and B there do nothing, the cover stays, the race still launches
+  local SS = rawget(_G, 'GU_TEST_SCREENS').S
+  T.check(SS.screen == 'wait' and SS.ui ~= nil and W.tab.selected == 'Mod_GrandPrix' and T.logHas('[chain] via the menu: the wait page in our tab under the cover', m2),
+    'B: race ' .. k .. ': the wait page in our tab under the cover (' .. tostring(SS.screen) .. ', tab ' .. tostring(W.tab.selected) .. ')')
+  local launches = M.called('LaunchQuickRace')
+  T.click(1); M.tick(3); M.press('BACKSPACE'); M.tick(3)
+  T.check(M.called('LaunchQuickRace') == launches and SS.screen == 'wait' and W.tab.selected == 'Mod_GrandPrix' and not T.logHas('[cover] off', m2),
+    'B: race ' .. k .. ': A and B on the wait page do nothing; still our tab, the cover still up ('
+    .. table.concat({ M.called('LaunchQuickRace'), launches, tostring(SS.screen), tostring(W.tab.selected), tostring(T.logHas('[cover] off', m2)) }, ' ') .. ')')
+  M.tick(MENU_TICKS - 31)
+  T.check(SS.ui == nil and W.tab.selected == 'Mod_GrandPrix', 'B: race ' .. k .. ': the wait page dropped at the launch, no trip to the game\'s first tab')
   T.check(T.logHas('[cover] on', m2) and T.logHas('[chain] via the menu: at the main menu - the cover up', m2), 'B: race ' .. k .. ': the cover over the main menu')
   T.check(T.logHas(('[chain] via the menu: race %d of 4 launched from the main menu'):format(k + 1), m2), 'B: race ' .. (k + 1) .. ' launched via the menu')
   T.check(not T.logHas('[menu] standings', m2) and not T.logHas('[cover] off', m2), 'B: race ' .. k .. ': no standings page, the cover still up while race ' .. (k + 1) .. ' loads')

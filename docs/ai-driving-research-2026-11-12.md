@@ -1,6 +1,8 @@
 # Better AI drivers: desk research (2026-11-12)
 
 ## Status and how to pick this up
+- **2026-11-12 evening:** the owner's Challenger playtest (bots boost poorly, crash too much, some tracks won by
+  15+ s) and the plan are in TASKS.md section 1 - start there.
 - **Done:** desk research (this file). Committed 0e44448. TASKS.md "Spike: better AI drivers" tracks the steps.
 - **Next:** step 1 of the plan at the bottom (a read-only recon mod, one launch) - **only when the owner says
   they're away**; back up the save first (md5), restore after, autopilot armed only for the held races.
