@@ -219,6 +219,12 @@ Owner checks any time: the pad's B on the boot page; the racer looks (autotest/s
    unlocks him as a racer); less clutter on HOME and sub-screens (no "Next:" line); no grey see-through page
    background if text reads without it; RESET clears ALL progress incl. titles behind two "are you sure" questions;
    the Ando short track renamed on theme.
+   **Built as v0.21.0 (2026-11-11), NOT yet seen in game** (CHANGELOG v0.21.0, DESIGN.md §17): all of the above, plus
+   (owner notes the same night) no CONTINUE on the results-screen panel (only NEXT RACE; B -> "Leave the cup?") and
+   tougher from 100cc up (no easing off while you crash at 100-200cc, 200cc pressure 0.5). Default title opponents:
+   Griff Halloran / Lyren Shok / Biddy Blas / Sen Fira; the Ando short track = CLOISTER RUN.
+   - [ ] In game: a title race on the two-car grid (the cut and the put-back lines), the boss tile at 150cc, the two
+         RESET questions, the page without the grey panel, B on the results screen (pad and keyboard), the AI changes.
 2. **Later: progress badges** on the right side of the screen showing every unlock / achievement at a glance (the
    base game has a dedicated badge screen; ours sits beside the menu), replacing goal lines.
 

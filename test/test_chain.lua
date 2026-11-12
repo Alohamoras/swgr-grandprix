@@ -6,7 +6,9 @@
 --   A. ChainRaces.On = false: today's flow, nothing in the race world (the reference for B)
 --   B. a 4-race cup via the menu end to end: the same points / records / put-backs / save as A, the cover, no standings
 --      page between races, the cup result at the end; the panel opaque, the game's table hidden, the buttons apart
---   C. CONTINUE instead of NEXT RACE mid-cup: the standings at the main menu (not recorded twice), B there leaves the cup
+--   C. v0.21: B instead of NEXT RACE mid-cup (Backspace / Escape, the pad's B, or the screen closing by itself with
+--      CONTINUE hidden): the main menu and straight to "Leave the cup?" (not recorded twice); NO = the standings with
+--      NEXT RACE, YES = the cup left
 --   D. the auto-launch at the menu fails: the cover off, today's standings page (NEXT RACE there works)
 --   E. Reset = true, the next race in the same layout (Crait 150cc race 2 -> 3, Loop_B -> Loop_B): the reset route,
 --      watchdog ok (race 1 -> 2 is another layout: via the menu, also with Reset on)
@@ -71,7 +73,7 @@ local function same(a, b, path, diffs)
   for k, v in pairs(a) do same(v, b[k], path .. '.' .. tostring(k), diffs) end
   for k, v in pairs(b) do if a[k] == nil then diffs[#diffs + 1] = path .. '.' .. tostring(k) .. ': nil vs ' .. tostring(v) end end
 end
-local KEEP = { 'races', 'cups', 'best', 'records', 'perfect', 'standings', 'rivals', 'run', 'last', 'titles' }
+local KEEP = { 'races', 'cups', 'best', 'records', 'perfect', 'standings', 'leader', 'boss', 'run', 'last', 'titles' }
 local function outcome(sv)
   local o = {}
   for _, k in ipairs(KEEP) do o[k] = strip(sv[k]) end
@@ -140,22 +142,23 @@ for k = 1, 3 do
   local txt = W.textsSince(calls)
   T.check(txt:find('STANDINGS', 1, true) and txt:find('THIS RACE', 1, true) and txt:find('POINTS', 1, true) and txt:find('MOVED', 1, true)
     and txt:find(('race %d of 4'):format(k), 1, true), 'B: race ' .. k .. ': the panel has the cup line and the table')
-  -- v0.20: a rival from the first race at the class, and their row marked on the panel (the shared standings text)
-  local riv = require('rival').name(require('gp').data, T.save().run.class)
-  T.check(riv ~= nil and txt:find(riv .. '   RIVAL', 1, true) ~= nil, 'B: race ' .. k .. ': the rival (' .. tostring(riv) .. ') marked RIVAL on the panel')
+  -- v0.21: no rival marked on the panel
+  T.check(not txt:find('RIVAL', 1, true), 'B: race ' .. k .. ': no RIVAL on the panel (v0.21)')
   local nxt = require('config').Cups[1].races['150'][k + 1].title
-  T.check(txt:find(('NEXT RACE: race %d of 4, %s.'):format(k + 1, nxt), 1, true) and txt:find('CONTINUE: the main menu', 1, true),
-    'B: race ' .. k .. ': the prompt says what NEXT RACE and CONTINUE do')
+  T.check(txt:find(('NEXT RACE: race %d of 4, %s.   B: leave the cup.'):format(k + 1, nxt), 1, true) and not txt:find('CONTINUE:', 1, true),
+    'B: race ' .. k .. ': the prompt says what NEXT RACE and B do (no CONTINUE)')
+  T.check(W.contVis == 1, 'B: race ' .. k .. ': the game\'s CONTINUE hidden (Collapsed)')
   if k == 1 then
     T.check(txt:find('LEADING', 1, true) or txt:find('BEHIND', 1, true), 'B: the stakes line on the panel')
     T.check(T.logHas('opaque; the game\'s table hidden (1)', mark) and W.tableVis == 2, 'B: the panel opaque, the game\'s own table hidden under it')
     local U = require('ui')
     T.check(U.PANEL_BG.A == 1, 'B: the panel background alpha 1')
-    local x1, x2 = buttonXs(calls)
-    T.check(x1 and x2 and x2 - x1 >= 420 * 1.2 + 80, ('B: NEXT RACE (x %s) left of CONTINUE (x %s), a slot width + the gap apart'):format(tostring(x1), tostring(x2)))
-    T.check(T.logHas('NEXT RACE button left of CONTINUE, focused: NEXT RACE at x', mark), 'B: the button layout logged')
+    local _, x = buttonXs(calls)
+    T.check(x == 0, ('B: NEXT RACE alone, centred where the two buttons were (x %s, CONTINUE\'s centre)'):format(tostring(x)))
+    T.check(T.logHas('NEXT RACE button, focused: NEXT RACE alone at x 0 (centred; slot 504 wide); the game\'s CONTINUE hidden', mark)
+      and T.logHas('; B: the Back screen (pad) and Backspace / Escape', mark), 'B: the button layout, CONTINUE hidden and B logged')
   end
-  T.check(W.chainBtn ~= nil and #W.canvasKids == 2, 'B: race ' .. k .. ': the panel and NEXT RACE on the canvas')
+  T.check(W.chainBtn ~= nil and #W.canvasKids == 3 and W.resultsBack ~= nil, 'B: race ' .. k .. ': the panel, NEXT RACE and the Back screen on the canvas')
   W.pressNext(); M.tick(3)
   T.check(T.logHas('[chain] NEXT RACE pressed (the NEXT RACE button)', mark), 'B: race ' .. k .. ': NEXT RACE pressed')
   T.check(T.logHas(('[chain] via the menu: race %d of 4 (%s) launches from the main menu under the cover'):format(k + 1, nxt), mark),
@@ -177,6 +180,7 @@ runRace(4)
 T.check(T.logHas('[chain] not chaining: race 4 of 4: the cup result at the main menu', mark4), 'B: race 4: the last race goes to the main menu')
 W.results(); M.tick(10)
 T.check(#W.canvasKids == 0, 'B: nothing on the last race\'s results screen')
+T.check(W.contVis == 0, 'B: the last race keeps the game\'s CONTINUE (to the cup result)')
 W.backToMenu(); M.tick(45)
 T.check(T.logHas('[menu] standings (1 tiles)', mark4), 'B: the cup result at the main menu')
 T.check(T.logCount('[menu] standings') == 1, 'B: no standings page between the races (only the cup result)')
@@ -200,26 +204,74 @@ T.check(require('chain').via == nil, 'B: no via-the-menu request left over')
 ended('B')
 
 ---------------------------------------------------------------------------------------------------------------------
--- C. CONTINUE instead of NEXT RACE (or the game moving on by itself): the standings at the main menu; B leaves the cup
+-- C. v0.21: B instead of NEXT RACE: the main menu and straight to "Leave the cup?"
+-- C1: Backspace (the keyboard's B; a press during the race doesn't count) -> the question; NO -> the standings page
+start()
+T.clickTitle('JAKKU CUP')
+W.race(11)
+M.press('ESCAPE') -- (the pause key during the race: the flag is cleared when the panel goes up)
+runRace(1)
+W.results(); M.tick(4)
+T.check(T.logHas('[chain] panel added'), 'C1: the panel on the results screen')
+local mark = T.mark()
+M.tick(5)
+T.check(not T.logHas('[chain] B on the results screen', mark) and W.continued == 0, 'C1: an Escape pressed during the race is not B')
+M.press('BACKSPACE'); M.tick(3)
+T.check(T.logHas('[chain] B on the results screen (Backspace / Escape): to the main menu, then "Leave the cup?"', mark), 'C1: B logged')
+T.check(W.continued == 1 and T.logHas('[chain] the results screen\'s CONTINUE pressed', mark), 'C1: the hidden CONTINUE pressed from code')
+W.backToMenu(); M.tick(MENU_TICKS)
+T.check(T.logHas('[chain] B on the results screen: "Leave the cup?" at the main menu (150 jakku, race 2 of 4 next)', mark), 'C1: straight to the question, logged')
+T.check(T.titles() == 'YES|NO' and T.logHas('[menu] confirm', mark) and not T.logHas('[menu] standings', mark), 'C1: "Leave the cup?" (YES / NO as before), no standings page first')
+T.check(not T.logHas('[chain] via the menu', mark) and M.called('LaunchQuickRace') == 1, 'C1: no via-the-menu launch')
+T.check(T.logCount('RESULT ') == 1 and T.save().races == 1, 'C1: the race recorded once (on the results screen, not again at the menu)')
+T.check(T.logCount('build put back (') == 1, 'C1: the put-backs at the main menu')
+T.clickTitle('NO'); M.tick(3)
+T.check(T.titles() == 'NEXT RACE' and T.badges() == 'RACE 2 / 4' and T.save().run.race == 2, 'C1: NO: the standings with NEXT RACE, RACE 2 / 4')
+T.clickTitle('NEXT RACE')
+T.check(M.called('LaunchQuickRace') == 2 and lastLaunch() == TRACKS[2], 'C1: NEXT RACE there launches race 2')
+ended('C1')
+-- C2: the pad's B (the game deactivates our Back screen on the panel) -> the question; YES -> the cup left
 start()
 T.clickTitle('JAKKU CUP')
 W.race(11)
 runRace(1)
 W.results(); M.tick(4)
-T.check(T.logHas('[chain] panel added'), 'C: the panel on the results screen')
-local mark = T.mark()
+mark = T.mark()
+W.padB(); M.tick(3)
+T.check(T.logHas('[chain] B on the results screen (the pad\'s B): to the main menu', mark) and W.continued == 1, 'C2: the pad\'s B read, CONTINUE pressed from code')
 W.backToMenu(); M.tick(MENU_TICKS)
-T.check(T.logHas('[chain] the results went to the main menu before NEXT RACE', mark), 'C: logged: the results went to the menu first')
-T.check(not T.logHas('[chain] via the menu', mark) and M.called('LaunchQuickRace') == 1, 'C: no via-the-menu launch')
-T.check(T.logCount('RESULT ') == 1 and T.save().races == 1, 'C: the race recorded once (on the results screen, not again at the menu)')
-T.check(T.logHas('[menu] standings', mark) and T.titles() == 'NEXT RACE' and T.badges() == 'RACE 2 / 4', 'C: today\'s standings page: NEXT RACE, RACE 2 / 4')
-T.check(T.logCount('build put back (') == 1, 'C: the put-backs at the main menu')
-M.press('BACKSPACE'); M.tick(5)
-T.check(T.titles() == 'YES|NO' and T.logHas('[menu] confirm', mark), 'C: B asks "Leave the cup?"')
+T.check(T.titles() == 'YES|NO', 'C2: "Leave the cup?"')
 T.clickTitle('YES'); M.tick(3)
-T.check(T.logHas('cup forfeited: 150 jakku after 1 of 4 races') and T.save().run == nil, 'C: YES: the cup is left')
-T.check(T.logCount('build put back (') == 1 and M.called('LaunchQuickRace') == 1, 'C: nothing put back twice, nothing launched')
-ended('C')
+T.check(T.logHas('cup forfeited: 150 jakku after 1 of 4 races') and T.save().run == nil, 'C2: YES: the cup is left')
+T.check(T.logCount('build put back (') == 1 and M.called('LaunchQuickRace') == 1, 'C2: nothing put back twice, nothing launched')
+ended('C2')
+-- C3: the results screen closes by itself (the game's own back handling took B first; CONTINUE was hidden) -> the
+-- question too
+start()
+T.clickTitle('JAKKU CUP')
+W.race(11)
+runRace(1)
+W.results(); M.tick(4)
+mark = T.mark()
+W.backToMenu(); M.tick(MENU_TICKS)
+T.check(T.logHas('before NEXT RACE with CONTINUE hidden (the game\'s own B / Escape): "Leave the cup?" at the main menu', mark), 'C3: logged')
+T.check(T.titles() == 'YES|NO' and T.logCount('RESULT ') == 1, 'C3: "Leave the cup?", the race recorded once (' .. T.titles() .. ')')
+ended('C3')
+-- C4: HideContinue = false: v0.20's two buttons, CONTINUE visible; the screen leaving -> today's standings page
+start({ ChainRaces = { On = true, Key = 'N', ResultsWaitS = 90, MenuSettleS = 5, LoadTimeoutS = 15, WatchdogS = 20, Panel = { HideContinue = false } } })
+T.clickTitle('JAKKU CUP')
+W.race(11)
+runRace(1)
+local calls = #M.calls + 1
+W.results(); M.tick(4)
+local x1, x2 = buttonXs(calls)
+T.check(W.contVis == 0 and x1 and x2 and x2 - x1 >= 420 * 1.2 + 80 and #W.canvasKids == 2 and W.resultsBack == nil,
+  'C4: HideContinue = false: CONTINUE visible, NEXT RACE left of it, no Back screen')
+T.check(W.textsSince(calls):find('CONTINUE: the main menu', 1, true) ~= nil, 'C4: the v0.20 prompt')
+mark = T.mark()
+W.backToMenu(); M.tick(MENU_TICKS)
+T.check(T.logHas('[chain] the results went to the main menu before NEXT RACE', mark) and T.titles() == 'NEXT RACE', 'C4: CONTINUE: today\'s standings page')
+ended('C4')
 
 ---------------------------------------------------------------------------------------------------------------------
 -- D. NEXT RACE via the menu, but the launch at the menu fails (the game's LaunchQuickRace refuses): the cover off,

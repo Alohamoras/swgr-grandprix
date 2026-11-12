@@ -9,6 +9,11 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - [ ] **Ideas from your Google Doc** (realism mode, a podracer cup): send the details when you want them on the list.
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.21 (not installed yet):** the title race is now a 1 v 1 against the class leader on a normal track (the
+  tile says "vs <name>"); Kestar Bool is a final boss tile on the 150cc page after the 150cc title; RESET asks twice
+  and clears titles too; no grey panel behind HOME / cups / garage (does the text still read? `PageBackdrop = true`
+  brings it back); after a cup race only NEXT RACE on the results screen, B leaves the cup (does the pad's B work
+  there?); a little harder at 50 / 100cc, and from 100cc the bots don't ease off while you crash, 200cc a notch harder.
 - [ ] **Your campaign save** (Claude's slip, 2026-11-11 19:10): a stray Return opened the campaign hub (Act I, Ando
   Prime); Claude exited at once via the pause menu (nothing played). The game autosaves when the hub loads, so your
   campaign should be exactly where it was. Glance at it next time you open the campaign.

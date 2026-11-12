@@ -14,7 +14,8 @@ memory-only changes to game data, put back after use; one git tag per chunk.
 ## 1. Vision
 What makes it engaging, and the decisions that follow (rubber band per class, conditions folded into the cups,
 a rival per class, 200cc as an optional extra): docs/PHILOSOPHY.md (owner, 2026-11-10). It wins over older sections
-of this file where they disagree.
+of this file where they disagree. **v0.21 (owner, 2026-11-11): the rival is cut**; the title race is a 1 v 1 against
+the class leader, Kestar Bool the final boss after 150cc (§17).
 
 Pick a speed class and a cup, choose your vehicle and four abilities, and race four tracks in a row for points against
 the same field. Gold, silver or bronze at the end. Win your way from 50cc to 200cc, then reverse cups. No vehicle
@@ -77,6 +78,8 @@ A cup is fixed per class, so records and golds keep meaning one thing.
   (HEAT SHIELD before a scorching cup...) is made before Select.
 - Gone in v0.11: the Outer Rim Cup, the remix cups (v0.6.2) and the conditions cups (v0.8).
 - **Title race** (v0.8): the Stadium Showdown against Kestar Bool (`EVT_WHP_SHORTBOSS_FAIR`), at every class.
+  **v0.21:** a 1 v 1 against the class leader on the first track of their cup (two-car grid); the Showdown is the
+  final boss after the 150cc title (§17).
 - Later: a podracer cup.
 
 ## 4. Speed classes
@@ -212,7 +215,8 @@ Recon R3 picks the one that works; set before launch, put back at the menu. Cras
 - **The Galactic Cup** (the finale, `final = true`) opens at a class with a trophy (any colour; gold with
   `Unlock = 'gold'`) in all five planet cups at that class.
 - **The title race** opens at a class with a trophy in the Galactic Cup at that class. Winning it makes you the class
-  champion.
+  champion. **The final boss** (v0.21, §17): Kestar Bool, a tile on the 150cc cups page once the 150cc title is won;
+  beating him unlocks him as a racer.
 - 200cc is the optional extra: nothing outside 200cc opens from its results.
 - Best trophy per cup and class saved, shown on the cup tiles. No money, no shop, no upgrades. The class tile counts
   golds / trophies over the six cups (5 planets + Galactic).
@@ -225,7 +229,8 @@ Recon R3 picks the one that works; set before launch, put back at the menu. Cras
   load, logged once; track records stay (per event path).
 - **Reset progress** (owner, 2026-11-10, v0.3.11): RESET PROGRESS on HOME asks first (NO selected first). Clears
   every trophy and best finish, records, perfect cups, standings and the cups count; keeps your garage and race
-  count. The save is copied to `save.backup-reset-<date>.lua` first.
+  count. The save is copied to `save.backup-reset-<date>.lua` first. **v0.21 (owner): it clears ALL progress, titles
+  included, behind two questions** (§17).
 - Save: `Mods/GalacticGrandPrix/save.lua` (the Underground's save code), never the game's save.
 
 ## 9. What we reuse from the Underground
@@ -473,8 +478,9 @@ pressed (<how>)`, `[chain] next race written: EVT (track, laps, conditions) ... 
 `[chain] fallback: <why> - ...`, `[chain] main menu after the fallback: ...`, `[chain] the results went to the main
 menu before NEXT RACE: the standings there`, `[chain] recipe put back (main menu): ...`.
 
-## 16. The visible rival and the menu polish (v0.20, TASKS.md "Next" 3 (rival part) and 4; built, not yet seen in game)
+## 16. The visible rival and the menu polish (v0.20, TASKS.md "Next" 3 (rival part) and 4; seen in game 2026-11-11)
 From docs/menu-review-2026-11-11.md. The title race is unchanged (Kestar Bool's Showdown) until the owner decides.
+**v0.21 took out the rival, HOME's Next: line, the class blurbs and the "next cup without a gold" focus (§17).**
 - **A rival from the first race** (review 2a; rival.lua `RV.nearest`, config `Rival.FirstRace`, default true): after
   a cup race at a class with no rival yet, the racer who finished nearest you in that race - the one just ahead (the
   excluded, Kestar Bool, skipped), else the one just behind - becomes your rival there at once (`[rival] 100cc: X is
@@ -519,3 +525,65 @@ From docs/menu-review-2026-11-11.md. The title race is unchanged (Kestar Bool's 
   the cup tiles' medal icons tinted by medal through the brush tint (the image colour set in v0.7 didn't hold in game).
   Review 8: your line on the standings ends with the seconds to the car just ahead, or to the one behind when you won
   (`SD.margin` from the race's `K.gaps`; nothing without finish times). Review 9 (per-ability art) not done.
+
+## 17. v0.21: the leader's title race, Kestar the final boss, no rival, less clutter (TASKS "Next, round 2" 1; built, not yet seen in game)
+The owner's answers after racing a 50cc and a 100cc cup (OWNER.md "Done", 2026-11-11 evening).
+- **A little harder at 50 / 100cc**: `AI.Profiles` MaxAiSlowdownScale 50cc 0.3 -> 0.4, 100cc 0.3 -> 0.45 (the mercy
+  slowdown for bots ahead of their window; study: 0.3 gave the best bot ~123 s at The War Fields reverse 100cc, 0.5
+  ~118 s). Catch-up stays 1.0, the rest as v0.18.1. **Tougher from 100cc up** (owner after a 200cc cup: "i crash a
+  lot and still get ~2nd place"): pacing `AiSlowdownDuringCrash` 1.0 at 100 / 150 / 200cc (the bots don't ease off
+  while you crash; written like the other pacing fields to DA_AIConfig, RP_Default and RP_Honest; 50cc keeps the
+  game's 0.5 / 0.9), and 200cc pressure 0.5 (150cc stays 0).
+- **No rival.** rival.lua, config `Rival`, the standings marks / colour / RIVAL tag, the "YOUR RIVAL" stakes wording,
+  HOME's rival info and the cup result's rival line are gone. The stakes line still names the racer you chase or lead
+  (cup.lua `CU.stakes`). An old save's `rivals` is dropped at load, logged once (`[save] the rivals are dropped`).
+- **The title race (title.lua)** = a 1 v 1 on a normal track against the **class leader**: the best-placed bot in the
+  final standings of your most recent finished cup at the class (you won it: the 2nd; else the winner), saved per class
+  when a cup ends (`leader[class] = { name, cup }`, `[title] 100cc leader: Biddy Blas (best bot of the crait)`). The
+  track = the first race of that cup's list at the class, its normal laps. No cup finished yet: config
+  `Title.Default` (50cc Griff Halloran, 100cc Lyren Shok, 150cc Biddy Blas, 200cc Sen Fira) on the first planet cup's
+  first race. The leader is never your own racer (then the default). Opens as before (a trophy in the Galactic Cup at
+  the class); the tile: TITLE RACE, "vs Biddy Blas" under it, CHAMPION once won; the info line names the track and laps.
+  A title race sets no cup track record (two cars, not a cup), its time is still shown.
+  **The two-car grid** (KNOWLEDGE.md §3, RaceFlowSpike B6): before `LaunchQuickRace` the event's
+  `GridMakeup.Entries` get 2 entrants (the first entry 2, the others 0) and `CharacterList.Opponents` is cut to the
+  leader's RacerDef; the originals (entries' counts, the 11 opponent paths) go into the save first (`gridRestore`).
+  This runs before the racer swap (racer.lua), so the swap only sets `Player` (your pick is not in the cut list); the
+  swap's 10 s settle puts `Player` back, the cut list stays for the race. At the main menu (R.restoreBuild, before the
+  racer's put-back) both go back exactly once (`[title] grid put back (main menu): make-up done (12 entrants);
+  Opponents done (11: ...)`); a crash leaves `gridRestore` in the save and the next boot's first menu puts it back
+  (`(left over from an earlier race)`). An event without make-up entries or a make-up that won't take 2 is raced as a
+  full field (logged `[title] grid NOT cut: ...`), never 12 slots with one name.
+- **Kestar Bool = the final boss** (config `Boss`): the old title race (the Stadium Showdown, its story cinematics off
+  for the race and put back, `titleRestore`) is a KESTAR BOOL tile on the 150cc cups page once the 150cc title is won
+  (badge FINAL BOSS, then BEATEN; raced at 150cc parts). Beating him saves `boss = { beaten, tries, at }` and unlocks him
+  as a racer (racer.lua `unlockBoss`; the garage skips him until then). The cups page: 7 tiles (5 cups, GALACTIC CUP,
+  TITLE RACE), 8 at 150cc with the boss (4 + 4, `CupsLayout` 4 x 2): never scrolls. Old saves: a 150cc title won before
+  v0.21 was won against Kestar, so `boss` is set beaten at load (logged once; Kestar stays unlocked).
+- **CONTINUE after a cup** goes to the class's cups page with the focus on the cup just raced (tile text "Back to the
+  cups"; v0.20 focused the next cup without a gold).
+- **Less clutter**: HOME has no "Next:" line (only the message line); the class blurbs are gone (config, HOME, the cups
+  page); the cups page has no "Parts level / abilities level" line; HOME's info lines are one line each: a class "Parts
+  level N, abilities level N." (locked: "To open: ..."), GARAGE "Abilities: ...", RESET "Clears all progress, titles
+  included. ...". Kept: the cups page's race list for the focused cup, the garage's one help line.
+- **No grey page backdrop** (config `PageBackdrop = false`, ui.lua `U.pageColor`): the page panel behind HOME, the cups
+  page, the garage and the questions is fully transparent; the standings, the cup result and the title result keep
+  their picture backdrop (their tables and big result lines sit over the menu's busy art and would not read without
+  it). The tile label strips (v0.20) stay. `[menu] page backdrop: none, transparent (...)` once per session.
+- **RESET** clears ALL progress (trophies, golds, best, records, perfect cups, standings, titles, the boss, leaders,
+  counts, the last race, the cup in progress) and keeps the garage picks (racer, abilities, tune-ups; Kestar falls back
+  to Shade when locked again) and the put-back records. Two questions, NO first on both: "Reset all progress? Every
+  trophy, record and title is cleared." then "Are you sure? This can't be undone." A backup is made first.
+- **The results-screen panel after a cup race that isn't the last** (owner: "there doesn't need to be a continue
+  button ... redundant and misleading"): only NEXT RACE, centred where the two buttons were; the game's CONTINUE is
+  collapsed (no focus, no click; `ChainRaces.Panel.HideContinue`). The prompt: "NEXT RACE: race N of 4, <name>.   B:
+  leave the cup." **B** there: our own invisible Back screen in the panel (tab.lua's trick: an activatable Back handler
+  the game deactivates on the pad's B, read by polling), and the key binds Backspace / Escape (flags only, cleared when
+  the panel goes up). B -> `CH.leaveAsk`, the results left by pressing CONTINUE's event from code (hidden or not), and
+  at the main menu "Leave the cup? Your points are lost." straight away (YES first, as before; NO = the standings with
+  NEXT RACE). The screen closing by itself before NEXT RACE with CONTINUE hidden (the game's own back handling taking B
+  first) counts as B too. Before v0.21 nothing of ours handled B on the results screen (the Backspace bind only acted
+  with our page up); what the game's own B does there was never logged. The last race of a cup keeps the game's
+  CONTINUE (the cup result). Every fallback that presses CONTINUE still works (its event is called from code).
+- **The Ando short track** (`Corgi/Loop_B/EVT_COR_Loop_B_SHORT_01`, part of the Monastery Mountains loop on Ando
+  Prime) is named **CLOISTER RUN**. Records are kept by event path, so the save is unchanged.

@@ -1,44 +1,207 @@
--- Galactic Grand Prix: the title race (v0.8, research doc 2026-11-10 §"Rosters per class and the champion race").
--- One 1 v 1 at the end of each class against the class's champion: today the game's Stadium Showdown against Kestar
--- Bool (a proven launch; he copies your build, so he scales with the class). Opens with a trophy in the Galactic Cup
--- at the class (v0.11; prog.lua P.titleOpen). Winning it makes you the class champion (saved: titles[class]); the class tile
--- says so. Config: Title. Pure logic here; the launch goes through race.lua like any race (ev.titleRace = true).
+-- Galactic Grand Prix: the title race per class and the final boss (v0.8; v0.21 owner, OWNER.md "Done" 2026-11-11).
+--
+-- The title race (v0.21): a 1 v 1 on a NORMAL track against the class leader. It opens with a trophy in the Galactic
+-- Cup at the class (prog.lua P.titleOpen). The leader = the best-placed bot in the final standings of your most recent
+-- finished cup at that class (if you won it, the 2nd; else the cup winner), saved when a cup ends (gp.lua:
+-- leader[class] = { name, cup }). The track = the first race of that cup's list at that class (its normal laps). No cup
+-- finished at the class yet: config Title.Default[class] (a DA_Racer_ key) on the first planet cup's first race.
+-- Winning makes you the class champion (saved: titles[class]). Your racer swap (racer.lua) still applies.
+-- The two-car grid (KNOWLEDGE.md §3, RaceFlowSpike B6, raceflow-b6-20261111.log): before LaunchQuickRace the event's
+-- GridMakeup is set to 2 entrants (its first entry 2, the others 0) and CharacterList.Opponents cut to the one racer;
+-- both go back at the main menu, once (T.gridRestore, from race.lua R.restoreBuild). The originals are in the save
+-- (gridRestore) BEFORE anything changes, so a crash mid-race is put right at the next boot's menu.
+--
+-- The final boss (v0.21): Kestar Bool in the game's Stadium Showdown (the old title race, config Boss), a KESTAR BOOL
+-- tile on the 150cc cups page once the 150cc title is won. Beating him saves boss = { beaten = true } and unlocks him
+-- as a racer (racer.lua unlockBoss). The Showdown's story cinematics are taken off for the race and put back (below).
+-- Old saves: a 150cc title won before v0.21 was won against Kestar in the Showdown, so he counts as beaten (gp.lua).
+--
+-- Pure logic plus memory-only writes to two data assets, each through try / pcall; nothing kept between ticks.
 local C = require('core')
 local cfg = require('config')
 local K = require('gp')
+local CU = require('cup')
 local log = C.log
+local try, alive = C.try, C.alive
 
 local T = {}
 local function conf() return cfg.Title or {} end
+local function bconf() return cfg.Boss or {} end
 function T.on() return conf().On ~= false end
-
--- the class's champion: the title holder if you took it ('YOU'), else the racer with most points across the planet
--- cups at that class, else the fixed name from config (the lore: a title holder before any cup is raced)
-function T.champion(classKey)
-  local t = (K.data.titles or {})[classKey]
-  if t and t.won then return 'YOU', 'title' end
-  local name = K.champion and K.champion(classKey)
-  if name then return name, 'points' end
-  local fb = (conf().Fallback or {})[classKey]
-  return fb or conf().Opponent or 'Kestar Bool', 'fixed'
-end
--- the opponent of the title race (v0.8: always the Showdown's own driver, Kestar Bool; the class leader as the
--- opponent needs a two-car grid on a normal event, not yet checked in game)
-function T.opponent(classKey) return conf().Opponent or 'Kestar Bool' end
+function T.bossOn() return bconf().On ~= false and bconf().Event ~= nil end
+function T.bossClass() return bconf().Class or '150' end
 function T.status(classKey) return (K.data.titles or {})[classKey] end
 
--- the launchable event: like K.nextRace, plus the title flag the result read looks for
+---------------------------------------------------------------------------------------------------------------------
+-- the title race's opponent and track
+
+local function racerByName(name) for _, r in ipairs(cfg.Racers or {}) do if r.name == name then return r end end return nil end
+local function racerByKey(key) for _, r in ipairs(cfg.Racers or {}) do if r.key == key then return r end end return nil end
+local function firstPlanetCup() for _, c in ipairs(K.cups()) do if not c.final then return c end end return K.cups()[1] end
+
+-- the best-placed bot of a finished cup (run = the cup state, cup.lua): its name, or nil
+function T.leaderOf(run)
+  for _, r in ipairs(CU.standings(run or { points = {}, last = {} })) do
+    if r.key ~= CU.YOU then return r.key end
+  end
+  return nil
+end
+
+-- your racer's key (racer.lua; nil when it can't be read)
+local function yourKey()
+  local ok, RC = pcall(require, 'racer')
+  local r = ok and RC.current and RC.current()
+  return r and r.key or nil
+end
+
+-- the class leader: { key, name, cup = the cup key it came from (nil = the default), source = 'cup' | 'default' }.
+-- Never your own racer (raced as the leader: the class's default, else the first other racer).
+function T.leader(classKey)
+  local mine = yourKey()
+  local l = (K.data.leader or {})[classKey]
+  if type(l) == 'table' and type(l.name) == 'string' then
+    local r = racerByName(l.name)
+    if r and r.key ~= mine then return { key = r.key, name = r.name, cup = l.cup, source = 'cup' } end
+  end
+  local dk = (conf().Default or {})[classKey]
+  local r = dk and racerByKey(dk)
+  if not r or r.key == mine then
+    r = nil
+    for _, o in ipairs(cfg.Racers or {}) do if o.key ~= mine and not o.unlockBoss and o.key ~= 'Mentor' and o.key ~= 'DarkEnigma' then r = o; break end end
+  end
+  r = r or { key = 'Rager', name = 'Biddy Blas' }
+  return { key = r.key, name = r.name, source = 'default' }
+end
+function T.opponent(classKey) return T.leader(classKey).name end
+
+-- the launchable title race: the first race of the leader's cup at the class (no leader yet: the first planet cup's),
+-- plus the title flag the result read looks for and the opponent for the grid
 function T.event(classKey)
-  if not conf().Event then return nil end
-  return { path = conf().Event, title = conf().Name or 'TITLE RACE', kind = '1 v 1', class = classKey, titleRace = true }
+  local l = T.leader(classKey)
+  local cup = (l.cup and K.cup(l.cup)) or firstPlanetCup()
+  local r = cup and K.races(cup, classKey)[1]
+  if not r then return nil end
+  return { path = r.path, title = r.title, kind = r.kind, laps = r.laps, class = classKey, titleRace = true,
+    opponent = l.key, vs = l.name, trackCup = cup.key, leaderFrom = l.source }
+end
+
+---------------------------------------------------------------------------------------------------------------------
+-- the two-car grid (race.lua prepare, before RC.begin): the event's grid make-up to 2, CharacterList.Opponents to the
+-- one racer. Originals in the save first (gridRestore = { event, entries = { n, ... }, opponents = { def paths } }).
+
+local function entries(e)
+  local out = {}
+  local arr = try(function() return e.GridMakeup.Entries end)
+  local n = tonumber((try(function() return arr:GetArrayNum() end))) or 0
+  for i = 1, n do out[i] = tonumber((try(function() return arr[i].NumEntrants end))) or 0 end
+  return out
+end
+local function sum(list) local s = 0; for _, v in ipairs(list) do s = s + v end; return s end
+local function setEntries(e, list)
+  for i, n in ipairs(list) do pcall(function() e.GridMakeup.Entries[i].NumEntrants = n end) end
+  return sum(entries(e))
+end
+local function oppKeys(paths)
+  local o = {}
+  for _, p in ipairs(paths) do o[#o + 1] = tostring(p):match('DA_Racer_([%w_]+)$') or tostring(p) end
+  return table.concat(o, ',')
+end
+-- the character list's Opponents made equal to `paths` (a longer list is emptied first, then filled). -> read back ok
+local function setOpponents(RC, list, paths)
+  local arr = try(function() return list.Opponents end)
+  if not arr then return false end
+  local cur = RC.opponentPaths(list)
+  if #cur > #paths then pcall(function() arr:Empty() end); cur = {} end
+  for i, p in ipairs(paths) do
+    if cur[i] ~= p then
+      local d = C.asset(p)
+      if d then pcall(function() list.Opponents[i] = d end) end
+    end
+  end
+  local now = RC.opponentPaths(list)
+  if #now ~= #paths then return false end
+  for i, p in ipairs(paths) do if now[i] ~= p then return false end end
+  return true
+end
+
+function T.gridPending() return type(K.data.gridRestore) == 'table' end
+
+-- e = the event asset, ev = T.event's table. Returns true when the grid is the two of you.
+function T.gridPrepare(e, ev)
+  local RC = require('racer')
+  if T.gridPending() then
+    log('[title] an earlier grid change was still to be put back - done before this launch')
+    T.gridRestore('before launch')
+  end
+  local list = RC.findList()
+  if not list then log('[title] grid NOT cut: character list not found - a full field'); return false end
+  local ents = entries(e)
+  if #ents == 0 then log('[title] grid NOT cut: the event has no grid make-up entries - a full field'); return false end
+  local oppPath = RC.path(ev.opponent)
+  if not C.asset(oppPath) then log('[title] grid NOT cut: racer not found ' .. oppPath .. ' - a full field'); return false end
+  local orig = RC.opponentPaths(list)
+  K.data.gridRestore = { event = ev.path, entries = ents, opponents = orig, vs = ev.vs }
+  K.save()
+  local want = {}
+  for i = 1, #ents do want[i] = i == 1 and 2 or 0 end
+  if setEntries(e, want) ~= 2 then
+    setEntries(e, ents)
+    K.data.gridRestore = nil
+    K.save()
+    log('[title] grid NOT cut: the grid make-up did not take 2 entrants - a full field')
+    return false
+  end
+  local ok = setOpponents(RC, list, { oppPath })
+  log(('[title] grid cut for the title race: %s make-up %d -> 2 entrants; CharacterList.Opponents %d -> %s only%s'):format(
+    ev.path:match('([^/]+)$'), sum(ents), #orig, ev.opponent, ok and '' or ' - FAILED (read back differs)'))
+  return ok
+end
+
+-- at the main menu (race.lua R.restoreBuild; also after a crash, from the save): the make-up and the list back, once
+function T.gridRestore(why)
+  local rec = K.data.gridRestore
+  if type(rec) ~= 'table' then return false end
+  local RC = require('racer')
+  local okE, okO = 'not found', 'not found'
+  local e = rec.event and C.asset(rec.event)
+  if e and type(rec.entries) == 'table' then
+    local n = setEntries(e, rec.entries)
+    okE = (n == sum(rec.entries) and 'done' or 'FAILED') .. (' (%d entrants)'):format(n)
+  end
+  local list = RC.findList()
+  if list and type(rec.opponents) == 'table' then
+    okO = (setOpponents(RC, list, rec.opponents) and 'done' or 'FAILED') .. (' (%d: %s)'):format(#rec.opponents, oppKeys(rec.opponents))
+  end
+  K.data.gridRestore = nil
+  K.save()
+  log(('[title] grid put back (%s): make-up %s; Opponents %s'):format(why or '?', okE, okO))
+  return true
+end
+
+---------------------------------------------------------------------------------------------------------------------
+-- the final boss: Kestar Bool in the Stadium Showdown
+
+function T.bossEvent()
+  if not T.bossOn() then return nil end
+  return { path = bconf().Event, title = bconf().Name or 'KESTAR BOOL', kind = '1 v 1', class = T.bossClass(), boss = true }
+end
+function T.bossName() return bconf().Opponent or 'Kestar Bool' end
+-- the boss tile shows once the boss class's title is won
+function T.bossOpen(data)
+  data = data or K.data
+  local t = (data.titles or {})[T.bossClass()]
+  return T.bossOn() and type(t) == 'table' and t.won == true
+end
+function T.bossBeaten(data)
+  data = data or K.data
+  return type(data.boss) == 'table' and data.boss.beaten == true
 end
 
 -- The Showdown event carries the campaign's story cinematics: EventCompleteCinematicChain = the Act 2 victory scene,
 -- which outside the campaign leads to a black screen (seen in game, 2026-11-10: the race finished, the cutscene
--- was skipped by Streamline, then nothing). So before a title race these chains are taken off the event (memory
+-- was skipped by Streamline, then nothing). So before the boss race these chains are taken off the event (memory
 -- only) and put back at the menu; the originals' paths live in the save (titleRestore) so a crash is put right too.
 T.CHAINS = { 'EventCompleteCinematicChain', 'EventFailedCinematicChain' }
-local try, alive = C.try, C.alive
 function T.prepare(e, path)
   local rec = { path = path, fields = {} }
   local n = 0
@@ -62,7 +225,7 @@ function T.prepare(e, path)
   end
   return n
 end
-function T.pending() return type(K.data.titleRestore) == 'table' end
+function T.pending() return type(K.data.titleRestore) == 'table' or T.gridPending() end
 function T.restore(why)
   local rec = K.data.titleRestore
   if type(rec) ~= 'table' then return 0 end
@@ -78,18 +241,37 @@ function T.restore(why)
   return n
 end
 
--- a finished title race (called from K.record): won = 1st of the two. Returns what the result screen shows.
+---------------------------------------------------------------------------------------------------------------------
+-- a finished title race or boss race (called from K.record): won = 1st of the two. Returns what the result screen shows.
+
 function T.record(ev, pos)
+  local won = pos == 1
+  if ev.boss then
+    local b = type(K.data.boss) == 'table' and K.data.boss or {}
+    b.tries = (b.tries or 0) + 1
+    local was = b.beaten == true
+    if won then b.beaten, b.at = true, os.date('%Y-%m-%d') end
+    K.data.boss = b
+    log(('KESTAR BOOL (final boss): %s (try %d)'):format(won and ('WON - ' .. T.bossName() .. ' beaten'
+      .. (was and '' or ', unlocked as a racer')) or (pos and ('lost, ' .. C.ordinal(pos)) or 'DNF'), b.tries))
+    return { boss = true, won = won, vs = T.bossName(), tries = b.tries, firstWin = won and not was }
+  end
   local cls = ev.class
   K.data.titles = K.data.titles or {}
   local t = K.data.titles[cls] or { tries = 0 }
   t.tries = (t.tries or 0) + 1
-  local won, was = pos == 1, t.won == true
-  if won then t.won, t.at, t.vs = true, os.date('%Y-%m-%d'), T.opponent(cls) end
+  local was = t.won == true
+  local vs = ev.vs or T.opponent(cls)
+  if won then t.won, t.at, t.vs = true, os.date('%Y-%m-%d'), vs end
   K.data.titles[cls] = t
-  log(('TITLE RACE %s: %s vs %s (try %d)'):format(cls, won and 'WON - you are the champion' or (pos and ('lost, ' .. C.ordinal(pos)) or 'DNF'),
-    T.opponent(cls), t.tries))
-  return { titleRace = true, won = won, vs = T.opponent(cls), tries = t.tries, firstWin = won and not was }
+  log(('TITLE RACE %s: %s vs %s on %s (try %d)'):format(cls, won and 'WON - you are the champion' or (pos and ('lost, ' .. C.ordinal(pos)) or 'DNF'),
+    vs, tostring(ev.title), t.tries))
+  local out = { titleRace = true, won = won, vs = vs, tries = t.tries, firstWin = won and not was }
+  if out.firstWin and cls == T.bossClass() and T.bossOn() and not T.bossBeaten() then
+    out.bossOpened = true
+    log('unlocked: ' .. (bconf().Name or 'KESTAR BOOL') .. ' (the final boss) on the ' .. tostring(cls) .. 'cc cups page')
+  end
+  return out
 end
 
 return T

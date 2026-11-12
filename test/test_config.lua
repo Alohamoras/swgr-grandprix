@@ -21,13 +21,29 @@ local function same(a, b)
   for k in pairs(b) do if a[k] == nil then return false end end
   return true
 end
-check(same(cfg.AI.Profiles['200'], cfg.AI.Profiles['150']), '200cc AI profile = the 150cc one')
-check(cfg.Classes[4].blurb:find('extra', 1, true) ~= nil and #cfg.Classes[4].blurb <= 40, '200cc blurb says it is the extra, short (' .. cfg.Classes[4].blurb .. ')')
+-- (v0.21: 200cc = the 150cc profile plus pressure 0.5, owner: "the difficulty could be a little tougher")
+local p200 = {}
+for k, v in pairs(cfg.AI.Profiles['200']) do p200[k] = v end
+p200.pressure = 0
+check(same(p200, cfg.AI.Profiles['150']) and cfg.AI.Profiles['200'].pressure == 0.5, 'v0.21: 200cc AI profile = the 150cc one plus pressure 0.5')
 check(keys(cfg.Classes, 'mods') == '0,1,2,2', 'mod slots 0 / 1 / 2 / 2 (' .. keys(cfg.Classes, 'mods') .. ')')
 check(keys(cfg.Classes, 'abilities') == '1,1,2,3', 'ability levels 1 / 1 / 2 / 3')
-local blurbs = true
-for _, c in ipairs(cfg.Classes) do blurbs = blurbs and type(c.blurb) == 'string' and #c.blurb > 10 and not c.blurb:find('\n') end
-check(blurbs, 'every class has a one-line intro')
+-- v0.21 (owner: less clutter): the class blurbs are gone
+local blurbs = false
+for _, c in ipairs(cfg.Classes) do blurbs = blurbs or c.blurb ~= nil end
+check(not blurbs, 'v0.21: no class blurbs')
+check(cfg.Rival == nil, 'v0.21: no Rival config')
+check(cfg.PageBackdrop == false, 'v0.21: PageBackdrop = false (no grey page panel)')
+check(cfg.Boss and cfg.Boss.Class == '150' and cfg.Boss.Event:find('EVT_WHP_SHORTBOSS_FAIR', 1, true) and cfg.Title.Event == nil,
+  'v0.21: the Showdown is the final boss at 150cc, no longer the title race')
+local defOk = true
+for _, c in ipairs(cfg.Classes) do
+  local k = cfg.Title.Default[c.key]
+  local found = false
+  for _, r in ipairs(cfg.Racers) do if r.key == k and not r.unlockBoss then found = true end end
+  defOk = defOk and found
+end
+check(defOk, 'v0.21: every class has a default title opponent, a racer in config (not Kestar)')
 check(cfg.Progression.RemixClass == nil and cfg.Classes[4].raceList == '150' and cfg.Classes[3].raceList == nil,
   'v0.11: no RemixClass; 200cc races the 150cc lists')
 

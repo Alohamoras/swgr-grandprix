@@ -22,7 +22,8 @@ return {
     -- Tile layout on the tab's page (at 4K one UI unit is about one pixel)
     TabLayout = { TileWidth = 520, TileHeight = 350, Columns = 4, VisibleRows = 3, TextScale = 1.6, FocusScale = 1.04, DimOthers = 0.72 },
     -- The cups page (v0.11): the five planet cups, the Galactic Cup and the title race - 7 tiles, 4 + 3 at the home
-    -- page's tile size, no scrolling. cols / rows / w / h (nil = the TabLayout grid)
+    -- page's tile size, no scrolling; v0.21: 8 at 150cc once its title is won (the KESTAR BOOL tile: 4 + 4).
+    -- cols / rows / w / h (nil = the TabLayout grid)
     CupsLayout = { cols = 4, rows = 2, w = 520, h = 350 },
     -- Key that selects the GRAND PRIX tab at the main menu (Backspace / B = back)
     MenuKey = 'F6',
@@ -42,6 +43,11 @@ return {
     -- v0.20 (menu review 3): a dark strip behind every tile's small top label and its description, so they read on a
     -- focused (brightened) tile. Logged as [tiles]. false = the tiles as in v0.19.
     TileLabelStrip = true,
+    -- v0.21 (owner: "the grey see-through background isn't needed if the text reads fine without it"): the
+    -- translucent dark panel behind HOME / the cups page / the garage / the questions. false = none (fully
+    -- transparent); true = the v0.20 panel. The standings, the cup result and the title result keep their own picture
+    -- backdrop either way (their tables and big lines sit over the menu's busy art). Logged once as [menu] page backdrop.
+    PageBackdrop = false,
 
     -- v0.19 (TASKS.md "Next" 2, DESIGN.md §15): cups without the main menu. After a cup race (not the last), the
     -- standings are drawn over the game's own results screen (opaque, the game's table hidden under it) with a NEXT
@@ -58,8 +64,12 @@ return {
     -- results screen's canvas (Y from the top, at 4K one unit is about one pixel), their least size, the gap between
     -- NEXT RACE and CONTINUE (ButtonGap), HideGameTable = false to leave the game's table as it is. On = false:
     -- today's flow, nothing in the race world.
+    -- v0.21 (owner: "there doesn't need to be a continue button, this is the same as hitting escape and leave cup"):
+    -- after a cup race that isn't the last, only NEXT RACE, centred where the two buttons were; the game's CONTINUE is
+    -- hidden (HideContinue = false: v0.20's two buttons). B / Escape / Backspace there: the main menu and straight to
+    -- "Leave the cup?" (NO = the standings with NEXT RACE). The last race keeps the game's CONTINUE (the cup result).
     ChainRaces = { On = true, Reset = false, Key = 'N', ResultsWaitS = 90, MenuSettleS = 5, LoadTimeoutS = 15, WatchdogS = 20,
-        Panel = { Y = 330, MinWidth = 1700, MinHeight = 1250, ButtonGap = 80, HideGameTable = true } },
+        Panel = { Y = 330, MinWidth = 1700, MinHeight = 1250, ButtonGap = 80, HideGameTable = true, HideContinue = true } },
 
     -- Lua garbage: collect a little on every tick (KB of work per step) so it never piles up into one big pause
     -- (v0.3.4, race stutter). GcStep = false to switch off for a comparison.
@@ -81,13 +91,13 @@ return {
         -- save: never change them; the save was converted from the three-class layout, every class moved up one.)
         -- Parts 0 / 3 / 7 / 10 (research 2026-11-10 §200cc: parts are back-loaded, 6 -> 10 was +120 kph; 7 spreads the
         -- top two classes). v0.10 (owner, docs/PHILOSOPHY.md "200cc"): 200cc is an optional extra like Mario Kart's -
-        -- parts 9 (was 10), the 150cc AI profile, nothing opens from it. blurb = the one-line intro in the Galactic
-        -- League's voice (v0.14: HOME's info line when the class tile is focused).
-        { key = '50', name = '50cc', parts = 0, mods = 0, abilities = 1, open = true, blurb = "The feeder division: stock vehicles, no mods, the rookies' field" },
-        { key = '100', name = '100cc', parts = 3, mods = 1, abilities = 1, open = true, blurb = 'The League proper: tuned vehicles, one mod, honest rivals' },
-        { key = '150', name = '150cc', parts = 7, mods = 2, abilities = 2, blurb = 'The pro division: the field no longer waits for you' },
+        -- parts 9 (was 10), the 150cc AI profile, nothing opens from it. (v0.21: the class blurbs are gone - owner:
+        -- less clutter on HOME and the cups page.)
+        { key = '50', name = '50cc', parts = 0, mods = 0, abilities = 1, open = true },
+        { key = '100', name = '100cc', parts = 3, mods = 1, abilities = 1, open = true },
+        { key = '150', name = '150cc', parts = 7, mods = 2, abilities = 2 },
         -- raceList (v0.11) = the class whose race lists this one races (200cc: the 150cc cups at the extra speed)
-        { key = '200', name = '200cc', parts = 9, mods = 2, abilities = 3, raceList = '150', blurb = 'The extra: raw speed for the brave' },
+        { key = '200', name = '200cc', parts = 9, mods = 2, abilities = 3, raceList = '150' },
     },
 
     -- Points by place in each race (1st first); a racer who doesn't finish scores 0
@@ -99,20 +109,24 @@ return {
     -- GOLD"). false = off.
     Near = { RecordSeconds = 1.0, TrophyPoints = 3 },
 
-    -- Your rival per class (v0.13, rival.lua, docs/PHILOSOPHY.md point 3). After every cup race at a class, each racer
-    -- within Window points of you in that cup's standings scores Window minus the gap (Ahead more if ranked just
-    -- ahead of you); the first to Form becomes your rival there, and another racer takes over only when their tally
-    -- beats the rival's by Margin (more than one race can give: Window + Ahead). Exclude = never a rival. false = off.
-    -- FirstRace (v0.20): a class with no rival gets one after its first cup race - the racer who finished nearest you
-    -- (just ahead, else just behind); false = only the tally (Form) makes one, as in v0.13-v0.19.
-    Rival = { Window = 6, Ahead = 2, Form = 30, Margin = 10, Exclude = { 'Kestar Bool' }, FirstRace = true },
+    -- (v0.21: the rival per class is gone - owner, 2026-11-11. An old save's `rivals` is dropped at load.)
 
-    -- The title race (v0.8, title.lua): one 1 v 1 at the end of each class against the class champion. The game's
-    -- Stadium Showdown against Kestar Bool (6 laps, about 5 minutes; he copies your build, so he scales with the
-    -- class). Opens with a trophy in the Galactic Cup at the class (v0.11). Fallback = the champion named on the class tile
-    -- before any cup is finished there (the lore); after that the racer with most points across the planet cups.
-    Title = { On = true, Event = EV .. 'Whippet/FINALBOSS/EVT_WHP_SHORTBOSS_FAIR', Name = 'TITLE RACE', Opponent = 'Kestar Bool',
-        Fallback = { ['50'] = 'Griff Halloran', ['100'] = 'Lyren Shok', ['150'] = 'Biddy Blas', ['200'] = 'Kestar Bool' } },
+    -- The title race (v0.8, title.lua; v0.21 owner): a 1 v 1 on a normal track against the class leader, at the end of
+    -- each class. Opens with a trophy in the Galactic Cup at the class (v0.11). The opponent = the best-placed bot in
+    -- the final standings of your most recent finished cup at that class (if you won it, the 2nd; else the winner),
+    -- saved per class when a cup ends (leader[class] = { name, cup }); the track = the first race of that cup's list at
+    -- that class, its normal laps. The grid is cut to the two of you for the race (GridMakeup 2 entrants,
+    -- CharacterList.Opponents = that racer: KNOWLEDGE.md §3, RaceFlowSpike B6), put back at the menu. Default = the
+    -- opponent (a DA_Racer_ key) before any cup has finished at the class: 50cc Griff Halloran, 100cc Lyren Shok,
+    -- 150cc Biddy Blas, 200cc Sen Fira (the campaign's Riff-Raff to Elite tiers); the track then the first planet cup's.
+    Title = { On = true, Name = 'TITLE RACE',
+        Default = { ['50'] = 'Veteran', ['100'] = 'Star', ['150'] = 'Rager', ['200'] = 'Thrall' } },
+
+    -- The final boss (v0.21, owner): Kestar Bool in the game's Stadium Showdown (6 laps, about 5 minutes; he copies your
+    -- build), the old title race. A KESTAR BOOL tile on the cups page of Class once that class's title is won; raced at
+    -- that class's parts. Beating him saves `boss` and unlocks him as a racer (Racers, unlockBoss). The event's story
+    -- cinematics are taken off for the race and put back (title.lua). On = false: no boss tile.
+    Boss = { On = true, Event = EV .. 'Whippet/FINALBOSS/EVT_WHP_SHORTBOSS_FAIR', Name = 'KESTAR BOOL', Opponent = 'Kestar Bool', Class = '150' },
 
     -- The planets, by the codename in the event paths (Events/Planets/<codename>/...). name and line are the game's
     -- own (PlanetDef). key doubles as the planet cup's key (jakku ... sentinel). Derven has no cup of its own (the
@@ -186,12 +200,14 @@ return {
                 race('Corgi/P2P/EVT_COR_P2P_FWD', 'MOUNTAIN TO SEA', 'Sprint', 1),
                 race('Corgi/Loop_A/EVT_COR_Loop_A_SHORT_02', 'VONIUM PIPELINE', 'Short circuit', 4),
             },
-            -- (the short 01 has no player-facing name, a developer label only; a finished, lit 5-lap ice circuit)
+            -- (the short 01 has no player-facing name, a developer label only; a finished, lit 5-lap ice circuit on the
+            -- Monastery Mountains loop. v0.21: named CLOISTER RUN (owner: "something more on theme", Claude picked) -
+            -- records are kept by event path, so the rename changes nothing in the save)
             ['100'] = {
                 race('Corgi/Loop_A/EVT_COR_Loop_A_REV', 'ICE FIELD CIRCUIT (REVERSE)', 'Circuit', 2),
                 race('Corgi/Loop_B/EVT_COR_Loop_B_REV', 'MONASTERY MOUNTAINS (REVERSE)', 'Circuit', 3),
                 race('Corgi/P2P/EVT_COR_P2P_REV', 'DAI BENDU ASCENSION', 'Sprint', 1),
-                race('Corgi/Loop_B/EVT_COR_Loop_B_SHORT_01', 'ANDO SHORT CIRCUIT', 'Short circuit', 5),
+                race('Corgi/Loop_B/EVT_COR_Loop_B_SHORT_01', 'CLOISTER RUN', 'Short circuit', 5),
             },
             ['150'] = {
                 race('Corgi/Loop_A/EVT_COR_Loop_A_FWD_Night', 'ICE FIELD CIRCUIT (NIGHT)', 'Circuit', 2),
@@ -341,8 +357,8 @@ return {
     -- opponents takes Shade's place on the grid for the race, so the field stays 12. Keys are the game's: don't change.
     -- v0.15 (TASKS.md A6): vehicle = the racer's own vehicle type (a Vehicles key): the launch build follows the racer.
     -- The game's own field is URacerDef.PreferredVehicleType (read in game 2026-11-11, it matches this table; racer.lua
-    -- compares it once per racer at launch and logs a mismatch). Shade drives the base landspeeder (owner). unlockTitle
-    -- = the class whose title race unlocks the racer (Kestar Bool: the 150cc title); until then the garage skips him.
+    -- compares it once per racer at launch and logs a mismatch). Shade drives the base landspeeder (owner). unlockBoss
+    -- (v0.21) = locked until you beat the final boss (Boss above: Kestar Bool himself); until then the garage skips him.
     Racers = {
         { key = 'DarkEnigma',          name = 'Shade',          vehicle = 'car',     line = 'The campaign\'s racer' },
         { key = 'Protege',             name = 'Ary Quill',      vehicle = 'car',     line = 'Audacious heir to the Quill racing legacy' },
@@ -357,7 +373,7 @@ return {
         { key = 'Rager',               name = 'Biddy Blas',     vehicle = 'bike',    line = 'Hot-headed; his last shot at a face on a cereal box' },
         { key = 'Star',                name = 'Lyren Shok',     vehicle = 'skimmer', line = 'Celebrity waveskimmer racer after a new start and fans' },
         { key = 'Mentor',              name = 'Sebulba',        vehicle = 'skimmer', line = 'The legend himself, never on the League\'s grid' },
-        { key = 'Antagonist',          name = 'Kestar Bool',    vehicle = 'car',     line = 'Galactic League Champion, proud son of the Bool family', unlockTitle = '150' },
+        { key = 'Antagonist',          name = 'Kestar Bool',    vehicle = 'car',     line = 'Galactic League Champion, proud son of the Bool family', unlockBoss = true },
     },
 
     -- AI strength per class (ai.lua; DESIGN.md §4, docs/research-2026-11-10.md "Difficulty"). Everything is
@@ -392,15 +408,22 @@ return {
         -- v0.18.1 (check races): 0.5-0.85 barely slowed the bots; 0.3 (the game's own) is the mercy that shows (100cc
         -- best bot ~123 s against ~118). Your car gains more from the class parts than the bots do, so 150 / 200cc go
         -- fully honest (1.0: best bot ~105 s at The War Fields dawn against the owner's 102.4).
+        -- v0.21 (owner after a 50cc and a 100cc cup: "catching up after a crash or two was still possible"): a little
+        -- less mercy - slowdown 0.3 -> 0.4 at 50cc, 0.3 -> 0.45 at 100cc (study: 0.3 gave the best bot ~123 s at The
+        -- War Fields reverse 100cc, 0.5 ~118 s). Catch-up stays 1.0.
+        -- v0.21 (owner after a 200cc cup: "200cc is fast and brutal, i crash a lot and still get ~2nd place, so overall
+        -- the difficulty could be a little tougher"): from 100cc up the bots no longer ease off while you crash
+        -- (AiSlowdownDuringCrash 1.0; the game's: RP_Default 0.9, DA_AIConfig 0.5 - 50cc keeps them), and 200cc a
+        -- notch above 150cc (pressure 0.5).
         Profiles = {
-            ['50'] = { pressure = -1, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.3 },
+            ['50'] = { pressure = -1, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.4 },
                        config = { SpeedMatchingMaxMatchers = 0 } },
-            ['100'] = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.3 }, errors = 0,
+            ['100'] = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.45, AiSlowdownDuringCrash = 1.0 }, errors = 0,
                         config = { SpeedMatchingMaxMatchers = 0 } },
-            ['150'] = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 1.0 }, errors = 0,
+            ['150'] = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 1.0, AiSlowdownDuringCrash = 1.0 }, errors = 0,
                         config = { SpeedMatchingMaxMatchers = 0 } },
-            -- 200cc: the 150cc profile (the extra is about speed, not a harsher field); its own line to tune apart.
-            ['200'] = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 1.0 }, errors = 0,
+            -- 200cc: the 150cc profile plus pressure 0.5 (v0.21: a notch harsher; was the same as 150cc)
+            ['200'] = { pressure = 0.5, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 1.0, AiSlowdownDuringCrash = 1.0 }, errors = 0,
                         config = { SpeedMatchingMaxMatchers = 0 } },
         },
     },

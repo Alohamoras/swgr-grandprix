@@ -187,9 +187,12 @@ function R.restoreBuild(why)
   local okA, nA = pcall(AI.restoreConfig, why)
   if not okA then log('[ai] restore error: ' .. tostring(nA)) elseif nA > 0 then done[#done + 1] = AI.CONFIG end
   if #done > 0 then K.save() end
-  -- v0.8: the title race's event gets its story cinematics back (title.lua)
+  -- v0.8: the boss event gets its story cinematics back (title.lua)
   local okT, errT = pcall(function() return require('title').restore(why) end)
   if not okT then log('[title] put back failed: ' .. tostring(errT)) end
+  -- v0.21: the title race's two-car grid back (the event's make-up, CharacterList.Opponents), before the racer
+  local okG, errG = pcall(function() return require('title').gridRestore(why) end)
+  if not okG then log('[title] grid put back failed: ' .. tostring(errG)) end
   -- v0.19: the race recipe's next-race writes (chain.lua; memory only)
   local okC, errC = pcall(function() return require('chain').putBack(why) end)
   if not okC then log('[chain] recipe put back failed: ' .. tostring(errC)) end
@@ -278,9 +281,16 @@ local function prepare(ev, classKey, vehKey, picks, mods, opts)
   local okI, ai = pcall(function() AI.launch(classKey, prof); return AI.begin(classKey, prof) end)
   if not okI then log('[ai] ' .. tostring(ai)); ai = nil end
   -- v0.8: your pilot into the character list (the save holds what to put back; a failed launch puts it back below)
-  if ev.titleRace then
+  if ev.boss then
+    -- v0.21: the final boss (the Stadium Showdown): its story cinematics off for the race (title.lua)
     local okT, errT = pcall(function() return require('title').prepare(e, ev.path) end)
     if not okT then log('[title] prepare failed: ' .. tostring(errT)) end
+  elseif ev.titleRace and ev.opponent then
+    -- v0.21: the title race's two-car grid (title.lua), before the racer swap: an earlier swap put back first, then
+    -- the make-up and Opponents cut, so the swap below only sets Player (your pick is not in the cut list)
+    if RC.pending() then pcall(RC.restore, 'before launch') end
+    local okG, errG = pcall(function() return require('title').gridPrepare(e, ev) end)
+    if not okG then log('[title] grid not cut: ' .. tostring(errG)) end
   end
   local okR, errR = pcall(RC.begin, RC.current().key)
   if not okR then log('[racer] not set: ' .. tostring(errR)) end
@@ -307,6 +317,7 @@ end
 function R.launch(ev, classKey, vehKey, picks, mods, opts)
   if R.run then return false, 'A race is already running' end
   require('chain').via = nil -- (v0.19.1: a launch from the menu ends any via-the-menu request)
+  require('chain').leaveAsk = nil -- (v0.21: and any "Leave the cup?" request from the results screen)
   local fe, why = R.atMainMenu()
   if not fe then return false, 'Cannot launch: ' .. why end
   local p, msg = prepare(ev, classKey, vehKey, picks, mods, opts)
@@ -530,7 +541,7 @@ end
 -- cheap: no lookup (see above)
 function R.menuUp() return menu.up end
 
--- the race's result recorded (K.record: the cup's points, records, rival, near misses) and logged (RESULT, [gaps],
+-- the race's result recorded (K.record: the cup's points, records, near misses) and logged (RESULT, [gaps],
 -- PERF). Once per race: from the main menu path of R.watch, or (v0.19) on the results screen by chain.lua.
 local function recordRace(r)
   local fl = fieldList(r)
@@ -711,7 +722,7 @@ function R.watch()
   R.run = nil
   if r.recordTried then
     -- v0.19: recorded on the results screen already (chain.lua): that result, not a second one
-    if r.chain and not r.chain.done then log('[chain] the results went to the main menu before NEXT RACE: the standings there') end
+    if r.chain and not r.chain.done then pcall(require('chain').goneBeforeNext, r, 'the results went to the main menu') end
     if not r.recorded then log('[chain] the result recorded on the results screen was lost - nothing to show') end
     return r.recorded
   end

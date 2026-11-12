@@ -1,7 +1,7 @@
 -- v0.20 (TASKS "Next" 3 and 4, docs/menu-review-2026-11-11.md 1-7): the cup result screen of its own (the medal large
 -- and tinted, PERFECT CUP, the top 3, ONE what's-next line: an unlock / the nearest unlock / the near miss on the race
--- line) and CONTINUE's focus on the next cup without a gold; HOME's Next: line and its focus on the class last raced;
--- the rival's row marked on the standings; the game's footer hidden while our tab is up and put back after (and only
+-- line) and (v0.21) CONTINUE's focus on the cup just raced; HOME's focus on the class last raced (v0.21: no Next: line,
+-- no blurbs); no rival marks (v0.21); the game's footer hidden while our tab is up and put back after (and only
 -- logged with HideFooter = false); the dark strip behind the tiles' labels; the small text changes (no how-to on the
 -- cups page, no League line on HOME, no best lap on a sprint, trophies on every class tile, medal icons tinted).
 local M = require('mock')
@@ -23,7 +23,7 @@ T.boot({ version = 2, races = 0, cups = 0, class = '100', restores = {}, ability
   best = { ['100'] = { jakku = 1, lantaana = 1, ando = 1, crait = 1 } } })
 local H = rawget(_G, 'GU_TEST_SCREENS')
 local SC, S = H.SCREENS, H.S
-local K, ART, SD, RV, PR, CU = require('gp'), require('art'), require('standings'), require('rival'), require('prog'), require('cup')
+local K, ART, SD, PR, CU = require('gp'), require('art'), require('standings'), require('prog'), require('cup')
 local cfg = require('config')
 
 local BOTS = { 'Biddy Blas', 'Sen Fira', 'Katja Mox', 'Lyren Shok', 'Ary Quill', 'Nik Skandaro', 'Shade', 'Fola Kanjen', 'Soren Zaks', 'Malis Vazosk', 'Griff Halloran' }
@@ -58,8 +58,8 @@ T.check(hasText(spec.after, 'UNLOCKED:  150cc   -   GALACTIC CUP at 100cc'), 'wh
 T.check(not findText(spec.after, 'Next:'), 'one what\'s-next line only')
 T.check(findText(spec.after, 'Last race: 1st') ~= nil, 'the last race in one line (' .. joined(spec.after) .. ')')
 local cont = spec.items[1]
-T.check(cont.title == 'CONTINUE' and cont.desc == 'Next: GALACTIC CUP' and S.focusMem.cups == 6,
-  'CONTINUE lands on the Galactic Cup (the next cup without a gold), named on the tile (' .. tostring(cont.desc) .. ', ' .. tostring(S.focusMem.cups) .. ')')
+T.check(cont.title == 'CONTINUE' and cont.desc == 'Back to the cups' and S.focusMem.cups == 5,
+  'v0.21: CONTINUE lands on the cup just raced, the Sentinel Cup (' .. tostring(cont.desc) .. ', ' .. tostring(S.focusMem.cups) .. ')')
 T.check(cont.icon == ART.medal(1) and cont.iconColor == ART.medalColor(1), 'CONTINUE carries the gold medal')
 
 -- b) 150cc: Jakku gold, Lantaana bronze, Ando silver now -> 2 more trophies open its Galactic Cup and 200cc
@@ -72,11 +72,12 @@ T.check(not hasText(spec.hero.lines, 'PERFECT CUP'), 'no PERFECT CUP badge when 
 T.check(#spec.table.rows == 3 and spec.table.rows[2].cells[2] == 'YOU', 'you 2nd in the top 3 (' .. spec.table.rows[2].cells[2] .. ')')
 T.check(hasText(spec.after, 'Next: 2 more trophies at 150cc open the GALACTIC CUP and 200cc'),
   'what\'s next: how close the next unlock is (' .. joined(spec.after) .. ')')
-T.check(spec.items[1].desc == 'Next: CRAIT CUP' and S.focusMem.cups == 4, 'CONTINUE lands on the Crait Cup (after Ando, no gold), not Ando')
--- the rival from the first race at 150cc (you 2nd every race: Biddy Blas 1st, just ahead), marked in the top 3
-T.check(RV.name(K.data, '150') == 'Biddy Blas', 'the first race at 150cc gave a rival: Biddy Blas (just ahead)')
-T.check(spec.table.rows[1].cells[2] == 'Biddy Blas   RIVAL' and spec.table.rows[1].color == SD.RIVAL_COLOR, 'the rival\'s row marked: RIVAL tag and colour')
-T.check(findText(spec.after, 'RIVAL: BIDDY BLAS, AHEAD BY') ~= nil, 'the rival call-out kept on the cup result')
+T.check(spec.items[1].desc == 'Back to the cups' and S.focusMem.cups == 3, 'v0.21: CONTINUE lands on the Ando Cup, the cup just raced')
+-- v0.21: no rival - the winner's row plain, no call-out; the leader saved for the title race
+T.check(spec.table.rows[1].cells[2] == 'Biddy Blas' and spec.table.rows[1].color == require('ui').WHITE, 'v0.21: no RIVAL tag or colour')
+T.check(not findText(spec.after, 'RIVAL'), 'v0.21: no rival call-out on the cup result')
+T.check(K.data.rivals == nil and K.data.leader['150'].name == 'Biddy Blas' and K.data.leader['150'].cup == 'ando',
+  'v0.21: the 150cc leader saved: Biddy Blas from the Ando Cup')
 
 -- c) 5th place, outside the top 3: your row under them; one race away from opening 150cc's Galactic Cup
 K.data.best['150'] = { jakku = 1, lantaana = 3, ando = 2, crait = 1 }
@@ -98,15 +99,14 @@ S.result = { cupOver = true, run = run, ev = { title = 'X', race = 4, laps = 2 }
 spec = SC.standings()
 T.check(PR.nextUnlock(K.data, '100') == nil, 'nothing left to unlock at 100cc')
 T.check(findText(spec.after, '1 POINT FROM GOLD') ~= nil and not findText(spec.after, 'Next:'), 'what\'s next: the near miss (' .. joined(spec.after) .. ')')
-T.check(spec.items[1].desc == 'Next: TITLE RACE' and S.focusMem.cups == 7, 'every other cup golden: CONTINUE lands on the title race (' .. tostring(spec.items[1].desc) .. ')')
+T.check(spec.items[1].desc == 'Back to the cups' and S.focusMem.cups == 1, 'v0.21: every other cup golden: CONTINUE still lands on the cup just raced (Jakku)')
 
--- e) the standings page (and the results panel: the same SD.spec): the rival's row marked
-K.data.rivals = { ['100'] = { name = 'Sen Fira', scores = {} } }
+-- e) the standings page (and the results panel: the same SD.spec): v0.21 no rival marks
 run.race, run.history = 2, { run.history[4] }
 spec = SD.spec({ run = run, ev = { title = 'X', race = 1, laps = 2 }, pos = 2, time = 120, lap = 60 })
 local marked
-for _, r in ipairs(spec.table.rows) do if r.rival then marked = r end end
-T.check(marked and marked.cells[2] == 'Sen Fira   RIVAL' and marked.color == SD.RIVAL_COLOR, 'the standings: the rival\'s row marked RIVAL, in its colour')
+for _, r in ipairs(spec.table.rows) do if tostring(r.cells[2]):find('RIVAL', 1, true) then marked = r end end
+T.check(not marked, 'v0.21: the standings: no row marked RIVAL')
 T.check(findText(spec.lines, '(best lap 1:00.00)') ~= nil, 'a race of laps: your best lap shown')
 spec = SD.spec({ run = run, ev = { title = 'X', race = 1, laps = 1, kind = 'Sprint' }, pos = 2, time = 120, lap = 120, newLap = true })
 T.check(not findText(spec.lines, 'best lap') and not findText(spec.lines, 'BEST LAP'), 'a sprint: no best lap (' .. joined(spec.lines) .. ')')
@@ -120,23 +120,29 @@ T.check(SD.margin(nil) == nil and SD.margin(K.gaps({ { name = 'Dwayne', you = tr
 spec = SD.spec({ run = run, ev = { title = 'X', race = 1, laps = 2 }, pos = 2, time = 100.4, gaps = gp2 })
 T.check(findText(spec.lines, 'You: 2nd in this race   -   1:40.40   -   0.4 s behind Biddy Blas') ~= nil, 'on your line (' .. joined(spec.lines) .. ')')
 
--- f) HOME: the Next: line, the same measure on every class tile, no League line; the cups page: no how-to
+-- f) HOME (v0.21: no Next: line, no blurbs), the same measure on every class tile, no League line; the cups page: no
+-- how-to, no blurb, no levels line
 K.data.titles = {}
 K.data.best = { ['100'] = { jakku = 1, lantaana = 1, ando = 2, crait = 3 } }
 local home = SC.home()
-T.check(home.lines[1][1] == 'Next: a trophy in the Sentinel Cup at 100cc opens the GALACTIC CUP and 150cc', 'HOME: Next: the nearest goal (' .. home.lines[1][1] .. ')')
+T.check(#home.lines == 1 and home.lines[1][1] == '' and not findText(home.lines, 'Next:'), 'v0.21: HOME: no Next: line (' .. joined(home.lines) .. ')')
 T.check(not findText(home.lines, 'Galactic League') and not findText(home.lines, 'Cups finished'), 'HOME: no League line, no counts')
+local infos = {}
+for _, it in ipairs(home.items) do infos[#infos + 1] = tostring(it.info) end
+T.check(not table.concat(infos, '|'):find('division', 1, true) and not table.concat(infos, '|'):find('League proper', 1, true),
+  'v0.21: no class blurbs in HOME\'s info lines')
+T.check(home.items[2].info:match('^Parts level 3, abilities level 1%.') ~= nil, 'v0.21: a class\'s info line: its speed only (' .. home.items[2].info .. ')')
 local measures = {}
 for _, it in ipairs(home.items) do
   if it.classKey and not it.disabled then measures[#measures + 1] = tostring(it.badge) .. '/' .. tostring(it.desc) end
 end
 T.check(table.concat(measures, ' ; ') == 'nil/nil ; 4 / 6 TROPHIES/Gold 2 / 6', 'HOME: trophies on the badge, golds under the title (' .. table.concat(measures, ' ; ') .. ')')
 K.data.best = {}
-T.check(SC.home().lines[1][1] == 'Next: 5 more trophies at 50cc open the GALACTIC CUP', 'a fresh save: the first goal (' .. SC.home().lines[1][1] .. ')')
+T.check(not findText(SC.home().lines, 'Next:'), 'v0.21: a fresh save: no Next: line either')
 S.class = '100'
 local cups = SC.cups()
-T.check(not findText(cups.lines, 'Select a cup') and not findText(cups.lines, 'LANDSPEEDER') and findText(cups.lines, 'Parts level 3, abilities level 1') ~= nil,
-  'the cups page: no how-to, the levels only (' .. joined(cups.lines) .. ')')
+T.check(not findText(cups.lines, 'Select a cup') and not findText(cups.lines, 'LANDSPEEDER') and not findText(cups.lines, 'Parts level')
+  and not findText(cups.lines, 'League'), 'v0.21: the cups page: no how-to, no blurb, no levels line (' .. joined(cups.lines) .. ')')
 -- a sprint's record on the cups page: no lap
 local sprintRace
 for _, cup in ipairs(K.cups()) do

@@ -39,7 +39,7 @@ T.check(RC.vehicle('DarkEnigma').key == 'car', 'Shade: the base landspeeder')
 T.check(T.logHas('[save] the old vehicle pick (skimmer) is dropped'), 'the old vehicle pick dropped, logged')
 T.check(RC.locked('Antagonist') and not RC.locked('Mentor') and not RC.locked('DarkEnigma'), 'Kestar locked (no 150cc title), the others not')
 T.check(RC.current().key == 'DarkEnigma' and T.save().racer == 'DarkEnigma', 'Kestar picked but locked: Shade, saved')
-T.check(T.logHas('[racer] Kestar Bool is locked (to unlock: win the 150cc title) - racing as Shade'), 'the fall back logged')
+T.check(T.logHas('[racer] Kestar Bool is locked (to unlock: beat kestar bool after the 150cc title) - racing as Shade'), 'the fall back logged')
 
 -- 3. cycling skips him while locked
 local seen, kestar = {}, false
@@ -63,17 +63,20 @@ for _, it in ipairs(items) do
 end
 T.check(racer and racer.title == 'BIDDY BLAS' and racer.desc == 'Speeder bike', 'the RACER tile: Biddy Blas, Speeder bike')
 T.check(racer and racer.info:find('^Biddy Blas %- speeder bike:  Hot%-headed') ~= nil, 'its info: "Biddy Blas - speeder bike: <bio>" (' .. tostring(racer and racer.info) .. ')')
-T.check(racer and racer.info:find('Kestar Bool is locked. To unlock: win the 150cc title.', 1, true) ~= nil, 'and how to unlock Kestar')
+T.check(racer and racer.info:find('Kestar Bool is locked. To unlock: beat Kestar Bool after the 150cc title.', 1, true) ~= nil, 'and how to unlock Kestar')
 -- HOME's GARAGE tile: the racer and the vehicle type
 local garage
 for _, it in ipairs(SC.home().items) do if it.title == 'GARAGE' then garage = it end end
 T.check(garage and garage.desc == 'Biddy Blas\nSpeeder bike', 'HOME\'s GARAGE tile: racer and vehicle type (' .. tostring(garage and garage.desc):gsub('\n', ' / ') .. ')')
-T.check(garage and garage.info:find('Biddy Blas  -  speeder bike  -  ', 1, true) ~= nil, 'and in its info')
+T.check(garage and garage.info:find('^Abilities: ') ~= nil, 'v0.21: its info: the abilities only (the tile names the racer)')
 
--- 4. the 150cc title won: Kestar in the cycle, the lock line gone
-K.data.titles['150'] = { won = true, tries = 2 }
+-- 4. v0.21: the 150cc title alone doesn't unlock him; beating him (the final boss) does: Kestar in the cycle, the lock
+-- line gone
+K.data.titles['150'] = { won = true, tries = 2, vs = 'Biddy Blas' }
+T.check(RC.locked('Antagonist'), 'v0.21: the 150cc title alone: Kestar still locked')
+K.data.boss = { beaten = true, tries = 1 }
 for _ = 1, 14 do if RC.cycle(1).key == 'Antagonist' then kestar = true; break end end
-T.check(kestar and RC.current().key == 'Antagonist' and RC.vehicle().key == 'car', 'title won: Kestar in the cycle, a landspeeder')
+T.check(kestar and RC.current().key == 'Antagonist' and RC.vehicle().key == 'car', 'boss beaten: Kestar in the cycle, a landspeeder')
 for _, it in ipairs(SC.garage().items) do
   if it.badge == 'RACER' then T.check(not it.info:find('locked', 1, true) and it.desc == 'Landspeeder', 'no lock line any more (' .. it.info .. ')') end
 end
@@ -115,9 +118,9 @@ T.check(ok and not T.logHas('PreferredVehicleType', mark), 'checked once per rac
 W.race(11); M.tick(10)
 W.backToMenu(); M.tick(45)
 
--- 7. losing the title again (a hand-edited save) makes the pick fall back too
+-- 7. losing the boss win again (a hand-edited save) makes the pick fall back too
 while RC.current().key ~= 'Antagonist' do RC.cycle(1) end
-K.data.titles['150'] = nil
+K.data.boss = nil
 T.check(RC.current().key == 'DarkEnigma' and K.data.racer == 'DarkEnigma', 'Kestar locked again: Shade')
 T.check(M.deadTouches == 0, 'no freed object touched')
 T.finish()

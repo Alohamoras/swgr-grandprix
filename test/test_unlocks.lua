@@ -62,7 +62,9 @@ T.check(T.logHas('unlocked: TITLE RACE at 100cc', mark), 'a Galactic Cup trophy 
 T.check(T.save().best['100'].galactic == 1, 'Galactic gold saved')
 T.clickTitle('CONTINUE'); M.tick(3)
 b = T.badges()
-T.check(select(2, b:gsub('LOCKED', '')) == 0 and b:find('GOLD TROPHY|VS ', 1, true) ~= nil, '100cc: everything open, the title race names its opponent (' .. b .. ')')
+local ttd
+for _, it in ipairs(rawget(_G, 'GU_TEST_SCREENS').SCREENS.cups().items) do if it.title == 'TITLE RACE' then ttd = it.desc end end
+T.check(select(2, b:gsub('LOCKED', '')) == 0 and tostring(ttd):find('^vs ') ~= nil, '100cc: everything open, the title race names its opponent (v0.21: ' .. tostring(ttd) .. ')')
 M.press('BACKSPACE'); M.tick(3)
 T.check(T.badges() == ('|6 / %d TROPHIES||LOCKED||'):format(NCUPS), 'home: 6 / 6 trophies at 100cc, 150cc open, 200cc still locked (' .. T.badges() .. ')')
 T.clickTitle('150CC'); M.tick(3)

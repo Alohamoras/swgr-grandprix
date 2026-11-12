@@ -15,8 +15,8 @@
 -- truth: RC.vehicle() picks the launch build (config Vehicles), so the menu never looks anything up in the game. At
 -- launch the picked racer's URacerDef.PreferredVehicleType (a plain enum byte: 0 car, 2 bike, 3 skimmer) is read once
 -- per racer per session from the def already in hand and a mismatch with config is logged (no extra sweep, no soft
--- pointers). Kestar Bool (unlockTitle = '150') is locked until you win the 150cc title race: RC.cycle skips him, and a
--- save that still has him picked races as Shade (logged once).
+-- pointers). Kestar Bool (unlockBoss, v0.21; was unlockTitle = '150') is locked until you beat him as the final boss
+-- (title.lua): RC.cycle skips him, and a save that still has him picked races as Shade (logged once).
 -- The racer's own look comes with the swap (LookSpike v2, 2026-11-11): the race's recipe list (RecipeState.Racers[])
 -- already gives your entry the racer's preset (Nik Skandaro -> PRE_Car_Hammerhead_QuietStrength), and your vehicle
 -- reads "Hammerhead Quiet Strength" through the race. Nothing to add here; the owner judges the screenshots.
@@ -44,22 +44,20 @@ function RC.get(key)
   for _, r in ipairs(RC.list()) do if r.key == key then return r end end
   return nil
 end
--- v0.15: is the racer (an entry or a key) still locked? Only a racer with unlockTitle is: until you win that class's
--- title race (K.data.titles[class].won)
+-- v0.15: is the racer (an entry or a key) still locked? v0.21: only a racer with unlockBoss is: until you beat the final
+-- boss (title.lua, K.data.boss.beaten)
 function RC.locked(r)
   if type(r) == 'string' then r = RC.get(r) end
-  local cls = type(r) == 'table' and r.unlockTitle
-  if not cls then return false end
-  local t = type(K.data.titles) == 'table' and K.data.titles[cls]
-  return not (type(t) == 'table' and t.won)
+  if not (type(r) == 'table' and r.unlockBoss) then return false end
+  return not require('title').bossBeaten(K.data)
 end
--- 'To unlock: win the 150cc title' (nil when the racer has no lock)
+-- 'To unlock: beat Kestar Bool after the 150cc title' (nil when the racer has no lock)
 function RC.unlockText(r)
   if type(r) == 'string' then r = RC.get(r) end
-  local cls = type(r) == 'table' and r.unlockTitle
-  if not cls then return nil end
-  local c = K.class(cls)
-  return 'To unlock: win the ' .. (c and c.name or cls) .. ' title'
+  if not (type(r) == 'table' and r.unlockBoss) then return nil end
+  local TI = require('title')
+  local c = K.class(TI.bossClass())
+  return ('To unlock: beat %s after the %s title'):format(TI.bossName(), c and c.name or TI.bossClass())
 end
 -- the pick; a locked pick (an old save, or a lock come back) is Shade, saved and logged
 function RC.current()
@@ -139,6 +137,8 @@ local function opponentPaths(list)
   try(function() list.Opponents:ForEach(function(_, el) out[#out + 1] = defPath(el:get()) or '' end) end)
   return out
 end
+-- (v0.21: title.lua's two-car grid uses the same list)
+RC.findList, RC.opponentPaths, RC.defPath = findList, opponentPaths, defPath
 local function setPlayer(list, def, path)
   local ok = pcall(function() list.Player = def end)
   return ok and playerPath(list) == path
