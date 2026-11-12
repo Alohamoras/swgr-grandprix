@@ -31,9 +31,17 @@ function SD.rankingTable(run)
       color = r.you and U.GOLD or U.WHITE, colors = { [5] = mc }, highlight = r.you,
     }
   end
-  return { size = 20, header = { '', 'RACER', 'THIS RACE', 'POINTS', 'MOVED' },
+  -- v0.25 (menu review / TASKS round 3): the MOVED column only when someone moved (race 1: nobody has)
+  local moved = false
+  for _, r in ipairs(rows) do if r.cells[5] ~= '' then moved = true end end
+  local tb = { size = 20, header = { '', 'RACER', 'THIS RACE', 'POINTS', 'MOVED' },
     cols = { { w = 90, align = 'right' }, { w = 460 }, { w = 220, align = 'right' }, { w = 180, align = 'right' }, { w = 160, align = 'right' } },
     rows = rows }
+  if not moved then
+    tb.header[5], tb.cols[5] = nil, nil
+    for _, r in ipairs(rows) do r.cells[5] = nil end
+  end
+  return tb
 end
 
 -- v0.20: the cup result's table: the final top 3 (and your row under them when you are lower), place / racer / points
@@ -120,7 +128,7 @@ function SD.cupSpec(r)
   if #note > 0 then after[#after + 1] = { table.concat(note, '   -   '), 20, U.GOLD } end
   if r.unlocked and #r.unlocked > 0 then after[#after + 1] = { 'UNLOCKED:  ' .. table.concat(r.unlocked, '   -   '), 24, U.GOLD } end
   return { key = 'standings', title = '', hero = hero, lines = {}, after = after,
-    table = run and SD.podiumTable(run) or nil, backdrop = ART.BACKDROP, cupOver = true }
+    table = run and SD.podiumTable(run) or nil, backdrop = ART.BACKDROP, cupOver = true, center = true }
 end
 
 -- the standings screen's text from a race result r (K.record's out): { key, title, lines, table, backdrop } (no tiles:
