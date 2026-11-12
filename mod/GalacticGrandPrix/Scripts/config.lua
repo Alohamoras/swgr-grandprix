@@ -35,15 +35,10 @@ return {
     -- v0.24 (owner): the garage is every race's start screen (cup -> garage with START focused -> race). false = the
     -- v0.23 way: a cup starts at once, the GARAGE tile on HOME.
     StartScreen = true,
-    -- v0.23: racers' faces (the game's character art) on the title race and final boss tiles, by racer key; a racer
-    -- not listed keeps the stadium picture. Matched by name only - to check in game.
-    Portraits = {
-      Star = '/Game/Griffin/UI/Library/Textures/Content/Characters/T_UI_RivalChar_Lyren_Fallback',
-      Thrall = '/Game/Griffin/UI/Library/Textures/Content/Characters/T_UI_RivalChar_Sen_Fallback',
-      Ghost = '/Game/Griffin/UI/Library/Textures/Content/Characters/T_UI_RivalChar_Ghost_Fallback',
-      Mercenary = '/Game/Griffin/UI/Library/Textures/Content/Characters/T_UI_RivalChar_Mercenary_Fallback',
-      Antagonist = '/Game/Griffin/UI/Library/Textures/Content/Characters/T_UI_PlayerChar_Antagonist_Fallback',
-    },
+    -- v0.23: racers' faces on the title race and final boss tiles, by racer key. v0.25 (seen in game 2026-11-11): the
+    -- game's large character pictures (Content/Characters/*_Fallback) draw broken through the tile's picture (a white
+    -- tile with scraps), so none are listed; the stadium picture stays. Format: { RacerKey = '/Game/...texture' }.
+    Portraits = {},
     -- Key that selects the GRAND PRIX tab at the main menu (Backspace / B = back)
     MenuKey = 'F6',
     -- v0.17 (TASKS.md 11): at the first main menu after the game starts, open the GRAND PRIX tab by itself (HOME).

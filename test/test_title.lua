@@ -159,7 +159,7 @@ local nav = U.rowsNav(spec.rows, spec.items)
 T.check(spec.items[6].span == 2 and nav[1].down == 6 and nav[5].down == 8 and nav[6].up == 2 and nav[8].up == 4 and nav[3].down == 7,
   'v0.23: the Galactic Cup two tiles wide; the D-pad goes to the nearest tile in the next row')
 T.check(nav[1].left == nil and nav[5].right == nil and nav[6].right == 7 and nav[8].down == nil, 'v0.23: edges left to the game')
-T.check(spec.items[8].art:find('Antagonist_Fallback', 1, true) ~= nil, 'v0.23: Kestar\'s face on his tile')
+T.check(spec.items[8].art:find('RacerStyle_Antagonist', 1, true) ~= nil, 'v0.25: Kestar\'s tile keeps the stadium picture (the character art drew broken in game)')
 T.check(T.marks():find('|$') ~= nil and not T.badges():find('BOSS', 1, true), 'v0.24: the boss tile has no badge and no medal yet (' .. T.marks() .. ')')
 mark = T.mark()
 T.clickTitle('KESTAR BOOL')

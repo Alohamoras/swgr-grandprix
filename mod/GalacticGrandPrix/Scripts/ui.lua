@@ -237,6 +237,17 @@ local function makeTile(lib, pc, it, make)
     try(function() t.Img_Icon:SetRenderTranslation({ X = 85, Y = -38 }) end)
   else try(function() t.Img_Icon:SetVisibility(1) end) end
   try(function() t:SetText(FText(it.title)) end)
+  -- v0.25 (seen in game: with no grey strips, a white title vanished on bright art when focused): a dark drop shadow
+  -- on the tile's title, badge and description (config TileTextShadow = false: none)
+  if cfg.TileTextShadow ~= false then
+    for _, k in ipairs({ 'Txt_Label_Title', 'Txt_Label_Supplemental', 'RT_Description' }) do
+      local tb = try(function() return t[k] end)
+      if alive(tb) then
+        try(function() tb:SetShadowOffset({ X = 2.5, Y = 2.5 }) end)
+        try(function() tb:SetShadowColorAndOpacity({ R = 0, G = 0, B = 0, A = 0.85 }) end)
+      end
+    end
+  end
   if make then tileStrips(make, t, it) end
   if it.disabled then try(function() t:SetRenderOpacity(0.5) end) end
   U.makeToggle(t)
@@ -425,7 +436,7 @@ end
 --   it.corner = { {tex, color}, ... }  more small icons beside it, top right (the lock, the perfect-cup star)
 --   it.pips = { {tex, color, alpha}, ... }  a row of small icons top left, where the badge was (a class's medals)
 --   it.glyph = {tex, color, px}  one big icon, top middle (an ability's or a tune-up's icon)
-U.PIP_PX, U.CORNER_PX = 54, 72
+U.PIP_PX, U.CORNER_PX = 66, 72
 function U.hasDecor(it) return (it.icon or it.corner or it.pips or it.glyph) and true or false end
 local function picture(make, tex, color, px, alpha)
   local img = make('/Script/UMG.Image')
@@ -714,8 +725,16 @@ function U.highlight(screen, i)
     local w = it.cell or it.btn
     try(function() w:SetRenderScale({ X = sc, Y = sc }) end)
     -- (a disabled tile is already at half opacity on its own: its holder isn't halved again)
-    local op = ((it.disabled and not it.cell) and 0.5 or 1) * ((on or U.DIM == 1) and 1 or U.DIM)
-    try(function() w:SetRenderOpacity(op) end)
+    -- v0.25 (seen in game 2026-11-11: with no page backdrop, faded tiles look milky on the menu's pale art): a rows
+    -- page dims the other tiles by darkening them (the tile's colour), not by fading them
+    if it.cell then
+      local d = (on or U.DIM == 1) and 1 or U.DIM
+      try(function() it.btn:SetColorAndOpacity({ R = d, G = d, B = d, A = 1 }) end)
+      try(function() w:SetRenderOpacity(1) end)
+    else
+      local op = (it.disabled and 0.5 or 1) * ((on or U.DIM == 1) and 1 or U.DIM)
+      try(function() w:SetRenderOpacity(op) end)
+    end
   end
   local it = screen.items[i]
   if screen.info and alive(screen.info) then try(function() screen.info:SetText(FText(it and it.info or ' ')) end) end

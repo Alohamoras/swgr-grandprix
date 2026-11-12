@@ -728,6 +728,14 @@ local function syncGameUI()
     S.grabs = (S.grabs or 0) + 1
     if S.grabs <= 2 then log('[menu] tab page: focus to tile ' .. S.focus .. ' (' .. S.grabs .. ')') end
   end
+  -- v0.25 (seen in game 2026-11-11: HOME opened on RESET, not the class last raced): in the first second after a
+  -- page appears the game hands focus to a tile of its own choosing - take it back to ours, don't follow it
+  if focused and focused ~= S.focus and C.clock - S.shownAt < (cfg.FocusHoldMs or 1000) then
+    local it = S.ui.items[S.focus]
+    if it then try(function() it.btn:SetFocus() end) end
+    if not S.heldSaid then S.heldSaid = true; log(('[menu] the game moved focus to tile %d at once: kept on tile %d'):format(focused, S.focus)) end
+    return
+  end
   if focused and focused ~= S.focus then
     if not loggedSync then loggedSync = true; log('[menu] the game\'s UI is moving focus on our tiles') end
     S.focus = focused; S.focusMem[S.key or ''] = focused
