@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.27.1 (2026-11-12): the finish times stay up
+The owner (playing v0.26): "at the end of the race, it skips over the finish times screen, I see it for just a split
+second". Cause: after a cup race that isn't the last, our standings panel went over the game's results screen the
+moment it was found (one 0.3 s look), hiding the game's own finish-times table.
+- The game's results (the finish times) now stay up for `ChainRaces.Panel.TimesS` (6 s), then the standings panel
+  comes, as before. Meanwhile the game's CONTINUE is invisible and disabled (a stray A can't skip to the menu); the
+  N key brings the panel at once; Backspace / Escape leaves the cup as on the panel. TimesS = 0: the old way.
+- The last race of a cup is unchanged (no panel: the game's own screen and CONTINUE, then the cup result).
+- Tests: test_chain section T (the wait, CONTINUE held and given back, B during the times).
+
 ## v0.27.0 (2026-11-12): league taglines, a livelier Riff-Raff
 The owner's notes of 2026-11-12. Tested against the fake game, **not yet seen in game**.
 - **No speed chevrons on the HOME posters**: beside the medal pips they read as progress, and their meaning wasn't

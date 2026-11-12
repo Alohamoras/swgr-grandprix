@@ -434,9 +434,11 @@ function W.results(opts)
     GetAlignment = function() return { X = 0.5, Y = 1 } end, GetPosition = function() return { X = 0, Y = -76 } end,
     GetAutoSize = function() return true end, GetZOrder = function() return 1 end }, 'CanvasPanelSlot')
   -- (v0.21: W.contVis = CONTINUE's visibility - chain.lua hides it, Collapsed, after a race that isn't the last)
-  W.contVis = 0
+  W.contVis, W.contEnabled, W.contOpacity = 0, true, 1
   local cont = M.new('WBP_Common_Btn_Continue', { GetParent = function() return canvas end, Slot = slot, WidthOverride = 300,
-    SetVisibility = function(_, v) W.contVis = v end, GetVisibility = function() return W.contVis end }, 'WBP_Common_Btn_C')
+    SetVisibility = function(_, v) W.contVis = v end, GetVisibility = function() return W.contVis end,
+    -- (v0.27: held invisible and disabled while the game's finish times show)
+    SetIsEnabled = function(_, v) W.contEnabled = v end, SetRenderOpacity = function(_, v) W.contOpacity = v end }, 'WBP_Common_Btn_C')
   local w = M.new('WBP_SimpleRaceResultsScreen_C_' .. M.nextAddr, { WidgetTree = M.new('WidgetTree', {}), WBP_Common_Btn_Continue = cont,
     IsInViewport = function() return true end }, 'WBP_SimpleRaceResultsScreen_C')
   rawget(w, '__props')[require('chain').CONTINUE_EVENT] = function() W.continued = W.continued + 1 end

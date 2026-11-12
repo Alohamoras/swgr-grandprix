@@ -88,7 +88,9 @@ return {
     -- hidden (HideContinue = false: v0.20's two buttons). B / Escape / Backspace there: the main menu and straight to
     -- "Leave the cup?" (NO = the standings with NEXT RACE). The last race keeps the game's CONTINUE (the cup result).
     ChainRaces = { On = true, Key = 'N', ResultsWaitS = 90, MenuSettleS = 5,
-        Panel = { Y = 330, MinWidth = 1700, MinHeight = 1250, ButtonGap = 80, HideGameTable = true, HideContinue = true } },
+        Panel = { Y = 330, MinWidth = 1700, MinHeight = 1250, ButtonGap = 80, HideGameTable = true, HideContinue = true,
+            -- v0.27: seconds the game's own results (the finish times) show before the standings panel; 0 = at once
+            TimesS = 6 } },
 
     -- Lua garbage: collect a little on every tick (KB of work per step) so it never piles up into one big pause
     -- (v0.3.4, race stutter). GcStep = false to switch off for a comparison.

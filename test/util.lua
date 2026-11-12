@@ -31,6 +31,12 @@ function T.boot(save, cfg)
   -- v0.24: the start screen (cup -> garage -> START) is off in the older tests (a cup starts at once, GARAGE on HOME);
   -- test_start covers it
   if cfg.StartScreen == nil then cfg.StartScreen = false end
+  -- v0.27: the game's finish times show for Panel.TimesS before the standings panel; 0 in the older tests (the panel
+  -- at once), cfg.TimesS = n to test the wait (test_chain T)
+  if cfg.ChainRaces == nil then
+    cfg.ChainRaces = { On = true, Key = 'N', ResultsWaitS = 90, MenuSettleS = 5, Panel = { Y = 330, MinWidth = 1700,
+      MinHeight = 1250, ButtonGap = 80, HideGameTable = true, HideContinue = true, TimesS = cfg.TimesS or 0 } }
+  end
   _G.GU_TEST_CFG = cfg
   W.setup()
   for _, b in ipairs({ 'VBD_Car_Base', 'VBD_Bike_Base', 'VBD_Skimmer_Base' }) do W.build('/Game/Griffin/Gameplay/Campaign/Builds/' .. b) end

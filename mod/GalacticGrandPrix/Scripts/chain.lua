@@ -336,7 +336,7 @@ function CH.tick(r, api)
     end
   end
   if not st.want or st.done then return end
-  if not st.panel then
+  if not st.panel and not st.showAt then
     if C.clock - (st.lastLook or -1e9) < LOOK_MS then return end
     st.lastLook = C.clock
     if C.clock - st.at > resultsWaitMs() then
@@ -358,6 +358,60 @@ function CH.tick(r, api)
       log('[chain] the race ended the cup after all: the cup result at the main menu')
       return
     end
+    -- v0.27 (owner: "it skips over the finish times screen, I see it for a split second"): the game's own results
+    -- (the finish times) stay up for Panel.TimesS first; its CONTINUE is made invisible and disabled meanwhile (its
+    -- place kept for NEXT RACE), so a stray A can't skip to the menu
+    local waitMs = (tonumber((conf().Panel or {}).TimesS) or 0) * 1000
+    if waitMs > 0 then
+      local cont = try(function() return w.WBP_Common_Btn_Continue end)
+      if alive(cont) then
+        try(function() cont:SetIsEnabled(false) end)
+        try(function() cont:SetRenderOpacity(0) end)
+        st.contHeld = true
+      end
+      st.showAt = C.clock + waitMs
+      st.out = out
+      log(('[chain] the game\'s results (finish times) up for %d s, then the standings; its CONTINUE %s meanwhile'):format(
+        waitMs // 1000, st.contHeld and 'invisible and disabled' or 'NOT found'))
+      return
+    end
+    return CH.showPanel(r, w, out, st)
+  end
+  if st.showAt then
+    -- the game's finish times showing: the panel once the time is up (or the key: at once)
+    if C.clock - (st.lastLook or -1e9) < LOOK_MS and not CH.key and not CH.back then return end
+    st.lastLook = C.clock
+    local w = C.deref(st.screen)
+    if not w then
+      st.contHidden = st.contHeld -- (CONTINUE couldn't be pressed: the game's own B closed it)
+      CH.goneBeforeNext(r, 'the results screen went while the finish times showed')
+      return
+    end
+    if CH.back then
+      -- Backspace / Escape while the times show: leave the cup, as on the panel
+      CH.back = false
+      st.done, st.showAt = true, nil
+      CH.goLeave(r, 'Backspace / Escape, during the finish times')
+      return
+    end
+    if C.clock < st.showAt and not CH.key then return end
+    CH.key = false
+    st.showAt = nil
+    local cont = try(function() return w.WBP_Common_Btn_Continue end)
+    if st.contHeld and alive(cont) then
+      try(function() cont:SetRenderOpacity(1) end)
+      try(function() cont:SetIsEnabled(true) end)
+    end
+    local out = st.out
+    st.out = nil
+    return CH.showPanel(r, w, out, st)
+  end
+  return CH.pollPanel(r, st)
+end
+
+-- the standings panel onto the results screen (after the finish times)
+function CH.showPanel(r, w, out, st)
+  do
     local ok, why = CH.addPanel(w, out, st)
     if not ok then
       st.done = true
@@ -368,6 +422,10 @@ function CH.tick(r, api)
     log('[chain] panel added: ' .. why)
     return
   end
+end
+
+-- the panel is up: its buttons read
+function CH.pollPanel(r, st)
   -- the panel is up: NEXT RACE (the button, read every POLL_MS; the key at once)
   local keyed = CH.key
   if not keyed and C.clock - (st.lastPoll or -1e9) < POLL_MS then return end
