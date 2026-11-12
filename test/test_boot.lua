@@ -1,14 +1,15 @@
 -- v0.17 (TASKS.md 11): boot straight into the Grand Prix. At the first main menu after the game starts the GRAND PRIX
 -- tab opens by itself on HOME (through the menu key's path: our tab picked by its id, never MULTIPLAYER); once per
 -- launch (B, a race, a menu rebuild never reopen it; the standings after a cup race still open as before); config
--- BootToGrandPrix = false = no open; a study with jobs pending = no open (logged); an old cup in the save is dropped
+-- BootToGrandPrix = false = no open; a leftover study.lua (study mode is gone, attic/) changes nothing; an old cup in
+-- the save is dropped
 -- and the put-backs done before it opens.
 -- The mod loads once per process (like once per game start), so each scenario runs in its own Lua: this file with the
 -- scenario's name as its argument.
 local scenario = arg and arg[1]
 if not scenario then
   local failed = false
-  for _, s in ipairs({ 'main', 'off', 'study', 'studydone' }) do
+  for _, s in ipairs({ 'main', 'off', 'study' }) do
     local p = io.popen(('lua5.4 %q %s 2>&1'):format(arg[0], s))
     local out = p:read('a')
     local ok = p:close()
@@ -137,25 +138,14 @@ elseif scenario == 'off' then
   check(T.titles() == HOME, 'F6 still opens HOME')
 
 elseif scenario == 'study' then
+  -- after v0.21.0 study mode is gone (attic/): a study.lua left in the mod folder is ignored, the boot is as usual
   local f = io.open(T.dir .. '/study.lua', 'w')
   f:write("return { { class = '50', cup = 'jakku', race = 1, label = 'a' } }\n")
   f:close()
   T.boot(save(), { BootToGrandPrix = true, Progression = { On = false }, Manual = true })
-  require('studymode').SETTLE_MS = 1e9 -- (the study's own launch held off: this checks the boot, not the study)
   menu(); M.tick(120)
-  check(T.logHas('[boot] not opening the GRAND PRIX tab: study mode has jobs pending (study.lua)'), 'study pending: logged why')
-  check(not T.logHas('[boot] opening') and not T.logHas('[menu] home') and W.tab.selected == 'Recommended', 'study pending: not opened')
-  check(count('[boot]') == 1, 'one [boot] line')
-
-elseif scenario == 'studydone' then
-  -- study.lua there but every job done: boots into the page as usual
-  local f = io.open(T.dir .. '/study.lua', 'w')
-  f:write("return { { class = '50', cup = 'jakku', race = 1, label = 'a' } }\n")
-  f:close()
-  f = io.open(T.dir .. '/study_state.lua', 'w'); f:write('return { next = 2 }\n'); f:close()
-  T.boot(save(), { BootToGrandPrix = true, Progression = { On = false }, Manual = true })
-  menu(); M.tick(30)
-  check(count(OPEN) == 1 and T.titles() == HOME, 'study all done: opened on HOME')
+  check(count(OPEN) == 1 and T.titles() == HOME, 'leftover study.lua: opened on HOME as usual')
+  check(not T.logHas('[study]') and M.called('LaunchQuickRace') == 0, 'leftover study.lua: no [study] lines, nothing launched')
 end
 
 for _, f in ipairs({ 'study.lua', 'study_state.lua', 'study_results.csv' }) do os.remove(T.dir .. '/' .. f) end

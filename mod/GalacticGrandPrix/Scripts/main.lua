@@ -5,10 +5,10 @@
 -- v0.3: your four abilities (v0.3.10: free pick, one per family), the AI racers' four, levels by class.
 -- v0.9: cups cannot be resumed (owner): leaving a cup before its last standings loses it.
 -- v0.11: one cup per planet with a race list per class (classic / reverse / conditions), the Galactic Cup, the title race.
--- v0.16: study mode (test-only): study.lua in the mod folder runs a batch of single races with AI profiles (studymode.lua).
+-- v0.16: study mode (test-only AI study races; removed after v0.21.0, kept in attic/).
 -- v0.17: the game boots straight into the GRAND PRIX tab (HOME), once per launch (config BootToGrandPrix).
 -- v0.19: cups without the main menu: the standings over the game's results screen, NEXT RACE from there (chain.lua).
--- v0.19.1: NEXT RACE goes via the menu under the cover (the reset route only on request, same layout only).
+-- v0.19.1: NEXT RACE goes via the menu under the cover (the reset route off; removed after v0.21.0, kept in attic/).
 -- v0.20: a rival from the first race, marked on every standings; the cup result a screen of its own; HOME's Next: line;
 -- the game's footer hidden on our tab; a dark strip behind tile labels (TASKS "Next" 3 and 4, docs/menu-review).
 -- v0.21 (owner, OWNER.md "Done" 2026-11-11): no rival; the title race a 1 v 1 against the class leader on a normal
@@ -22,7 +22,7 @@ local VERSION = '0.21.0'
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
 package.path = scripts .. '/?.lua;' .. package.path
-for _, m in ipairs({ 'core', 'config', 'abil', 'cup', 'title', 'racer', 'prog', 'gp', 'loadout', 'ai', 'race', 'ui', 'tab', 'studymode', 'standings', 'chain' }) do package.loaded[m] = nil end
+for _, m in ipairs({ 'core', 'config', 'abil', 'cup', 'title', 'racer', 'prog', 'gp', 'loadout', 'ai', 'race', 'ui', 'tab', 'standings', 'chain' }) do package.loaded[m] = nil end
 
 local C = require('core')
 C.DIR = scripts:match('^(.*)[/\\][Ss]cripts$') or '.'
@@ -62,10 +62,8 @@ local S = {
 local function msgLine() return { S.message or '', 20, U.GOLD } end
 
 local show -- forward
-local ST = require('studymode') -- v0.16 study mode (test-only; wired below the input)
-local studyEnv
 local startLoop -- forward
-local boot, bootPoll -- v0.17 boot into the Grand Prix (below the study mode)
+local boot, bootPoll -- v0.17 boot into the Grand Prix (below the input)
 
 ---------------------------------------------------------------------------------------------------------------------
 -- screens: each returns a spec for ui.build; tile `act` functions change state and return true to redraw
@@ -119,9 +117,7 @@ local function medal(classKey, cupKey)
 end
 
 -- launch the cup's next race (the cup's own vehicle and class)
--- (v0.19: the same arguments for a race chained from the results screen, chain.lua / race.lua R.chainLaunch)
 local function cupArgs(run) return run.class, run.vehicle, run.picks or picksFor(run.class), run.mods or modsFor() end
-require('chain').args = cupArgs
 local function launchNext()
   local run, ev = K.run(), K.nextRace()
   if not (run and ev) then S.message = 'No cup in progress'; return true end
@@ -698,8 +694,8 @@ local function busy() return #keys > 0 or S.ui ~= nil or R.run ~= nil or S.openA
 
 -- v0.19.1 (chain.lua CH.via, DESIGN.md §15): NEXT RACE on the results screen's panel went via the menu. At the main
 -- menu, instead of the standings page: the cover stays up and the cup's next race launches through R.launch (the
--- same call as NEXT RACE on the standings page) once the menu has settled - the study mode's readiness rules: the
--- menu up (R.menuUp, a flag), no race of ours, nothing left to put back, ChainRaces.MenuSettleS of that in a row.
+-- same call as NEXT RACE on the standings page) once the menu has settled (the readiness rules of v0.16's study
+-- mode, now in attic/): the menu up (R.menuUp, a flag), no race of ours, nothing left to put back, ChainRaces.MenuSettleS of that in a row.
 -- Returns true while it holds the result back (waiting / launched), false = show today's standings page (the
 -- request dropped, logged). Flags only, no lookups, until the launch.
 local VIA_GIVEUP_MS = 30000
@@ -776,14 +772,6 @@ local function tick()
   local t2 = t1 and R.nowMs() or nil
   if t2 then pcall(R.perfTick, t1 - t0, t2 - t1) end
   if not ok then log('watch error: ' .. tostring(out))
-  elseif out and out.failed and ST.running() then
-    -- v0.16: a study job's race never loaded: logged and skipped (no page opened)
-    ST.onFailed(out.failed)
-  elseif ST.owns(out) then
-    -- v0.16: a study job's result: its log line and CSV row; the page stays shut (the next job follows)
-    S.result = out
-    local okS, errS = pcall(ST.onResult, out)
-    if not okS then log('[study] result not written: ' .. tostring(errS)) end
   elseif out and out.failed then
     if S.chainCover then S.chainCover = nil; pcall(U.cover, false) end
     -- the launch went nowhere: ours back with a message
@@ -884,22 +872,6 @@ TB.onLeave = function() if S.ui then close('tab left') end end
 TB.onGone = function() S.ui = nil; log('[menu] closed (menu gone)') end
 TB.onFail = function() S.ui = nil end
 
----------------------------------------------------------------------------------------------------------------------
--- v0.16: study mode (test-only, studymode.lua): a job's single race at the main menu, no cup. Ready = menu up, no race
--- of ours, no cup, nothing to put back, no result screen waiting (flags only, no lookups). Our page is closed first
--- through the usual close path; the launch itself is the title race's (R.launch with the class's parts, your racer,
--- abilities and tune-ups), with the job's AI profile.
-studyEnv = {
-  ready = function() return R.menuUp() and not R.run and not K.run() and not R.pendingRestore() and not S.openAt end,
-  launch = function(job, ev)
-    if S.ui then close('study job'); return 'wait' end
-    local ok, why = R.launch(ev, ev.class, myVehicle().key, picksFor(ev.class), modsFor(), { ai = job.ai })
-    if ok then S.message = nil end
-    return ok, why
-  end,
-}
-ST.boot()
-
 -- v0.17 (TASKS.md 11, owner: "i want the game to launch and go directly to the grand prix menu, pressing b would still
 -- back out to the main menu"): at the first main menu after the game starts, the GRAND PRIX tab opens by itself on
 -- HOME, through the menu key's own path (openPage -> show -> TB.select: our tab picked by its id, never by stepping
@@ -908,8 +880,7 @@ ST.boot()
 -- reopens it (the result page after a cup race is S.openAt's own flow). It waits for our tab on a settled menu
 -- (TB.ready: after "[tab] GRAND PRIX tab added"), for nothing left to put back (parts, abilities, tune-ups, AI config,
 -- racer, title: R.pendingRestore) and no cup (dropped at load, K.drop 'at boot'), then BOOT_DELAY_MS more.
--- Never with study.lua jobs pending (the study needs the plain menu). Flags only, apart from TB.ready's check of the
--- menu (only while waiting, a few seconds at boot).
+-- Flags only, apart from TB.ready's check of the menu (only while waiting, a few seconds at boot).
 local BOOT_DELAY_MS = 1000
 boot = { done = cfg.BootToGrandPrix == false, waitMs = 0, checkMs = nil }
 if boot.done then log('[boot] BootToGrandPrix is off: the game\'s own main menu') end
@@ -927,11 +898,6 @@ bootPoll = function(dt)
   if not tabMode() then boot.done = true; log('[boot] not opening the GRAND PRIX tab: the tab could not be added'); return end
   -- the player got there first (menu key, picked the tab), or a race / result is under way: nothing to do
   if S.ui or TB.current or R.run or S.openAt then boot.done = true; log('[boot] the GRAND PRIX tab is already open or a race is under way: not opening it'); return end
-  if ST.pending() then
-    boot.done = true
-    log('[boot] not opening the GRAND PRIX tab: study mode has jobs pending (study.lua) - the study needs the plain main menu')
-    return
-  end
   if R.pendingRestore() or K.run() or not TB.ready() then boot.waitMs = 0; return end
   boot.waitMs = boot.waitMs + (dt or 0)
   if boot.waitMs < BOOT_DELAY_MS then return end
@@ -956,9 +922,6 @@ do
       local okA, errA = pcall(AI.bootReadback)
       if not okA then AI.bootRead = true; log('[aiset] read-back failed: ' .. tostring(errA)) end
     end
-    -- v0.16: study mode (test-only; nothing but an io.open every 5 s without study.lua)
-    local okS, errS = pcall(ST.poll, POLL_MS, studyEnv)
-    if not okS then log('[study] poll: ' .. tostring(errS)) end
     ticks = ticks + 1
     if tabMode() then
       if ticks % 5 == 1 then
