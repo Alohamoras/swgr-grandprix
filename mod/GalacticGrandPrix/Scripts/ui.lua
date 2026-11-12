@@ -437,7 +437,7 @@ end
 --   it.pips = { {tex, color, alpha}, ... }  a row of small icons top left, where the badge was (a league's medals)
 --   it.glyph = {tex, color, px}  one big icon, top middle (an ability's or a tune-up's icon)
 U.PIP_PX, U.CORNER_PX = 66, 72
-function U.hasDecor(it) return (it.icon or it.corner or it.pips or it.glyph) and true or false end
+function U.hasDecor(it) return (it.icon or it.corner or it.pips or it.glyph or it.tag) and true or false end
 local function picture(make, tex, color, px, alpha)
   local img = make('/Script/UMG.Image')
   if not alive(img) then return nil end
@@ -448,7 +448,13 @@ local function picture(make, tex, color, px, alpha)
   try(function() img:SetVisibility(4) end) -- SelfHitTestInvisible: clicks go to the tile
   local sb = make('/Script/UMG.SizeBox')
   if not alive(sb) then return img end
-  try(function() sb:SetWidthOverride(px); sb:SetHeightOverride(px) end)
+  -- v0.27.4 (owner: icons stretched tall): px is the height; the width keeps the texture's own shape (the ability
+  -- badges are 472 x 244 - drawn square they were stretched to twice their height), at most 2.5 x px
+  local w = px
+  local sx = try(function() return tex:Blueprint_GetSizeX() end)
+  local sy = try(function() return tex:Blueprint_GetSizeY() end)
+  if type(sx) == 'number' and type(sy) == 'number' and sx > 0 and sy > 0 then w = math.min(px * sx / sy, px * 2.5) end
+  try(function() sb:SetWidthOverride(w); sb:SetHeightOverride(px) end)
   try(function() sb:SetContent(img) end)
   return sb
 end
@@ -484,7 +490,22 @@ function U.decorate(make, ov, it)
   if it.pips and #it.pips > 0 then
     place(ov, pictureRow(make, it.pips, U.PIP_PX, 6), 1, 1, { Left = 12, Top = 14, Right = 0, Bottom = 0 })
   end
+  -- v0.27.4 (owner: tune-ups and abilities looked alike): it.tag = { text, color } - a small caption top left, in
+  -- its own colour whatever the page's ink (it sits on the tile's picture), with a dark shadow
+  if it.tag and it.tag[1] then
+    local t = make('/Script/UMG.TextBlock')
+    if alive(t) then
+      local c = it.tag[2] or WHITE
+      try(function() t:SetText(FText(it.tag[1])) end)
+      try(function() t:SetColorAndOpacity({ SpecifiedColor = { R = c[1], G = c[2], B = c[3], A = 1 }, ColorUseRule = 0 }) end)
+      try(function() local f = t.Font; f.Size = math.floor(U.TAG_SIZE * (U.TEXT or 1) + 0.5); t:SetFont(f) end)
+      try(function() t:SetShadowColorAndOpacity({ R = 0, G = 0, B = 0, A = 0.85 }); t:SetShadowOffset({ X = 2, Y = 2 }) end)
+      try(function() t:SetVisibility(4) end)
+      place(ov, t, 1, 1, { Left = 16, Top = 12, Right = 0, Bottom = 0 })
+    end
+  end
 end
+U.TAG_SIZE = 15
 
 -- builds the rows into box -> the list of items made (each with .btn, and .cell: what holds it)
 function U.buildRows(spec, box, make, lib, pc)

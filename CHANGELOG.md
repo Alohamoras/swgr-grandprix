@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.27.4 (2026-11-12): the garage's icons and tune-up slots
+The owner (via another session): some garage icons stretched tall; tune-ups hard to tell from abilities.
+- **Icons keep their shape** (ui.lua `picture`): the size given is the height, the width comes from the texture's own
+  size (at most 2.5 x). The ability badges are 472 x 244: drawn in a square they were stretched to twice their height.
+  The ability badge is now 100 high (194 wide), the tune-up picture 120.
+- **Captions**: a small gold TUNE-UP or pale blue ABILITY top left on each slot (`it.tag`, drawn in its own colour on
+  the tile's picture).
+- **A tune-up slot your league doesn't have** (the second at Challenger, both at Riff-Raff) is greyed with a lock,
+  titled TUNE-UP 2; Select says where it opens ("Tune-up 2 opens at ACE"). Only on the start screen (its league is
+  known); the old standalone garage cycles every slot as before.
+
 ## v0.27.3 (2026-11-12): STANDINGS during the finish times
 Seen in the owner's play of v0.27.2 (14:05): in races 2 and 3 of a cup the results screen closed during the 6 s of
 finish times and the mod read it as B ("Leave the cup?"). With CONTINUE only disabled nothing had focus, so the pad's

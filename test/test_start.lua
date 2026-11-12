@@ -41,6 +41,16 @@ for _, it in ipairs(its) do
   if it.kind == 'tuneup' then tune = tune + 1 end
 end
 T.check(abil == 4 and tune == 2, 'four abilities, two tune-up slots (the second opens at Ace)')
+-- v0.27.4 (owner: tune-ups and abilities looked alike; icons stretched): captions; the Ace slot greyed and locked
+local tags, t2 = {}, nil
+for _, it in ipairs(its) do
+  if it.tag then tags[#tags + 1] = it.tag[1] end
+  if it.kind == 'tuneup' and it.disabled then t2 = it end
+end
+T.check(table.concat(tags, ',') == 'TUNE-UP,TUNE-UP,ABILITY,ABILITY,ABILITY,ABILITY', 'v0.27.4: a TUNE-UP / ABILITY caption on each slot (' .. table.concat(tags, ',') .. ')')
+T.check(t2 and t2.title == 'TUNE-UP 2' and t2.corner and t2.corner[1][1] == ART.LOCK and t2.info == 'Tune-up 2 opens at ACE.',
+  'v0.27.4: at Challenger the second tune-up slot greyed with a lock, says it opens at Ace')
+T.check(T.marks():find('LOCK', 1, true) ~= nil, 'the lock drawn on the tile (' .. T.marks() .. ')')
 local H1 = S.ui and H.SCREENS.garage()
 local head = {}
 for i = 1, 5 do head[i] = tostring((H1.lines[i] or {})[1]) end

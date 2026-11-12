@@ -20,7 +20,7 @@
 -- them), the Galactic Cup 4 from 4 planets. (The code and the save keep the word "class" for a league.)
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.27.3'
+local VERSION = '0.27.4'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -432,8 +432,18 @@ SCREENS.garage = function()
   local open = MS.slotsFor(curLeague())
   for i = 1, slots do
     local e = MS.effect(list[i])
+    -- v0.27.4 (owner: tune-ups and abilities looked alike; a slot this league doesn't have looked open): a gold
+    -- TUNE-UP caption; on the start screen (its league known) a slot not open there greyed with a lock, Select says
+    -- where it opens
+    if st and i > open then
+      local where = fromClass[i] or '?'
+      items[#items + 1] = { title = 'TUNE-UP ' .. i, art = ART.MODS, kind = 'tuneup', disabled = true,
+        tag = { 'TUNE-UP', U.GOLD }, corner = lockCorner(),
+        info = ('Tune-up %d opens at %s.'):format(i, where),
+        act = function() S.message = ('Tune-up %d opens at %s'):format(i, where); return true end }
+    else
     items[#items + 1] = { title = e and e.name:upper() or 'NONE', art = e and (ART.modGroup and ART.modGroup(e.group)) or ART.MODS, kind = 'tuneup',
-      glyph = e and { ART.tuneUp(e.key), { 1, 1, 1 }, 130 } or nil,
+      glyph = e and { ART.tuneUp(e.key), { 1, 1, 1 }, 120 } or nil, tag = { 'TUNE-UP', U.GOLD },
       info = (e and (e.name .. ':  ' .. (e.line or e.desc or '') .. '.') or ('Tune-up %d is empty.'):format(i))
         .. ((i > open) and ('  (Tune-up %d: from %s.)'):format(i, fromClass[i] or '?') or ''),
       act = function()
@@ -443,13 +453,14 @@ SCREENS.garage = function()
         S.message = ne and (ne.name .. ' fitted') or ('Tune-up slot ' .. i .. ' emptied')
         return true
       end }
+    end
   end
   local row1 = #items
   local abil = {}
   for i = 1, 4 do
     local lab = AB.label(picks[i], level)
     abil[#abil + 1] = { title = (lab or '?'):upper(), art = ART.ABILITIES, kind = 'ability',
-      glyph = { ART.ability(AB.family(picks[i])), { 1, 1, 1 }, 130 },
+      glyph = { ART.ability(AB.family(picks[i])), { 1, 1, 1 }, 100 }, tag = { 'ABILITY', { 0.62, 0.85, 1 } },
       info = ('%s:  %s.'):format(lab or '?', AB.blurb(picks[i])),
       act = function() local n = cyclePick(i); if n then S.message = n .. ' picked' end; return true end }
   end
