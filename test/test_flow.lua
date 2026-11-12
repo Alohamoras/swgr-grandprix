@@ -80,5 +80,5 @@ T.check(T.medals():find('^SILVER|') ~= nil, 'Jakku shows its silver (' .. T.meda
 M.press('BACKSPACE'); M.tick(3)
 T.check(T.logHas('[menu] home', mark), 'B from the cups goes home')
 T.check(not T.logHas('[cup]', mark), 'nothing dropped at home: no cup was alive')
-T.check(T.badges():find('1 / ' .. #require('config').Cups .. ' TROPHIES', 1, true) ~= nil, '150cc shows its trophy count (' .. T.badges() .. ')')
+T.check((T.pips('150CC') or ''):gsub('[-.]', ''):len() == 1, 'v0.24: 150cc shows its one trophy as a medal pip (' .. T.marks() .. ')')
 T.finish()

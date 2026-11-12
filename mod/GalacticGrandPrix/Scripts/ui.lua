@@ -419,6 +419,61 @@ function U.rowsNav(rows, items)
   end
   return nav
 end
+-- v0.24 (owner: "i don't like the text on the tiles with a dark grey background ... find a prettier way"): pictures
+-- drawn over a rows tile, each the game's own icon tinted (the icons are one-colour shapes):
+--   it.icon / it.iconColor  the medal, top right (U.MEDAL_PX)
+--   it.corner = { {tex, color}, ... }  more small icons beside it, top right (the lock, the perfect-cup star)
+--   it.pips = { {tex, color, alpha}, ... }  a row of small icons top left, where the badge was (a class's medals)
+--   it.glyph = {tex, color, px}  one big icon, top middle (an ability's or a tune-up's icon)
+U.PIP_PX, U.CORNER_PX = 54, 72
+function U.hasDecor(it) return (it.icon or it.corner or it.pips or it.glyph) and true or false end
+local function picture(make, tex, color, px, alpha)
+  local img = make('/Script/UMG.Image')
+  if not alive(img) then return nil end
+  try(function() img:SetBrushFromTexture(tex, false) end)
+  local c = color or { 1, 1, 1 }
+  try(function() img:SetBrushTintColor({ SpecifiedColor = { R = c[1], G = c[2], B = c[3], A = 1 }, ColorUseRule = 0 }) end)
+  try(function() img:SetColorAndOpacity({ R = 1, G = 1, B = 1, A = alpha or 1 }) end)
+  try(function() img:SetVisibility(4) end) -- SelfHitTestInvisible: clicks go to the tile
+  local sb = make('/Script/UMG.SizeBox')
+  if not alive(sb) then return img end
+  try(function() sb:SetWidthOverride(px); sb:SetHeightOverride(px) end)
+  try(function() sb:SetContent(img) end)
+  return sb
+end
+U.picture = picture
+-- a row of pictures -> a horizontal box (nil when none could be made)
+local function pictureRow(make, list, px, gap)
+  local hb = make('/Script/UMG.HorizontalBox')
+  if not alive(hb) then return nil end
+  local n = 0
+  for _, p in ipairs(list) do
+    local tex = texture(p[1])
+    local pic = tex and picture(make, tex, p[2], p.px or px, p[3])
+    local sl = pic and try(function() return hb:AddChildToHorizontalBox(pic) end)
+    if sl then n = n + 1; try(function() sl:SetPadding({ Left = gap or 4, Top = 0, Right = 0, Bottom = 0 }); sl:SetVerticalAlignment(2) end) end
+  end
+  return n > 0 and hb or nil
+end
+-- (EHorizontalAlignment Left 1 / Center 2 / Right 3; EVerticalAlignment Top 1 / Center 2 / Bottom 3)
+local function place(ov, w, h, v, pad)
+  local sl = w and try(function() return ov:AddChildToOverlay(w) end)
+  if sl then try(function() sl:SetHorizontalAlignment(h); sl:SetVerticalAlignment(v); sl:SetPadding(pad) end) end
+end
+function U.decorate(make, ov, it)
+  if it.glyph and it.glyph[1] then
+    local tex = texture(it.glyph[1])
+    place(ov, tex and picture(make, tex, it.glyph[2], it.glyph[3] or 150, it.glyph[4]), 2, 1, { Left = 0, Top = 34, Right = 0, Bottom = 0 })
+  end
+  local corner = {}
+  for _, c in ipairs(it.corner or {}) do corner[#corner + 1] = { c[1], c[2], c[3], px = U.CORNER_PX } end
+  if it.icon then corner[#corner + 1] = { it.icon, it.iconColor, px = U.MEDAL_PX } end
+  if #corner > 0 then place(ov, pictureRow(make, corner, U.CORNER_PX, 6), 3, 1, { Left = 0, Top = 10, Right = 14, Bottom = 0 }) end
+  if it.pips and #it.pips > 0 then
+    place(ov, pictureRow(make, it.pips, U.PIP_PX, 6), 1, 1, { Left = 12, Top = 14, Right = 0, Bottom = 0 })
+  end
+end
+
 -- builds the rows into box -> the list of items made (each with .btn, and .cell: what holds it)
 function U.buildRows(spec, box, make, lib, pc)
   local list = {}
@@ -431,11 +486,10 @@ function U.buildRows(spec, box, make, lib, pc)
       for i = sp.from, sp.to do
         local it = items[i]
         local w, h = U.itemWidth(row, it), row.h
-        local tex = it.icon and texture(it.icon)
-        local ov = tex and make('/Script/UMG.Overlay')
-        local img = alive(ov) and make('/Script/UMG.Image')
-        -- (no overlay or image from the game: the medal stays in the tile's own icon slot, as before v0.23)
-        it.noTileIcon = alive(img) or nil
+        -- v0.24: the tile's pictures over it (U.decorate): the corner medal / lock / star, the medal pips, the big icon.
+        -- No Overlay from the game: the medal stays in the tile's own icon slot, as before v0.23.
+        local ov = U.hasDecor(it) and make('/Script/UMG.Overlay')
+        it.noTileIcon = alive(ov) or nil
         local saveW, saveH = U.TILE_W, U.TILE_H
         U.TILE_W, U.TILE_H = w, h
         local t = makeTile(lib, pc, it, make)
@@ -448,23 +502,9 @@ function U.buildRows(spec, box, make, lib, pc)
             try(function() sb:SetContent(t) end)
             cell = sb
           end
-          if alive(img) then
+          if alive(ov) then
             try(function() ov:AddChildToOverlay(cell) end)
-            try(function() img:SetBrushFromTexture(tex, false) end)
-            local c = it.iconColor or { 1, 1, 1 }
-            try(function() img:SetBrushTintColor({ SpecifiedColor = { R = c[1], G = c[2], B = c[3], A = 1 }, ColorUseRule = 0 }) end)
-            try(function() img:SetColorAndOpacity({ R = 1, G = 1, B = 1, A = 1 }) end)
-            try(function() img:SetVisibility(4) end) -- SelfHitTestInvisible: clicks go to the tile
-            local isb = make('/Script/UMG.SizeBox')
-            local icell = img
-            if alive(isb) then
-              try(function() isb:SetWidthOverride(U.MEDAL_PX); isb:SetHeightOverride(U.MEDAL_PX) end)
-              try(function() isb:SetContent(img) end)
-              icell = isb
-            end
-            local os = try(function() return ov:AddChildToOverlay(icell) end)
-            -- (EHorizontalAlignment Right = 3, EVerticalAlignment Top = 1)
-            if os then try(function() os:SetHorizontalAlignment(3); os:SetVerticalAlignment(1); os:SetPadding({ Left = 0, Top = 10, Right = 14, Bottom = 0 }) end) end
+            U.decorate(make, ov, it)
             cell = ov
           end
           local sl = try(function() return hb:AddChildToHorizontalBox(cell) end)

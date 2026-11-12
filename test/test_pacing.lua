@@ -26,14 +26,14 @@ local function split(s) local o = {}; for x in (s .. '|'):gmatch('(.-)|') do o[#
 local function lockedTiles()
   local seen = {}
   M.press('F6'); M.tick(6)
-  local titles, badges, ds = split(T.titles()), split(T.badges()), descs()
+  local titles, badges, ds = split(T.titles()), split(T.locks()), descs()
   for i, c in ipairs(K.classes()) do
     if titles[i] == c.name:upper() and badges[i] == 'LOCKED' then seen[c.name] = ds[i] end
   end
   for _, c in ipairs(K.classes()) do
     if PR.classOpen(K.data, c.key) then
       T.clickTitle(c.name:upper()); M.tick(3)
-      titles, badges, ds = split(T.titles()), split(T.badges()), descs()
+      titles, badges, ds = split(T.titles()), split(T.locks()), descs()
       for i, title in ipairs(titles) do
         if badges[i] == 'LOCKED' then
           local name = title == 'TITLE RACE' and 'TITLE RACE' or title

@@ -14,13 +14,14 @@ T.boot({ version = 2, races = 30, cups = 4, class = '100', vehicle = 'car',
 local NCUPS = #dofile(T.dir .. '/Scripts/config.lua').Cups
 T.check(T.logHas('[cup] sentinel 100cc dropped at boot (race 4 of 4): cups cannot be resumed') and T.save().run == nil, 'the cup in the save dropped at boot')
 M.press('F6'); M.tick(6)
-T.check(T.badges() == ('|4 / %d TROPHIES|LOCKED|LOCKED||'):format(NCUPS), 'home: 150cc and 200cc locked (' .. T.badges() .. ')')
+T.check(T.locks() == '||LOCKED|LOCKED||' and T.pips('100CC') == 'GGGG--.', 'home: 150cc and 200cc locked; 100cc: four golds as pips (' .. T.marks() .. ')')
 T.clickTitle('150CC'); M.tick(3)
 T.check(T.titles():find('^50CC|100CC') ~= nil, 'a locked class can\'t be entered')
 T.clickTitle('100CC'); M.tick(3)
 local b = T.badges()
 T.check(T.medals():find('^GOLD|GOLD|GOLD|GOLD||') ~= nil, '100cc: the four golds, Sentinel not raced (' .. T.medals() .. ')')
 -- locked: the Galactic Cup and the title race
+b = T.locks()
 T.check(select(2, b:gsub('LOCKED', '')) == 2 and b:find('|LOCKED|LOCKED$') ~= nil, 'the Galactic Cup and the title race locked until five trophies (' .. b .. ')')
 local n = M.called('LaunchQuickRace')
 T.clickTitle('GALACTIC CUP'); M.tick(3)
@@ -52,6 +53,7 @@ T.check(T.save().best['100'].sentinel == 1, 'Sentinel gold saved')
 T.clickTitle('CONTINUE'); M.tick(3)
 b = T.badges()
 T.check(T.medals():find('^GOLD|GOLD|GOLD|GOLD|GOLD|') ~= nil, '100cc: five golds (' .. T.medals() .. ')')
+b = T.locks()
 T.check(select(2, b:gsub('LOCKED', '')) == 1 and b:find('|LOCKED$') ~= nil, '100cc: the Galactic Cup open, the title race still locked (' .. b .. ')')
 -- the Galactic Cup: four races on four planets; a trophy opens the title race
 local mark = T.mark()
@@ -66,9 +68,9 @@ local ttd
 for _, it in ipairs(rawget(_G, 'GU_TEST_SCREENS').SCREENS.cups().items) do if it.title == 'TITLE RACE' then ttd = it.desc end end
 T.check(select(2, b:gsub('LOCKED', '')) == 0 and tostring(ttd):find('^vs ') ~= nil, '100cc: everything open, the title race names its opponent (v0.21: ' .. tostring(ttd) .. ')')
 M.press('BACKSPACE'); M.tick(3)
-T.check(T.badges() == ('|6 / %d TROPHIES||LOCKED||'):format(NCUPS), 'home: 6 / 6 trophies at 100cc, 150cc open, 200cc still locked (' .. T.badges() .. ')')
+T.check(T.locks() == '|||LOCKED||' and T.pips('100CC'):find('^[GSB][GSB][GSB][GSB][GSB][GSB]') ~= nil, 'home: 6 / 6 trophies at 100cc, 150cc open, 200cc still locked (' .. T.marks() .. ')')
 T.clickTitle('150CC'); M.tick(3)
-b = T.badges()
+b = T.locks()
 T.check(T.titles() == 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|TITLE RACE' and select(2, b:gsub('LOCKED', '')) == 2,
   '150cc: planet cups open, the Galactic Cup and title race locked (' .. b .. ')')
 T.finish()

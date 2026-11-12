@@ -250,7 +250,7 @@ Each step is its own version, checked in game (owner away) before the next.
    - [x] Cups page: the five planets in one row; GALACTIC CUP wide below, TITLE RACE and KESTAR BOOL as portrait
          tiles (the leader's face, Kestar's `T_UI_Antagonist`); medals as icons only, bigger, gold vs bronze told
          apart; the focused cup's four tracks on one line.
-3. **v0.24: HOME, the cup result, the garage, the standings.**
+3. **v0.24: HOME, the cup result, the garage, the standings.** **v0.24.0 built (2026-11-11): HOME, the garage as the start screen, pictures for every tile mark; the cup result podium and the standings trim moved to v0.25.**
    - [ ] HOME: four tall class posters with medal counts as icons; a small row: GARAGE (your racer's face), RESET.
    - [ ] Cup result: the medal large, centred; the top 3 as a podium of portraits (2nd 1st 3rd).
    - [ ] Garage: your racer large on the left, abilities (the game's large ability icons) and tune-ups on the right.

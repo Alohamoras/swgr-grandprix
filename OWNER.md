@@ -12,6 +12,9 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - [ ] **Ideas from your Google Doc** (realism mode, a podracer cup): send the details when you want them on the list.
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.24:** pick a cup and you land on the garage with START selected - quick enough? The medal row on each
+  class tile on HOME, the lock and medal pictures, the ability and tune-up icons: pretty, readable? No grey bars
+  behind tile text any more: does the text still read on the bright pictures?
 - [ ] **v0.23, the cups page:** five planets in a row, the Galactic Cup wide below, the title race and Kestar with
   faces (Kestar's, and the opponent's where the game has art). Are the medals bigger and gold vs bronze clear now?
   Does the pad move between the rows the way you expect?

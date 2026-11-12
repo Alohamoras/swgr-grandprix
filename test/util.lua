@@ -12,6 +12,9 @@ function T.boot(save, cfg)
   -- v0.17: the boot into the GRAND PRIX tab is off in tests unless asked for (test_boot): the scenarios start from
   -- the game's own main menu, as before
   if cfg.BootToGrandPrix == nil then cfg.BootToGrandPrix = false end
+  -- v0.24: the start screen (cup -> garage -> START) is off in the older tests (a cup starts at once, GARAGE on HOME);
+  -- test_start covers it
+  if cfg.StartScreen == nil then cfg.StartScreen = false end
   _G.GU_TEST_CFG = cfg
   W.setup()
   for _, b in ipairs({ 'VBD_Car_Base', 'VBD_Bike_Base', 'VBD_Skimmer_Base' }) do W.build('/Game/Griffin/Gameplay/Campaign/Builds/' .. b) end
@@ -93,6 +96,29 @@ function T.medals()
   end
   return table.concat(all, '|')
 end
+-- v0.24: the pictures over each tile of the page shown (ui.lua U.decorate): 'LOCK', the medal ('GOLD'...), 'STAR'
+-- (corner), and a class tile's pips as 'pips:GSB---*' (G / S / B a medal, - none yet; * the title won, . not yet)
+function T.marks()
+  local H = rawget(_G, 'GU_TEST_SCREENS')
+  local ui = H and H.S and H.S.ui
+  local ART = require('art')
+  local all = {}
+  for _, it in ipairs(ui and ui.items or {}) do
+    local m = {}
+    for _, c in ipairs(it.corner or {}) do m[#m + 1] = (c[1] == ART.LOCK and 'LOCK') or (c[1] == ART.STAR and 'STAR') or '?' end
+    if it.icon then m[#m + 1] = (tostring(it.icon):match('Medals_(%a+)') or '?'):upper() end
+    if it.pips then
+      local p = {}
+      for _, x in ipairs(it.pips) do
+        if x[1] == ART.STAR then p[#p + 1] = (x[3] and '.' or '*')
+        else p[#p + 1] = x[3] and '-' or (tostring(x[1]):match('Medals_(%a)') or '?') end
+      end
+      m[#m + 1] = 'pips:' .. table.concat(p)
+    end
+    all[#all + 1] = table.concat(m, ' ')
+  end
+  return table.concat(all, '|')
+end
 -- the small extra line on each tile (the trophy badge), '' where none: 'GOLD TROPHY||...'
 function T.badges()
   local all = {}
@@ -102,6 +128,23 @@ function T.badges()
     all[#all + 1] = b
   end
   return table.concat(all, '|')
+end
+-- v0.24: 'LOCKED' on each tile that shows the lock picture, '' elsewhere (the word is gone from the tiles)
+function T.locks()
+  local out = {}
+  for m in (T.marks() .. '|'):gmatch('(.-)|') do out[#out + 1] = m:find('LOCK', 1, true) and 'LOCKED' or '' end
+  return table.concat(out, '|')
+end
+-- v0.24: a class tile's medal pips ('GSB---*'), by its title on the page shown
+function T.pips(title)
+  local H = rawget(_G, 'GU_TEST_SCREENS')
+  local ui = H and H.S and H.S.ui
+  local ms = {}
+  for m in (T.marks() .. '|'):gmatch('(.-)|') do ms[#ms + 1] = m end
+  for i, it in ipairs(ui and ui.items or {}) do
+    if it.title == title then return (ms[i] or ''):match('pips:(%S+)') end
+  end
+  return nil
 end
 function T.ntiles() return W.tiles and #W.tiles or 0 end
 function T.save() return dofile(T.dir .. '/save.lua') end

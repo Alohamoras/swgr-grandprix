@@ -9,7 +9,9 @@ T.boot({ version = 2, mods = { 'Conditions_FreezeProtection', 'Cooled_GainWhileS
 M.press('F6'); M.tick(6)
 T.clickTitle('GARAGE'); M.tick(3)
 T.check(T.titles():find('|NONE|NONE$') ~= nil, 'garage: two empty tune-up slots, the old catalogue keys gone (' .. T.titles() .. ')')
-T.check(T.badges():find('|TUNE%-UP 1|TUNE%-UP 2$') ~= nil, 'the tune-up slots (' .. T.badges() .. ')')
+local H0 = rawget(_G, 'GU_TEST_SCREENS')
+local its = H0.S.ui.items
+T.check(its[#its].kind == 'tuneup' and its[#its - 1].kind == 'tuneup' and not T.badges():find('TUNE', 1, true), 'the tune-up slots, last (v0.24: no TUNE-UP badge)')
 -- v0.14: which class opens a slot is in the focused tile's info line (it ran past the badge)
 local function infoOf(i)
   local n0 = #M.calls + 1

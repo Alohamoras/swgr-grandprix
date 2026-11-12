@@ -92,7 +92,14 @@ local function garage(cls)
   return spec.items
 end
 local function find(items, pat)
-  for i, it in ipairs(items) do if (it.badge or ''):find(pat) then return i end end
+  -- (v0.24: the garage's tiles have no badges; their kind: '^RACER' -> 'racer')
+  local nth = pat:match('^%^ABILITY (%d)') or pat:match('^%^TUNE%%%-UP (%d)')
+  local kind = pat:find('ABILITY', 1, true) and 'ability' or (pat:find('TUNE', 1, true) and 'tuneup') or nil
+  local n = 0
+  for i, it in ipairs(items) do
+    if nth and it.kind == kind then n = n + 1; if n == tonumber(nth) then return i end end
+    if not nth and ((it.badge or ''):find(pat) or (it.kind or ''):upper():find(pat)) then return i end
+  end
 end
 -- (v0.15: no VEHICLE tile; the RACER tile names the racer's vehicle type, and HOME's GARAGE tile the racer and it.
 -- Kestar Bool unlocked here (v0.21: the boss beaten), so every racer is on the tile.)
@@ -189,8 +196,9 @@ T.check(not table.concat(descs, '|'):find('Champion: %u%u+ %u'), 'no other champ
 K.data.titles = { ['100'] = { won = true, tries = 1 } }
 local home = SC.home().items or {}
 local got
-for _, it in ipairs(home) do if it.title == '100CC' then got = it.desc end end
-T.check(got == 'Gold 1 / 6\nChampion: YOU', 'your own title stays on the tile, under the golds (' .. tostring(got) .. ')')
+local star
+for _, it in ipairs(home) do if it.title == '100CC' then got = it.desc; star = it.pips and it.pips[#it.pips] end end
+T.check(got == nil and star and star[1] == require('art').STAR and not star[3], 'v0.24: your title is the gold star at the end of the pips, no words (' .. tostring(got) .. ')')
 for _, it in ipairs(home) do if it.title == '100CC' then T.check(not tostring(it.info):find('Champion', 1, true), 'v0.21: not repeated in the info line (less clutter)') end end
 
 T.check(#bad == 0, ('every tile\'s text fits its tile (%d tiles checked)%s'):format(count,

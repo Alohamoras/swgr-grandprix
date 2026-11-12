@@ -58,8 +58,8 @@ while RC.current().key ~= 'Rager' do RC.cycle(1) end
 local items = SC.garage().items
 local racer
 for _, it in ipairs(items) do
-  T.check(it.badge ~= 'VEHICLE', 'no VEHICLE tile (' .. tostring(it.title) .. ')')
-  if it.badge == 'RACER' then racer = it end
+  T.check(it.kind ~= 'vehicle', 'no VEHICLE tile (' .. tostring(it.title) .. ')')
+  if it.kind == 'racer' then racer = it end
 end
 T.check(racer and racer.title == 'BIDDY BLAS' and racer.desc == 'Speeder bike', 'the RACER tile: Biddy Blas, Speeder bike')
 T.check(racer and racer.info:find('^Biddy Blas %- speeder bike:  Hot%-headed') ~= nil, 'its info: "Biddy Blas - speeder bike: <bio>" (' .. tostring(racer and racer.info) .. ')')
@@ -78,7 +78,7 @@ K.data.boss = { beaten = true, tries = 1 }
 for _ = 1, 14 do if RC.cycle(1).key == 'Antagonist' then kestar = true; break end end
 T.check(kestar and RC.current().key == 'Antagonist' and RC.vehicle().key == 'car', 'boss beaten: Kestar in the cycle, a landspeeder')
 for _, it in ipairs(SC.garage().items) do
-  if it.badge == 'RACER' then T.check(not it.info:find('locked', 1, true) and it.desc == 'Landspeeder', 'no lock line any more (' .. it.info .. ')') end
+  if it.kind == 'racer' then T.check(not it.info:find('locked', 1, true) and it.desc == 'Landspeeder', 'no lock line any more (' .. it.info .. ')') end
 end
 
 -- 5. as Sebulba at 150cc: the skimmer build at parts 7, the others untouched, put back at the menu; the game's byte

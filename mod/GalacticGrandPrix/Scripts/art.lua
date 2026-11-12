@@ -95,4 +95,31 @@ function A.dim(path)
   return base and A.DIM[base] or nil
 end
 
+-- v0.24 (owner: pictures, not words on tiles): the game's own icons, tinted (one-colour shapes)
+local ICONS = TEX .. 'Icons/'
+A.LOCK = ICONS .. 'T_UI_Lock_Icn'
+A.STAR = ICONS .. 'T_UI_Star_Lg_Icn'
+A.START = ICONS .. 'Leaderboard/T_UI_SimpleArrow_Icn'
+A.GREY = { 0.55, 0.57, 0.6 }       -- a medal not won yet (drawn faint)
+A.LOCK_COLOR = { 0.9, 0.9, 0.92 }
+-- an ability family's big icon (Icons/Abilities/LargeAbilityIcons)
+local FAMILY = { bolt = 'IonBolt', shockwave = 'Shockwave', mine = 'Mines', shield = 'Shield', scrubber = 'StatusScrubber',
+  vent = 'Vent', surge = 'Surge' }
+function A.ability(family)
+  local n = family and FAMILY[family]
+  return n and (ICONS .. 'Abilities/LargeAbilityIcons/T_UI_Ability_' .. n .. '_Lg_Icn') or nil
+end
+-- a tune-up's icon: its first affix's (matched against the game's texture list, tools/art/textures.txt, 2026-11-11)
+local TUNE = {
+  heat_shield = 'Conditions_BurningProtection', armour = 'Conditions_DisruptedProtection', ice_cold = 'Cooled_GainWhileAirborne',
+  redliner = 'Ramjet_TempCanDropWhileBoosting', ramjet_rider = 'Ramjet_NoHeatWhileAirborne',
+  afterburner = 'Afterburner_BetterWhileAirborne_v3', brawler = 'Takedown_ResetHeat', survivor = 'Crash_ReturnWithShield',
+  slipstreamer = 'Slipstream_gainSurging_v1', firebug = 'Burning_GainOvercharged', engineer = 'SysMalf_ShorterMalfunction',
+  tenacious = 'Conditions_CorrodeResistance',
+}
+function A.tuneUp(key)
+  local n = key and TUNE[key]
+  return n and (ICONS .. 'Affixes/LargeAffixIcons/T_UI_AFX_' .. n .. '_Lg_Icn') or nil
+end
+
 return A

@@ -28,6 +28,13 @@ return {
     -- v0.23 (TASKS round 3 item 2): the cups page in rows, centred: the five planet cups in one row, then the Galactic
     -- Cup two tiles wide, the title race and (150cc, after its title) Kestar Bool. nil = the CupsLayout grid.
     CupsRows = { { w = 560, h = 380, n = 5 }, { w = 560, h = 380 } },
+    -- v0.24: HOME in rows: the four classes as tall posters (a medal per cup on each), RESET small below; the garage
+    -- (the start screen) at this tile size, START this tall
+    HomeRows = { { w = 600, h = 560, n = 4 }, { w = 600, h = 200 } },
+    GarageRows = { w = 470, h = 300, startH = 170 },
+    -- v0.24 (owner): the garage is every race's start screen (cup -> garage with START focused -> race). false = the
+    -- v0.23 way: a cup starts at once, the GARAGE tile on HOME.
+    StartScreen = true,
     -- v0.23: racers' faces (the game's character art) on the title race and final boss tiles, by racer key; a racer
     -- not listed keeps the stadium picture. Matched by name only - to check in game.
     Portraits = {
@@ -54,7 +61,7 @@ return {
     HideFooter = true,
     -- v0.20 (menu review 3): a dark strip behind every tile's small top label and its description, so they read on a
     -- focused (brightened) tile. Logged as [tiles]. false = the tiles as in v0.19.
-    TileLabelStrip = true,
+    TileLabelStrip = false, -- (v0.24, owner: no dark grey bars behind tile text)
     -- v0.21 (owner: "the grey see-through background isn't needed if the text reads fine without it"): the
     -- translucent dark panel behind HOME / the cups page / the garage / the questions. false = none (fully
     -- transparent); true = the v0.20 panel. The standings, the cup result and the title result keep their own picture

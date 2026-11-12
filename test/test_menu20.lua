@@ -132,9 +132,13 @@ T.check(not table.concat(infos, '|'):find('division', 1, true) and not table.con
 T.check(not home.items[2].info:find('%a'), 'v0.22: a class has no info line (' .. home.items[2].info .. ')')
 local measures = {}
 for _, it in ipairs(home.items) do
-  if it.classKey and not it.disabled then measures[#measures + 1] = tostring(it.badge) .. '/' .. tostring(it.desc) end
+  if it.classKey and not it.disabled then
+    local p = {}
+    for _, x in ipairs(it.pips or {}) do p[#p + 1] = x[3] and '-' or 'm' end
+    measures[#measures + 1] = tostring(it.badge) .. '/' .. tostring(it.desc) .. '/' .. table.concat(p)
+  end
 end
-T.check(table.concat(measures, ' ; ') == 'nil/nil ; 4 / 6 TROPHIES/Gold 2 / 6', 'HOME: trophies on the badge, golds under the title (' .. table.concat(measures, ' ; ') .. ')')
+T.check(table.concat(measures, ' ; ') == 'nil/nil/------- ; nil/nil/mmmm---', 'v0.24 HOME: no words, a medal pip per cup (4 trophies at 100cc) and the title star (' .. table.concat(measures, ' ; ') .. ')')
 K.data.best = {}
 T.check(not findText(SC.home().lines, 'Next:'), 'v0.21: a fresh save: no Next: line either')
 S.class = '100'
@@ -179,16 +183,8 @@ T.check(S.screen == 'home' and S.focus == 2, 'HOME opens with the focus on 100CC
 T.check(T.logHas('[footer] found WBP_ActionBar_C_7 (WBP_ActionBar_C) at depth 2', mark) and T.logHas('hidden while the GRAND PRIX tab is up', mark),
   'the footer found and logged')
 T.check(bp.__vis == 1, 'the footer hidden (collapsed) on our tab')
--- the label strip: the 100CC tile's badge in a border in its own place (between the decoration and the title)
-T.check(T.logHas('[tiles] label strip: badge in FuseVerticalBox', mark), 'the label strip logged')
-local tile = W.tiles[2]
-local kids = rawget(rawget(rawget(tile, '__props').VB_ContentLayout, '__props'), '__kids')
-T.check(#kids == 3 and rawget(kids[1], '__name') == 'Txt_TitleDecoration' and rawget(kids[2], '__name') == 'constructed'
-  and rawget(kids[3], '__name') == 'Txt_Label_Title', 'the badge\'s strip in the badge\'s place, the title after it')
-local dkids = rawget(rawget(rawget(tile, '__props').O_DescText, '__props'), '__kids')
-T.check(#dkids == 1 and rawget(dkids[1], '__name') == 'constructed', 'the description in a strip too')
-T.check(rawget(rawget(rawget(W.tiles[1], '__props').VB_ContentLayout, '__props'), '__kids')[2] == rawget(W.tiles[1], '__props').Txt_Label_Supplemental,
-  'a tile without a badge (50CC, not raced): no strip')
+-- v0.24 (owner: no dark grey bars behind tile text): the label strip is off by default (config TileLabelStrip)
+T.check(not T.logHas('[tiles] label strip', mark), 'no label strip made')
 -- B into 50CC and back: HOME remembers the tile; a fresh open goes to the class last raced again
 rawget(W.tiles[2], '__props').__focus = false
 rawget(W.tiles[1], '__props').__focus = true -- (the player moves to 50CC)

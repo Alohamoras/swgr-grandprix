@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.24.0 (2026-11-11): the garage is the start screen; pictures, not words, on the tiles
+TASKS.md "Round 3: the UI" item 3 (owner: "build it into v0.24 ... i don't like the look of the text on the tiles
+that has a dark grey background behind it, the title race should just get a medal when you complete it, the
+progress tracking of the cc tiles can be on the tiles, but we need to find a prettier way to display it"). Tested
+against the fake game, **not yet seen in game**.
+- **The garage is every race's start screen**: a cup (or the title race, or Kestar) opens it with START focused and
+  your last picks kept - one press to race, or change your racer, abilities or tune-ups first, for this race. On
+  top: the cup, the class and its conditions ("150CC - Dawn, scorching"), or the title race's opponent and track.
+  B goes back to the cups. Rows: your racer (two tiles wide) and the tune-ups; the four abilities; START. HOME has no
+  GARAGE tile any more. Config `StartScreen = false` brings back the v0.23 way.
+- **No grey bars behind tile text** (config `TileLabelStrip` now false), and no badge words: no "LOCKED", "N / 6
+  TROPHIES", "Gold N / 6", "Champion: YOU", "CHAMPION", "FINAL BOSS", "BEATEN", "RACER", "ABILITY n", "TUNE-UP n".
+- **Pictures instead** (the game's own icons, tinted; ui.lua `U.decorate`):
+  - a lock in the corner of a locked tile;
+  - on HOME, each class tile a row of medals, one per cup (gold / silver / bronze, faint grey when none yet), then
+    a star for the class title (gold once won);
+  - the title race and Kestar's tile get a gold medal once won / beaten;
+  - a perfect cup a gold star beside its medal;
+  - each ability its big ability icon, each tune-up its first affix's icon (art.lua `A.ability`, `A.tuneUp`).
+- **HOME in rows**, centred: the four classes as tall posters, RESET small below (config `HomeRows`).
+- The tile you press is the one the page comes back to (the start screen opens on START).
+
 ## v0.23.0 (2026-11-11): the cups page in rows, medals as pictures, faces on the title tiles
 TASKS.md "Round 3: the UI" item 2. Tested against the fake game, **not yet seen in game**.
 - **Rows of tiles** (ui.lua `U.buildRows`): a page can be laid out as rows, each with its own tile size, centred, in
