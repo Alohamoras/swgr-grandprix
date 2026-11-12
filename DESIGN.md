@@ -186,7 +186,7 @@ Earlier proposal (to confirm with the owner; 50cc stays mod-free - owner, 2026-1
    → four abilities.
    v0.17 (TASKS.md 11): the game starts on this tab - at the first main menu after launch it opens by itself on
    HOME, once per launch (through the menu key's path; never via MULTIPLAYER; after the boot-drop of an old cup and
-   the put-backs; not with a study pending). B on HOME = the game's main menu; nothing reopens it after that.
+   the put-backs). B on HOME = the game's main menu; nothing reopens it after that.
    `BootToGrandPrix = false` turns it off.
 2. Race 1 launches straight away (quick race; StreamlineCampaign skips the intros).
 3. Results come back: **points for all 12 racers**, then a standings screen with the cup so far.
@@ -356,7 +356,11 @@ game. Summary of what changed in the design:
   docs/racer-vehicles-2026-11-11.md) is not put on yet: it is unproven in game, so you race the plain build of the
   racer's type until B7 settles it.
 
-## 14. Study mode (v0.16, test-only; TASKS.md B10)
+## 14. Study mode (v0.16, test-only; TASKS.md B10) - REMOVED after v0.21.0
+**Removed after v0.21.0** (owner: "take out the unused code and save it somewhere as old code"): studymode.lua, its
+wiring in main.lua and its tests are in `attic/` (attic/README.md); a leftover study.lua is ignored. The
+`[aiset]` read-back and the `[gaps]` log stay. `R.launch`'s `{ ai = prof }` option is still there, unused. The
+rest of this section describes what it was.
 For the AI tuning study: batches of single races driven by the test-only TestAutopilot, one AI setting changed at a
 time. Off unless `study.lua` sits in the mod folder (next to save.lua); without it the only cost is an `io.open` at
 boot and every 5 s at the menu. The file returns a list of jobs
@@ -385,14 +389,16 @@ cups' 48 race-to-race steps are like that. So:
   (plain values: cup, class, race number, title) and leaves the results the game's own way (`CH.leave`: the results
   screen's CONTINUE click, else `RacingGameMode:RequestReturnToMenus()`). At the main menu (race.lua hands back the
   result recorded on the results screen, as for CONTINUE), main.lua's `viaMenu` sees `CH.via`: the cover goes up
-  (`[cover] on`) instead of the standings page; when the menu has settled - the study mode's rules: `R.menuUp()`, no
+  (`[cover] on`) instead of the standings page; when the menu has settled - `R.menuUp()`, no
   race of ours, `R.pendingRestore()` false, for `ChainRaces.MenuSettleS` (5 s) in a row - the cup's next race launches
   through `R.launch(K.nextRace(), cupArgs(run))`, the very call NEXT RACE on the standings page makes. The cover comes
   off once that race's world is there. The request is checked first (the cup still at that race; else dropped). A
   failed launch, or no settled menu in 30 s: the cover off, today's standings page (logged with why). Everything the
   menu flow does happens unchanged (put-backs at the menu after every race, the set-up at every launch), so points,
   records, put-backs and the save are the menu flow's (test_chain B compares them line for line).
-- **The reset route, on request only**: `ChainRaces.Reset = true` (default false) AND the next race in the same
+- **REMOVED after v0.21.0** (kept in `attic/chain-reset-route.lua`, see attic/README.md; config `Reset`,
+  `LoadTimeoutS`, `WatchdogS` gone; NEXT RACE always goes via the menu). What it was:
+  **The reset route, on request only**: `ChainRaces.Reset = true` (default false) AND the next race in the same
   layout folder (`CH.layout`: the planet's folder and the one after it, `Mastiff/Loop_A`, compared without case).
   Proven for Loop_A -> Loop_A only. Its **watchdog**: `WatchdogS` (20 s) after the reset at least one AI racer must
   have been read and the race started (one lookup of the race state, once, if not seen yet) - else `[chain]
@@ -406,8 +412,8 @@ cups' 48 race-to-race steps are like that. So:
   side by side: both slots centred (alignment X 0.5), CONTINUE's width read (desired size / width override / slot
   size, at least 420), a slot of that x 1.2 each, `Panel.ButtonGap` (80) between; positions logged.
 - **CONTINUE** unchanged: the main menu and today's standings page (B there leaves the cup).
-The rest of this section is v0.19.0's design; where it says NEXT RACE resets the race, read "with Reset = true and
-the same layout only".
+The rest of this section is v0.19.0's design; where it says NEXT RACE resets the race (`R.chainLaunch`, the recipe
+write, `CH.fallback`, the recipe put-back), that code was removed after v0.21.0 and is in `attic/`.
 
 Owner 2026-11-11: the standings at the end of the race, then straight into the next race with no main menu. Proven
 pieces (RaceFlowSpike B9, `tools/recon/RaceFlowSpike/raceflow-b9-20261111.log`): a panel on the game's results screen

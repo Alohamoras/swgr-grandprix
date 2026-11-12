@@ -28,7 +28,7 @@ return {
     -- Key that selects the GRAND PRIX tab at the main menu (Backspace / B = back)
     MenuKey = 'F6',
     -- v0.17 (TASKS.md 11): at the first main menu after the game starts, open the GRAND PRIX tab by itself (HOME).
-    -- Once per launch: after a race, B or leaving the tab it stays shut. Not with a study (study.lua) pending.
+    -- Once per launch: after a race, B or leaving the tab it stays shut.
     -- false = the game's own main menu as before.
     BootToGrandPrix = true,
 
@@ -55,11 +55,7 @@ return {
     -- v0.19.1: NEXT RACE (pad A / Enter on it, or Key) goes VIA THE MENU: the results go to the main menu the game's
     -- own way, the cover goes up there (no standings page) and the next race launches by itself once the menu has
     -- settled (MenuSettleS). Every cup, the Galactic Cup too. (CrossPlanet is gone: it no longer matters.)
-    -- Reset = true: the v0.19.0 route instead (the race recipe's stage swapped, then the game's RequestResetRace, no
-    -- main menu) but ONLY when the next race is in the same layout folder (planet + the folder after it, e.g.
-    -- 'Mastiff/Loop_A'). PROVEN ONLY FOR Loop_A -> Loop_A (RaceFlowSpike B9); another layout hung the game on PLEASE
-    -- WAIT in v0.19.0. Its watchdog: no new race world LoadTimeoutS after the reset, or no AI racer / no start
-    -- WatchdogS after it -> RequestReturnToMenus and the next race via the menu.
+    -- (Reset / LoadTimeoutS / WatchdogS, the v0.19.0 RequestResetRace route, are gone: attic/chain-reset-route.lua.)
     -- ResultsWaitS = how long after you finish to look for the results screen. Panel = where the standings go on the
     -- results screen's canvas (Y from the top, at 4K one unit is about one pixel), their least size, the gap between
     -- NEXT RACE and CONTINUE (ButtonGap), HideGameTable = false to leave the game's table as it is. On = false:
@@ -68,7 +64,7 @@ return {
     -- after a cup race that isn't the last, only NEXT RACE, centred where the two buttons were; the game's CONTINUE is
     -- hidden (HideContinue = false: v0.20's two buttons). B / Escape / Backspace there: the main menu and straight to
     -- "Leave the cup?" (NO = the standings with NEXT RACE). The last race keeps the game's CONTINUE (the cup result).
-    ChainRaces = { On = true, Reset = false, Key = 'N', ResultsWaitS = 90, MenuSettleS = 5, LoadTimeoutS = 15, WatchdogS = 20,
+    ChainRaces = { On = true, Key = 'N', ResultsWaitS = 90, MenuSettleS = 5,
         Panel = { Y = 330, MinWidth = 1700, MinHeight = 1250, ButtonGap = 80, HideGameTable = true, HideContinue = true } },
 
     -- Lua garbage: collect a little on every tick (KB of work per step) so it never piles up into one big pause

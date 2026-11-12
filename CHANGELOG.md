@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+Unused code out (owner: "take out the unused code and save it somewhere as old code"). Kept in the new `attic/`
+folder, which is not loaded, deployed or tested; see attic/README.md. No change in what you see in game.
+- **Study mode is gone** (v0.16, the AI study driver): studymode.lua, its wiring in main.lua (`ST.poll`, `studyEnv`,
+  the study result in the tick) and BootToGrandPrix's "skipped when study jobs are pending" check. A study.lua left in
+  the mod folder is ignored. The `[aiset]` read-back and the `[gaps]` log stay. Tests test_study / test_study_resume
+  moved to attic/. test_boot's study scenarios were replaced by one that checks a leftover study.lua changes nothing.
+- **The same-layout reset route for chained races is gone** (`ChainRaces.Reset`, off by default since v0.19.1 after
+  it hung on PLEASE WAIT across layouts): the recipe write / put-back, `R.chainLaunch` / `RequestResetRace`, the load
+  timeout, the watchdog, `CH.fallback` and the fallback phase, and config `Reset`, `LoadTimeoutS` and `WatchdogS`
+  (an old config with them still loads; they are ignored). NEXT RACE always goes via the menu, as it has by default
+  since v0.19.1, and that path is unchanged. test_chain's reset scenarios (E to I) moved to attic/.
+- attic/README.md also lists other code that is switched off or has no caller ("Candidates, not removed").
+
 ## v0.21.0 (2026-11-11): the leader's title race, Kestar the final boss, no rival, less clutter
 TASKS.md "Next, round 2" item 1 (the owner's answers after a 50cc and a 100cc cup, OWNER.md "Done"). Built and tested
 against the fake game, **not yet seen in game**. DESIGN.md §17.

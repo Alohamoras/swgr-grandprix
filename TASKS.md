@@ -136,7 +136,7 @@ owner's own play, and the offline half of B7.)
    race; plan in docs/ai-tuning-research-2026-11-11.md. Output: a table of gap vs setting and proposed profiles
    with as little catch-up as possible. Needs the desktop to Claude alone.
    v0.16.0: study mode built (study.lua jobs -> single races with a per-job AI profile, `[study]` log lines and
-   study_results.csv; DESIGN.md §14). Not yet run in game.
+   study_results.csv; DESIGN.md §14). Not yet run in game. (Removed after v0.21.0, kept in attic/: owner, unused code.)
    v0.16.1: Phase 0 logging built (`[aiset]` read-back; pacing written to RP_Default / RP_Honest too). Not yet run in game.
 
 11. [x] (2026-11-11 in game: opened HOME 1 s after the tab was added, B went back to the game's menu, no reopen.
@@ -183,7 +183,7 @@ From the afternoon's findings (docs/ai-study-2026-11-11.md, docs/menu-review-202
    RACE now goes via the main menu under the cover and launches the next race by itself (every cup); the reset route
    only with `ChainRaces.Reset = true` and the same layout folder, with a 20 s watchdog; the panel opaque with the
    game's table hidden; the buttons side by side. In-game check list: CHANGELOG v0.19.1 / the v0.19.1 report. The
-   v0.19.0 list below is superseded where it says reset.)
+   v0.19.0 list below is superseded where it says reset. After v0.21.0 the reset route is removed, kept in attic/.)
    (Built 2026-11-11 as v0.19.0, see CHANGELOG / DESIGN.md §15; **not yet seen in game**. Check in game, in
    order: the panel and NEXT RACE on race 1's results screen (`[chain] panel added`, screenshot); NEXT RACE with the
    pad's A and with N (`[chain] NEXT RACE pressed`); race 2 loads with the right track, laps and conditions (`[chain]
