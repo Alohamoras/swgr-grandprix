@@ -320,6 +320,14 @@ Report: docs/ai-driving-research-2026-11-12.md. Three areas never tried:
 - [ ] Report and a proposal for the AI profiles.
 
 ## Discussions (owner 2026-11-11 late; no decision yet, talk before building)
+- **Ideas for the future (owner, 2026-11-12):**
+  - **A deeper dive into the tune-up system**: what each pack does in the game's terms, which ones matter, how they
+    are earned or gated (ties in with "Tune-ups gated by class" and "Heat / cold and the packs" below).
+  - **A Grand Tour**: every track on one planet back to back, or every track on every planet in one long run (the
+    random cups' "Grand Tour" idea; 13-24 events a planet, 86 in all - docs/tracks-by-planet.md).
+  - **A podracing cup or league**: the podracer tracks (Mos Espa, Holdfast's Folly, Mawhonic and more;
+    docs/tracks-by-planet.md "Not in the cups") as a cup in the leagues or a league of its own (owner's Google Doc
+    idea; the Underground's podracer circuit config has the event paths).
 - **Harder opponents, realistic** (owner, 2026-11-11: "i want it to feel realistic, not like we're racing AI bots,
   but right now i'm winning more than i think i should be on most modes"). At 150 / 200cc the bots already run with
   no help and no handicap (their natural pace), so there is no mercy left to remove. Two levers:
