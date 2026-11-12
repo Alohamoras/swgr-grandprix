@@ -21,8 +21,12 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
     folder, then every medal, record, title, the boss and the leaders are cleared. Kept: your racer, your four
     abilities and your tune-ups. Kestar is locked again (if you race as him, you'll be Shade until you beat him after
     the Ace title). The log says it once: `[save] v0.26: three leagues - a clean start (backup ...)`.
-  - HOME: RIFF-RAFF, CHALLENGER, ACE with 1 / 2 / 3 chevrons in the top right corner and the medal pips top left. Do
-    the chevrons read as "speed", and do the pips and chevrons sit side by side without touching?
+  - HOME: RIFF-RAFF, CHALLENGER, ACE with the medal pips top left (v0.27: no chevrons). Focus each poster: does its
+    tagline show under the name ("Outer Rim junkers and scrapyard hopefuls" / "Tuned rigs and pilots out to make a
+    name" / "The fastest pilots in the galaxy"), and do they suit? Open a league: is the brief under its name
+    ("Tuned engines - two abilities - one tune-up") readable? Wording lives in config.lua `Leagues`.
+  - v0.27 Riff-Raff: afterburner, ramjet and battery parts at 2. Does it feel livelier, and does the field keep up
+    (the bots seem to follow your power level)? Does "Stock engines" in its brief still fit, or "Hot-rodded junkers"?
   - Pick a cup: the start screen lists the four races drawn for it, with their conditions. B and pick it again gives
     a new draw. Does a drawn cup feel like a real season? Is the Galactic Cup (three planets, then the Gauntlet) right?
   - Riff-Raff (parts 0, the old 50cc AI), Challenger (parts 5, the old 150cc AI), Ace (parts 9, the old 200cc AI):

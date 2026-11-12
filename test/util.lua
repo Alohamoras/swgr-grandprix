@@ -116,7 +116,7 @@ function T.medals()
   end
   return table.concat(all, '|')
 end
--- v0.24: the pictures over each tile of the page shown (ui.lua U.decorate): 'LOCK', the medal ('GOLD'...), 'STAR', (v0.26) a speed chevron 'SPEED'
+-- v0.24: the pictures over each tile of the page shown (ui.lua U.decorate): 'LOCK', the medal ('GOLD'...), 'STAR'
 -- (corner), and a class tile's pips as 'pips:GSB---*' (G / S / B a medal, - none yet; * the title won, . not yet)
 function T.marks()
   local H = rawget(_G, 'GU_TEST_SCREENS')
@@ -125,7 +125,7 @@ function T.marks()
   local all = {}
   for _, it in ipairs(ui and ui.items or {}) do
     local m = {}
-    for _, c in ipairs(it.corner or {}) do m[#m + 1] = (c[1] == ART.LOCK and 'LOCK') or (c[1] == ART.STAR and 'STAR') or (c[1] == ART.SPEED and 'SPEED') or '?' end
+    for _, c in ipairs(it.corner or {}) do m[#m + 1] = (c[1] == ART.LOCK and 'LOCK') or (c[1] == ART.STAR and 'STAR') or '?' end
     if it.icon then m[#m + 1] = (tostring(it.icon):match('Medals_(%a+)') or '?'):upper() end
     if it.pips then
       local p = {}

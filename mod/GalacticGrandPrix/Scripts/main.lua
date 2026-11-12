@@ -20,7 +20,7 @@
 -- them), the Galactic Cup 4 from 4 planets. (The code and the save keep the word "class" for a league.)
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.26.0'
+local VERSION = '0.27.0'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -223,13 +223,9 @@ SCREENS.home = function()
   K.drop('at the home screen')
   for _, c in ipairs(K.leagues()) do
     local open, why, short = PR.classOpen(K.data, c.key)
-    -- v0.26: the league's speed as 1-3 chevrons in the poster's corner (no words), the lock beside them when locked
-    local speed = ART.speed(c.speed) or {}
+    -- (v0.27: no speed chevrons - they read as progress beside the medals; the focused poster says who races here)
     if not open then
-      local corner = {}
-      for _, x in ipairs(speed) do corner[#corner + 1] = x end
-      corner[#corner + 1] = lockCorner()[1]
-      items[#items + 1] = { title = c.name:upper(), art = ART.league(c.key), corner = corner, disabled = true,
+      items[#items + 1] = { title = c.name:upper(), art = ART.league(c.key), corner = lockCorner(), disabled = true,
         desc = 'To open: ' .. tostring(short or why), info = padInfo('To open: ' .. why, 1),
         act = function() S.message = c.name .. ' is locked. To open it: ' .. why; return true end }
     else
@@ -245,7 +241,7 @@ SCREENS.home = function()
       local won = type(st) == 'table' and st.won
       pips[#pips + 1] = won and { ART.STAR, ART.medalColor(1) } or { ART.STAR, ART.GREY, 0.35 }
       items[#items + 1] = { title = c.name:upper(), art = ART.league(c.key), pips = pips, classKey = c.key,
-        corner = #speed > 0 and speed or nil,
+        desc = c.tagline,
         -- (v0.21, owner: less clutter - no blurb, no counts the tile already shows)
         info = padInfo('', 1), -- (v0.22: no parts / abilities line)
         act = function() S.class = c.key; K.data.class = c.key; K.save(); return go('cups') end }
@@ -342,7 +338,11 @@ SCREENS.cups = function()
   local bt = bossTile(cls)
   if bt then items[#items + 1] = bt end
   -- (v0.20, menu review 6: the vehicle and the how-to are gone; v0.21, owner: the blurb and the levels line too)
-  return { key = 'cups', title = cls.name:upper(), lines = { msgLine() },
+  -- (v0.27: the league's brief under its name - what you race with here)
+  local lines = {}
+  if cls.brief then lines[#lines + 1] = { cls.brief, 22, U.WHITE } end
+  lines[#lines + 1] = msgLine()
+  return { key = 'cups', title = cls.name:upper(), lines = lines,
     items = items, info = true, layout = (not cfg.CupsRows) and cfg.CupsLayout or nil, rows = cfg.CupsRows,
     center = cfg.CupsRows ~= nil }
 end

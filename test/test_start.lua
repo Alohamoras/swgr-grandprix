@@ -1,5 +1,5 @@
 -- v0.24 (owner): the garage is every race's start screen. HOME has no GARAGE tile (v0.26: three leagues as tall
--- posters with medal pips and 1-3 speed chevrons, RESET); a cup opens the garage with START focused, the cup's name,
+-- posters with medal pips, RESET; v0.27 the focused poster's tagline, no speed chevrons); a cup opens the garage with START focused, the cup's name,
 -- the league and (v0.26) its four drawn races on top; START races exactly those; B goes back to the cups. The pictures
 -- on the tiles: lock, medals, pips, chevrons, ability and tune-up icons.
 local M = require('mock')
@@ -16,12 +16,15 @@ T.check(T.titles() == 'RIFF-RAFF|CHALLENGER|ACE|RESET PROGRESS', 'HOME: the thre
 T.check(S.ui.rows and S.ui.nav ~= nil, 'HOME in rows (the D-pad map made)')
 T.check(T.pips('CHALLENGER') == 'GB----.', 'Challenger: gold, bronze, four faint medals, the title star not won (' .. tostring(T.pips('CHALLENGER')) .. ')')
 T.check(T.badges() == '|||', 'no words on the HOME tiles (' .. T.badges() .. ')')
-T.check(T.marks():find('^SPEED pips:%S+|SPEED SPEED pips:%S+|SPEED SPEED SPEED pips:%S+|$') ~= nil,
-  'v0.26: the speed as 1 / 2 / 3 chevrons in each poster\'s corner, the medal pips stay (' .. T.marks() .. ')')
+T.check(T.marks():find('^pips:%S+|pips:%S+|pips:%S+|$') ~= nil, 'v0.27: only the medal pips on the posters, no chevrons (' .. T.marks() .. ')')
+T.check(S.ui.items[1].desc == 'Outer Rim junkers and scrapyard hopefuls' and S.ui.items[3].desc == 'The fastest pilots in the galaxy',
+  'v0.27: each poster\'s tagline (' .. tostring(S.ui.items[1].desc) .. ')')
 T.check(S.ui.nav[1].down == 4 and S.ui.nav[4].up ~= nil, 'down from RIFF-RAFF reaches RESET, and back up')
 
 -- the cups page -> the start screen
 T.clickTitle('CHALLENGER'); M.tick(3)
+local CP = H.SCREENS.cups()
+T.check(CP.title == 'CHALLENGER' and CP.lines[1][1] == 'Tuned engines   -   two abilities   -   one tune-up', 'v0.27: the league\'s brief under its name on the cups page (' .. tostring(CP.lines[1][1]) .. ')')
 local mark = T.mark()
 local calls = #M.calls
 T.clickTitle('JAKKU CUP'); M.tick(5)

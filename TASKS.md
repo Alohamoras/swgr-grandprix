@@ -282,7 +282,9 @@ each league's poster (the game's arrow icons), not words. Answers the "three cla
       the start screen header, the cup result, the title result, the lock texts, the log lines.
 - [x] Old saves: a clean start, logged once (`[save] v0.26: three leagues - a clean start (backup ...)`).
 - [x] PHILOSOPHY.md / DESIGN.md §4: three leagues; the 200cc "may be cut" note answered.
-- [ ] In game: the chevrons and the pips side by side on the posters; the first boot's clean start (OWNER.md v0.26).
+- [x] v0.27 (owner: the chevrons read as progress, unclear): chevrons gone; the focused poster shows a Star Wars
+  tagline, the cups page a brief (engines / abilities / tune-ups) under the league's name.
+- [ ] In game: the posters' taglines and the cups page brief; the first boot's clean start (OWNER.md v0.26).
 - Note: 3 leagues x 6 cups (from 4 x 6) - a shorter ladder; random cups and the progress badges carry the long run.
 
 ## Random cups (owner 2026-11-12: "more realistic ... simulate a real cup"; built in v0.26.0, not yet seen in game)

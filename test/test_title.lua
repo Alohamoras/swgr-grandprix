@@ -55,8 +55,8 @@ local sv = T.save()
 T.check(sv.gridRestore and sv.gridRestore.event == JAKKU1 and #sv.gridRestore.opponents == 11 and sv.gridRestore.entries[1] == 12,
   'the originals in the save before the race (gridRestore)')
 T.check(sv.run == nil, 'no cup started')
-local parts = cfg.Leagues[1].parts
-T.check(T.levels('VBD_Bike_Base') == ('0=%d 1=%d 2=%d 3=%d 4=%d 5=%d'):format(parts, parts, parts, parts, parts, parts), 'Riff-Raff parts on Sen Fira\'s bike')
+local pl = require('gp').levelsFor('riffraff')
+T.check(T.levels('VBD_Bike_Base') == ('0=%d 1=%d 2=%d 3=%d 4=%d 5=%d'):format(pl[0], pl[1], pl[2], pl[3], pl[4], pl[5]), 'Riff-Raff parts on Sen Fira\'s bike (' .. T.levels('VBD_Bike_Base') .. ')')
 -- the race: the racer settles 10 s in (Player back), the cut list stays for the race
 W.race(1); M.tick(115)
 T.check(W.charsText() == 'Player=DarkEnigma Opp=Veteran', 'the racer settled in the race: Player back, the grid cut kept (' .. W.charsText() .. ')')

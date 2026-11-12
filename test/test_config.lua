@@ -15,10 +15,16 @@ local function keys(list, field) local out = {}; for _, x in ipairs(list) do out
 check(cfg.Classes == nil, 'v0.26: no Classes table any more')
 check(keys(cfg.Leagues) == 'riffraff,challenger,ace', 'league keys (used in the save) (' .. keys(cfg.Leagues) .. ')')
 check(keys(cfg.Leagues, 'name') == 'RIFF-RAFF,CHALLENGER,ACE', 'league names on screen, no "cc" (' .. keys(cfg.Leagues, 'name') .. ')')
-check(keys(cfg.Leagues, 'parts') == '0,5,9', 'parts 0 / 5 / 9 (' .. keys(cfg.Leagues, 'parts') .. ')')
+check(cfg.Leagues[2].parts == 5 and cfg.Leagues[3].parts == 9, 'parts 5 / 9 at Challenger / Ace')
+local rl = K.levelsFor('riffraff')
+check(rl[0] == 0 and rl[1] == 2 and rl[2] == 0 and rl[3] == 2 and rl[4] == 2 and rl[5] == 0, 'v0.27: Riff-Raff afterburner, ramjet and battery at 2, the rest stock')
+check(K.levelsFor('ace')[0] == 9 and K.levelsFor('ace')[5] == 9, 'Ace: every slot 9')
 check(keys(cfg.Leagues, 'mods') == '0,1,2', 'tune-up slots 0 / 1 / 2 (' .. keys(cfg.Leagues, 'mods') .. ')')
 check(keys(cfg.Leagues, 'abilities') == '1,2,3', 'ability levels 1 / 2 / 3')
-check(keys(cfg.Leagues, 'speed') == '1,2,3', 'speed chevrons 1 / 2 / 3')
+check(cfg.Leagues[1].speed == nil and cfg.Leagues[3].speed == nil, 'v0.27: no speed chevrons')
+for _, c in ipairs(cfg.Leagues) do
+  check(type(c.tagline) == 'string' and #c.tagline <= 48 and type(c.brief) == 'string' and c.brief ~= '', c.key .. ': a tagline (poster) and a brief (cups page)')
+end
 check(cfg.Leagues[1].open == true and not cfg.Leagues[2].open and not cfg.Leagues[3].open, 'only Riff-Raff is open from the start')
 check(K.leagueName('ace') == 'ACE' and K.leagueName('nope') == 'nope', 'leagueName: the name, or the key itself')
 local function same(a, b)

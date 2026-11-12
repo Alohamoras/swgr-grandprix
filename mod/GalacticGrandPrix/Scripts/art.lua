@@ -99,21 +99,6 @@ end
 local ICONS = TEX .. 'Icons/'
 A.LOCK = ICONS .. 'T_UI_Lock_Icn'
 A.STAR = ICONS .. 'T_UI_Star_Lg_Icn'
--- v0.26 (owner: the leagues' speed as a picture, 1-3 chevrons on each HOME poster): the game's plain right-pointing
--- arrowhead (a solid wedge, 64 px; decoded from the paks with tools/art/iotex.py, 2026-11-12), drawn white in the
--- poster's top right corner (ui.lua U.decorate it.corner), a little smaller than the corner icons so three sit beside
--- the medal pips on a 760-wide poster
-A.SPEED = ICONS .. 'Leaderboard/T_UI_SimpleArrow_Icn'
-A.SPEED_COLOR = { 1, 1, 1 }
-A.SPEED_PX = 56
--- a league's chevrons as corner pictures: n of them (nil for none)
-function A.speed(n)
-  n = tonumber(n) or 0
-  if n < 1 then return nil end
-  local out = {}
-  for i = 1, n do out[i] = { A.SPEED, A.SPEED_COLOR, nil, px = A.SPEED_PX } end
-  return out
-end
 A.GREY = { 0.55, 0.57, 0.6 }       -- a medal not won yet (drawn faint)
 A.LOCK_COLOR = { 0.9, 0.9, 0.92 }
 -- an ability family's big icon (Icons/Abilities/LargeAbilityIcons)

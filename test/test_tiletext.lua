@@ -213,7 +213,7 @@ local home = SC.home().items or {}
 local got
 local star
 for _, it in ipairs(home) do if it.title == 'RIFF-RAFF' then got = it.desc; star = it.pips and it.pips[#it.pips] end end
-T.check(got == nil and star and star[1] == require('art').STAR and not star[3], 'v0.24: your title is the gold star at the end of the pips, no words (' .. tostring(got) .. ')')
+T.check(got == 'Outer Rim junkers and scrapyard hopefuls' and star and star[1] == require('art').STAR and not star[3], 'v0.24: your title is the gold star at the end of the pips, no title words (v0.27: the tagline only) (' .. tostring(got) .. ')')
 for _, it in ipairs(home) do if it.title == 'RIFF-RAFF' then T.check(not tostring(it.info):find('Champion', 1, true), 'v0.21: not repeated in the info line (less clutter)') end end
 
 T.check(#bad == 0, ('every tile\'s text fits its tile (%d tiles checked)%s'):format(count,

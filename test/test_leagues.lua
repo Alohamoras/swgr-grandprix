@@ -66,7 +66,7 @@ T.boot({ version = 3, picks = { 'bolt.concuss', 'shield.impact', 'surge.impact',
 K = require('gp')
 local AB, MS, A = require('abil'), require('modsel'), require('ai')
 local WANT = {
-  riffraff = { parts = 0, level = 1, slots = 0, bolt = 'BP_Ability_Disruptor_C', pressure = -1 },
+  riffraff = { parts = '0=0 1=2 2=0 3=2 4=2 5=0', level = 1, slots = 0, bolt = 'BP_Ability_Disruptor_C', pressure = -1 },
   challenger = { parts = 5, level = 2, slots = 1, bolt = 'BP_Ability_Disruptor_Concuss_C', pressure = 0 },
   ace = { parts = 9, level = 3, slots = 2, bolt = 'BP_Ability_Disruptor_ConcussV2_C', pressure = 0.5 },
 }
@@ -76,8 +76,8 @@ for _, key in ipairs({ 'riffraff', 'challenger', 'ace' }) do
   T.clickTitle(K.leagueName(key)); M.tick(3)
   mark = T.mark()
   T.clickTitle('JAKKU CUP'); M.tick(3)
-  local lv = ('0=%d 1=%d 2=%d 3=%d 4=%d 5=%d'):format(w.parts, w.parts, w.parts, w.parts, w.parts, w.parts)
-  T.check(T.levels('VBD_Car_Base') == lv, key .. ': every part at ' .. w.parts .. ' (' .. T.levels('VBD_Car_Base') .. ')')
+  local lv = type(w.parts) == 'string' and w.parts or ('0=%d 1=%d 2=%d 3=%d 4=%d 5=%d'):format(w.parts, w.parts, w.parts, w.parts, w.parts, w.parts)
+  T.check(T.levels('VBD_Car_Base') == lv, key .. ': the parts ' .. w.parts .. ' (' .. T.levels('VBD_Car_Base') .. ')')
   local slot1 = W.buildSlots['VBD_Car_Base'][1]
   T.check(AB.levelFor(key) == w.level and rawget(slot1, '__name') == w.bolt, key .. ': abilities at level ' .. w.level .. ' (' .. tostring(rawget(slot1, '__name')) .. ')')
   T.check(MS.slotsFor(key) == w.slots and #MS.fitted(K.data.mods, key) == w.slots, key .. ': ' .. w.slots .. ' tune-up slot(s) open')

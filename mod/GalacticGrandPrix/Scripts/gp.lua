@@ -268,12 +268,13 @@ function K.planetOf(path)
   return code and (cfg.Planets or {})[code] or nil
 end
 
--- every part slot (0-5) at the league's level
+-- every part slot (0-5) at the league's level. v0.27: parts may be a table by slot ({ [1] = 2, ... }; a slot not
+-- listed = 0) - Riff-Raff's speed parts
 function K.levelsFor(leagueKey)
   local c = K.league(leagueKey)
-  local lv = c and c.parts or 0
+  local p = c and c.parts or 0
   local t = {}
-  for s = 0, 5 do t[s] = lv end
+  for s = 0, 5 do t[s] = type(p) == 'table' and (tonumber(p[s]) or 0) or (tonumber(p) or 0) end
   return t
 end
 

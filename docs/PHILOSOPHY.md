@@ -50,8 +50,9 @@ Never more than two menus deep; no words you don't need; never scroll; simple, l
   "more realistic ... simulate a real cup".)
 
 ### Leagues (owner, 2026-11-12: three leagues replace the four cc classes; was "200cc")
-- **RIFF-RAFF, CHALLENGER, ACE**, the game's own racer ranks ("cc" is Mario Kart's word). The speed is shown as 1-3
-  chevrons, not words.
+- **RIFF-RAFF, CHALLENGER, ACE**, the game's own racer ranks ("cc" is Mario Kart's word). The league is described by
+  a tagline on the focused poster (v0.27: the 1-3 chevrons read as progress), the facts under the name on the
+  cups page.
 - Riff-Raff: no upgrades, level-1 abilities, no tune-ups, an AI with some mercy. Challenger: parts 5, level 2, one
   tune-up, an honest AI. Ace: parts 9, level 3, two tune-ups, the honest AI a notch harder.
 - A clear ladder: Riff-Raff is open, Challenger opens from Riff-Raff's planet cups, Ace from Challenger's. Each league

@@ -15,7 +15,6 @@ local function real(p) return p ~= nil and (have[p] or have[MM .. p]) == true en
 local bad = {}
 local function each(p, what) if not real(p) then bad[#bad + 1] = what .. ' -> ' .. tostring(p) end end
 for _, c in ipairs(cfg.Leagues) do each(ART.league(c.key), 'league ' .. c.key) end
-each(ART.SPEED, 'speed chevron')
 local cups = 0
 for _, cup in ipairs(cfg.Cups) do
   for _, v in ipairs(cfg.Vehicles) do each(ART.cup(cup, v.key), cup.key .. ' / ' .. v.key) end
@@ -37,10 +36,7 @@ check(ART.cup({ key = 'nowhere' }, 'car') == nil and ART.medal(4) == nil and ART
 local seen, dup = {}, false
 for _, c in ipairs(cfg.Leagues) do if seen[ART.league(c.key)] then dup = true end; seen[ART.league(c.key)] = true end
 check(not dup, 'each league its own banner')
--- v0.26: the speed as 1-3 chevrons (corner pictures) per league
-local sp = {}
-for _, c in ipairs(cfg.Leagues) do local l = ART.speed(c.speed); sp[#sp + 1] = l and #l or 0; if l then for _, x in ipairs(l) do if x[1] ~= ART.SPEED or not x.px then dup = true end end end end
-check(table.concat(sp, ',') == '1,2,3' and not dup and ART.speed(0) == nil, 'the leagues show 1 / 2 / 3 chevrons (' .. table.concat(sp, ',') .. ')')
+check(ART.SPEED == nil and ART.speed == nil, 'v0.27: no speed chevrons')
 -- v0.15.1: the brightest pictures are drawn darker (seen in game: a white title on a focused bright tile)
 check(ART.dim(ART.league('riffraff')) == 0.75, 'the Riff-Raff (sage) banner dimmed')
 check(ART.dim(ART.league('challenger')) == nil and ART.dim(ART.league('ace')) == nil, 'the Challenger and Ace banners left alone')

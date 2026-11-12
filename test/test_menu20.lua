@@ -140,7 +140,7 @@ for _, it in ipairs(home.items) do
     measures[#measures + 1] = tostring(it.badge) .. '/' .. tostring(it.desc) .. '/' .. table.concat(p)
   end
 end
-T.check(table.concat(measures, ' ; ') == 'nil/nil/mmmm---', 'v0.24 HOME: no words, a medal pip per cup (4 trophies at Riff-Raff; the other leagues locked) and the title star (' .. table.concat(measures, ' ; ') .. ')')
+T.check(table.concat(measures, ' ; ') == 'nil/Outer Rim junkers and scrapyard hopefuls/mmmm---', 'v0.24 HOME: no badge (v0.27: the tagline), a medal pip per cup (4 trophies at Riff-Raff; the other leagues locked) and the title star (' .. table.concat(measures, ' ; ') .. ')')
 K.data.best = {}
 T.check(not findText(SC.home().lines, 'Next:'), 'v0.21: a fresh save: no Next: line either')
 S.class = 'riffraff'

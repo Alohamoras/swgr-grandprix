@@ -29,8 +29,7 @@ return {
     -- Cup two tiles wide, the title race and (Ace, after its title) Kestar Bool. nil = the CupsLayout grid.
     CupsRows = { { w = 560, h = 380, n = 5 }, { w = 560, h = 380 } },
     -- v0.24: HOME in rows: the leagues as tall posters (a medal per cup on each), RESET small below; the garage
-    -- (the start screen) at this tile size, START this tall. v0.26: three leagues, wider (760: the medal pips top left
-    -- and the speed chevrons top right fit side by side)
+    -- (the start screen) at this tile size, START this tall. v0.26: three leagues, wider (760)
     HomeRows = { { w = 760, h = 560, n = 3 }, { w = 600, h = 200 } },
     GarageRows = { w = 470, h = 300, startH = 170 },
     -- v0.24 (owner): the garage is every race's start screen (cup -> garage with START focused -> race). false = the
@@ -106,14 +105,25 @@ return {
 
     -- v0.26 (owner, 2026-11-12, TASKS "Three leagues"): three leagues, named after the game's own racer ranks, replace
     -- the four cc classes. Every part of your vehicle at `parts`; abilities = the level of everyone's abilities (yours
-    -- and the AI's); mods = how many tune-up slots are open; speed = the chevrons on the league's HOME poster (art.lua
-    -- A.SPEED: the speed as a picture, no words). key is used in the save (best / records / titles / leader / the cup
+    -- and the AI's); mods = how many tune-up slots are open. v0.27 (owner: the v0.26 speed chevrons read as
+    -- progress): tagline = the line on the focused HOME poster (who races here, in the galaxy's words); brief = what
+    -- you get, under the league's name on its cups page. key is used in the save (best / records / titles / leader / the cup
     -- run's `class` field, which holds a league key): never change it. The AI profile per league: AI.Profiles below.
+    -- parts: one level for every slot, or a table by slot (EVehiclePartSlot: 0 Cornering, 1 Acceleration, 2 Resilience,
+    -- 3 Boost, 4 AbilityUsage, 5 Advanced; the stat bars in the same order read CORNERING, AFTERBURNER, RESILIENCE,
+    -- RAMJET, BATTERY, DRIFT). v0.27 (owner: Riff-Raff a little slow, not engaging enough): afterburner, ramjet and
+    -- battery (energy) at 2, the rest stock.
     -- (Old saves - the cc classes '50' / '100' / '150' / '200' - get a clean start at their first load: gp.lua K.load.)
     Leagues = {
-        { key = 'riffraff', name = 'RIFF-RAFF', parts = 0, mods = 0, abilities = 1, speed = 1, open = true },
-        { key = 'challenger', name = 'CHALLENGER', parts = 5, mods = 1, abilities = 2, speed = 2 },
-        { key = 'ace', name = 'ACE', parts = 9, mods = 2, abilities = 3, speed = 3 },
+        { key = 'riffraff', name = 'RIFF-RAFF', parts = { [1] = 2, [3] = 2, [4] = 2 }, mods = 0, abilities = 1, open = true,
+          tagline = 'Outer Rim junkers and scrapyard hopefuls',
+          brief = 'Stock engines   -   one ability   -   no tune-ups' },
+        { key = 'challenger', name = 'CHALLENGER', parts = 5, mods = 1, abilities = 2,
+          tagline = 'Tuned rigs and pilots out to make a name',
+          brief = 'Tuned engines   -   two abilities   -   one tune-up' },
+        { key = 'ace', name = 'ACE', parts = 9, mods = 2, abilities = 3,
+          tagline = 'The fastest pilots in the galaxy',
+          brief = 'Full-power engines   -   three abilities   -   two tune-ups' },
     },
 
     -- Points by place in each race (1st first); a racer who doesn't finish scores 0

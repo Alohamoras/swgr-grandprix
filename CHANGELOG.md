@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.27.0 (2026-11-12): league taglines, a livelier Riff-Raff
+The owner's notes of 2026-11-12. Tested against the fake game, **not yet seen in game**.
+- **No speed chevrons on the HOME posters**: beside the medal pips they read as progress, and their meaning wasn't
+  obvious. The top of each poster now shows progress only.
+- **A Star Wars tagline on the focused poster** (the game shows a tile's description on the focused tile only):
+  Riff-Raff "Outer Rim junkers and scrapyard hopefuls", Challenger "Tuned rigs and pilots out to make a name", Ace
+  "The fastest pilots in the galaxy" (config `Leagues[].tagline`).
+- **The league's brief under its name on the cups page**: "Stock engines - one ability - no tune-ups" / "Tuned
+  engines - two abilities - one tune-up" / "Full-power engines - three abilities - two tune-ups" (`Leagues[].brief`).
+- **Riff-Raff gets its speed parts**: afterburner, ramjet and battery (energy) at level 2, cornering, resilience and
+  drift stock. `Leagues[].parts` may now be a table by slot (`EVehiclePartSlot` 0-5); `K.levelsFor` reads either.
+  The slot-to-stat-bar order (1 = afterburner, 3 = ramjet, 4 = battery) is read from the stat bars' order, still to
+  confirm in the garage's stat bars in game.
+
 ## v0.26.0 (2026-11-12): three leagues (RIFF-RAFF, CHALLENGER, ACE) and random cups
 The owner's decisions of 2026-11-12 (TASKS "Three leagues" and "Random cups"). Tested against the fake game, **not
 yet seen in game**; 27 race variants have never been raced by the Grand Prix (OWNER.md has the list to launch once).
