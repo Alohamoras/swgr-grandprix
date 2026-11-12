@@ -20,7 +20,7 @@
 -- them), the Galactic Cup 4 from 4 planets. (The code and the save keep the word "class" for a league.)
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.27.4'
+local VERSION = '0.27.5'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -1000,6 +1000,10 @@ end
 do
   local seenMenu, ticks = false, 0
   local POLL_MS = 200
+  -- v0.27.5 (owner: "the grand prix tab takes a few seconds to load"): while the menu is up without our tab, look
+  -- for it every poll (was every 5th, so up to 1 s lost before the settle wait even began) - for FAST_LOOK_MS at most,
+  -- so a menu that never comes into view costs no more than before
+  local FAST_LOOK_MS, fastMs = 5000, 0
   C.gameLoop(POLL_MS, function()
     if R.run then return end
     if not R.menuPoll(POLL_MS) then return end
@@ -1011,7 +1015,9 @@ do
     end
     ticks = ticks + 1
     if tabMode() then
-      if ticks % 5 == 1 or TB.settling then
+      local noTab = next(TB.screens) == nil
+      fastMs = noTab and (fastMs + POLL_MS) or 0
+      if ticks % 5 == 1 or TB.settling or (noTab and fastMs <= FAST_LOOK_MS) then
         local ok, err = pcall(TB.discover)
         if not ok then log('[tab] discover error: ' .. tostring(err)) end
       end

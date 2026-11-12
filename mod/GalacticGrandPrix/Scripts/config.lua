@@ -48,8 +48,8 @@ return {
     MenuKey = 'F6',
     -- v0.17 (TASKS.md 11): at the first main menu after the game starts, open the GRAND PRIX tab by itself (HOME).
     -- Once per launch: after a race, B or leaving the tab it stays shut.
-    -- false = the game's own main menu as before.
-    BootToGrandPrix = true,
+    -- false = the game's own main menu as before. v0.27.5 (owner): false - the player picks the tab themselves.
+    BootToGrandPrix = false,
 
     -- After a race: cover the main menu with the game's loading screen while it's rebuilt, so the race results lead
     -- straight to the ranking (v0.3.8). false = show the menu as before.
@@ -70,7 +70,8 @@ return {
     -- v0.22: dark grey text on the pages without a picture behind them (the menu's art is pale); false = light text
     DarkText = true,
     -- v0.22: seconds the main menu must be on screen before the tab is added (was ~3 s, a v0.9.0 crash guard)
-    TabSettleS = 1.0,
+    -- v0.27.5: 0.5 (the v0.9.0 crash was most likely the long-gone CampaignLogger mod; 1.0 if the menu misbehaves)
+    TabSettleS = 0.5,
 
     -- v0.19 (TASKS.md "Next" 2, DESIGN.md §15): cups without the main menu. After a cup race (not the last), the
     -- standings are drawn over the game's own results screen (opaque, the game's table hidden under it) with a NEXT

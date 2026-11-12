@@ -16,6 +16,9 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - [ ] **Ideas from your Google Doc** (realism mode, a podracer cup): send the details when you want them on the list.
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.27.5, the GRAND PRIX tab at game start.** The game now opens on its own main menu; pick GRAND PRIX
+  yourself (or press F6). The tab should appear about a second sooner than before. If the menu ever acts up just
+  after it appears (a crash, a tab that vanishes), say so: config `TabSettleS = 1.0` puts back the old wait.
 - [ ] **v0.26, three leagues and random cups (not installed yet).**
   - **The first boot is a clean start**, as you chose: your save is copied to `save.backup-v2-<date>.lua` in the mod
     folder, then every medal, record, title, the boss and the leaders are cleared. Kept: your racer, your four

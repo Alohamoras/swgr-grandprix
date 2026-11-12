@@ -138,6 +138,9 @@ elseif scenario == 'off' then
   check(T.logHas('[tab] GRAND PRIX tab added'), 'the tab is still added')
   check(not T.logHas('[boot] opening') and not T.logHas('[menu] home') and W.tab.selected == 'Recommended' and #picked == 0,
     'switch off: nothing opened, no tab picked')
+  -- v0.27.5 (owner: the player should pick the tab themselves): off is the shipped default
+  local f = io.open((T.main:gsub('main%.lua$', 'config.lua'))); local src = f and f:read('a') or ''; if f then f:close() end
+  check(src:find('\n%s*BootToGrandPrix = false,') ~= nil, 'v0.27.5: config ships with BootToGrandPrix = false')
   M.press('F6'); M.tick(6)
   check(T.titles() == HOME, 'F6 still opens HOME')
 
