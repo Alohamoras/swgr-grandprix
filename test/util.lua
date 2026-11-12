@@ -82,14 +82,14 @@ function T.titles()
   for _, t in ipairs(W.tiles or {}) do all[#all + 1] = label(t) end
   return table.concat(all, '|')
 end
--- v0.22: the medal on each tile (the icon's texture): 'GOLD|SILVER||...', '' where none
+-- v0.22: the medal on each tile of the page shown: 'GOLD|SILVER||...', '' where none. v0.23: read from the
+-- screen's items (a rows page draws the medal as its own picture over the tile, not in the tile's icon slot)
 function T.medals()
+  local H = rawget(_G, 'GU_TEST_SCREENS')
+  local ui = H and H.S and H.S.ui
   local all = {}
-  for _, t in ipairs(W.tiles or {}) do
-    local img = rawget(t, '__props').Img_Icon
-    local tex = img and rawget(img, '__props').__tex
-    local n = tex and tostring(rawget(tex, '__name') or ''):match('Medals_(%a+)') or ''
-    all[#all + 1] = n:upper()
+  for _, it in ipairs(ui and ui.items or {}) do
+    all[#all + 1] = (tostring(it.icon or ''):match('Medals_(%a+)') or ''):upper()
   end
   return table.concat(all, '|')
 end

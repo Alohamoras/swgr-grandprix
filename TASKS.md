@@ -244,10 +244,10 @@ Each step is its own version, checked in game (owner away) before the next.
          up. Fix: look every 200 ms while a new menu settles, settle on ~1 s of time, open our page as soon as the tab
          is in. Check for crashes over several boots and race returns.
    - [x] Old code to attic/ (study mode, the chain reset route; owner: "take it out and save it somewhere as old code").
-2. **v0.23: a layout per screen, the cups page first.**
-   - [ ] ui.lua: rows of tiles, each row its own tile size (in place of the one uniform grid), the page centred.
+2. **v0.23: a layout per screen, the cups page first.** **Built as v0.23.0 (2026-11-11), not yet seen in game.**
+   - [x] ui.lua: rows of tiles, each row its own tile size (in place of the one uniform grid), the page centred.
          Check the pad / D-pad moves between rows of different sizes.
-   - [ ] Cups page: the five planets in one row; GALACTIC CUP wide below, TITLE RACE and KESTAR BOOL as portrait
+   - [x] Cups page: the five planets in one row; GALACTIC CUP wide below, TITLE RACE and KESTAR BOOL as portrait
          tiles (the leader's face, Kestar's `T_UI_Antagonist`); medals as icons only, bigger, gold vs bronze told
          apart; the focused cup's four tracks on one line.
 3. **v0.24: HOME, the cup result, the garage, the standings.**

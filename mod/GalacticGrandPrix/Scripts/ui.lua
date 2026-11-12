@@ -222,7 +222,7 @@ local function makeTile(lib, pc, it, make)
     if d then try(function() t.Img_TileArt:SetColorAndOpacity({ R = d, G = d, B = d, A = 1 }) end) end
   else try(function() t.Img_TileArt:SetVisibility(1) end) end
   -- v0.7: a picture in the tile's icon slot (the trophy medal), else the slot stays hidden
-  local icon = texture(it.icon)
+  local icon = (not it.noTileIcon) and texture(it.icon) or nil
   if icon then
     try(function() t.Img_Icon:SetBrushFromTexture(icon, false) end)
     try(function() t.Img_Icon:SetVisibility(4) end) -- SelfHitTestInvisible
@@ -362,6 +362,126 @@ end
 -- returns { w, items (each with .btn), scroll } or nil
 
 
+-- v0.23 (TASKS round 3 item 2): a page in rows of tiles, each row its own tile size, in place of the one uniform
+-- grid. spec.rows = { { w = tile width, h = tile height, n = tiles in the row (the last row: the rest) } ... }; the
+-- items fill the rows in order; an item's span (default 1) makes it that many tiles wide (the Galactic Cup).
+-- An item with a medal (it.icon) gets it as our own picture over the tile's top right corner (U.MEDAL_PX): the
+-- tile's icon slot draws every medal in one colour (gold and bronze looked alike in game, v0.20).
+U.GAP = 20
+U.MEDAL_PX = 120
+local function rowItems(rows, n)
+  local out, at = {}, 1
+  for r, row in ipairs(rows) do
+    local take = (r == #rows) and (n - at + 1) or math.min(row.n or n, n - at + 1)
+    out[r] = { from = at, to = at + take - 1 }
+    at = at + take
+  end
+  return out
+end
+U.rowItems = rowItems
+function U.itemWidth(row, it) local k = it.span or 1; return row.w * k + U.GAP * (k - 1) end
+-- the widest row (the page's text wraps at it); items unknown here, so each row as n tiles of its width
+function U.rowsWidth(rows)
+  local w = 0
+  for _, row in ipairs(rows) do w = math.max(w, (row.n or 4) * (row.w + U.GAP)) end
+  return w
+end
+-- the D-pad map of a rows page: { [i] = { left, right, up, down } } (indices; nil at an edge). Up / down go to the
+-- tile in the next row whose middle is nearest this tile's middle (rows are centred, so the x's are from the middle).
+function U.rowsNav(rows, items)
+  local spans = rowItems(rows, #items)
+  local mids = {}
+  for r, sp in ipairs(spans) do
+    local row, total = rows[r], 0
+    for i = sp.from, sp.to do total = total + U.itemWidth(row, items[i]) + U.GAP end
+    local x = -total / 2
+    for i = sp.from, sp.to do
+      local w = U.itemWidth(row, items[i]) + U.GAP
+      mids[i] = { r = r, x = x + w / 2 }
+      x = x + w
+    end
+  end
+  local function nearest(r, x)
+    local sp = spans[r]
+    if not sp or sp.to < sp.from then return nil end
+    local best, bd
+    for j = sp.from, sp.to do
+      local d = math.abs(mids[j].x - x)
+      if not bd or d < bd - 0.01 then best, bd = j, d end
+    end
+    return best
+  end
+  local nav = {}
+  for i = 1, #items do
+    local m, sp = mids[i], spans[mids[i].r]
+    nav[i] = { left = (i > sp.from) and i - 1 or nil, right = (i < sp.to) and i + 1 or nil,
+      up = nearest(m.r - 1, m.x), down = nearest(m.r + 1, m.x) }
+  end
+  return nav
+end
+-- builds the rows into box -> the list of items made (each with .btn, and .cell: what holds it)
+function U.buildRows(spec, box, make, lib, pc)
+  local list = {}
+  local items = spec.items or {}
+  local spans = rowItems(spec.rows, #items)
+  for r, sp in ipairs(spans) do
+    local row = spec.rows[r]
+    local hb = make('/Script/UMG.HorizontalBox')
+    if alive(hb) and sp.to >= sp.from then
+      for i = sp.from, sp.to do
+        local it = items[i]
+        local w, h = U.itemWidth(row, it), row.h
+        local tex = it.icon and texture(it.icon)
+        local ov = tex and make('/Script/UMG.Overlay')
+        local img = alive(ov) and make('/Script/UMG.Image')
+        -- (no overlay or image from the game: the medal stays in the tile's own icon slot, as before v0.23)
+        it.noTileIcon = alive(img) or nil
+        local saveW, saveH = U.TILE_W, U.TILE_H
+        U.TILE_W, U.TILE_H = w, h
+        local t = makeTile(lib, pc, it, make)
+        U.TILE_W, U.TILE_H = saveW, saveH
+        if t then
+          local cell = t
+          local sb = make('/Script/UMG.SizeBox')
+          if alive(sb) then
+            try(function() sb:SetWidthOverride(w); sb:SetHeightOverride(h) end)
+            try(function() sb:SetContent(t) end)
+            cell = sb
+          end
+          if alive(img) then
+            try(function() ov:AddChildToOverlay(cell) end)
+            try(function() img:SetBrushFromTexture(tex, false) end)
+            local c = it.iconColor or { 1, 1, 1 }
+            try(function() img:SetBrushTintColor({ SpecifiedColor = { R = c[1], G = c[2], B = c[3], A = 1 }, ColorUseRule = 0 }) end)
+            try(function() img:SetColorAndOpacity({ R = 1, G = 1, B = 1, A = 1 }) end)
+            try(function() img:SetVisibility(4) end) -- SelfHitTestInvisible: clicks go to the tile
+            local isb = make('/Script/UMG.SizeBox')
+            local icell = img
+            if alive(isb) then
+              try(function() isb:SetWidthOverride(U.MEDAL_PX); isb:SetHeightOverride(U.MEDAL_PX) end)
+              try(function() isb:SetContent(img) end)
+              icell = isb
+            end
+            local os = try(function() return ov:AddChildToOverlay(icell) end)
+            -- (EHorizontalAlignment Right = 3, EVerticalAlignment Top = 1)
+            if os then try(function() os:SetHorizontalAlignment(3); os:SetVerticalAlignment(1); os:SetPadding({ Left = 0, Top = 10, Right = 14, Bottom = 0 }) end) end
+            cell = ov
+          end
+          local sl = try(function() return hb:AddChildToHorizontalBox(cell) end)
+          if sl then try(function() sl:SetPadding({ Left = U.GAP / 2, Top = U.GAP / 2, Right = U.GAP / 2, Bottom = U.GAP / 2 }) end) end
+          it.btn, it.cell = t, cell
+          list[#list + 1] = it
+        end
+      end
+      local rs = try(function() return box:AddChildToVerticalBox(hb) end)
+      -- each row centred under the one above (Center = 2)
+      if rs then try(function() rs:SetHorizontalAlignment(2) end) end
+      if rs and r == 1 then try(function() rs:SetPadding({ Left = 0, Top = 14, Right = 0, Bottom = 0 }) end) end
+    end
+  end
+  return list
+end
+
 -- v0.21: the page panel's colour: v0.20's translucent grey with PageBackdrop = true, else fully transparent (alpha 0)
 U.PAGE_GREY = { R = 0.01, G = 0.012, B = 0.016, A = 0.6 }
 function U.pageColor(hasPicture)
@@ -419,7 +539,7 @@ local function buildInner(spec, host)
   end
   try(function() border:SetContent(content) end)
 
-  local wrap = (U.TILE_W + 20) * U.COLS
+  local wrap = spec.rows and U.rowsWidth(spec.rows) or (U.TILE_W + 20) * U.COLS
   local t1 = (spec.title or '') ~= '' and textBlock(make, spec.title, 34, WHITE) or nil
   if t1 then try(function() box:AddChildToVerticalBox(t1) end) end
   if spec.hero then addHero(box, make, spec.hero, wrap) end
@@ -437,49 +557,53 @@ local function buildInner(spec, host)
   if spec.table then addTable(box, make, spec.table) end
   addLines(box, make, spec.after, wrap, 8)
 
-  try(function() grid:SetSlotPadding({ Left = 10, Top = 10, Right = 10, Bottom = 10 }) end)
-  local holder = grid
-  if alive(scroll) and alive(sizer) then
-    try(function() scroll:AddChild(grid) end)
-    try(function() sizer:SetContent(scroll) end)
-    local rows = math.ceil(#(spec.items or {}) / U.COLS)
-    local h = math.min(rows, U.ROWS) * (U.TILE_H + 20) + 10
-    try(function() sizer:SetHeightOverride(h) end)
-    try(function() sizer:SetWidthOverride(wrap + 10) end)
-    holder = sizer
-  end
-  local gs = try(function() return box:AddChildToVerticalBox(holder) end)
-  if gs then try(function() gs:SetPadding({ Left = 0, Top = 14, Right = 0, Bottom = 8 }) end) end
-  -- left, at its own width: a filling slot stretches the grid past the size box and spreads the tiles apart
-  if gs then try(function() gs:SetHorizontalAlignment(0) end) end
-
   local list = {}
   stripSaid = false
-  for _, it in ipairs(spec.items or {}) do
-    local t = makeTile(lib, pc, it, make)
-    if t then
-      local n = #list
-      -- each tile in a box of the tile size (the tile asks for more width than its art, which spreads the grid
-      -- apart); the tile itself still takes focus and clicks
-      local cell = t
-      local box1 = make('/Script/UMG.SizeBox')
-      if alive(box1) then
-        try(function() box1:SetWidthOverride(U.TILE_W); box1:SetHeightOverride(U.TILE_H) end)
-        try(function() box1:SetContent(t) end)
-        cell = box1
-      end
-      try(function() grid:AddChildToUniformGrid(cell, n // U.COLS, n % U.COLS) end)
-      it.btn = t
-      list[#list + 1] = it
+  if spec.rows then
+    list = U.buildRows(spec, box, make, lib, pc)
+  else
+    try(function() grid:SetSlotPadding({ Left = 10, Top = 10, Right = 10, Bottom = 10 }) end)
+    local holder = grid
+    if alive(scroll) and alive(sizer) then
+      try(function() scroll:AddChild(grid) end)
+      try(function() sizer:SetContent(scroll) end)
+      local rows = math.ceil(#(spec.items or {}) / U.COLS)
+      local h = math.min(rows, U.ROWS) * (U.TILE_H + 20) + 10
+      try(function() sizer:SetHeightOverride(h) end)
+      try(function() sizer:SetWidthOverride(wrap + 10) end)
+      holder = sizer
     end
-  end
-  -- a short screen (fewer tiles than a row): empty cells fill the row, else the uniform grid shares its width out
-  -- over the tiles in use and two tiles sit two columns apart (seen in game, v0.3.11 / v0.5.0)
-  for col = #list, U.COLS - 1 do
-    local pad = make('/Script/UMG.SizeBox')
-    if alive(pad) then
-      try(function() pad:SetWidthOverride(U.TILE_W); pad:SetHeightOverride(U.TILE_H) end)
-      try(function() grid:AddChildToUniformGrid(pad, 0, col) end)
+    local gs = try(function() return box:AddChildToVerticalBox(holder) end)
+    if gs then try(function() gs:SetPadding({ Left = 0, Top = 14, Right = 0, Bottom = 8 }) end) end
+    -- left, at its own width: a filling slot stretches the grid past the size box and spreads the tiles apart
+    if gs then try(function() gs:SetHorizontalAlignment(0) end) end
+
+    for _, it in ipairs(spec.items or {}) do
+      local t = makeTile(lib, pc, it, make)
+      if t then
+        local n = #list
+        -- each tile in a box of the tile size (the tile asks for more width than its art, which spreads the grid
+        -- apart); the tile itself still takes focus and clicks
+        local cell = t
+        local box1 = make('/Script/UMG.SizeBox')
+        if alive(box1) then
+          try(function() box1:SetWidthOverride(U.TILE_W); box1:SetHeightOverride(U.TILE_H) end)
+          try(function() box1:SetContent(t) end)
+          cell = box1
+        end
+        try(function() grid:AddChildToUniformGrid(cell, n // U.COLS, n % U.COLS) end)
+        it.btn = t
+        list[#list + 1] = it
+      end
+    end
+    -- a short screen (fewer tiles than a row): empty cells fill the row, else the uniform grid shares its width out
+    -- over the tiles in use and two tiles sit two columns apart (seen in game, v0.3.11 / v0.5.0)
+    for col = #list, U.COLS - 1 do
+      local pad = make('/Script/UMG.SizeBox')
+      if alive(pad) then
+        try(function() pad:SetWidthOverride(U.TILE_W); pad:SetHeightOverride(U.TILE_H) end)
+        try(function() grid:AddChildToUniformGrid(pad, 0, col) end)
+      end
     end
   end
   if spec.hint then
@@ -488,12 +612,14 @@ local function buildInner(spec, host)
   end
   if #list == 0 then log('[menu] no tiles'); return nil end
 
-  local screen = { w = border, host = host, items = list, scroll = alive(scroll) and scroll or nil, pc = pc, grid = grid,
-    info = info, cols = U.COLS }
+  local screen = { w = border, host = host, items = list, scroll = (not spec.rows and alive(scroll)) and scroll or nil, pc = pc,
+    grid = grid, info = info, cols = U.COLS, rows = spec.rows ~= nil,
+    nav = spec.rows and U.rowsNav(spec.rows, list) or nil }
   try(function() host.panel:ClearChildren() end)
   local sl = try(function() return host.panel:AddChildToVerticalBox(border) end)
   if not alive(sl) then sl = try(function() return host.panel:AddChild(border) end) end
-  if sl then try(function() sl:SetHorizontalAlignment(0); sl:SetVerticalAlignment(0) end) end
+  -- (v0.23: spec.center - the page at its own width in the middle of the screen; EHorizontalAlignment Center = 2)
+  if sl then try(function() sl:SetHorizontalAlignment(spec.center and 2 or 0); sl:SetVerticalAlignment(0) end) end
   U.wire(screen)
   return screen
 end
@@ -501,6 +627,16 @@ end
 -- D-pad links between the tiles from their grid positions (the game's own navigation then moves focus). Edges are
 -- left to the game (up from the top row reaches the tab bar). EUINavigation: Left 0, Right 1, Up 2, Down 3.
 function U.wire(screen)
+  if screen.nav then
+    for i, it in ipairs(screen.items) do
+      local n = screen.nav[i] or {}
+      for dir, k in pairs({ left = 0, right = 1, up = 2, down = 3 }) do
+        local j = n[dir]
+        if j and screen.items[j] then try(function() it.btn:SetNavigationRuleExplicit(k, screen.items[j].btn) end) end
+      end
+    end
+    return
+  end
   local items, cols = screen.items, U.COLS
   local n = #items
   for i, it in ipairs(items) do
@@ -534,9 +670,12 @@ function U.highlight(screen, i)
   for j, it in ipairs(screen.items) do
     local on = j == i
     local sc = on and U.FOCUS or 1.0
-    try(function() it.btn:SetRenderScale({ X = sc, Y = sc }) end)
-    local op = (it.disabled and 0.5 or 1) * ((on or U.DIM == 1) and 1 or U.DIM)
-    try(function() it.btn:SetRenderOpacity(op) end)
+    -- (v0.23: a rows page scales and dims the tile's holder, so its medal goes with it)
+    local w = it.cell or it.btn
+    try(function() w:SetRenderScale({ X = sc, Y = sc }) end)
+    -- (a disabled tile is already at half opacity on its own: its holder isn't halved again)
+    local op = ((it.disabled and not it.cell) and 0.5 or 1) * ((on or U.DIM == 1) and 1 or U.DIM)
+    try(function() w:SetRenderOpacity(op) end)
   end
   local it = screen.items[i]
   if screen.info and alive(screen.info) then try(function() screen.info:SetText(FText(it and it.info or ' ')) end) end

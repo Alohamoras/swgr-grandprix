@@ -19,7 +19,15 @@ local AB, MS, TI = require('abil'), require('modsel'), require('title')
 local bad, seenBad, count = {}, {}, 0
 local function check(where, spec)
   local w = spec.layout and spec.layout.w or U.TILE_W
-  for _, it in ipairs(spec.items or {}) do
+  -- (v0.23: a rows page - each tile at its own row's width, times its span)
+  local widthOf = {}
+  if spec.rows then
+    for r, sp in ipairs(U.rowItems(spec.rows, #(spec.items or {}))) do
+      for i = sp.from, sp.to do widthOf[i] = U.itemWidth(spec.rows[r], spec.items[i]) end
+    end
+  end
+  for idx, it in ipairs(spec.items or {}) do
+    local w = widthOf[idx] or w
     count = count + 1
     -- TILE_DUMP=1: every distinct tile text, for a look by eye
     if os.getenv('TILE_DUMP') then

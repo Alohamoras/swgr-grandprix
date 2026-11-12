@@ -17,7 +17,7 @@
 -- results screen (B there: leave the cup).
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.22.0'
+local VERSION = '0.23.0'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -169,6 +169,8 @@ local function launchTo(ev, classKey)
   S.message = why
   return true
 end
+-- v0.23: a racer's face (config Portraits, by racer key), nil when the game has none we know of
+local function portrait(key) return key and (cfg.Portraits or {})[key] or nil end
 -- the title race tile on the cups page (v0.21): a 1 v 1 against the class leader on a normal track; locked until a
 -- trophy in the Galactic Cup at the class; won = CHAMPION. The tile names the opponent ('vs Biddy Blas').
 local function titleTile(cls)
@@ -186,7 +188,7 @@ local function titleTile(cls)
       act = function() S.message = 'The title race is locked. To open it: ' .. why; return true end }
   end
   local laps = tonumber(ev.laps)
-  return { title = 'TITLE RACE', art = ART.SHOWDOWN, badge = st and st.won and 'CHAMPION' or nil, desc = 'vs ' .. vs,
+  return { title = 'TITLE RACE', art = portrait(ev.opponent) or ART.SHOWDOWN, badge = st and st.won and 'CHAMPION' or nil, desc = 'vs ' .. vs,
     info = padInfo(('1 v 1 against %s on %s%s: win and you are the %s champion.'):format(vs, ev.title,
       laps and (laps == 1 and ', a sprint' or (', %d laps'):format(laps)) or '', cls.name)),
     act = function() return launchTo(TI.event(cls.key), cls.key) end }
@@ -195,7 +197,7 @@ end
 local function bossTile(cls)
   if not (TI.bossOn() and cls.key == TI.bossClass() and TI.bossOpen(K.data)) then return nil end
   local beaten = TI.bossBeaten(K.data)
-  return { title = 'KESTAR BOOL', art = ART.SHOWDOWN, badge = beaten and 'BEATEN' or 'FINAL BOSS', desc = 'Stadium 1 v 1',
+  return { title = 'KESTAR BOOL', art = portrait('Antagonist') or ART.SHOWDOWN, badge = beaten and 'BEATEN' or 'FINAL BOSS', desc = 'Stadium 1 v 1',
     info = padInfo(beaten and 'You beat Kestar Bool: he races for you now (the garage). Run it again any time.'
       or 'The final boss: 1 v 1 against Kestar Bool in the stadium, 6 laps. Beat him to race as him.'),
     act = function() return launchTo(TI.bossEvent(), cls.key) end }
@@ -295,7 +297,7 @@ SCREENS.cups = function()
   for _, cup in ipairs(cupsInOrder()) do
     local open, why, short = PR.cupOpen(K.data, cls.key, cup.key)
     if not open then
-      items[#items + 1] = { title = cup.name, art = ART.cup(cup, myVehicle().key) or cup.art, badge = 'LOCKED', disabled = true,
+      items[#items + 1] = { title = cup.name, art = ART.cup(cup, myVehicle().key) or cup.art, span = (cup.final and cfg.CupsRows) and 2 or nil, badge = 'LOCKED', disabled = true,
         desc = 'To open: ' .. tostring(short or why), info = padInfo(cupInfo(cup, cls.key, 'To open: ' .. why)),
         act = function() S.message = cup.name .. ' is locked at ' .. cls.name .. '. To open it: ' .. why; return true end }
     else
@@ -304,7 +306,7 @@ SCREENS.cups = function()
       -- (v0.22: only a perfect cup; the medal icon shows the rest)
       local bestLine = perfect and 'Perfect cup' or nil
       local cond = condText(cup, cls.key)
-      local it = { title = cup.name, art = ART.cup(cup, myVehicle().key) or cup.art,
+      local it = { title = cup.name, art = ART.cup(cup, myVehicle().key) or cup.art, span = (cup.final and cfg.CupsRows) and 2 or nil,
         icon = mIcon, iconColor = mColor, -- (v0.22: no medal words, no planet badge)
         info = padInfo(cupInfo(cup, cls.key)),
         act = function()
@@ -315,7 +317,7 @@ SCREENS.cups = function()
           return res
         end }
       it.desc = (bestLine and cond) and (bestLine .. '\n' .. cond) or bestLine or cond
-      if bestLine and cond and not U.tileFits(it, (cfg.CupsLayout or {}).w) then it.desc = cond end
+      if bestLine and cond and not U.tileFits(it, (cfg.CupsRows and cfg.CupsRows[1].w) or (cfg.CupsLayout or {}).w) then it.desc = cond end
       items[#items + 1] = it
     end
   end
@@ -325,7 +327,8 @@ SCREENS.cups = function()
   if bt then items[#items + 1] = bt end
   -- (v0.20, menu review 6: the vehicle and the how-to are gone; v0.21, owner: the blurb and the levels line too)
   return { key = 'cups', title = cls.name:upper(), lines = { msgLine() },
-    items = items, info = true, layout = cfg.CupsLayout }
+    items = items, info = true, layout = (not cfg.CupsRows) and cfg.CupsLayout or nil, rows = cfg.CupsRows,
+    center = cfg.CupsRows ~= nil }
 end
 
 -- the garage: one tile per thing you can change; Select cycles it (v0.8: no pick screens)
@@ -605,7 +608,11 @@ local function handle(name)
     return
   end
   local cols = (S.ui and S.ui.cols) or U.COLS
-  if name == 'left' then setFocus(S.focus - 1)
+  -- (v0.23: a rows page has its own D-pad map, S.ui.nav)
+  local nav = S.ui.nav and S.ui.nav[S.focus]
+  if nav and (name == 'left' or name == 'right' or name == 'up' or name == 'down') then
+    if nav[name] then setFocus(nav[name]) end
+  elseif name == 'left' then setFocus(S.focus - 1)
   elseif name == 'right' then setFocus(S.focus + 1)
   elseif name == 'up' then setFocus(math.max(1, S.focus - cols))
   elseif name == 'down' then setFocus(math.min(#S.ui.items, S.focus + cols))

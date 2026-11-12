@@ -25,6 +25,18 @@ return {
     -- page's tile size, no scrolling; v0.21: 8 at 150cc once its title is won (the KESTAR BOOL tile: 4 + 4).
     -- cols / rows / w / h (nil = the TabLayout grid)
     CupsLayout = { cols = 4, rows = 2, w = 520, h = 350 },
+    -- v0.23 (TASKS round 3 item 2): the cups page in rows, centred: the five planet cups in one row, then the Galactic
+    -- Cup two tiles wide, the title race and (150cc, after its title) Kestar Bool. nil = the CupsLayout grid.
+    CupsRows = { { w = 560, h = 380, n = 5 }, { w = 560, h = 380 } },
+    -- v0.23: racers' faces (the game's character art) on the title race and final boss tiles, by racer key; a racer
+    -- not listed keeps the stadium picture. Matched by name only - to check in game.
+    Portraits = {
+      Star = '/Game/Griffin/UI/Library/Textures/Content/Characters/T_UI_RivalChar_Lyren_Fallback',
+      Thrall = '/Game/Griffin/UI/Library/Textures/Content/Characters/T_UI_RivalChar_Sen_Fallback',
+      Ghost = '/Game/Griffin/UI/Library/Textures/Content/Characters/T_UI_RivalChar_Ghost_Fallback',
+      Mercenary = '/Game/Griffin/UI/Library/Textures/Content/Characters/T_UI_RivalChar_Mercenary_Fallback',
+      Antagonist = '/Game/Griffin/UI/Library/Textures/Content/Characters/T_UI_PlayerChar_Antagonist_Fallback',
+    },
     -- Key that selects the GRAND PRIX tab at the main menu (Backspace / B = back)
     MenuKey = 'F6',
     -- v0.17 (TASKS.md 11): at the first main menu after the game starts, open the GRAND PRIX tab by itself (HOME).

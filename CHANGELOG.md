@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.23.0 (2026-11-11): the cups page in rows, medals as pictures, faces on the title tiles
+TASKS.md "Round 3: the UI" item 2. Tested against the fake game, **not yet seen in game**.
+- **Rows of tiles** (ui.lua `U.buildRows`): a page can be laid out as rows, each with its own tile size, centred, in
+  place of the one grid of equal tiles. Its D-pad map goes to the nearest tile in the next row (`U.rowsNav`; the keys
+  use it too). Pages without rows are unchanged.
+- **The cups page:** the five planet cups in one row; below, the GALACTIC CUP two tiles wide, the TITLE RACE and (at
+  150cc after its title) KESTAR BOOL; the page centred. Config `CupsRows` (nil = the v0.22 grid, `CupsLayout`).
+- **Medals as their own picture**, bigger (120 px), over the tile's top right corner and tinted by medal: the tile's
+  icon slot drew every medal in one colour, so gold and bronze looked alike. Without the game's Overlay widget the
+  medal stays in the tile's icon slot.
+- **Faces:** the title race tile shows the opponent's portrait and Kestar's tile his (config `Portraits`, the
+  game's character art: Lyren Shok, Sen Fira, Goli & 02-R0, Malis Vazosk, Kestar Bool). Racers without known art
+  keep the stadium picture. The match is by name only: to check in game.
+
 ## v0.22.0 (2026-11-11): the quiet pass - dark text, stray text cut, the tab in ~1 s, old code to attic/
 TASKS.md "Round 3: the UI" item 1 (owner: "clean up the UI more, there's plenty of stray text"). Tested against the
 fake game, **not yet seen in game**.
