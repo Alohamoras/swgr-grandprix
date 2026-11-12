@@ -550,8 +550,9 @@ SCREENS.confirm = function()
     return done(c.after or c.back or 'home')
   end }
   local no = { title = 'NO', art = 'T_UI_FE_Tile_02', act = function() return done(c.back or 'home') end }
+  -- (v0.25: centred, in a row of two - the darkening look, not the milky fade)
   return { key = 'confirm', title = '', lines = { { c.text, 26, U.WHITE }, msgLine() },
-    items = c.noFirst and { no, yes } or { yes, no } }
+    items = c.noFirst and { no, yes } or { yes, no }, rows = { { w = 420, h = 240 } }, center = true }
 end
 
 ---------------------------------------------------------------------------------------------------------------------

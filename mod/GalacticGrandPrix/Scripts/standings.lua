@@ -148,7 +148,7 @@ function SD.spec(r)
   if stakes then lines[#lines + 1] = { stakes, 22, U.WHITE } end
   local note, big = raceNotes(r, ev)
   if #note > 0 then lines[#lines + 1] = { table.concat(note, '   -   '), big and 22 or 20, U.GOLD } end
-  return { key = 'standings', title = '', lines = lines,
+  return { key = 'standings', title = '', lines = lines, center = true,
     table = run and SD.rankingTable(run) or nil, backdrop = ART.BACKDROP }
 end
 
