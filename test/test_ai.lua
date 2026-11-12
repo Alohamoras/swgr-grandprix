@@ -141,13 +141,18 @@ T.check(p['DefaultPacingSettings.MaxAiSlowdownScale'].set == 1 and p.ForcedError
   and p.DefaultPercentageChancePerfectStart == nil, 'v0.10: the 200cc plan = 150cc\'s (honest, errors x0.5, no catch-up or perfect-start change)')
 -- v0.18: the study's profiles - no catch-up anywhere, speed matching off, the mercy slowdown shrinking by class,
 -- forced errors kept at 50cc only
+-- (v0.21, owner: a little harder at 50 / 100cc: slowdown 0.4 and 0.45)
+local want = { ['50'] = 0.4, ['100'] = 0.45, ['150'] = 1.0, ['200'] = 1.0 }
 cfg.AI.Profiles = REAL
-local want = { ['50'] = 0.3, ['100'] = 0.3, ['150'] = 1.0, ['200'] = 1.0 }
 for cls, slow in pairs(want) do
   local q = A.plan(cls)
   T.check(q['DefaultPacingSettings.MaxAiCatchupScale'].set == 1 and math.abs(q['DefaultPacingSettings.MaxAiSlowdownScale'].set - slow) < 1e-9
-    and q.SpeedMatchingMaxMatchers.set == 0, 'v0.18 ' .. cls .. 'cc: catch-up 1.0, slowdown ' .. slow .. ', speed matching off')
+    and q.SpeedMatchingMaxMatchers.set == 0, 'v0.21 ' .. cls .. 'cc: catch-up 1.0, slowdown ' .. slow .. ', speed matching off')
   T.check((cls == '50') == (q.ForcedErrorChance == nil), 'v0.18 ' .. cls .. 'cc: forced errors ' .. (cls == '50' and 'kept' or 'off'))
+  -- v0.21 (owner, 200cc: "i crash a lot and still get ~2nd place"): no easing off while you crash from 100cc up
+  local crash = q['DefaultPacingSettings.AiSlowdownDuringCrash']
+  if cls == '50' then T.check(crash == nil, 'v0.21 50cc: the game\'s slowdown while you crash kept')
+  else T.check(crash and crash.set == 1, 'v0.21 ' .. cls .. 'cc: AiSlowdownDuringCrash 1.0 (the bots don\'t ease off while you crash)') end
 end
-T.check(A.pressure('50') == -1 and A.pressure('100') == 0 and A.pressure('150') == 0 and A.pressure('200') == 0, 'v0.18 pressures -1 / 0 / 0 / 0')
+T.check(A.pressure('50') == -1 and A.pressure('100') == 0 and A.pressure('150') == 0 and A.pressure('200') == 0.5, 'v0.21 pressures -1 / 0 / 0 / 0.5 (200cc a notch above 150cc)')
 T.finish()

@@ -27,6 +27,14 @@
 --               race world in LoadTimeoutS, or no AI racer / no start WatchdogS after the reset -> RequestReturnToMenus
 --               and CH.via set, so the via-the-menu flow carries the cup on. Proven for Loop_A -> Loop_A only.
 --   4. CONTINUE (or the game moving on by itself) instead: the main menu, and today's standings page (CH.via unset).
+--      v0.21 (owner: "there doesn't need to be a continue button ... redundant and misleading"): the game's CONTINUE is
+--      hidden (Collapsed: it can't be focused or clicked; ChainRaces.Panel.HideContinue) once NEXT RACE is in place,
+--      NEXT RACE centred where the two buttons were. B leaves the cup: our own hidden Back screen in the panel (the
+--      tab page's trick, tab.lua) reads the pad's B, the key binds Backspace / Escape set CH.back (flags only). B ->
+--      CH.leaveAsk set, the results left for the main menu (CONTINUE's event pressed from code, hidden or not), and
+--      main.lua opens "Leave the cup?" straight away (NO = the standings with NEXT RACE). The results screen closing
+--      on its own with CONTINUE hidden (the game's own back handling B first) counts as B too. The last race of a
+--      cup is never chained: the game's CONTINUE stays (the cup result).
 -- Every failure after NEXT RACE carries the cup on via the menu (CH.fallback with via = true); every other one ends
 -- at today's standings page; each with a `[chain]` log line.
 --
@@ -40,7 +48,7 @@ local cfg = require('config')
 local K = require('gp')
 local try, alive, log = C.try, C.alive, C.log
 
-local CH = { key = false }
+local CH = { key = false, back = false }
 CH.RESULTS = 'WBP_SimpleRaceResultsScreen_C'
 -- the results screen's own CONTINUE click (FreeRace's retry.lua presses CONTINUE the same way)
 CH.CONTINUE_EVENT = 'BndEvt__WBP_SimpleRaceResultsScreen_WBP_Common_Btn_K2Node_ComponentBoundEvent_1_CommonButtonBaseClicked__DelegateSignature'
@@ -63,6 +71,11 @@ function CH.settleMs() return (tonumber(conf().MenuSettleS) or 5) * 1000 end
 -- values only), set by NEXT RACE (route 'menu') or a failure of the reset route; read and cleared by main.lua at the
 -- main menu. nil = CONTINUE's meaning: today's standings page.
 CH.via = nil
+-- v0.21: B on the results screen's panel: { cup, class, race = the race just run } (plain values), read and cleared
+-- by main.lua at the main menu ("Leave the cup?" straight away)
+CH.leaveAsk = nil
+local function hideContinue() return (conf().Panel or {}).HideContinue ~= false end
+CH.hideContinue = hideContinue
 local function resultsWaitMs() return (tonumber(conf().ResultsWaitS) or 90) * 1000 end
 
 -- the launch arguments of the cup's next race: class, vehicle, picks, mods (main.lua sets this to the same values its
@@ -219,10 +232,11 @@ local function findScreen()
 end
 local function v2(v) return v and { X = v.X, Y = v.Y } or nil end
 
--- the prompt under the standings: what the two buttons do
+-- the prompt under the standings: what the button(s) do (v0.21: NEXT RACE and B; HideContinue = false: v0.20's)
 function CH.prompt(out)
   local nxt, run = K.nextRace(), out and out.run
   if not (nxt and run) then return nil end
+  if hideContinue() then return ('NEXT RACE: race %d of %d, %s.   B: leave the cup.'):format(nxt.race, run.races, nxt.title) end
   return ('NEXT RACE: race %d of %d, %s.     CONTINUE: the main menu (to leave the cup).'):format(nxt.race, run.races, nxt.title)
 end
 
@@ -279,17 +293,50 @@ local function addButton(cont, host)
   local pos = try(function() return v2(cs:GetPosition()) end) or { X = 0, Y = -76 }
   -- CONTINUE's centre where it was (by its own alignment), then the two centres either side of it
   local mid = pos.X + (0.5 - (al.X or 0.5)) * wc
+  try(function() btn.WidthOverride = w end)
+  if hideContinue() then
+    -- v0.21: NEXT RACE alone, centred where the two buttons were (CONTINUE's centre); CONTINUE hidden (Collapsed: no
+    -- focus, no click; the fallbacks still press its event from code)
+    try(function() slot:SetPosition({ X = mid, Y = pos.Y }) end)
+    local okH = pcall(function() cont:SetVisibility(1) end)
+    require('ui').grabFocus(btn, pc)
+    return btn, ('NEXT RACE alone at x %d (centred; slot %d wide); the game\'s CONTINUE %s'):format(math.floor(mid), math.floor(w),
+      okH and 'hidden' or 'NOT hidden (SetVisibility refused)'), okH
+  end
   local half = w / 2 + gap / 2
   try(function() cs:SetAlignment(ctr) end)
   try(function() slot:SetPosition({ X = mid - half, Y = pos.Y }) end)
   try(function() cs:SetPosition({ X = mid + half, Y = pos.Y }) end)
   -- (and a fixed width each, so neither grows into the other)
-  try(function() btn.WidthOverride = w end)
   try(function() btn:SetNavigationRuleExplicit(1, cont) end)  -- EUINavigation Right
   try(function() cont:SetNavigationRuleExplicit(0, btn) end)  -- Left
   require('ui').grabFocus(btn, pc)
   return btn, ('NEXT RACE at x %d, CONTINUE at x %d (centres; CONTINUE %d wide, slot %d, gap %d)'):format(math.floor(mid - half),
     math.floor(mid + half), math.floor(wc), math.floor(w), math.floor(gap))
+end
+
+-- v0.21: an invisible Back screen in the panel (tab.lua's trick for our page): an activatable widget that handles
+-- Back, so the pad's B deactivates it - read as B (CH.tick). Made in the results screen's own canvas; kept as C.ref.
+-- Returns its ref, or nil + why.
+local ACTIVATABLE = '/Script/CommonUI.CommonActivatableWidget'
+local function addBackScreen(host, tree)
+  local pc, lib, cls = C.localPC(), C.lib('WidgetBlueprintLibrary', 'UMG'), C.uclass(ACTIVATABLE)
+  local h = (alive(pc) and alive(lib) and cls) and try(function() return lib:Create(pc, cls, pc) end)
+  if not alive(h) then return nil, 'the Back screen was not made' end
+  try(function() h.bSupportsActivationFocus = false end)
+  try(function() h.bIsBackHandler = true end)
+  try(function() h.bAutoActivate = true end)
+  local box = try(function() return StaticConstructObject(StaticFindObject('/Script/UMG.SizeBox'), tree) end)
+  if alive(box) then
+    try(function() box:SetWidthOverride(1); box:SetHeightOverride(1) end)
+    try(function() box:AddChild(h) end)
+    try(function() box:SetRenderOpacity(0) end)
+    try(function() box:SetVisibility(3) end) -- HitTestInvisible
+  end
+  local slot = try(function() return host:AddChildToCanvas(alive(box) and box or h) end)
+  if not alive(slot) then return nil, 'the canvas refused the Back screen' end
+  try(function() h:ActivateWidget() end)
+  return C.ref(h)
 end
 
 -- v0.19.1: the game's own results table (WBP_Simple_RaceResultsPanel_C, RaceFlowSpike B9: the mode rules'
@@ -328,12 +375,20 @@ function CH.addPanel(w, out, st)
   try(function() slot:SetZOrder(50) end)
   st.panel = true
   local hidden = hideGameTable()
-  local btn, bwhy = addButton(cont, host)
+  local btn, bwhy, contHidden = addButton(cont, host)
   st.btn = btn and C.ref(btn) or nil
+  st.contHidden = contHidden == true
+  -- v0.21: B leaves the cup (the pad's B through our Back screen; Backspace / Escape through the flag)
+  local back, backWhy = nil, nil
+  if hideContinue() then back, backWhy = addBackScreen(host, tree) end
+  st.back = back
+  CH.back = false
   local rows = spec.table and #spec.table.rows or 0
-  return true, ('on %s (%s): %d lines, %d table rows, opaque; the game\'s table %s; %s'):format(C.idname(host), C.clsname(host), #spec.lines, rows,
+  return true, ('on %s (%s): %d lines, %d table rows, opaque; the game\'s table %s; %s%s'):format(C.idname(host), C.clsname(host), #spec.lines, rows,
     hidden > 0 and ('hidden (' .. hidden .. ')') or 'not found (left as it is)',
-    btn and ('NEXT RACE button left of CONTINUE, focused: ' .. bwhy) or ('no NEXT RACE button (' .. tostring(bwhy) .. '): key ' .. tostring(conf().Key or '-') .. ' only'))
+    btn and ((st.contHidden and 'NEXT RACE button, focused: ' or 'NEXT RACE button left of CONTINUE, focused: ') .. bwhy)
+      or ('no NEXT RACE button (' .. tostring(bwhy) .. '): key ' .. tostring(conf().Key or '-') .. ' only'),
+    hideContinue() and ('; B: ' .. (back and 'the Back screen (pad) and Backspace / Escape' or ('Backspace / Escape only (' .. tostring(backWhy) .. ')'))) or '')
 end
 
 ---------------------------------------------------------------------------------------------------------------------
@@ -377,6 +432,31 @@ function CH.goViaMenu(r)
   CH.via = nil
   log('[chain] via the menu: dropped (the results screen could not be left) - CONTINUE goes to the standings page')
   return false
+end
+
+-- the results screen went before NEXT RACE (seen here, or by race.lua when the main menu came first). v0.21: with
+-- CONTINUE hidden only B (the game's own back handling) can close it: "Leave the cup?" at the main menu; else (v0.20's
+-- CONTINUE, or a failed panel) today's standings page.
+function CH.goneBeforeNext(r, what)
+  local st = r.chain
+  if not st or st.done then return end
+  st.done = true
+  local run = K.run()
+  if st.contHidden and run then
+    CH.leaveAsk = { cup = run.cup, class = run.class, race = r.ev and r.ev.race }
+    log(('[chain] %s before NEXT RACE with CONTINUE hidden (the game\'s own B / Escape): "Leave the cup?" at the main menu'):format(what))
+  else
+    log(('[chain] %s before NEXT RACE (CONTINUE, or the game moved on): the standings at the main menu'):format(what))
+  end
+end
+
+-- v0.21: B on the panel: "Leave the cup?" at the main menu (main.lua), the results left the game's own way
+function CH.goLeave(r, how)
+  local run = K.run()
+  CH.via = nil
+  CH.leaveAsk = run and { cup = run.cup, class = run.class, race = r.ev and r.ev.race } or nil
+  log(('[chain] B on the results screen (%s): to the main menu, then "Leave the cup?"'):format(how))
+  return CH.leave(r)
 end
 
 -- the way out when something fails: to the main menu. via = true (a failure after NEXT RACE): the next race then
@@ -447,8 +527,25 @@ function CH.tick(r, api)
   st.lastPoll = C.clock
   local btn = st.btn and C.deref(st.btn) or nil
   if st.btn and not btn then
+    CH.goneBeforeNext(r, 'the results screen went')
+    return
+  end
+  -- v0.21: B (the keyboard flag at once; the pad's B through our Back screen, read with the button)
+  local backHow = CH.back and 'Backspace / Escape' or nil
+  CH.back = false
+  if not backHow and st.back then
+    local h = C.deref(st.back)
+    if h then
+      local active = try(function() return h:IsActivated() end) == true
+      if active then st.backOn = true
+      elseif st.backOn then backHow = 'the pad\'s B'
+      else try(function() h:ActivateWidget() end) end
+    end
+  end
+  if backHow and st.contHidden then
     st.done = true
-    log('[chain] the results screen went before NEXT RACE (CONTINUE, or the game moved on): the standings at the main menu')
+    if btn then try(function() btn:SetIsEnabled(false) end) end
+    CH.goLeave(r, backHow)
     return
   end
   local how = keyed and ('key ' .. tostring(conf().Key)) or nil

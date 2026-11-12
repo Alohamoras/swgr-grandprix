@@ -57,6 +57,15 @@ function W.widgetLib()
     elseif cname:find('Tile') then
       W.tiles = W.tiles or {}; table.insert(W.tiles, w)
       W.pending = W.pending or {}; table.insert(W.pending, w)
+    elseif cname == 'CommonActivatableWidget' and W.mm and rawget(W.mm, '__dead') and W.screen then
+      -- v0.21: the Back screen chain.lua puts in its panel on the race's results screen (the main menu is gone):
+      -- registered (C.ref / C.deref), W.resultsBack; W.padB() = the game deactivating it on the pad's B
+      p.IsActivated = function() return p.__active == true end
+      p.ActivateWidget = function() p.__active = true end
+      p.DeactivateWidget = function() p.__active = false end
+      rawset(w, '__name', 'CommonActivatableWidget_' .. rawget(w, '__addr'))
+      M.add('CommonActivatableWidget', w)
+      W.resultsBack = w
     elseif cname == 'CommonActivatableWidget' then
       -- tab page (v0.9): the Back screen is made right after a page's tiles - those are the page on screen
       p.IsActivated = function() return p.__active == true end
@@ -251,7 +260,8 @@ end
 -- an event asset
 function W.event(path, tag)
   local n = path:match('([^/]+)$')
-  local e = M.new(n, { VehicleTypeTag = { TagName = { ToString = function() return tag or 'Vehicle.Standard' end } } }, 'RaceEventDef')
+  local e = M.new(n, { VehicleTypeTag = { TagName = { ToString = function() return tag or 'Vehicle.Standard' end } },
+    GridMakeup = { Entries = M.tarr({ { EntryType = 4, NumEntrants = 12 } }) } }, 'RaceEventDef')
   M.assets[path .. '.' .. n] = e
   return e
 end
@@ -343,7 +353,9 @@ function W.raceEvent(path, laps, cond)
   local n = path:match('([^/]+)$')
   local e = M.new(n, { VehicleTypeTag = { TagName = M.new('Vehicle.Standard', {}, 'FName') },
     TrackDef = M.new((n:gsub('^EVT_', 'TRAK_')), {}, 'TrackDef'), LapCount = laps or 2,
-    TrackConditionTag = { TagName = M.new(cond or 'TrackCondition.Sunset', {}, 'FName') } }, 'RaceEventDef')
+    TrackConditionTag = { TagName = M.new(cond or 'TrackCondition.Sunset', {}, 'FName') },
+    -- (v0.21: the grid make-up as the game's normal events have it: PlayerChoice x12; RaceFlowSpike B6)
+    GridMakeup = { Entries = M.tarr({ { EntryType = 4, NumEntrants = 12 } }) } }, 'RaceEventDef')
   M.assets[path .. '.' .. n] = e
   return e
 end
@@ -407,7 +419,8 @@ function W.dropRaceWorld()
     M.clear(cls)
   end
   for _, o in ipairs(W.canvasKids or {}) do M.kill(o) end
-  W.canvasKids, W.screen, W.chainBtn = {}, nil, nil
+  if W.resultsBack then M.kill(W.resultsBack) end
+  W.canvasKids, W.screen, W.chainBtn, W.resultsBack = {}, nil, nil, nil
 end
 -- the game's results screen after a race (WBP_SimpleRaceResultsScreen_C, CONTINUE on its canvas Default_Results).
 -- opts.refuse = the canvas takes no children. W.continued counts presses of its CONTINUE.
@@ -423,7 +436,10 @@ function W.results(opts)
     GetAnchors = function() return { Minimum = { X = 0.5, Y = 1 }, Maximum = { X = 0.5, Y = 1 } } end,
     GetAlignment = function() return { X = 0.5, Y = 1 } end, GetPosition = function() return { X = 0, Y = -76 } end,
     GetAutoSize = function() return true end, GetZOrder = function() return 1 end }, 'CanvasPanelSlot')
-  local cont = M.new('WBP_Common_Btn_Continue', { GetParent = function() return canvas end, Slot = slot, WidthOverride = 300 }, 'WBP_Common_Btn_C')
+  -- (v0.21: W.contVis = CONTINUE's visibility - chain.lua hides it, Collapsed, after a race that isn't the last)
+  W.contVis = 0
+  local cont = M.new('WBP_Common_Btn_Continue', { GetParent = function() return canvas end, Slot = slot, WidthOverride = 300,
+    SetVisibility = function(_, v) W.contVis = v end, GetVisibility = function() return W.contVis end }, 'WBP_Common_Btn_C')
   local w = M.new('WBP_SimpleRaceResultsScreen_C_' .. M.nextAddr, { WidgetTree = M.new('WidgetTree', {}), WBP_Common_Btn_Continue = cont,
     IsInViewport = function() return true end }, 'WBP_SimpleRaceResultsScreen_C')
   rawget(w, '__props')[require('chain').CONTINUE_EVENT] = function() W.continued = W.continued + 1 end
@@ -440,6 +456,11 @@ end
 function W.chainWorld()
   W.dropRaceWorld()
   W.race(11)
+end
+-- v0.21: the pad's B on the results screen: the game deactivates our Back screen there
+function W.padB()
+  assert(W.resultsBack, 'no Back screen on the results screen')
+  rawget(W.resultsBack, '__props').__active = false
 end
 -- press our NEXT RACE button (the game's UI turns the toggle button selected)
 function W.pressNext()

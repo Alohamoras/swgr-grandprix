@@ -352,6 +352,14 @@ end
 -- returns { w, items (each with .btn), scroll } or nil
 
 
+-- v0.21: the page panel's colour: v0.20's translucent grey with PageBackdrop = true, else fully transparent (alpha 0)
+U.PAGE_GREY = { R = 0.01, G = 0.012, B = 0.016, A = 0.6 }
+function U.pageColor(hasPicture)
+  if cfg.PageBackdrop == true or hasPicture then return U.PAGE_GREY end
+  return { R = 0, G = 0, B = 0, A = 0 }
+end
+local backdropSaid = false
+
 -- host: { tree = the main menu's widget tree, panel = our page panel } - the screen is built into the tab's page
 local function buildInner(spec, host)
   local pc, lib = C.localPC(), C.lib('WidgetBlueprintLibrary', 'UMG')
@@ -364,13 +372,20 @@ local function buildInner(spec, host)
   local border, box = make('/Script/UMG.Border'), make('/Script/UMG.VerticalBox')
   local sizer, scroll, grid = make('/Script/UMG.SizeBox'), make('/Script/UMG.ScrollBox'), make('/Script/UMG.UniformGridPanel')
   if not (alive(border) and alive(box) and alive(grid)) then log('[menu] could not build panels'); return nil end
-  -- the page panel (on the game's own menu background)
-  try(function() border:SetBrushColor({ R = 0.01, G = 0.012, B = 0.016, A = 0.6 }) end)
-  -- v0.7: a picture behind the page (spec.backdrop), darkened so the text stays readable
+  -- the page panel (on the game's own menu background). v0.21 (owner: the grey see-through background isn't needed):
+  -- fully transparent unless config PageBackdrop = true; a page with its own picture (spec.backdrop: the standings, the
+  -- cup result, the title result - tables and big lines over the menu's busy art) keeps it either way
   local bd = texture(spec.backdrop)
+  try(function() border:SetBrushColor(U.pageColor(bd ~= nil)) end)
+  -- v0.7: a picture behind the page (spec.backdrop), darkened so the text stays readable
   if bd then
     try(function() border:SetBrushFromTexture(bd) end)
     try(function() border:SetBrushColor({ R = 0.45, G = 0.45, B = 0.45, A = 0.92 }) end)
+  end
+  if not backdropSaid then
+    backdropSaid = true
+    log(('[menu] page backdrop: %s (config PageBackdrop = %s); the standings, cup result and title result keep their picture'):format(
+      cfg.PageBackdrop == true and 'the v0.20 grey panel' or 'none, transparent', tostring(cfg.PageBackdrop == true)))
   end
   try(function() border:SetPadding({ Left = 36, Top = 24, Right = 36, Bottom = 24 }) end)
   local content = box

@@ -1,5 +1,50 @@
 # Changelog
 
+## v0.21.0 (2026-11-11): the leader's title race, Kestar the final boss, no rival, less clutter
+TASKS.md "Next, round 2" item 1 (the owner's answers after a 50cc and a 100cc cup, OWNER.md "Done"). Built and tested
+against the fake game, **not yet seen in game**. DESIGN.md §17.
+- **A little harder at 50cc and 100cc**: the bots' mercy slowdown when ahead (`MaxAiSlowdownScale`) 0.3 -> 0.4 at
+  50cc, 0.3 -> 0.45 at 100cc. Catch-up stays 1.0.
+- **Tougher from 100cc up** (owner after a 200cc Jakku cup - 2nd, 3rd, 2nd, 1st, gold - and a 150cc Galactic silver:
+  "200cc is fast and brutal, i crash a lot and still get ~2nd place, so overall the difficulty could be a little
+  tougher"): the bots no longer ease off while you crash at 100 / 150 / 200cc (pacing `AiSlowdownDuringCrash` 1.0 on
+  DA_AIConfig, RP_Default and RP_Honest; the game's 0.5 / 0.9 stay at 50cc), and 200cc is a notch above 150cc
+  (pressure 0.5; 150cc stays 0).
+- **The rival is gone**: rival.lua, config `Rival`, the RIVAL marks and colour, the "YOUR RIVAL" stakes wording, the
+  rival on HOME and on the cup result. The stakes line still names who you chase or lead. An old save's `rivals` is
+  dropped at load (`[save] the rivals are dropped ...`, once).
+- **The title race is a 1 v 1 against the class leader on a normal track**: the best bot of your most recent finished
+  cup at the class (the 2nd if you won it), saved when a cup ends (`leader`, `[title] 100cc leader: ...`); the track is
+  the first race of that cup's list. No cup yet: Griff Halloran (50cc), Lyren Shok (100cc), Biddy Blas (150cc), Sen
+  Fira (200cc) on the Jakku Cup's first race. The tile: TITLE RACE / "vs Biddy Blas". Launched with the two-car grid
+  (the event's GridMakeup 2 entrants, CharacterList.Opponents cut to the leader; RaceFlowSpike B6), originals in the
+  save (`gridRestore`) and put back once at the menu, or at the next boot after a crash (`[title] grid cut ...` /
+  `[title] grid put back (...)`). Your racer swap still applies. No cup track record from a title race.
+- **Kestar Bool is the final boss**: the Stadium Showdown (the old title race, cinematics fix kept) is a KESTAR BOOL
+  tile on the 150cc cups page once the 150cc title is won (FINAL BOSS / BEATEN); beating him saves `boss` and unlocks
+  him as a racer (was: the 150cc title). Old saves with the 150cc title won (against Kestar) count him beaten. The cups
+  page: 7 tiles, 8 at 150cc with the boss (4 + 4), never scrolls.
+- **CONTINUE at the end of a cup** goes to the class's cups page with the focus on the cup just raced.
+- **Less clutter**: no "Next:" line on HOME; no class blurbs (config, HOME, the cups page); no levels line on the cups
+  page; HOME's info lines one short line each. The cups page's race list and the garage's help line stay.
+- **No grey see-through page panel** (config `PageBackdrop = false`): HOME, the cups page, the garage and the questions
+  sit straight on the game's menu; the standings, cup result and title result keep their picture backdrop.
+- **RESET PROGRESS clears everything**, titles, the boss, leaders and counts included, except the garage picks (racer,
+  abilities, tune-ups; Kestar falls back to Shade), behind two questions, NO first: "Reset all progress? Every
+  trophy, record and title is cleared." then "Are you sure? This can't be undone." The backup is still made first.
+- **The results-screen panel after a cup race (not the last): no CONTINUE** (owner: redundant and misleading). Only
+  NEXT RACE, centred; the game's CONTINUE is collapsed (`ChainRaces.Panel.HideContinue`). The prompt: "NEXT RACE: race
+  N of 4, <name>.   B: leave the cup." B (the pad through a hidden Back screen in the panel; Backspace / Escape on the
+  keyboard) goes to the main menu and straight to "Leave the cup? Your points are lost." (NO = the standings with NEXT
+  RACE). The screen closing by itself before NEXT RACE counts as B. The last race keeps the game's CONTINUE.
+- **The Ando short track** (Loop_B SHORT_01, on the Monastery Mountains loop) is named **CLOISTER RUN** (records are
+  kept by event path: nothing in the save changes).
+- Tests: test_rival removed; new test_reset (two questions, everything cleared, the backup, HOME without Next:,
+  PageBackdrop); test_title rewritten (leader, default, two-car grid and put-back, crash put-back at the next boot,
+  the boss tile / unlock / old-save migration); test_chain (no CONTINUE, B by key / pad / the screen closing, NO / YES,
+  the last race keeps CONTINUE, HideContinue = false); test_menu20, test_ai, test_config, test_tiletext,
+  test_trophies, test_racervehicle, test_nearmiss updated.
+
 ## v0.20.1 (2026-11-11): footer fix
 - In game v0.20.0 logged `[footer] error: tab.lua:71: bad argument #2 to 'tonumber'`: `C.try` returns `nil, error` when
   a call fails (here GetChildrenCount on a widget that isn't a panel), and `tonumber(nil, 'message')` raises. Every

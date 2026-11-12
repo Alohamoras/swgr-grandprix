@@ -61,16 +61,20 @@ for _, c in ipairs(K.classes()) do K.data.best[c.key] = { jakku = 1, lantaana = 
 check('home part', SC.home())
 for _, c in ipairs(K.classes()) do cupsAt(c.key, 'part') end
 
--- 3. every possible champion on the class tiles (any pilot, any bot name the standings can hold, you)
-local realChamp = TI.champion
-local names = { 'YOU' }
-for _, r in ipairs(cfg.Racers or {}) do names[#names + 1] = r.name end
-for _, n in ipairs(W.BOT_NAMES) do names[#names + 1] = n end
-for _, n in ipairs(names) do
-  TI.champion = function() return n, 'points' end
-  check('home champion ' .. n, SC.home())
+-- 3. v0.21: every possible title race opponent on the TITLE RACE tile ('vs Griff Halloran': any racer the leader can
+-- be), with the title open and won; and the KESTAR BOOL tile (the boss) on the 150cc page, beaten and not
+local opened = {}
+for _, c in ipairs(K.classes()) do opened[c.key] = { jakku = 1, lantaana = 1, ando = 1, crait = 1, sentinel = 1, galactic = 1 } end
+K.data.best = opened
+for _, r in ipairs(cfg.Racers or {}) do
+  for _, c in ipairs(K.classes()) do
+    K.data.leader = { [c.key] = { name = r.name, cup = 'crait' } }
+    K.data.titles = { [c.key] = { won = r.key == 'Ghost', tries = 1 }, ['150'] = { won = true, tries = 1 } }
+    K.data.boss = (r.key == 'Ghost') and { beaten = true } or nil
+    cupsAt(c.key, 'leader ' .. r.name)
+  end
 end
-TI.champion = realChamp
+K.data.leader, K.data.titles, K.data.boss = {}, {}, nil
 
 -- 4. the garage at each class level: cycle every tile through all it offers
 local seenAb, seenTu, seenRacer, seenVeh = {}, {}, {}, {}
@@ -83,8 +87,8 @@ local function find(items, pat)
   for i, it in ipairs(items) do if (it.badge or ''):find(pat) then return i end end
 end
 -- (v0.15: no VEHICLE tile; the RACER tile names the racer's vehicle type, and HOME's GARAGE tile the racer and it.
--- Kestar Bool unlocked here, so every racer is on the tile.)
-K.data.titles = { ['150'] = { won = true, tries = 1 } }
+-- Kestar Bool unlocked here (v0.21: the boss beaten), so every racer is on the tile.)
+K.data.boss = { beaten = true, tries = 1 }
 for _, c in ipairs(K.classes()) do
   local items = garage(c.key)
   T.check(find(items, '^VEHICLE') == nil, 'no VEHICLE tile in the garage at ' .. c.key)
@@ -150,11 +154,15 @@ T.check(races == 4 * 4 * #K.cups(), 'the standings before every race (' .. races
 
 -- 6. the title result, the confirms, the offline page
 for _, won in ipairs({ true, false }) do
-  S.result = { titleRace = true, won = won, vs = 'Kestar Bool', pos = won and 1 or 2, ev = { class = '100' } }
+  S.result = { titleRace = true, won = won, vs = 'Griff Halloran', pos = won and 1 or 2, ev = { class = '150' }, bossOpened = won }
   check('title result', SC.titleResult())
+  S.result = { boss = true, won = won, vs = 'Kestar Bool', pos = won and 1 or 2, ev = { class = '150' }, firstWin = won }
+  check('boss result', SC.titleResult())
 end
-S.confirm = { text = 'Reset all progress?', back = 'home', noFirst = true }
+S.confirm = { text = 'Reset all progress? Every trophy, record and title is cleared.', back = 'home', noFirst = true }
 check('confirm reset', SC.confirm())
+S.confirm = { text = "Are you sure? This can't be undone.", back = 'home', noFirst = true }
+check('confirm reset 2', SC.confirm())
 S.confirm = { text = 'Leave the cup? Your points are lost.', back = 'standings' }
 check('confirm leave', SC.confirm())
 S.blocked = 'matchmaking is running'
@@ -175,7 +183,7 @@ local home = SC.home().items or {}
 local got
 for _, it in ipairs(home) do if it.title == '100CC' then got = it.desc end end
 T.check(got == 'Gold 1 / 6\nChampion: YOU', 'your own title stays on the tile, under the golds (' .. tostring(got) .. ')')
-for _, it in ipairs(home) do if it.title == '100CC' then T.check(tostring(it.info):find('Champion: YOU', 1, true) ~= nil, 'and in the info line') end end
+for _, it in ipairs(home) do if it.title == '100CC' then T.check(not tostring(it.info):find('Champion', 1, true), 'v0.21: not repeated in the info line (less clutter)') end end
 
 T.check(#bad == 0, ('every tile\'s text fits its tile (%d tiles checked)%s'):format(count,
   #bad > 0 and (':\n  ' .. table.concat(bad, '\n  ')) or ''))

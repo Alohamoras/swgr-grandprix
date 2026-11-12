@@ -6,7 +6,6 @@ local C = require('core')
 local cfg = require('config')
 local CU = require('cup')
 local PR = require('prog')
-local RV = require('rival')
 local log = C.log
 
 local K = { data = nil }
@@ -91,8 +90,12 @@ local function fill(d)
   d.perfect = type(d.perfect) == 'table' and d.perfect or {}
   d.standings = type(d.standings) == 'table' and d.standings or {}
   d.titles = type(d.titles) == 'table' and d.titles or {} -- v0.8: the title races won per class (title.lua)
-  -- v0.13: your rival per class (rival.lua): rivals[classKey] = { name, scores = { [racer] = tally } }. Optional.
-  d.rivals = type(d.rivals) == 'table' and d.rivals or {}
+  -- v0.21: the title race's opponent per class, from the most recent finished cup there (title.lua):
+  --   leader[classKey] = { name = 'Biddy Blas', cup = 'jakku' }
+  d.leader = type(d.leader) == 'table' and d.leader or {}
+  -- v0.21: the final boss (title.lua): boss = { beaten = true, tries = n, at = 'YYYY-MM-DD' } or nil (not raced)
+  d.boss = type(d.boss) == 'table' and d.boss or nil
+  -- (v0.13-v0.20 `rivals` is dropped at load: K.migrate21)
   return d
 end
 
@@ -135,6 +138,7 @@ function K.load()
         K.data.vehicle = nil
         K.save()
       end
+      K.migrate21(K.data)
       local dropped = K.dropOldCups(K.data)
       if #dropped > 0 then
         K.save()
@@ -283,21 +287,66 @@ function K.forfeit()
   K.data.run = nil
   K.save()
 end
--- v0.3.11 (owner, 2026-11-10): start over. Clears every trophy / best finish, the cup in progress and the cups
--- count; keeps your abilities, vehicle, race count and anything still to put back in the game's builds. The save
--- is copied to save.backup-reset-<date>.lua first. Returns the backup's name.
+-- v0.21 (owner, OWNER.md "Done" 2026-11-11): RESET clears ALL progress, titles included: trophies, golds, best
+-- finishes, records, perfect cups, cup standings, titles, the final boss, the leaders, the counts, the last race and
+-- the cup in progress - everything except the garage picks (racer, abilities, tune-ups; Kestar Bool falls back to
+-- Shade, locked again) and the put-back records (what the game's assets still need back: never dropped). The save
+-- is copied to save.backup-reset-<date>.lua first. Returns the backup's name. (main.lua asks twice.)
+K.KEEP_ON_RESET = { 'version', 'racer', 'picks', 'mods', 'restores', 'abilityRestores', 'modRestores', 'aiRestores',
+  'racerRestore', 'titleRestore', 'gridRestore' }
 function K.reset()
   local name = ('save.backup-reset-%s.lua'):format(os.date('%Y%m%d-%H%M%S'))
   local b = io.open(C.DIR .. '/' .. name, 'w')
   if not b then log('reset: could not write the backup - nothing reset'); return nil end
   b:write('-- Galactic Grand Prix save\nreturn ', C.serialize(K.data), '\n')
   b:close()
-  K.data.best, K.data.run, K.data.cups = {}, nil, 0
-  K.data.records, K.data.perfect, K.data.standings = {}, {}, {}
-  K.data.rivals = {}
+  local was = K.data
+  local d = {}
+  for _, k in ipairs(K.KEEP_ON_RESET) do d[k] = was[k] end
+  K.data = fill(d)
+  -- Kestar Bool is locked again (the boss is cleared): racing as him falls back to the first racer (Shade)
+  local okR, RC = pcall(require, 'racer')
+  local fell = ''
+  if okR and K.data.racer and RC.locked and RC.locked(K.data.racer) then
+    fell = (' Racer %s is locked again: racing as %s.'):format(RC.displayName(K.data.racer), RC.list()[1].name)
+    K.data.racer = RC.list()[1].key
+  end
   K.save()
-  log('progress reset: trophies, best finishes, track records, perfect cups, cup standings, rivals and the cup in progress cleared (backup ' .. name .. ')')
+  log(('progress reset: everything cleared - trophies, golds, best finishes, records, perfect cups, standings, titles, '
+    .. 'the final boss, leaders, counts (%d races, %d cups) and the cup in progress; kept: racer, abilities, tune-ups.%s (backup %s)'):format(
+    tonumber(was.races) or 0, tonumber(was.cups) or 0, fell, name))
   return name
+end
+
+-- v0.21: an old save's changes, once, logged. The rival per class is gone (`rivals` dropped); a 150cc title won
+-- before v0.21 was won against Kestar Bool in the Showdown (the old title race), so he counts as beaten (the final
+-- boss) and stays unlocked. Returns true when something changed.
+function K.migrate21(d)
+  local changed = false
+  if d.rivals ~= nil then
+    local names = {}
+    if type(d.rivals) == 'table' then
+      local keys = {}
+      for k in pairs(d.rivals) do keys[#keys + 1] = k end
+      table.sort(keys)
+      for _, k in ipairs(keys) do
+        local e = d.rivals[k]
+        names[#names + 1] = k .. '=' .. tostring(type(e) == 'table' and e.name or '-')
+      end
+    end
+    log('[save] the rivals are dropped (v0.21: no rival any more): ' .. (#names > 0 and table.concat(names, ', ') or 'none'))
+    d.rivals = nil
+    changed = true
+  end
+  local bc = (cfg.Boss or {}).Class or '150'
+  local t = type(d.titles) == 'table' and d.titles[bc]
+  if d.boss == nil and type(t) == 'table' and t.won and (t.vs == nil or t.vs == ((cfg.Boss or {}).Opponent or 'Kestar Bool')) then
+    d.boss = { beaten = true, tries = 0, at = t.at, migrated = true }
+    log(('[save] the %scc title was won against Kestar Bool before v0.21: he counts as beaten (the final boss), still unlocked'):format(bc))
+    changed = true
+  end
+  if changed then K.save() end
+  return changed
 end
 -- the next race of the cup in progress, as a launchable event
 function K.nextRace()
@@ -497,9 +546,14 @@ function K.record(ev, pos, field, extra)
   local run = K.data.run
   -- (v0.15: outside a cup - the title race - the racer's vehicle; racer.lua requires gp, so it's loaded here lazily)
   local okV, veh = pcall(function() return run and run.vehicle or require('racer').vehicle().key end)
-  updateRecord(ev, out, extra, okV and veh or nil)
-  -- v0.8: a title race (1 v 1 against the class champion) is never part of a cup
   if ev.titleRace then
+    -- v0.21: a title race runs a cup's track with two cars: its time is shown, but it is no cup record
+    out.time, out.lap = extra.time, extra.lap
+  else
+    updateRecord(ev, out, extra, okV and veh or nil)
+  end
+  -- v0.8: a title race (v0.21: 1 v 1 against the class leader) and the final boss are never part of a cup
+  if ev.titleRace or ev.boss then
     local okT, res = pcall(function() return require('title').record(ev, pos) end)
     if okT then for k, v in pairs(res) do out[k] = v end else log('title race not recorded: ' .. tostring(res)) end
     K.save()
@@ -509,16 +563,6 @@ function K.record(ev, pos, field, extra)
     out.rows = CU.addRace(run, field, cfg.Points)
     log(('cup %s race %d: %s'):format(run.cup, run.race - 1, names(out.rows)))
     out.run = run
-    -- v0.13: the class's rival tally (rival.lua); out.rival = the rival after this race (nil: none yet)
-    local okR, name, what, old = pcall(RV.update, K.data, run)
-    if okR then
-      out.rival = name
-      local c = K.class(run.class)
-      if what == 'new' then log(('[rival] %s: %s is your rival'):format(c and c.name or run.class, name))
-      elseif what == 'first' then log(('[rival] %s: %s is your rival (finished nearest you in race %d of %s)'):format(
-        c and c.name or run.class, name, run.race - 1, run.cup))
-      elseif what == 'switch' then log(('[rival] %s: %s is your rival now (was %s)'):format(c and c.name or run.class, name, old)) end
-    else log('rival not worked out: ' .. tostring(name)) end
     if CU.finished(run) then
       local before = PR.openSet(K.data)
       local rank, pts = CU.yourRank(run)
@@ -532,6 +576,14 @@ function K.record(ev, pos, field, extra)
       for k, p in pairs(run.points) do final[k] = p end
       K.data.standings[run.class] = K.data.standings[run.class] or {}
       K.data.standings[run.class][run.cup] = final
+      -- v0.21: the class leader for the title race - the best-placed bot of this cup (title.lua)
+      local lead
+      for _, r in ipairs(CU.standings(run)) do if r.key ~= CU.YOU then lead = r.key; break end end
+      if lead then
+        K.data.leader[run.class] = { name = lead, cup = run.cup }
+        local c = K.class(run.class)
+        log(('[title] %s leader: %s (best bot of the %s) - the title race opponent'):format(c and c.name or run.class, lead, run.cup))
+      end
       out.perfect = CU.perfect(run)
       if out.perfect then
         K.data.perfect[run.class] = K.data.perfect[run.class] or {}

@@ -84,17 +84,17 @@ T.clickTitle('JAKKU CUP')
 -- race 1: Biddy Blas 1st, you 2nd (12 v 15), 0.4 s off the record with a better lap
 local tx = race(2, { 1, 2 }, 120.4, 58.5)
 T.check(T.titles() == 'NEXT RACE', 'race 1: the standings')
-T.check(has(tx, '3 POINTS BEHIND YOUR RIVAL BIDDY BLAS, 3 RACES LEFT'), 'race 1: the stakes line (' .. tostring(find(tx, 'BEHIND') or find(tx, 'LEADING')) .. ')')
+T.check(has(tx, '3 POINTS BEHIND BIDDY BLAS, 3 RACES LEFT'), 'race 1: the stakes line (' .. tostring(find(tx, 'BEHIND') or find(tx, 'LEADING')) .. ')')
 T.check(has(tx, '0.4 S OFF YOUR RECORD   -   NEW BEST LAP  0:58.50'), 'race 1: the near miss and the best lap on one line (' .. tostring(find(tx, 'RECORD')) .. ')')
 T.clickTitle('NEXT RACE')
 -- race 2: you 1st, Biddy Blas 2nd (27 each, you ahead on the latest race); a new record
 tx = race(1, { 1, 2 }, 118.0)
-T.check(has(tx, 'LEVEL ON POINTS WITH YOUR RIVAL BIDDY BLAS, 2 RACES LEFT'), 'race 2: level on points (' .. tostring(find(tx, 'LEVEL') or find(tx, 'BEHIND') or find(tx, 'LEADING')) .. ')')
+T.check(has(tx, 'LEVEL ON POINTS WITH BIDDY BLAS, 2 RACES LEFT'), 'race 2: level on points (' .. tostring(find(tx, 'LEVEL') or find(tx, 'BEHIND') or find(tx, 'LEADING')) .. ')')
 T.check(find(tx, 'NEW RECORD  1:58.00   (was 2:00.00)') ~= nil and find(tx, 'OFF YOUR RECORD') == nil, 'race 2: NEW RECORD, and not "off your record"')
 T.clickTitle('NEXT RACE')
 -- race 3: Biddy Blas 1st, you 2nd (39 v 42), no record yet on this track: a new record, no near miss
 tx = race(2, { 1, 2 }, 130.0)
-T.check(has(tx, '3 POINTS BEHIND YOUR RIVAL BIDDY BLAS, 1 RACE LEFT'), 'race 3: behind before the last race (' .. tostring(find(tx, 'BEHIND') or find(tx, 'LEADING')) .. ')')
+T.check(has(tx, '3 POINTS BEHIND BIDDY BLAS, 1 RACE LEFT'), 'race 3: behind before the last race (' .. tostring(find(tx, 'BEHIND') or find(tx, 'LEADING')) .. ')')
 T.check(find(tx, 'NEW RECORD  2:10.00') ~= nil and find(tx, 'OFF YOUR RECORD') == nil, 'race 3: the first time on a track is a record, no near miss')
 T.clickTitle('NEXT RACE')
 -- race 4: Kestar Bool 1st, you 2nd, Biddy Blas 3rd: Biddy 52, you 51 -> silver, 1 point from gold; 5 s off the record
