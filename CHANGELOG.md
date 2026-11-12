@@ -1,6 +1,30 @@
 # Changelog
 
-## Unreleased
+## v0.22.0 (2026-11-11): the quiet pass - dark text, stray text cut, the tab in ~1 s, old code to attic/
+TASKS.md "Round 3: the UI" item 1 (owner: "clean up the UI more, there's plenty of stray text"). Tested against the
+fake game, **not yet seen in game**.
+- **Dark grey text** on the pages without a picture behind them (HOME, the cups page, the garage, the questions; owner:
+  the gold and white text is too light on the menu's pale art). The standings, cup result and title result keep their
+  picture and light text. Config `DarkText = false` brings the light colours back.
+- **Stray text cut:**
+  - HOME: no "GALACTIC GRAND PRIX" title (the tab says it), no info line on open classes, GARAGE or RESET, no
+    "Asks twice".
+  - Cups page: the title is the class alone ("100CC"); no medal words on tiles ("BRONZE TROPHY": the medal icon says
+    it), no planet badge ("JAKKU", "4 PLANETS"), no "Not raced yet" / "Best: 4th" (a tile shows its conditions, and
+    "Perfect cup"); the focused cup's info is its four tracks with your record time (no best line, conditions,
+    planet, kind, laps or best lap).
+  - Garage: no "Select: next" on tiles, no "Select: next racer." or "Levels up with the class" in the info, a
+    shorter empty tune-up line.
+  - Standings: no "STANDINGS" title; your line is "2nd   -   1:40.40   -   0.4 s behind Biddy Blas" (no "You:", no
+    best lap - a new best lap is still a note).
+  - Cup result: no "CUP RESULT" title, no "Last race" line, no "Next:" goal line (owner: no goal lines); its record /
+    near-miss notes and what it UNLOCKED stay.
+  - Title result: no title, one line under the headline at most.
+  - The questions: no "CONFIRM" title.
+- **The GRAND PRIX tab shows ~1 s after the main menu** (owner: it took ~3 s): the menu settles on time (config
+  `TabSettleS`, 1 s; was 3 looks a second apart), the menu is looked at every poll (200 ms) while it settles, and
+  the boot opens our page 0.3 s after the tab is in (was 1 s).
+
 Unused code out (owner: "take out the unused code and save it somewhere as old code"). Kept in the new `attic/`
 folder, which is not loaded, deployed or tested; see attic/README.md. No change in what you see in game.
 - **Study mode is gone** (v0.16, the AI study driver): studymode.lua, its wiring in main.lua (`ST.poll`, `studyEnv`,

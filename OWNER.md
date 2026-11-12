@@ -12,6 +12,8 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - [ ] **Ideas from your Google Doc** (realism mode, a podracer cup): send the details when you want them on the list.
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.22, the quiet pass:** is the dark grey text easy to read on HOME, the cups page and the garage? Anything
+  cut you miss, or anything left you'd cut? Does the GRAND PRIX tab now show about 1 s after the menu?
 - [ ] **v0.21 (not installed yet):** the title race is now a 1 v 1 against the class leader on a normal track (the
   tile says "vs <name>"); Kestar Bool is a final boss tile on the 150cc page after the 150cc title; RESET asks twice
   and clears titles too; no grey panel behind HOME / cups / garage (does the text still read? `PageBackdrop = true`

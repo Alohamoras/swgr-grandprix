@@ -231,19 +231,19 @@ Owner checks any time: the pad's B on the boot page; the racer looks (autotest/s
 ## Round 3: the UI (owner 2026-11-11 late: "clean up the UI more ... the menus are all very similar looking boxes";
 plan: docs/review-2026-11-11.md §2)
 Each step is its own version, checked in game (owner away) before the next.
-1. **v0.22: the quiet pass** (text only, no new layout).
-   - [ ] Dark grey text on the pages without a backdrop (HOME, cups, garage, the questions): the gold and white lines
+1. **v0.22: the quiet pass** (text only, no new layout). **Built as v0.22.0 (2026-11-11), not yet seen in game.**
+   - [x] Dark grey text on the pages without a backdrop (HOME, cups, garage, the questions): the gold and white lines
          are too light on the menu's pale art (owner). The standings / results pages keep light text on their picture.
-   - [ ] Cut the stray text (review table A): HOME's title and parts line, "Asks twice"; the cups page's "- CUPS",
+   - [x] Cut the stray text (review table A): HOME's title and parts line, "Asks twice"; the cups page's "- CUPS",
          "Best:", medal words on tiles, "4 PLANETS", planet and laps in the race list (track names on one line);
          the garage's "Select: next racer." and the other how-to sentences; the standings' "STANDINGS" title and
          "You: ..." line; the cup result's "Last race" line; the title result's second sentences.
-   - [ ] **The GRAND PRIX tab takes ~3 s to show after the menu loads** (owner). Cause: tab.lua waits for the menu
+   - [x] **The GRAND PRIX tab takes ~3 s to show after the menu loads** (owner). Cause: tab.lua waits for the menu
          to be seen 3 times in a row (SETTLE = 3, one look a second), a guard from the v0.9.0 crash that was most
          likely the CampaignLogger mod (since removed). Log 21:00:33 menu seen -> 21:00:35 tab added -> 21:00:39 page
          up. Fix: look every 200 ms while a new menu settles, settle on ~1 s of time, open our page as soon as the tab
          is in. Check for crashes over several boots and race returns.
-   - [ ] Old code to attic/ (study mode, the chain reset route; owner: "take it out and save it somewhere as old code").
+   - [x] Old code to attic/ (study mode, the chain reset route; owner: "take it out and save it somewhere as old code").
 2. **v0.23: a layout per screen, the cups page first.**
    - [ ] ui.lua: rows of tiles, each row its own tile size (in place of the one uniform grid), the page centred.
          Check the pad / D-pad moves between rows of different sizes.

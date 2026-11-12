@@ -17,7 +17,7 @@
 -- results screen (B there: leave the cup).
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.21.0'
+local VERSION = '0.22.0'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -859,7 +859,7 @@ TB.onFail = function() S.ui = nil end
 -- (TB.ready: after "[tab] GRAND PRIX tab added"), for nothing left to put back (parts, abilities, tune-ups, AI config,
 -- racer, title: R.pendingRestore) and no cup (dropped at load, K.drop 'at boot'), then BOOT_DELAY_MS more.
 -- Flags only, apart from TB.ready's check of the menu (only while waiting, a few seconds at boot).
-local BOOT_DELAY_MS = 1000
+local BOOT_DELAY_MS = 300 -- (v0.22: was 1000; the tab now settles on time, ~1 s)
 boot = { done = cfg.BootToGrandPrix == false, waitMs = 0, checkMs = nil }
 if boot.done then log('[boot] BootToGrandPrix is off: the game\'s own main menu') end
 bootPoll = function(dt)
@@ -902,7 +902,7 @@ do
     end
     ticks = ticks + 1
     if tabMode() then
-      if ticks % 5 == 1 then
+      if ticks % 5 == 1 or TB.settling then
         local ok, err = pcall(TB.discover)
         if not ok then log('[tab] discover error: ' .. tostring(err)) end
       end

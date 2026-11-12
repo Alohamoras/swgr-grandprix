@@ -66,9 +66,13 @@ if scenario == 'main' then
   check(T.logHas('[cup] lantaana 100cc dropped at boot (race 2 of 4)') and T.save().run == nil, 'the old cup dropped at load')
   check(not T.logHas('[boot] opening'), 'nothing opened before the main menu')
   menu()
-  M.tick(10)
+  M.tick(3)
   check(not T.logHas('[boot] opening'), 'not opened while the menu settles (before the tab is added)')
-  M.tick(14)
+  -- v0.22 (owner: the tab took ~3 s): the tab is in within ~1.4 s of polls (200 ms each) after the menu shows
+  local polls = 3
+  while not T.logHas('[tab] GRAND PRIX tab added') and polls < 40 do M.tick(1); polls = polls + 1 end
+  check(polls <= 7, ('v0.22: the tab added %d polls (~%.1f s) after the menu showed'):format(polls, polls * 0.2))
+  M.tick(24 - polls)
   check(count(OPEN) == 1, 'opened once at the first menu')
   local iTab, iOpen, iDrop, iAi = at('[tab] GRAND PRIX tab added'), at(OPEN), at('dropped at boot'), at('[ai] AI config put back')
   check(iTab and iOpen and iTab < iOpen, 'opened after "GRAND PRIX tab added"')

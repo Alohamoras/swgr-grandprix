@@ -48,6 +48,10 @@ return {
     -- transparent); true = the v0.20 panel. The standings, the cup result and the title result keep their own picture
     -- backdrop either way (their tables and big lines sit over the menu's busy art). Logged once as [menu] page backdrop.
     PageBackdrop = false,
+    -- v0.22: dark grey text on the pages without a picture behind them (the menu's art is pale); false = light text
+    DarkText = true,
+    -- v0.22: seconds the main menu must be on screen before the tab is added (was ~3 s, a v0.9.0 crash guard)
+    TabSettleS = 1.0,
 
     -- v0.19 (TASKS.md "Next" 2, DESIGN.md §15): cups without the main menu. After a cup race (not the last), the
     -- standings are drawn over the game's own results screen (opaque, the game's table hidden under it) with a NEXT

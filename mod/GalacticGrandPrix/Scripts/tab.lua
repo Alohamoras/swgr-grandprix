@@ -203,10 +203,13 @@ end
 
 -- about once a second at the front end (never mid-race: it sweeps every widget of the class)
 local openFails, regFails = 0, 0
--- A menu is only touched once it has been on screen and active for SETTLE passes in a row (~3 s): v0.9.0 crashed
--- the game seconds after the menu first appeared (cause not yet known: our tab code or the CampaignLogger mod).
-local SETTLE = 3
-local seen = {}
+-- A menu is only touched once it has been on screen and active for a while: v0.9.0 crashed the game seconds after
+-- the menu first appeared (most likely the CampaignLogger mod, long gone). Until v0.21 that was 3 looks a second
+-- apart (~3 s, owner: "the GRAND PRIX tab takes ~3 s to show"); v0.22: SETTLE_S of time (config TabSettleS), and
+-- main.lua looks every poll (200 ms) while a menu is settling (T.settling); time = T.ms, the menu poll's own ms, so the tab is in ~1 s after the menu.
+local SETTLE_S = tonumber(cfg.TabSettleS) or 1.0
+local seenAt = {}
+T.settling = false
 function T.discover()
   if T.failed then return end
   local now = {}
@@ -214,21 +217,25 @@ function T.discover()
   for _, mm in ipairs(menus) do
     local key = C.addr(mm)
     if key and not T.screens[key] and inView(mm) and isActive(mm) then
-      now[key] = (seen[key] or 0) + 1
+      now[key] = seenAt[key] or T.ms
     end
   end
-  seen = now
+  seenAt = now
+  T.settling = false
   for _, mm in ipairs(menus) do
     local key = C.addr(mm)
-    if key and (seen[key] or 0) == 1 then step('main menu ' .. idname(mm) .. ' on screen - waiting for it to settle') end
-    if key and not T.screens[key] and (seen[key] or 0) >= SETTLE then
-      local sc, why = open(mm)
-      if sc then T.screens[key] = sc; openFails = 0
-      else
-        openFails = openFails + 1
-        once('open:' .. why, '[tab] main menu not usable yet: ' .. why)
-        if openFails >= 8 then fail(why); return end
-      end
+    local at = key and seenAt[key]
+    if at and at == T.ms and not T.screens[key] then step('main menu ' .. idname(mm) .. ' on screen - waiting for it to settle') end
+    if at and not T.screens[key] then
+      if T.ms - at >= SETTLE_S * 1000 then
+        local sc, why = open(mm)
+        if sc then T.screens[key] = sc; openFails = 0
+        else
+          openFails = openFails + 1
+          once('open:' .. why, '[tab] main menu not usable yet: ' .. why)
+          if openFails >= 8 then fail(why); return end
+        end
+      else T.settling = true end
     end
   end
   for key, sc in pairs(T.screens) do
@@ -237,6 +244,7 @@ function T.discover()
     elseif not (sc.registered and alive(sc.tabBtn)) then
       local ok, why, wait = register(sc)
       sc.registered = ok
+      if not ok then T.settling = true end
       if ok then regFails = 0
       elseif wait then
         -- the menu is still building its tabs (game start, sign-in checks): not a failure
