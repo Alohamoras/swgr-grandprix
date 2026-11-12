@@ -260,6 +260,21 @@ Each step is its own version, checked in game (owner away) before the next.
          look at each in game (some decode badly in our previews).
 4. **Later: progress badges** (round 2 item 2) from the game's insignias, a column on the right of HOME.
 
+## Spike: better AI drivers (owner 2026-11-12: "is the AI just at its limit for driving skill? ... worth a deeper dive?")
+Report: docs/ai-driving-research-2026-11-12.md. Three areas never tried:
+1. **The driving styles** (`URaceAIDrivingStyleDef`, per vehicle: Car / Bike / Skimmer): boost rules
+   (`MinTimeBetweenBoosts`, `MinEnergyForAfterburner`, `BoostTopSpeedThresholdRatio`, `MaxDegreesOffHeadingForBoost`,
+   `MinRacePacingFactorForBoost`), look-ahead / aim points / corner extrapolation, avoidance.
+2. **A constant performance tune** for the bots, the same kind catch-up applies (`CatchupTuneSet`), but not tied to
+   position: a faster field, not a rubber band.
+3. **The bots' own builds / power level** with the rubber band off (the "AI parts don't matter" finding was made
+   with it on).
+- [ ] Desk research (header dump, asset list, earlier recon): the candidate settings, where they live, readable from Lua?
+- [ ] Recon mod: read and log every candidate value; then change one at a time.
+- [ ] Held races (your car on the line, hold.txt): bots' finish times per change against a baseline, ~15-20 races,
+      owner away. Count crashes too (faster on paper can mean more crashes).
+- [ ] Report and a proposal for the AI profiles.
+
 ## Discussions (owner 2026-11-11 late; no decision yet, talk before building)
 - **Harder opponents, realistic** (owner, 2026-11-11: "i want it to feel realistic, not like we're racing AI bots,
   but right now i'm winning more than i think i should be on most modes"). At 150 / 200cc the bots already run with
