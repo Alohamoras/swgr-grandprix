@@ -4,9 +4,6 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
-- [ ] **Tell me when you're away from the desktop** so I can check v0.20.0 in game before you play it (it changes the
-  tiles, HOME, the cup result screen and the standings; built and tested, not yet seen). Until then v0.19.1 stays
-  installed.
 - [ ] **Kestar and the title race.** Should the title race become a 1 v 1 against your rival (or the class leader) on a
   normal track? This is proven to work (TASKS B6). Kestar Bool would then stay as the final boss in the stadium, for
   example at 150cc only, or after every class. Or should Kestar stay the opponent in every title race?
@@ -21,7 +18,12 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - [ ] **Ideas from your Google Doc** (realism mode, a podracer cup): send the details when you want them on the list.
 
 ## Playtests (only a real race can tell)
-- [ ] **v0.20 menus** (after Claude's check): the rival marked in light blue on the standings, the new cup result
+- [ ] **Your campaign save** (Claude's slip, 2026-11-11 19:10): a stray Return opened the campaign hub (Act I, Ando
+  Prime); Claude exited at once via the pause menu (nothing played). The game autosaves when the hub loads, so your
+  campaign should be exactly where it was. Glance at it next time you open the campaign.
+- [ ] **Gold and bronze medal icons on the cup tiles still look alike** (the v0.20 tint didn't show). Tell me if it
+  bothers you; the cup result screen's medal is gold correctly.
+- [ ] **v0.20 menus** (v0.20.1 installed, checked by Claude in game 2026-11-11): the rival marked in light blue on the standings, the new cup result
   screen (big medal, top 3, what's next), the "Next:" line on HOME, tile labels readable when selected, and the game's
   footer (with "Restart Campaign") gone from our pages. If tiles look odd: `TileLabelStrip = false` in config.lua.
 - [ ] **A cup at 100cc and a cup at 150cc on v0.18.1** (the new AI: no catch-up anywhere). Does a clean race win by a
@@ -40,5 +42,7 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - [ ] **v1.0 pass:** every cup at every class, once the above feel right.
 
 ## Done (moved here when answered)
+- 2026-11-11 evening: v0.20 checked in game (footer gone, label strips, rival in light blue, cup result screen,
+  CONTINUE to the next cup, HOME "Next:" line).
 - 2026-11-11: run AI batches with the autopilot (done: docs/ai-study-2026-11-11.md); boot into the Grand Prix
   (v0.17); cups without the menu (v0.19.1); the next four tasks (TASKS "Next").
