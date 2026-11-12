@@ -1,5 +1,17 @@
 # Better AI drivers: desk research (2026-11-12)
 
+## Status and how to pick this up
+- **Done:** desk research (this file). Committed 0e44448. TASKS.md "Spike: better AI drivers" tracks the steps.
+- **Next:** step 1 of the plan at the bottom (a read-only recon mod, one launch) - **only when the owner says
+  they're away**; back up the save first (md5), restore after, autopilot armed only for the held races.
+- **Tools ready:** TestAutopilot v1.5 `Mods/TestAutopilot/hold.txt` (your car waits on the line; delete the file and
+  the Autopilot takes over); `/home/duane/.claude/jobs/5491948d/tmp/step.sh`, `apwait.sh`, `chainrace.sh`,
+  `titlerun.sh` (job scratch: copy what's needed into tools/ if that folder is gone).
+- **Context the owner gave:** wants the AI harder and "realistic, not like we're racing AI bots"; no rubber band.
+  Related open discussions in TASKS: "Harder opponents, realistic", "Three classes or four", the weak Kestar boss.
+- **What we already know (2026-11-11 night, autopilot):** a lone bot doesn't wait when it leads; a bot's pace swings
+  ~10 s race to race in a 1 v 1; your car one parts level slower costs ~1 s and the bot got slower too.
+
 TASKS "Spike: better AI drivers". The owner: "it's strange that the catch-up factor can make opponents faster, but we
 don't have any other levers to just make them better drivers; perhaps the AI is at its limit for driving skill?"
 
