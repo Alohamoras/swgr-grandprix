@@ -269,7 +269,7 @@ Report: docs/ai-driving-research-2026-11-12.md. Three areas never tried:
    position: a faster field, not a rubber band.
 3. **The bots' own builds / power level** with the rubber band off (the "AI parts don't matter" finding was made
    with it on).
-- [ ] Desk research (header dump, asset list, earlier recon): the candidate settings, where they live, readable from Lua?
+- [x] Desk research (2026-11-12): docs/ai-driving-research-2026-11-12.md. Most promising: the bots' power level (the game's own difficulty lever), then a constant tune-set boost, then the driving styles' boost rules.
 - [ ] Recon mod: read and log every candidate value; then change one at a time.
 - [ ] Held races (your car on the line, hold.txt): bots' finish times per change against a baseline, ~15-20 races,
       owner away. Count crashes too (faster on paper can mean more crashes).
