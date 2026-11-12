@@ -260,6 +260,23 @@ Each step is its own version, checked in game (owner away) before the next.
          look at each in game (some decode badly in our previews).
 4. **Later: progress badges** (round 2 item 2) from the game's insignias, a column on the right of HOME.
 
+## Random cups (owner 2026-11-12: "more realistic ... simulate a real cup"; not built)
+Decided: **each cup = 4 tracks drawn at random from that planet's pool, each with a random variant** (direction /
+conditions: reverse, night, wet, snow, mines, scorching, storm...). The same at every class (no leaning by class).
+Full pool: docs/tracks-by-planet.md.
+- [ ] Pool per planet in config (every base track and its race variants; no eliminators, knockouts, 1 v 1s or
+      story / special events). Never the same base track twice in one cup.
+- [ ] The draw happens when you pick the cup, is saved with the cup (survives the trips through the main menu), and
+      the start screen shows the four races and their conditions (so the tune-up choice is made on what you got).
+- [ ] Galactic Cup: four random tracks from four different planets (the finale).
+- [ ] Title race: its track (the first race of the leader's cup) needs a rule once cups aren't fixed - e.g. a random
+      track of the leader's planet.
+- [ ] Records stay per exact event (unchanged); a gold now means "won a Jakku Cup" at that class. Update
+      PHILOSOPHY.md "Cups" (it says a cup is fixed per class) and DESIGN.md §3.
+- [ ] Old saves: an unfinished cup is dropped at boot anyway (cups are not resumable); medals and records kept.
+- Ideas kept for later (owner: not now): **leaning by class** (50cc mostly normal forward layouts, 100cc reverse
+  common, 150 / 200cc conditions likely); an occasional **Grand Tour** cup with every track of a planet.
+
 ## Spike: better AI drivers (owner 2026-11-12: "is the AI just at its limit for driving skill? ... worth a deeper dive?")
 Report: docs/ai-driving-research-2026-11-12.md. Three areas never tried:
 1. **The driving styles** (`URaceAIDrivingStyleDef`, per vehicle: Car / Bike / Skimmer): boost rules

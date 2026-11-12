@@ -44,6 +44,8 @@ Never more than two menus deep; no words you don't need; never scroll; simple, l
 - The Galactic Cup stays as the finale: a trophy in the five planet cups opens it, and a trophy in it opens the
   title race. The Outer Rim Cup goes; its tracks move into the planet lists.
 - The cups page holds the five planets, GALACTIC CUP and TITLE RACE (and Kestar Bool at 150cc once the title is won).
+- **Changing (owner, 2026-11-12, TASKS "Random cups"): each cup becomes 4 tracks drawn from the planet, random
+  variants, the same at every class.** The rules below describe today's fixed cups.
 - Open question (owner, 2026-11-11): one fixed list per class is distinct, but you may want to race every track at
   any class; a cup of every track on a planet would be long. Not settled (TASKS "Discussions").
 
