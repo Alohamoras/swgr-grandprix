@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.27.2 (2026-11-12): Challenger open from the start
+The owner: "for now Riff-Raff and the middle league should be unlocked by default, only the top league should be
+gated". Config `Leagues`: Challenger `open = true`. Ace still opens with a trophy in all five Challenger planet cups;
+the Galactic Cup and the title race keep their locks in every league. (`open = nil` on Challenger brings the
+Riff-Raff -> Challenger gate back; test_prog still tests that rule.)
+
 ## v0.27.1 (2026-11-12): the finish times stay up
 The owner (playing v0.26): "at the end of the race, it skips over the finish times screen, I see it for just a split
 second". Cause: after a cup race that isn't the last, our standings panel went over the game's results screen the

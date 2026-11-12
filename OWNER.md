@@ -25,6 +25,7 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
     tagline show under the name ("Outer Rim junkers and scrapyard hopefuls" / "Tuned rigs and pilots out to make a
     name" / "The fastest pilots in the galaxy"), and do they suit? Open a league: is the brief under its name
     ("Tuned engines - two abilities - one tune-up") readable? Wording lives in config.lua `Leagues`.
+  - v0.27.2: Riff-Raff and Challenger open on a fresh save; only Ace is locked (5 Challenger trophies).
   - v0.27.1: after races 1-3 of a cup the game's finish times stay up for 6 s, then the standings. Long enough? (config
     `ChainRaces.Panel.TimesS`)
   - v0.27 Riff-Raff: afterburner, ramjet and battery parts at 2. Does it feel livelier, and does the field keep up

@@ -10,6 +10,10 @@ local function d(best, run) return { best = best or {}, run = run } end
 local five = function(v) return { jakku = v, lantaana = v, ando = v, crait = v, sentinel = v } end
 
 local new = d()
+check(P.classOpen(new, 'riffraff') and P.classOpen(new, 'challenger') and not P.classOpen(new, 'ace'),
+  'v0.27.2 (owner): a new save: Riff-Raff and Challenger open, Ace gated')
+-- the rule itself below, with Challenger gated as before v0.27.2 (config open = nil)
+cfg.Leagues[2].open = nil
 check(P.classOpen(new, 'riffraff'), 'a new save: Riff-Raff open')
 local ok, why, short = P.classOpen(new, 'challenger')
 check(not ok and why == 'A trophy in all 5 planet cups at RIFF-RAFF (0 / 5)', 'Challenger locked, says what opens it (' .. tostring(why) .. ')')

@@ -1,7 +1,7 @@
 -- Galactic Grand Prix: progression - which leagues and cups are open (DESIGN.md §8, v0.5). Pure logic, worked out
 -- from the saved best finishes every time (nothing extra saved), so trophies won before v0.5 count and RESET
 -- PROGRESS locks everything again.
---   Leagues (v0.26): those with `open = true` are open from the start (Riff-Raff - owner, 2026-11-12). Each other league
+--   Leagues (v0.26): those with `open = true` are open from the start (Riff-Raff - owner, 2026-11-12; v0.27.2 Challenger too, owner: only the top league gated). Each other league
 --     opens with a trophy (or gold: Progression.Unlock) in every planet cup of the league before it (Challenger from
 --     Riff-Raff, Ace from Challenger).
 --   The Galactic Cup (`final = true`, v0.11): a trophy (or gold: Unlock) in every planet cup at that class.

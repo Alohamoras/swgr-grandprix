@@ -15,8 +15,8 @@ T.boot({ version = 3, races = 30, cups = 4, class = 'riffraff',
 local NCUPS = #dofile(T.dir .. '/Scripts/config.lua').Cups
 T.check(T.logHas('[cup] sentinel RIFF-RAFF dropped at boot (race 4 of 4): cups cannot be resumed') and T.save().run == nil, 'the cup in the save dropped at boot')
 M.press('F6'); M.tick(6)
-T.check(T.locks() == '|LOCKED|LOCKED||' and T.pips('RIFF-RAFF') == 'GGGG--.', 'home: Challenger and Ace locked; Riff-Raff: four golds as pips (' .. T.marks() .. ')')
-T.clickTitle('CHALLENGER'); M.tick(3)
+T.check(T.locks() == '||LOCKED||' and T.pips('RIFF-RAFF') == 'GGGG--.', 'home: Ace locked (v0.27.2: Challenger open from the start); Riff-Raff: four golds as pips (' .. T.marks() .. ')')
+T.clickTitle('ACE'); M.tick(3)
 T.check(T.titles():find('RIFF-RAFF|CHALLENGER', 1, true) == 1, 'a locked league can\'t be entered')
 T.clickTitle('RIFF-RAFF'); M.tick(3)
 local b = T.badges()
@@ -49,7 +49,7 @@ local function cup()
   end
 end
 cup()
-T.check(T.logHas('unlocked: CHALLENGER, GALACTIC CUP at RIFF-RAFF'), 'the fifth gold unlocks Challenger and the Riff-Raff Galactic Cup')
+T.check(T.logHas('unlocked: GALACTIC CUP at RIFF-RAFF'), 'the fifth gold unlocks the Riff-Raff Galactic Cup (v0.27.2: Challenger was open already)')
 T.check(T.save().best.riffraff.sentinel == 1, 'Sentinel gold saved')
 T.clickTitle('CONTINUE'); M.tick(3)
 b = T.badges()

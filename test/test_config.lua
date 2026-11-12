@@ -25,7 +25,7 @@ check(cfg.Leagues[1].speed == nil and cfg.Leagues[3].speed == nil, 'v0.27: no sp
 for _, c in ipairs(cfg.Leagues) do
   check(type(c.tagline) == 'string' and #c.tagline <= 48 and type(c.brief) == 'string' and c.brief ~= '', c.key .. ': a tagline (poster) and a brief (cups page)')
 end
-check(cfg.Leagues[1].open == true and not cfg.Leagues[2].open and not cfg.Leagues[3].open, 'only Riff-Raff is open from the start')
+check(cfg.Leagues[1].open == true and cfg.Leagues[2].open == true and not cfg.Leagues[3].open, 'v0.27.2: Riff-Raff and Challenger open from the start, only Ace gated')
 check(K.leagueName('ace') == 'ACE' and K.leagueName('nope') == 'nope', 'leagueName: the name, or the key itself')
 local function same(a, b)
   if type(a) ~= 'table' or type(b) ~= 'table' then return a == b end

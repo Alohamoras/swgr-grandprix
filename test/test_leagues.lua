@@ -99,16 +99,19 @@ T.boot({ version = 3, restores = {}, abilityRestores = {} })
 K = require('gp')
 H = rawget(_G, 'GU_TEST_SCREENS')
 M.press('F6'); M.tick(6)
-T.check(T.locks() == '|LOCKED|LOCKED||', 'a new save: Riff-Raff open, Challenger and Ace locked (' .. T.marks() .. ')')
+T.check(T.locks() == '||LOCKED||', 'v0.27.2 (owner): a new save: Riff-Raff and Challenger open, Ace locked (' .. T.marks() .. ')')
 local items = H.SCREENS.home().items
-T.check(items[2].desc == 'To open: 5 trophies at RIFF-RAFF' and items[3].desc == 'To open: 5 trophies at CHALLENGER',
-  'the locks say what opens them: Challenger from Riff-Raff, Ace from Challenger (' .. tostring(items[2].desc) .. ' / ' .. tostring(items[3].desc) .. ')')
-T.check(items[2].info:find('A trophy in all 5 planet cups at RIFF-RAFF (0 / 5)', 1, true) ~= nil, 'the full why in the info line')
+T.check(items[2].desc == 'Tuned rigs and pilots out to make a name' and items[3].desc == 'To open: 5 trophies at CHALLENGER',
+  'Challenger shows its tagline; the Ace lock says what opens it (' .. tostring(items[2].desc) .. ' / ' .. tostring(items[3].desc) .. ')')
+T.check(items[3].info:find('A trophy in all 5 planet cups at CHALLENGER (0 / 5)', 1, true) ~= nil, 'the full why in the info line')
 T.clickTitle('ACE'); M.tick(3)
 T.check(H.S.screen == 'home', 'a locked league can\'t be entered')
+T.clickTitle('CHALLENGER'); M.tick(3)
+T.check(H.S.screen == 'cups', 'Challenger entered on a new save')
+M.press('BACKSPACE'); M.tick(3)
 K.data.best = { riffraff = { jakku = 3, lantaana = 3, ando = 2, crait = 1, sentinel = 3 } }
 M.press('F6'); M.tick(3); M.press('F6'); M.tick(6)
-T.check(T.locks() == '||LOCKED||', 'five Riff-Raff trophies: Challenger open, Ace still locked (' .. T.marks() .. ')')
+T.check(T.locks() == '||LOCKED||', 'five Riff-Raff trophies: Ace still locked (only Challenger trophies open it) (' .. T.marks() .. ')')
 K.data.best.challenger = { jakku = 1, lantaana = 1, ando = 1, crait = 1 }
 M.press('F6'); M.tick(3); M.press('F6'); M.tick(6)
 T.check(T.locks() == '||LOCKED||', 'four Challenger trophies: Ace still locked')

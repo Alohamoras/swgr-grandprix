@@ -97,7 +97,7 @@ return {
     GcStep = true,
     GcStepKB = 64,
 
-    -- Progression (v0.5, v0.11, v0.26; DESIGN.md §8). Leagues with open = true are open from the start (Riff-Raff);
+    -- Progression (v0.5, v0.11, v0.26; DESIGN.md §8). Leagues with open = true are open from the start (Riff-Raff; v0.27.2 Challenger too - owner: only the top league gated);
     -- each other league opens with a trophy in every planet cup of the league before it (Unlock = 'gold': gold in
     -- every one) - Challenger from Riff-Raff, Ace from Challenger. The Galactic Cup (final = true) opens at a league
     -- with a trophy (or gold) in every planet cup at that league; the title race with a trophy (or gold) in the
@@ -120,7 +120,7 @@ return {
         { key = 'riffraff', name = 'RIFF-RAFF', parts = { [1] = 2, [3] = 2, [4] = 2 }, mods = 0, abilities = 1, open = true,
           tagline = 'Outer Rim junkers and scrapyard hopefuls',
           brief = 'Stock engines   -   one ability   -   no tune-ups' },
-        { key = 'challenger', name = 'CHALLENGER', parts = 5, mods = 1, abilities = 2,
+        { key = 'challenger', name = 'CHALLENGER', parts = 5, mods = 1, abilities = 2, open = true,
           tagline = 'Tuned rigs and pilots out to make a name',
           brief = 'Tuned engines   -   two abilities   -   one tune-up' },
         { key = 'ace', name = 'ACE', parts = 9, mods = 2, abilities = 3,
