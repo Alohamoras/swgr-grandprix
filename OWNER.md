@@ -4,6 +4,11 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
+- [ ] **Review and UI plan** (docs/review-2026-11-11.md): pick the order. Proposal: A, the quiet pass (cut stray
+  text) -> B, a layout per screen (cups page first: medal icons, faces on the title tiles, a centred page without
+  the grey box) -> a feature freeze while you race a full season -> progress badges.
+- [ ] **Do you ever change your abilities or tune-ups between cups?** If not, the garage could shrink to the racer.
+- [ ] **PHILOSOPHY.md is out of date** (the rival is cut; 200cc is a keeper): OK to rewrite it to match today?
 - [ ] **Ideas from your Google Doc** (realism mode, a podracer cup): send the details when you want them on the list.
 
 ## Playtests (only a real race can tell)
