@@ -260,6 +260,30 @@ Each step is its own version, checked in game (owner away) before the next.
          look at each in game (some decode badly in our previews).
 4. **Later: progress badges** (round 2 item 2) from the game's insignias, a column on the right of HOME.
 
+## Three leagues: RIFF-RAFF, CHALLENGER, ACE (owner 2026-11-12; not built - build together with "Random cups")
+The four cc classes become three leagues named after the game's own racer ranks (Galactic Racer sorts its racers
+into Loser / Riff-Raff / Challenger / Elite / Ace). "cc" is Mario Kart's word; the speed shows as 1-3 chevrons on
+each league's poster (the game's arrow icons), not words. Answers the "three classes or four" discussion.
+- Decided: **Kestar Bool is the final boss after the ACE title** (he's the champion and an Ace himself); beating him
+  still unlocks him as a racer.
+- Suggested, owner to confirm:
+  | | RIFF-RAFF | CHALLENGER | ACE |
+  |---|---|---|---|
+  | Parts | 0 | 5 | **9 or 10** (today's 200cc is 9 - checked in config and the 2026-11-12 races; 10 is the game's max, used by 200cc until v0.10, then "silly") |
+  | Ability level | 1 | 2 | 3 |
+  | Tune-up slots | 0 | 1 | 2 |
+  | AI | today's 50cc (some mercy) | today's 150cc (no help) | today's 200cc (pressure 0.5), then the AI spike |
+- [ ] Owner: Ace at 9 or 10 (Claude: start at 9, try 10 if it's not enough).
+- [ ] Owner: old progress - carry medals over (50cc -> Riff-Raff, 150cc -> Challenger, 200cc -> Ace, 100cc folded
+      into Challenger where it's the better medal; records start fresh, the parts changed) or a clean start.
+- [ ] Config: three classes (keys, names, parts, abilities, tune-up slots, AI profiles); unlocks (Challenger opens
+      from Riff-Raff, Ace from Challenger); the title race at each league; the boss on the Ace cups page.
+- [ ] Every screen that says a class: the league tiles (with chevrons), the cups page title, the start screen header,
+      the standings, the cup result, the title result, the log lines.
+- [ ] Old saves: convert class keys (and the decided medal rule), logged once.
+- [ ] PHILOSOPHY.md / DESIGN.md §4: three leagues; the 200cc "may be cut" note answered.
+- Note: 3 leagues x 6 cups (from 4 x 6) - a shorter ladder; random cups and the progress badges carry the long run.
+
 ## Random cups (owner 2026-11-12: "more realistic ... simulate a real cup"; not built)
 Decided: **each cup = 4 tracks drawn at random from that planet's pool, each with a random variant** (direction /
 conditions: reverse, night, wet, snow, mines, scorching, storm...). The same at every class (no leaning by class).
@@ -341,7 +365,7 @@ Report: docs/ai-driving-research-2026-11-12.md. Three areas never tried:
   so the choice is made on purpose for that cup. One press more. Claude's view: docs/review-2026-11-11.md §3.
 - **Tracks per class:** forward at 50cc, reverse at 100cc, weather at 150cc is distinct, but the owner would like to
   race any track at any class; a cup of every track on a planet would be long.
-- **Three classes or four:** 200cc may still be cut. Each class is distinct today, but 200cc is so powerful that
+- **Three classes or four:** (2026-11-12: decided - three leagues, see "Three leagues" above.) 200cc may still be cut. Each class is distinct today, but 200cc is so powerful that
   three classes (parts 0-1 / 5 / 9, 200cc detuned to the top) might be better; how it changes the AI profiles,
   ability levels, unlocks, titles and Kestar.
 
