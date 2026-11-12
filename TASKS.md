@@ -261,6 +261,17 @@ Each step is its own version, checked in game (owner away) before the next.
 4. **Later: progress badges** (round 2 item 2) from the game's insignias, a column on the right of HOME.
 
 ## Discussions (owner 2026-11-11 late; no decision yet, talk before building)
+- **Harder opponents, realistic** (owner, 2026-11-11: "i want it to feel realistic, not like we're racing AI bots,
+  but right now i'm winning more than i think i should be on most modes"). At 150 / 200cc the bots already run with
+  no help and no handicap (their natural pace), so there is no mercy left to remove. Two levers:
+  1. Your car slower, theirs unchanged (Claude's pick for "realistic"): your parts per class, about 3-4 s a level
+     on a ~100 s race. 150cc 7 -> 6, 200cc 9 -> 8. Old records at those classes get harder to beat.
+  2. Bots faster than their natural pace: only catch-up (the rubber band, the "AI bots" feel) - not wanted;
+     pressure barely moved anything in the study.
+  At 50 / 100cc the bots still ease off when they lead you: 50cc slowdown 0.4 -> 0.7, 100cc 0.45 -> 1.0 (none,
+  like 150cc; the study's 100cc open runs were level with a clean autopilot, 0-4 s faster than the owner).
+  Proposal (not built): v0.25 with those four numbers, no rubber band anywhere, then a cup at each class.
+  Ties in with "three classes or four" (parts 0-1 / 5 / 9).
 - **The title race's bot is slow** (owner's 150cc title race, 2026-11-11 21:13, v0.21: vs Biddy Blas on The War
   Fields (dawn), racing as Ary Quill). The owner: he "either crashed a few times on his own or just went slow for a
   while". The log: won by **+16.0 s** (2:05.66), against a few seconds in a full cup; the grid cut and put-back,
