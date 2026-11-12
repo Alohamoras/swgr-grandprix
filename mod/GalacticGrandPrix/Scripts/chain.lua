@@ -234,12 +234,21 @@ function CH.addPanel(w, out, st)
   try(function() slot:SetZOrder(50) end)
   st.panel = true
   local hidden = hideGameTable()
-  local btn, bwhy, contHidden = addButton(cont, host)
+  -- (v0.27.3: the STANDINGS button of the finish times becomes NEXT RACE, the Back screen kept)
+  local btn, bwhy, contHidden = st.btn and C.deref(st.btn) or nil, nil, st.contHidden
+  if btn then
+    setLabel(btn, 'NEXT RACE')
+    try(function() btn:SetIsSelected(false, false) end)
+    require('ui').grabFocus(btn, C.localPC())
+    bwhy = 'the STANDINGS button relabelled'
+  else
+    btn, bwhy, contHidden = addButton(cont, host)
+  end
   st.btn = btn and C.ref(btn) or nil
   st.contHidden = contHidden == true
   -- v0.21: B leaves the cup (the pad's B through our Back screen; Backspace / Escape through the flag)
-  local back, backWhy = nil, nil
-  if hideContinue() then back, backWhy = addBackScreen(host, tree) end
+  local back, backWhy = st.back, nil
+  if hideContinue() and not back then back, backWhy = addBackScreen(host, tree) end
   st.back = back
   CH.back = false
   local rows = spec.table and #spec.table.rows or 0
@@ -359,49 +368,56 @@ function CH.tick(r, api)
       return
     end
     -- v0.27 (owner: "it skips over the finish times screen, I see it for a split second"): the game's own results
-    -- (the finish times) stay up for Panel.TimesS first; its CONTINUE is made invisible and disabled meanwhile (its
-    -- place kept for NEXT RACE), so a stray A can't skip to the menu
+    -- (the finish times) stay up for Panel.TimesS first. v0.27.3 (seen in game: with CONTINUE only disabled, nothing
+    -- had focus and the pad's A closed the screen - read as B): our button goes on at once, labelled STANDINGS and
+    -- focused, CONTINUE hidden as on the panel, and the Back screen up: A = the standings now, B = leave the cup. The
+    -- same button becomes NEXT RACE with the panel.
     local waitMs = (tonumber((conf().Panel or {}).TimesS) or 0) * 1000
     if waitMs > 0 then
       local cont = try(function() return w.WBP_Common_Btn_Continue end)
-      if alive(cont) then
-        try(function() cont:SetIsEnabled(false) end)
-        try(function() cont:SetRenderOpacity(0) end)
-        st.contHeld = true
+      local host = alive(cont) and try(function() return cont:GetParent() end) or nil
+      local btn, bwhy, contHidden
+      if alive(host) then btn, bwhy, contHidden = addButton(cont, host) end
+      if btn then
+        setLabel(btn, 'STANDINGS')
+        st.btn, st.contHidden = C.ref(btn), contHidden == true
+        local tree = try(function() return w.WidgetTree end)
+        if hideContinue() and alive(tree) then st.back = addBackScreen(host, tree) end
+        CH.back = false
+        st.showAt, st.out, st.waitAt = C.clock + waitMs, out, C.clock
+        log(('[chain] the game\'s results (finish times) up for %d s, then the standings; STANDINGS button, focused: %s%s'):format(
+          waitMs // 1000, tostring(bwhy), st.back and '; B: the Back screen (pad) and Backspace / Escape' or ''))
+        return
       end
-      st.showAt = C.clock + waitMs
-      st.out = out
-      log(('[chain] the game\'s results (finish times) up for %d s, then the standings; its CONTINUE %s meanwhile'):format(
-        waitMs // 1000, st.contHeld and 'invisible and disabled' or 'NOT found'))
-      return
+      log('[chain] no STANDINGS button (' .. tostring(bwhy) .. '): the standings at once')
     end
     return CH.showPanel(r, w, out, st)
   end
   if st.showAt then
-    -- the game's finish times showing: the panel once the time is up (or the key: at once)
-    if C.clock - (st.lastLook or -1e9) < LOOK_MS and not CH.key and not CH.back then return end
+    -- the game's finish times showing: the standings once the time is up, STANDINGS pressed or the key
+    if C.clock - (st.lastLook or -1e9) < POLL_MS and not CH.key and not CH.back then return end
     st.lastLook = C.clock
-    local w = C.deref(st.screen)
-    if not w then
-      st.contHidden = st.contHeld -- (CONTINUE couldn't be pressed: the game's own B closed it)
+    local w, btn = C.deref(st.screen), C.deref(st.btn)
+    if not (w and btn) then
       CH.goneBeforeNext(r, 'the results screen went while the finish times showed')
       return
     end
-    if CH.back then
-      -- Backspace / Escape while the times show: leave the cup, as on the panel
-      CH.back = false
+    local backHow = CH.readBack(st)
+    if backHow and st.contHidden then
       st.done, st.showAt = true, nil
-      CH.goLeave(r, 'Backspace / Escape, during the finish times')
+      try(function() btn:SetIsEnabled(false) end)
+      CH.goLeave(r, backHow .. ', during the finish times')
       return
     end
-    if C.clock < st.showAt and not CH.key then return end
+    local pressed = try(function() return btn:GetSelected() end) == true
+    if pressed then try(function() btn:SetIsSelected(false, false) end) end
+    if C.clock - (st.waitAt or 0) < FOCUS_MS and not pressed and try(function() return btn:HasKeyboardFocus() end) ~= true then
+      try(function() btn:SetFocus() end)
+    end
+    if C.clock < st.showAt and not CH.key and not pressed then return end
     CH.key = false
     st.showAt = nil
-    local cont = try(function() return w.WBP_Common_Btn_Continue end)
-    if st.contHeld and alive(cont) then
-      try(function() cont:SetRenderOpacity(1) end)
-      try(function() cont:SetIsEnabled(true) end)
-    end
+    log('[chain] the standings come (' .. (pressed and 'STANDINGS pressed' or 'the finish times\' time up') .. ')')
     local out = st.out
     st.out = nil
     return CH.showPanel(r, w, out, st)
@@ -424,6 +440,22 @@ function CH.showPanel(r, w, out, st)
   end
 end
 
+-- B: the keyboard flag at once; the pad's B through our Back screen (it goes inactive). -> how, or nil
+function CH.readBack(st)
+  local backHow = CH.back and 'Backspace / Escape' or nil
+  CH.back = false
+  if not backHow and st.back then
+    local h = C.deref(st.back)
+    if h then
+      local active = try(function() return h:IsActivated() end) == true
+      if active then st.backOn = true
+      elseif st.backOn then backHow = 'the pad\'s B'
+      else try(function() h:ActivateWidget() end) end
+    end
+  end
+  return backHow
+end
+
 -- the panel is up: its buttons read
 function CH.pollPanel(r, st)
   -- the panel is up: NEXT RACE (the button, read every POLL_MS; the key at once)
@@ -436,17 +468,7 @@ function CH.pollPanel(r, st)
     return
   end
   -- v0.21: B (the keyboard flag at once; the pad's B through our Back screen, read with the button)
-  local backHow = CH.back and 'Backspace / Escape' or nil
-  CH.back = false
-  if not backHow and st.back then
-    local h = C.deref(st.back)
-    if h then
-      local active = try(function() return h:IsActivated() end) == true
-      if active then st.backOn = true
-      elseif st.backOn then backHow = 'the pad\'s B'
-      else try(function() h:ActivateWidget() end) end
-    end
-  end
+  local backHow = CH.readBack(st)
   if backHow and st.contHidden then
     st.done = true
     if btn then try(function() btn:SetIsEnabled(false) end) end

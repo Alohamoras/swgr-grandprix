@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.27.3 (2026-11-12): STANDINGS during the finish times
+Seen in the owner's play of v0.27.2 (14:05): in races 2 and 3 of a cup the results screen closed during the 6 s of
+finish times and the mod read it as B ("Leave the cup?"). With CONTINUE only disabled nothing had focus, so the pad's
+A went to the results screen, which moved on.
+- While the finish times show, our button is on at once, labelled **STANDINGS** and focused (CONTINUE hidden, the Back
+  screen up). A = the standings now; after 6 s they come by themselves. The same button then becomes NEXT RACE, so the
+  A that brought the standings is not also NEXT RACE. B leaves the cup as on the panel.
+- Tests: test_chain section T rewritten (the button, A during the times, the pad's B during the times).
+
 ## v0.27.2 (2026-11-12): Challenger open from the start
 The owner: "for now Riff-Raff and the middle league should be unlocked by default, only the top league should be
 gated". Config `Leagues`: Challenger `open = true`. Ace still opens with a trophy in all five Challenger planet cups;

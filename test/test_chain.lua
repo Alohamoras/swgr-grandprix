@@ -310,36 +310,50 @@ ended('J')
 
 ---------------------------------------------------------------------------------------------------------------------
 -- T. v0.27 (owner: "it skips over the finish times screen"): the game's own results (the finish times) stay up for
--- Panel.TimesS, CONTINUE invisible and disabled meanwhile, then the standings panel; B while the times show leaves
+-- Panel.TimesS. v0.27.3 (seen in game: nothing focused, the pad's A closed the screen): a STANDINGS button goes on at
+-- once, focused, CONTINUE hidden, the Back screen up; A = the standings now; the same button becomes NEXT RACE
 start({ TimesS = 6 })
 T.clickTitle('JAKKU CUP')
 W.race(11)
 mark = T.mark()
 runRace(1)
 W.results(); M.tick(4)
-T.check(not T.logHas('[chain] panel added', mark) and #W.canvasKids == 0 and W.tableVis == 4,
-  'T: the game\'s finish times first - no panel yet, its table showing')
-T.check(T.logHas('[chain] the game\'s results (finish times) up for 6 s, then the standings; its CONTINUE invisible and disabled meanwhile', mark),
-  'T: the wait logged')
-T.check(W.contEnabled == false and W.contOpacity == 0 and W.continued == 0, 'T: CONTINUE invisible and disabled: a stray A can\'t skip the times')
+T.check(not T.logHas('[chain] panel added', mark) and W.tableVis == 4, 'T: the game\'s finish times first - no panel yet, its table showing')
+T.check(T.logHas('[chain] the game\'s results (finish times) up for 6 s, then the standings; STANDINGS button, focused:', mark),
+  'T: the wait logged, with the STANDINGS button')
+T.check(W.chainBtn ~= nil and W.contVis == 1 and W.resultsBack ~= nil and #W.canvasKids == 2, 'T: our button and the Back screen on, CONTINUE hidden (Collapsed)')
 T.check(T.save().run.race == 2, 'T: the race recorded when the screen came (the cup at race 2)')
+local btn1 = W.chainBtn
 M.tick(50)
 T.check(not T.logHas('[chain] panel added', mark), 'T: still the times at 5.4 s')
 M.tick(10)
-T.check(T.logHas('[chain] panel added: on Default_Results', mark) and W.chainBtn ~= nil, 'T: the standings panel after 6 s')
-T.check(W.contEnabled == true and W.contOpacity == 1 and W.contVis == 1, 'T: CONTINUE given back, then hidden (Collapsed) as before')
+T.check(T.logHas('[chain] the standings come (the finish times\' time up)', mark) and T.logHas('[chain] panel added: on Default_Results', mark),
+  'T: the standings panel after 6 s')
+T.check(W.chainBtn == btn1 and #W.canvasKids == 3 and T.logHas('the STANDINGS button relabelled', mark), 'T: the same button, now NEXT RACE; no second Back screen')
 W.pressNext(); M.tick(3)
 T.check(T.logHas('[chain] NEXT RACE pressed', mark), 'T: NEXT RACE works after the wait')
 W.backToMenu(); M.tick(MENU_TICKS)
 T.check(M.called('LaunchQuickRace') == 2, 'T: race 2 launched via the menu')
--- B while the times show
+-- A during the times: the standings at once, then a second A = NEXT RACE
 mark = T.mark()
 W.race(11)
 runRace(2)
 W.results(); M.tick(10)
-M.press('BACKSPACE'); M.tick(3)
-T.check(T.logHas('[chain] B on the results screen (Backspace / Escape, during the finish times)', mark) and W.continued == 1,
-  'T: B during the times: the cup left the panel\'s way (CONTINUE pressed from code)')
+W.pressNext(); M.tick(3)
+T.check(T.logHas('[chain] the standings come (STANDINGS pressed)', mark) and T.logHas('[chain] panel added', mark) and W.continued == 0,
+  'T: A on STANDINGS: the standings at once, the results screen kept')
+T.check(not T.logHas('[chain] NEXT RACE pressed', mark), 'T: the same press is not NEXT RACE too')
+W.pressNext(); M.tick(3)
+T.check(T.logHas('[chain] NEXT RACE pressed', mark), 'T: the second A: NEXT RACE')
+W.backToMenu(); M.tick(MENU_TICKS)
+-- B while the times show
+mark = T.mark()
+W.race(11)
+runRace(3)
+W.results(); M.tick(10)
+W.padB(); M.tick(3)
+T.check(T.logHas("[chain] B on the results screen (the pad's B, during the finish times)", mark) and W.continued == 1,
+  'T: the pad\'s B during the times: the cup left the panel\'s way (CONTINUE pressed from code)')
 T.check(not T.logHas('[chain] panel added', mark), 'T: no panel after B')
 W.backToMenu(); M.tick(MENU_TICKS)
 T.check(T.logHas('"Leave the cup?" at the main menu', mark), 'T: "Leave the cup?" at the main menu')
