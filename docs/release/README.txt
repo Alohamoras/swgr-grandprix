@@ -6,7 +6,7 @@ score points against the field, win trophies, climb three leagues and take the t
 
 WHAT'S IN IT
 - Three leagues, each with its own feel:
-    JUNKER      scrapyard junk with too much engine - rusty, dirty cars, one ability, no tune-ups
+    JUNKER      scrapyard junk with too much engine - grimy cars, one ability, no tune-ups
     CHALLENGER  tuned rigs - two abilities, one tune-up
     ACE         full power - three abilities, two tune-ups
 - Six cups per league: one per planet (Jakku, Lantaana, Ando Prime, Crait, Sentinel I) plus the Galactic Cup. Each
@@ -46,7 +46,7 @@ SETTINGS (Scripts\config.lua - make a copy before editing)
 - BootToGrandPrix = true    open the GRAND PRIX tab when the game starts
 - MenuKey = 'F6'            the key that opens the tab
 - AI.Strength               how much stronger each pilot tier's cars are, per league
-- Looks.riffraff            the Junker look (rust, dirt; field = the AI cars too)
+- Looks.riffraff            the Junker look (dirt; field = the AI cars too)
 
 UNINSTALL
 Delete the GalacticGrandPrix folder. Everything the mod changes in the game is in memory only and put back when you
