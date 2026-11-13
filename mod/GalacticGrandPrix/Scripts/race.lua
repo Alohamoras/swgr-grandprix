@@ -325,7 +325,11 @@ function R.launch(ev, classKey, vehKey, picks, mods, opts)
     for _, pool in pairs(require('config').Pools or {}) do
       for _, r in ipairs(pool) do if r.title == exp.event then found = r end end
     end
-    if found then log(('[exp] event: %s instead of %s'):format(found.title, tostring(ev and ev.title))); ev = found
+    if found then
+      log(('[exp] event: %s instead of %s'):format(found.title, tostring(ev and ev.title)))
+      local copy = {}
+      for k, v in pairs(found) do copy[k] = v end -- (a copy: startRun marks the event, the pool's entry stays clean)
+      ev = copy
     else log('[exp] event not in the pools: ' .. exp.event) end
   end
   local p, msg = prepare(ev, classKey, vehKey, picks, mods, opts)
@@ -337,7 +341,7 @@ function R.launch(ev, classKey, vehKey, picks, mods, opts)
     R.restoreBuild('launch failed')
     return false, 'Launch failed - see grandprix.log'
   end
-  startRun(ev, classKey, p, skip, { oldFe = addr(fe) })
+  startRun(ev, classKey, p, skip, { oldFe = addr(fe), exp = exp })
   return true
 end
 
@@ -604,6 +608,13 @@ function R.watch()
     if not ok then log('[loadout] apply failed: ' .. tostring(err)); r.lo = nil end
   end
   R.perf(r)
+  -- AI driving spike / launch checks (test-only): experiment.lua's quitAfterS - once the field is read, N s after the
+  -- launch the race goes back to the main menu the game's own way (RacingGameMode:RequestReturnToMenus): a DNF
+  if r.exp and tonumber(r.exp.quitAfterS) and r.fieldLogged and not r.quitSent and C.clock - r.at >= r.exp.quitAfterS * 1000 then
+    r.quitSent = true
+    log(('[exp] quitAfterS %s: back to the main menu'):format(tostring(r.exp.quitAfterS)))
+    pcall(require('chain').leave, r, true)
+  end
   -- v0.19: once you have finished, the cup's next race from the results screen (chain.lua)
   if (r.finished or r.out) and not r.chainOff then
     local okC, errC = pcall(require('chain').tick, r, chainApi)

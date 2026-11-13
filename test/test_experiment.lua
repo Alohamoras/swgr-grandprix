@@ -60,5 +60,25 @@ T.check(T.logHas('[exp] result "boost-a" ', mark), 'every racer\'s time in the r
 T.check(W.ds.Car.MinEnergyForAfterburner == 0.4 and W.ds.Car.MinBoostTime == 3 and W.ds.Bike.MaxDegreesOffHeadingForBoost == 30
   and W.ai.ForcedErrorDuration == 8, 'at the menu: the styles and the config field put back')
 T.check(T.logHas('[ai] AI config put back (main menu): DS_Car_Base MinBoostTime=3 MinEnergyForAfterburner=0.4', mark), 'the style put-back logged')
+-- quitAfterS (the launch checks): N s after the launch, once the field is read, the race goes back to the main menu
+f = io.open(EXP, 'w')
+f:write([[return { label = 'launch', event = "SCRAP SPIRAL", quitAfterS = 20 }]])
+f:close()
+mark = T.mark()
+local tl = T.titles()
+local launchTile = tl:find('NEXT RACE', 1, true) and 'NEXT RACE' or nil
+if not launchTile then
+  if tl:find('CONTINUE', 1, true) then T.clickTitle('CONTINUE'); M.tick(3) end
+  if T.titles():find('JAKKU CUP', 1, true) then T.clickTitle('JAKKU CUP'); M.tick(5) end
+  launchTile = 'START'
+end
+T.clickTitle(launchTile); M.tick(5)
+T.check(T.logHas('[exp] event: SCRAP SPIRAL instead of', mark), 'quitAfterS: the event launched (' .. tl .. ')')
+W.race(11); M.tick(100)
+T.check(not T.logHas('[exp] quitAfterS', mark), 'quitAfterS: not before its time')
+M.tick(150)
+T.check(T.logHas('[exp] quitAfterS 20: back to the main menu', mark) and (T.logHas('RequestReturnToMenus() called', mark) or T.logHas("CONTINUE pressed", mark)),
+  'quitAfterS: 20 s after the launch, the race sent back to the main menu')
+T.check(T.logCount('[exp] quitAfterS') == 1, 'quitAfterS: once')
 os.remove(EXP)
 T.finish()

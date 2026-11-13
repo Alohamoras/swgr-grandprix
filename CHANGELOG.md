@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.28.2 (2026-11-12): test switch quitAfterS (launch checks)
+- `experiment.lua` `quitAfterS = N`: N s after the launch (once the field is read) the race goes back to the main menu
+  the game's own way (`RequestReturnToMenus`) - a DNF; for launching every race variant once. A swapped `event` is now
+  a copy of the pool's entry (the pool stays clean).
+
 ## v0.28.1 (2026-11-12): the cup flow's two gaps closed
 - **The last race of a cup**: our CUP RESULT button on the game's results screen (focused, the game's CONTINUE hidden,
   as after races 1-3); A (or B, or N) goes to the cup result at the main menu. `ChainRaces.Panel.LastRace = false`
