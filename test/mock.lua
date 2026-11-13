@@ -94,6 +94,7 @@ M.assets = {}
 -- the object list (~10 ms; AUTOMATION.md). Counted here by what was looked for ('FindAllOf FrontEndGameMode',
 -- 'StaticFindObject <path>'); default objects (Default__) are found once by the mod and not counted.
 M.sweeps = {}
+M.unloaded = {} -- (full object names not in memory until LoadAsset(package path))
 local function swept(key) M.sweeps[key] = (M.sweeps[key] or 0) + 1 end
 function M.resetSweeps() M.sweeps = {} end
 -- sweeps whose key contains `s` (all when nil)
@@ -113,6 +114,7 @@ function M.install()
   _G.FindFirstOf = function(cls) swept('FindFirstOf ' .. tostring(cls)); local l = all(cls); return l and l[1] end
   _G.StaticFindObject = function(path)
     if not tostring(path):find('Default__', 1, true) then swept('StaticFindObject ' .. tostring(path)) end
+    if M.unloaded[path] then return nil end
     -- a live registered object by its name (what C.ref / C.deref look up); dead ones are gone, like after a GC
     local deadMatch = false
     for _, list in pairs(M.objects) do
@@ -131,7 +133,12 @@ function M.install()
     M.assets[path] = o
     return o
   end
-  _G.LoadAsset = function(path) record('LoadAsset', path) end
+  _G.LoadAsset = function(path)
+    record('LoadAsset', path)
+    -- (v0.29.4: an asset not yet in memory, M.unloaded[full name], is loaded by its PACKAGE path only - as in game)
+    local pkg = tostring(path)
+    if not pkg:find('%.') then M.unloaded[pkg .. '.' .. (pkg:match('([^/]+)$') or '')] = nil end
+  end
   _G.StaticConstructObject = function(cls, outer) return M.new('constructed', {}) end
   _G.CreateInvalidObject = function() local o = M.new('null', {}, 'None'); rawset(o, '__dead', true); return o end
   _G.FText = function(s) return M.new('FText', { __text = s }) end

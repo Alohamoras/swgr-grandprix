@@ -89,6 +89,11 @@ function C.asset(path)
   if alive(o) then return o end
   try(LoadAsset, full)
   o = try(StaticFindObject, full)
+  if alive(o) then return o end
+  -- v0.29.4: LoadAsset wants the package path (as MenuRecon and C.uclass load); the full object name loaded nothing
+  -- for an asset not yet in memory (the All Rust patina was never found - only the dirt showed)
+  try(LoadAsset, path)
+  o = try(StaticFindObject, full)
   return alive(o) and o or nil
 end
 -- a class by full path (/Script/... or /Game/....Name_C)

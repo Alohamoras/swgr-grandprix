@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.29.4 (2026-11-13): the rust actually applies; MIT licence; release texts filled in
+- **Fix: the All Rust patina never applied** (every Junker race since v0.29.0 logged `[looks] All Rust patina not
+  found`; what showed was the dirt and the dents). core.lua `C.asset` asked `LoadAsset` for the full object name; it
+  needs the package path (as MenuRecon and `C.uclass` load). Now it tries both. test_looks models an asset not yet in
+  memory.
+- MIT licence (LICENSE; LICENSE.txt in the release zip). The UE4SS link (Nexus mod 2) in the player README and the
+  Nexus description.
+
 ## v0.29.3 (2026-11-13): release pass
 - **Test switches off for players:** `experiment.lua` / `logbuilds.txt` only work with config `DevTools = true`
   (default false; `./deploy.sh <tag> --dev` turns it on).

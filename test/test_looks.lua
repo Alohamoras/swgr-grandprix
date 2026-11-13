@@ -33,6 +33,9 @@ local mark = T.mark()
 T.clickTitle('START'); M.tick(5)
 W.zeroSlots = { true, false, true, false, false, true } -- (Junker's parts: Grip, Resilience and Advanced at level 0)
 M.resetSweeps()
+-- (v0.29.4: in game the All Rust patina isn't in memory until loaded by its package path - v0.29.0-v0.29.3 asked for
+-- it by its full object name and never found it: only the dirt showed)
+M.unloaded['/Game/Griffin/Vehicles/Common/Liveries/Patinas/LP_AllRust.LP_AllRust'] = true
 W.race(11)
 local comps = giveComponents()
 M.tick(30)
@@ -43,6 +46,7 @@ local me = p(comps[1])
 T.check(me.PatinaData and rawget(me.PatinaData, '__name') == 'LP_AllRust' and me.Dirt == 1.0 and p(me.CustomisationComponent).damaged == 0.6
   and p(me.CustomisationComponent).DebugDirtOverrideValue == 1.0 and me.finalised == 1, 'Junker, at load: your car - All Rust, dirt 1, damage 0.6, refreshed')
 T.check(p(comps[5]).Dirt == 1.0 and p(comps[5]).PatinaData ~= nil, 'field = true: the AI cars too')
+T.check(not T.logHas('All Rust patina not found', mark), 'v0.29.4: the All Rust patina loaded by its package path')
 T.check(T.logHas('[looks] at load, 12 of 12 cars: you: patina LP_AllRust, dirt 1', mark), 'logged (' .. tostring(T.logHas('[looks]', mark)) .. ')')
 M.tick(100)
 T.check(T.logHas('[looks] after the start, 12 of 12 cars', mark) and me.finalised == 2, 'the second pass ~12 s after the launch')

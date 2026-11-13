@@ -22,7 +22,7 @@ WHAT'S IN IT
 
 REQUIREMENTS
 - STAR WARS: Galactic Racer (Steam, PC).
-- UE4SS for Galactic Racer ("Galactic Racer Edition", Open Beta v0.9.4 or later): {UE4SS_LINK}
+- UE4SS for Galactic Racer ("Galactic Racer Edition", Open Beta v0.9.4 or later): https://www.nexusmods.com/starwarsgalacticracer/mods/2
 
 INSTALL
 1. Install UE4SS first (follow its instructions; it goes in Griffin\Binaries\Win64).
@@ -59,3 +59,6 @@ FILES
 KNOWN LIMITS
 - English only. Tested at 4K; other resolutions not checked yet.
 - Game updates can break UE4SS mods; if the tab stops appearing after a patch, check for a new version.
+
+LICENSE
+MIT - see LICENSE.txt.
