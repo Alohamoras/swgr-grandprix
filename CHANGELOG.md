@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.29.9 (2026-11-13): AI test - your level on your own race copy (test-only)
+- `experiment.lua` (DevTools only): `yourCopy = true` puts the shared launch build at the bots' level
+  (`botStacksAbs`) and your `yourLevels` onto your own race copy at load. Round B2 showed the bots still ~15 s slower
+  with your car at level 1 even with their parts and power fixed: the suspect is the shared launch build.
+
 ## v0.29.8 (2026-11-13): AI test - the copies' power level (test-only)
 - `experiment.lua` (DevTools only): `botPower = true` with `botStacksAbs = N` also sets each bot copy's own PowerLevel
   (copied from your build like the parts) to 6 x N; the `[exp] bot parts absolute` line logs the old and new value.

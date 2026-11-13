@@ -273,7 +273,13 @@ local function prepare(ev, classKey, vehKey, picks, mods, opts)
   -- replaces the league's part levels on your build for this race
   local levels = K.levelsFor(classKey)
   local exp = AI.experiment()
-  if exp and exp.yourLevels ~= nil then
+  if exp and exp.yourCopy == true and tonumber(exp.botStacksAbs) then
+    -- (yourCopy: the shared launch build at the bots' level; yours goes onto your race copy at load - loadout.lua)
+    local out = {}
+    for s = 0, 5 do out[s] = math.floor(tonumber(exp.botStacksAbs)) end
+    levels = out
+    log('[exp] yourCopy: the launch build at the bots\' level ' .. R.levelsText(out) .. ', yours (' .. tostring(exp.yourLevels) .. ') on your race copy at load')
+  elseif exp and exp.yourLevels ~= nil then
     local y, out = exp.yourLevels, {}
     for s = 0, 5 do out[s] = math.floor(tonumber(type(y) == 'table' and y[s] or y) or levels[s] or 0) end
     levels = out

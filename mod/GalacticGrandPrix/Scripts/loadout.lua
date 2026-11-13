@@ -323,7 +323,13 @@ local function absParts(ps, n, power)
   return ('%d stacked set to %d, %d battery items to level %d, %d slots empty (left as they are), power %s'):format(stacked, n, battery, n, empty, table.concat(pw, '/'))
 end
 
-function L.botParts(bots, exp, league)
+function L.botParts(bots, exp, league, me)
+  -- AI test (yourCopy = true): the shared launch build carries the bots' level (race.lua), and YOUR level goes onto
+  -- your own race copy only, the way the bots' copies are edited - nothing of yours in anything the bots share
+  if exp and exp.yourCopy == true and tonumber(exp.yourLevels) and me then
+    local ok, txt = pcall(absParts, me, math.floor(tonumber(exp.yourLevels)), exp.botPower == true)
+    log('[exp] your race copy: ' .. (ok and txt or ('error ' .. tostring(txt))))
+  end
   if exp and tonumber(exp.botStacksAbs) then
     local n, parts = math.floor(tonumber(exp.botStacksAbs)), {}
     for _, ps in ipairs(bots) do
@@ -393,7 +399,7 @@ function L.apply(st)
     for _, b in ipairs(bots) do all[#all + 1] = b end
     local okB, errB = pcall(L.logBuilds, all)
     if not okB then log('[builds] read failed: ' .. tostring(errB)) end
-    local okE, errE = pcall(L.botParts, bots, require('ai').experiment(), st.class)
+    local okE, errE = pcall(L.botParts, bots, require('ai').experiment(), st.class, me)
     if not okE then log('[exp] bot parts failed: ' .. tostring(errE)) end
   end
   if st.mods then
