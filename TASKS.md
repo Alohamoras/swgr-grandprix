@@ -88,10 +88,8 @@ put back at the menu, key binds only set flags):
 - [ ] Do the AI fire their abilities, Shields included (R7)?
 
 ## 3. Known gaps (small fixes)
-- [ ] **A DNF skips the results panel:** our panel waits for the finish flag, which a DNF never sets, so the game's
-      own results show with CONTINUE and our standings come at the main menu. Fix: also act on elimination.
-- [ ] **The last race of a cup** still uses the game's own results screen with a live CONTINUE (the standings and
-      cup result come at the menu). Same treatment as races 1-3?
+- [x] A DNF skipped the results panel; the last race kept the game's own CONTINUE. Both fixed in v0.28.1 (in-game
+      check: OWNER.md).
 
 ## 4. Discussions (owner's call; talk before building)
 - **Kestar is a weak final boss** (veers off the line, loses by ~20 s even to the autopilot; the Showdown was likely

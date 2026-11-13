@@ -399,6 +399,15 @@ local function readField(r)
           r.finished, r.pos = true, f.pos
           log(('finished %s'):format(C.ordinal(f.pos)))
         end
+        -- v0.28.1 (TASKS "A DNF skips the results panel"): out of the race without finishing - wrecked, eliminated,
+        -- timed out (plain bools on the same component). The results screen still comes once the race is over, so
+        -- the chain (chain.lua) runs for a DNF too.
+        if not f.finished and not r.out then
+          local why = (try(function() return rec.bHasVehicleWrecked end) == true and 'wrecked')
+            or (try(function() return rec.bHasBeenEliminated end) == true and 'eliminated')
+            or (try(function() return rec.bHasTimedOut end) == true and 'timed out') or nil
+          if why then r.out = why; log('out of the race (' .. why .. '): a DNF') end
+        end
         if f.finished and not r.time then
           -- the race time, there once you've finished (0 until then)
           local t = try(function() return tonumber(rec.EventFinishTime) end)
@@ -596,7 +605,7 @@ function R.watch()
   end
   R.perf(r)
   -- v0.19: once you have finished, the cup's next race from the results screen (chain.lua)
-  if r.finished and not r.chainOff then
+  if (r.finished or r.out) and not r.chainOff then
     local okC, errC = pcall(require('chain').tick, r, chainApi)
     if not okC then log('[chain] stopped: ' .. tostring(errC) .. ' - the standings at the main menu'); r.chainOff = true end
   end

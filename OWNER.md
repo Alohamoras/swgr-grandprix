@@ -17,6 +17,9 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - [ ] **Ideas from your Google Doc** (realism mode, a podracer cup): send the details when you want them on the list.
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.28.1, the end of a cup and a DNF.** After the last race: the finish times with a CUP RESULT button (the
+  game's CONTINUE gone); A takes you to the cup result. If you wreck or get knocked out: once the others finish, the
+  standings and NEXT RACE show on the results screen like any race (the log says `out of the race (wrecked): a DNF`).
 - [ ] **v0.28, pilot strength.** The Elite (Sen Fira, Biddy, Lyren) now drive +2 parts levels above you at Challenger
   and Ace (+1 at Riff-Raff); Goli, Griff and Nik +1; Malis and Ary -1. Does the same group fight you for the cup? Too
   hard, too easy? Each number is in config `AI.Strength` (one level = about 1.5-2 s on a ~110 s race). Not yet tested

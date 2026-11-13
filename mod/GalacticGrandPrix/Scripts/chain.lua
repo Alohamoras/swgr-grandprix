@@ -26,8 +26,9 @@
 --      tab page's trick, tab.lua) reads the pad's B, the key binds Backspace / Escape set CH.back (flags only). B ->
 --      CH.leaveAsk set, the results left for the main menu (CONTINUE's event pressed from code, hidden or not), and
 --      main.lua opens "Leave the cup?" straight away (NO = the standings with NEXT RACE). The results screen closing
---      on its own with CONTINUE hidden (the game's own back handling B first) counts as B too. The last race of a
---      cup is never chained: the game's CONTINUE stays (the cup result).
+--      on its own with CONTINUE hidden (the game's own back handling B first) counts as B too. v0.28.1: the last race of
+--      a cup gets our CUP RESULT button (CONTINUE hidden; CH.addFinal / pollFinal), which leaves for the cup result at
+--      the main menu; a DNF (wrecked / eliminated / timed out, race.lua r.out) runs the same flow as a finish.
 -- A failure before NEXT RACE ends at today's standings page, with a `[chain]` log line.
 --
 -- House rules: no hooks (the key bind only sets a flag; the button is read by polling), every engine call guarded,
@@ -74,7 +75,12 @@ function CH.plan(r)
     return { quiet = true, why = 'not a cup race' }
   end
   local nxt = K.runRaces(run)[(ev.race or 0) + 1]
-  if not nxt then return { why = ('race %d of %d: the cup result at the main menu'):format(ev.race or 0, run.races) } end
+  -- v0.28.1 (owner: the last race still had the game's own CONTINUE): the cup's last race gets our CUP RESULT button
+  -- on the results screen (CONTINUE hidden), which leaves for the cup result at the main menu
+  if not nxt then
+    if (conf().Panel or {}).LastRace == false then return { why = ('race %d of %d: the cup result at the main menu'):format(ev.race or 0, run.races) } end
+    return { want = true, last = true, next = { title = 'the cup result' }, how = 'CUP RESULT, then the main menu' }
+  end
   return { want = true, next = nxt, how = 'NEXT RACE via the menu' }
 end
 
@@ -328,6 +334,43 @@ function CH.goLeave(r, how)
 end
 
 ---------------------------------------------------------------------------------------------------------------------
+-- v0.28.1: the cup's last race - our CUP RESULT button on the results screen, CONTINUE hidden; pressed (or the key,
+-- or B): the results left the game's own way, and the main menu shows the cup result (race.lua hands back the result
+-- recorded here). The screen going by itself: the same, the cup result at the menu.
+function CH.addFinal(r, w, st)
+  local cont = try(function() return w.WBP_Common_Btn_Continue end)
+  local host = alive(cont) and try(function() return cont:GetParent() end) or nil
+  local btn, bwhy, contHidden
+  if alive(host) then btn, bwhy, contHidden = addButton(cont, host) end
+  if not btn then
+    st.done = true
+    log('[chain] last race: no CUP RESULT button (' .. tostring(bwhy) .. ') - the game\'s CONTINUE to the cup result')
+    return
+  end
+  setLabel(btn, 'CUP RESULT')
+  st.btn, st.contHidden, st.final, st.panelAt = C.ref(btn), contHidden == true, true, C.clock
+  CH.key, CH.back = false, false
+  log('[chain] last race: CUP RESULT button, focused: ' .. tostring(bwhy) .. (st.contHidden and '; the game\'s CONTINUE hidden' or ''))
+end
+function CH.pollFinal(r, st)
+  if not CH.key and not CH.back and C.clock - (st.lastPoll or -1e9) < POLL_MS then return end
+  st.lastPoll = C.clock
+  local btn = C.deref(st.btn)
+  if not btn then st.done = true; log('[chain] last race: the results screen went - the cup result at the main menu'); return end
+  local how = (CH.key and ('key ' .. tostring(conf().Key))) or (CH.back and 'Backspace / Escape') or nil
+  CH.key, CH.back = false, false
+  if not how and try(function() return btn:GetSelected() end) == true then how = 'the CUP RESULT button' end
+  if not how then
+    if C.clock - (st.panelAt or 0) < FOCUS_MS and try(function() return btn:HasKeyboardFocus() end) ~= true then try(function() btn:SetFocus() end) end
+    return
+  end
+  st.done = true
+  try(function() btn:SetIsSelected(false, false) end)
+  try(function() btn:SetIsEnabled(false) end)
+  log('[chain] CUP RESULT pressed (' .. how .. ')')
+  CH.leave(r)
+end
+
 -- every tick once you have finished (race.lua R.watch). api = race.lua's own { readField(r), record(r) }.
 
 function CH.tick(r, api)
@@ -345,12 +388,15 @@ function CH.tick(r, api)
     end
   end
   if not st.want or st.done then return end
+  if st.final then return CH.pollFinal(r, st) end
   if not st.panel and not st.showAt then
     if C.clock - (st.lastLook or -1e9) < LOOK_MS then return end
     st.lastLook = C.clock
-    if C.clock - st.at > resultsWaitMs() then
+    -- (v0.28.1: after a DNF the others race on first - up to OutWaitS for the results screen)
+    local waitMs = r.out and not r.finished and (tonumber(conf().OutWaitS) or 600) * 1000 or resultsWaitMs()
+    if C.clock - st.at > waitMs then
       st.done = true
-      log(('[chain] no results screen %d s after the finish: the standings at the main menu'):format(resultsWaitMs() // 1000))
+      log(('[chain] no results screen %d s after the finish: the standings at the main menu'):format(waitMs // 1000))
       return
     end
     local w = findScreen()
@@ -362,6 +408,7 @@ function CH.tick(r, api)
     r.recordTried = true
     local out = api.record(r)
     r.recorded = out
+    if st.last and out then return CH.addFinal(r, w, st) end
     if not out or out.cupOver or not K.run() then
       st.done = true
       log('[chain] the race ended the cup after all: the cup result at the main menu')

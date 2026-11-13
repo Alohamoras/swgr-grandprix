@@ -72,7 +72,7 @@ local function outcome(sv)
 end
 local function lastLaunch() return rawget(M.lastCall('LaunchQuickRace').args[2], '__name') end
 -- the set-up and put-back lines of a whole cup (A's are the reference for B)
-local COUNTS = { 'LAUNCH ', 'RESULT ', '[gaps] ', 'PERF ', 'build for this race: VBD_Bike_Base 0=7 1=7 2=7 3=7 4=7 5=7',
+local COUNTS = { 'LAUNCH ', '[GalacticGrandPrix] RESULT ', '[gaps] ', 'PERF ', 'build for this race: VBD_Bike_Base 0=7 1=7 2=7 3=7 4=7 5=7',
   'your abilities for this race:', '[ai] league challenger: pressure', '[aiset] race league=challenger', '[loadout] challenger, 11 racers',
   '[racer] racing as Sen Fira (DA_Racer_Thrall): CharacterList.Player set', '[racer] racing as Sen Fira (DA_Racer_Thrall); Shade put back',
   'build put back (', 'ability slots put back (', '[ai] AI config put back (main menu): DA_AIConfig' }
@@ -180,10 +180,14 @@ for k = 1, 3 do
 end
 local mark4 = T.mark()
 runRace(4)
-T.check(T.logHas('[chain] not chaining: race 4 of 4: the cup result at the main menu', mark4), 'B: race 4: the last race goes to the main menu')
+-- v0.28.1: the last race - our CUP RESULT button on the results screen, the game's CONTINUE hidden; it leaves for the
+-- cup result at the main menu
+T.check(T.logHas('[chain] race 4 of 4 finished: next the cup result (CUP RESULT, then the main menu)', mark4), 'B: race 4: the last race looks for the results screen')
 W.results(); M.tick(10)
-T.check(#W.canvasKids == 0, 'B: nothing on the last race\'s results screen')
-T.check(W.contVis == 0, 'B: the last race keeps the game\'s CONTINUE (to the cup result)')
+T.check(W.chainBtn ~= nil and W.contVis == 1 and T.logHas('[chain] last race: CUP RESULT button, focused: ', mark4), 'v0.28.1: race 4: a CUP RESULT button, the game\'s CONTINUE hidden')
+T.check(not T.logHas('[chain] panel added', mark4), 'v0.28.1: no standings panel on the last race (the cup result comes at the menu)')
+W.pressNext(); M.tick(3)
+T.check(T.logHas('[chain] CUP RESULT pressed (the CUP RESULT button)', mark4) and W.continued == 1, 'v0.28.1: CUP RESULT pressed: the results left the game\'s own way')
 W.backToMenu(); M.tick(45)
 T.check(T.logHas('[menu] standings (1 tiles)', mark4), 'B: the cup result at the main menu')
 T.check(T.logCount('[menu] standings') == 1, 'B: no standings page between the races (only the cup result)')
@@ -370,5 +374,27 @@ T.check(not T.logHas('[chain] panel added', mark), 'T: no panel after B')
 W.backToMenu(); M.tick(MENU_TICKS)
 T.check(T.logHas('"Leave the cup?" at the main menu', mark), 'T: "Leave the cup?" at the main menu')
 ended('T')
+
+-- D2. v0.28.1 (TASKS "A DNF skips the results panel"): wrecked out of race 1 - the bots race on, the results screen
+-- comes, the panel and NEXT RACE as after a finish; the race recorded as a DNF
+start()
+T.clickTitle('JAKKU CUP')
+W.race(11)
+mark = T.mark()
+M.tick(5)
+W.rec.bHasVehicleWrecked = true
+M.tick(25)
+T.check(T.logHas('out of the race (wrecked): a DNF', mark), 'D2: the wreck noticed: a DNF')
+T.check(T.logHas('[chain] race 1 of 4 finished: next', mark), 'D2: the chain runs after a DNF too')
+for i in ipairs(W.bots) do W.botFinish(i, i, TIMES[1] + i) end
+M.tick(130) -- (the others race on: longer than ResultsWaitS's 90 s - a DNF waits up to OutWaitS)
+W.results(); M.tick(10)
+T.check(T.logHas('[chain] panel added', mark) and W.chainBtn ~= nil, 'D2: the standings panel and NEXT RACE on the results screen after a DNF')
+T.check(T.logHas(': DNF (time', mark), 'D2: recorded as a DNF')
+W.pressNext(); M.tick(3)
+T.check(T.logHas('[chain] NEXT RACE pressed', mark), 'D2: NEXT RACE after a DNF')
+W.backToMenu(); M.tick(MENU_TICKS)
+T.check(M.called('LaunchQuickRace') == 2, 'D2: race 2 launched via the menu')
+ended('D2')
 
 T.finish()

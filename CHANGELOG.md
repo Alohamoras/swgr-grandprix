@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.28.1 (2026-11-12): the cup flow's two gaps closed
+- **The last race of a cup**: our CUP RESULT button on the game's results screen (focused, the game's CONTINUE hidden,
+  as after races 1-3); A (or B, or N) goes to the cup result at the main menu. `ChainRaces.Panel.LastRace = false`
+  for the old way.
+- **A DNF** (wrecked, eliminated or timed out: `bHasVehicleWrecked` / `bHasBeenEliminated` / `bHasTimedOut` on your
+  race event component) now runs the same results-screen flow as a finish: the standings panel and NEXT RACE once
+  the others are done (up to `ChainRaces.OutWaitS`, 600 s). Log: `out of the race (wrecked): a DNF`.
+
 ## v0.28.0 (2026-11-12): pilot strength - the same few drivers to beat
 The AI driving spike (docs/ai-driving-results-2026-11-12.md) found every bot races an exact copy of your car, so
 nothing told the pilots apart and the winner was mostly whoever crashed least. Held-race tests: a bot's parts change
