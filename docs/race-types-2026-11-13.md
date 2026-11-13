@@ -5,6 +5,18 @@ note Takedown and Ramjet for later. Read-only research; nothing built until the 
 **Status: desk research done (this file); the in-game recon (part 2) is waiting for a free desktop.** Tools for it
 are in v0.29.2.
 
+## How to pick this up
+1. **Install v0.29.2** (`./deploy.sh v0.29.2`, game closed) - it has the research tools; nothing changes without them.
+2. **Recon (owner away, ~30 min):** back up `save.lua` (md5) to `~/.local/share/swgr-save-backups/`; launch; at the
+   Challenger cups page put an `experiment.lua` in the mod folder and START, one race each:
+   - `return { label = "elim", event = "THE WAR FIELDS (ELIMINATOR)", eventPath = "/Game/Griffin/Gameplay/Events/Planets/Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD_ELIMINATOR" }`
+   - `return { label = "ko", event = "GAUNTLET KNOCKOUT", eventPath = "/Game/Griffin/Gameplay/Events/Planets/Whippet/KNOCKOUT/EVT_WHP_LOOP_A_FWD_KNOCKOUT_TOUR2" }`
+   - `return { label = "mode", event = "SCRAP SPIRAL", modeFrom = "/Game/Griffin/Gameplay/Events/Planets/Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD_ELIMINATOR" }`
+   Drive with TestAutopilot (enable it, `armed.txt`; the job-scratch `runheld.sh` / `apwait.sh` pattern, W tap every
+   15 s). Read the `[elim]` lines against the game's results screen (screenshot it); note whether the knockout's
+   recap cinematic plays or hangs. Restore the save (md5), switch TestAutopilot off, remove `experiment.lua`.
+3. **Write the results** into section 2 below, then ask the owner to pick a shape (section 4; OWNER.md question).
+
 ## 1. What exists (the game's files: Manifest_UFSFiles_Win64.txt, UndergroundProto/events_dump.txt, the header dump)
 | Mode (`ERaceEventModeType`) | Config class | Events | Track | Laps / grid |
 |---|---|---|---|---|
