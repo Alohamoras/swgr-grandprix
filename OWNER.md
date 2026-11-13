@@ -4,6 +4,8 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
+- [ ] **Making the loadout choice matter:** options in docs/loadout-options-2026-11-12.md. Claude's pick: split HEAT
+  SHIELD into fire / frost packs + every planet cup draws at least one weather race, then golds unlock packs.
 - [x] **AI pilots: fixed strength + small form, or fully random?** Answered 2026-11-12: fixed, no per-race randomness (built in v0.28).
 - [ ] **Kestar is a weak final boss** (Claude's tests, 2026-11-11 night: he veers left off the line, then loses by
   20 s over 6 laps even to the autopilot). The Showdown was likely built around the game's own catch-up, which our

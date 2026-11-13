@@ -96,6 +96,8 @@ put back at the menu, key binds only set flags):
   built around the game's catch-up). Boss keeps the game's own AI, a boss profile, or leave him? (OWNER.md) The AI
   spike above may fix it anyway.
 - **The Galactic Cup format** (three random planets, then The Galactic Gauntlet): right, or something else?
+- **Loadout options written up: docs/loadout-options-2026-11-12.md** (split HEAT SHIELD, weather in every cup, golds
+  unlock packs, rebalance). Owner to pick.
 - **Tune-ups gated by league** vs earned (trophies, golds, titles) or not gated at all; **heat / cold and the
   packs** - make picking the right pack matter more, or drop it.
 - **Ideas for the future (owner, 2026-11-12):** a deeper dive into the tune-up system; a **Grand Tour** (every track
