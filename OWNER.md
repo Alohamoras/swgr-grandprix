@@ -4,6 +4,9 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
+- [ ] **Special rounds (race types):** docs/race-types-2026-11-13.md section 4 - A eliminator mid-cup, B knockout as
+  the Galactic Cup finale, C by league style (Junker eliminator, Ace knockout finale), D bonus events. Pick after the
+  in-game recon (needs the PC to Claude for ~30 min).
 - [ ] **Making the loadout choice matter:** options in docs/loadout-options-2026-11-12.md. Claude's pick: split HEAT
   SHIELD into fire / frost packs + every planet cup draws at least one weather race, then golds unlock packs.
 - [x] **AI pilots: fixed strength + small form, or fully random?** Answered 2026-11-12: fixed, no per-race randomness (built in v0.28).

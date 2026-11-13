@@ -92,6 +92,15 @@ put back at the menu, key binds only set flags):
       docs/custom-vehicle-models-2026-11-12.md. First step if wanted: a pipeline proof (one car kit cooked back with a
       trivial change).
 
+## 1d. Race types as special rounds (owner 2026-11-13, via the Podracing session; research only)
+**docs/race-types-2026-11-13.md.** Eliminator (1 event, The War Fields) and Knockout (2, The Galactic Gauntlet);
+Takedown / Ramjet later.
+- [x] Desk research: modes, events, settings; the `EventMode` swap lead; tools in v0.29.2 (`[elim]` order log,
+      `experiment.lua eventPath` / `modeFrom`).
+- [ ] In-game recon (owner away): launch from the GP flow, the elimination order, the results screen, the knockout's
+      cinematic, `modeFrom` on another track.
+- [ ] Owner picks a shape (A-D in the doc), then build.
+
 ## 2. Waiting on the owner's play (details and tick boxes in OWNER.md "Playtests")
 - [ ] v0.27.x: the finish times then STANDINGS (A, or 6 s); Challenger open from the start; Riff-Raff's feel (parts
       2 on three slots); the posters' taglines and the cups page brief; the garage's TUNE-UP / ABILITY captions.
