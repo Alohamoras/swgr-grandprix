@@ -92,6 +92,8 @@ Owner's plan: keep playing ~a week without crashes, then publish as a beta.
   **2026-11-13 lead:** three launches in a row looked exactly like this (blank screen, log ends at `Event loop start`)
   but were busy (CPU 800-1400%) and reached the menu after 4.5-5 min. Most "hangs" may be slow starts (shader rebuild?):
   wait 5+ min, watching CPU, before killing. KNOWLEDGE.md section 3.
+  **2026-11-13 afternoon:** one more hang with the CPU idle (~3%, "not responding" after ~7 min) - a different kind
+  from the busy slow starts; 6 other launches that day took 15-18 s. Relaunch fixed it.
 - [ ] A week of crash-free play, then `tools/package.sh <tag>` and upload as a beta.
 
 ## 1b. League styles (owner 2026-11-12: "different styles of racing"; agreed, not built)
