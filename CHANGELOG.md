@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.29.2 (2026-11-13): race types research tools
+- `[elim] n: <racer> eliminated|wrecked <s> after the launch (position, fail reasons)`: every racer's eliminated /
+  wrecked flag, logged once each, in order, from the field read already done every 2 s (no extra lookups) - the
+  elimination order an eliminator / knockout round would score by.
+- `experiment.lua` (test-only): `eventPath` (launch any event by path, e.g. the eliminator) and `modeFrom` (this
+  launch borrows another event's race mode, e.g. the War Fields eliminator's TimeEliminatorConfig; memory only, put
+  back at the main menu).
+
 ## v0.29.1 (2026-11-12): Junker afterburner and ramjet 6
 - Owner: another +2 at JUNKER - parts slots 1 and 3 (afterburner, ramjet) 4 -> 6, battery 2 (set in the installed
   config by the other session, carried here).

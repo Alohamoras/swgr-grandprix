@@ -385,6 +385,7 @@ M.tick(5)
 W.rec.bHasVehicleWrecked = true
 M.tick(25)
 T.check(T.logHas('out of the race (wrecked): a DNF', mark), 'D2: the wreck noticed: a DNF')
+T.check(T.logHas('[elim] 1: YOU wrecked', mark), 'v0.29.2: [elim] - the wreck logged in order, with the position')
 T.check(T.logHas('[chain] race 1 of 4 finished: next', mark), 'D2: the chain runs after a DNF too')
 for i in ipairs(W.bots) do W.botFinish(i, i, TIMES[1] + i) end
 M.tick(130) -- (the others race on: longer than ResultsWaitS's 90 s - a DNF waits up to OutWaitS)

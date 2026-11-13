@@ -80,5 +80,37 @@ M.tick(150)
 T.check(T.logHas('[exp] quitAfterS 20: back to the main menu', mark) and (T.logHas('RequestReturnToMenus() called', mark) or T.logHas("CONTINUE pressed", mark)),
   'quitAfterS: 20 s after the launch, the race sent back to the main menu')
 T.check(T.logCount('[exp] quitAfterS') == 1, 'quitAfterS: once')
+-- race types research: eventPath (any event by path) + modeFrom (borrow another event's race mode; put back at the menu)
+local ELIM = '/Game/Griffin/Gameplay/Events/Planets/Mastiff/Loop_A/EVT_MAS_LOOP_A_FWD_ELIMINATOR'
+local elimMode = M.new('TimeEliminatorConfig_0', {}, 'TimeEliminatorConfig')
+M.assets[ELIM .. '.EVT_MAS_LOOP_A_FWD_ELIMINATOR'] = M.new('EVT_MAS_LOOP_A_FWD_ELIMINATOR', { EventMode = elimMode }, 'RaceEventDef')
+for _, pool in pairs(require('config').Pools) do
+  for _, r in ipairs(pool) do
+    if r.title == 'SCRAP SPIRAL' then
+      local nm = r.path:match('([^/]+)$')
+      local evo = W.raceEvent(r.path, 6)
+      M.assets[r.path .. '.' .. nm] = evo
+      M.add('TeamRaceConfig', rawget(evo, '__props').EventMode) -- (findable again by path + address, C.deref)
+    end
+  end
+end
+W.backToMenu(); M.tick(45)
+f = io.open(EXP, 'w')
+f:write(('return { label = "mode", event = "SCRAP SPIRAL", modeFrom = %q }'):format(ELIM))
+f:close()
+mark = T.mark()
+tl = T.titles()
+if tl:find('NEXT RACE', 1, true) then T.clickTitle('NEXT RACE')
+else
+  if tl:find('CONTINUE', 1, true) then T.clickTitle('CONTINUE'); M.tick(3) end
+  if T.titles():find('JAKKU CUP', 1, true) then T.clickTitle('JAKKU CUP'); M.tick(5) end
+  T.clickTitle('START')
+end
+M.tick(5)
+T.check(T.logHas('[exp] modeFrom: SCRAP SPIRAL races with TimeEliminatorConfig_0 (EVT_MAS_LOOP_A_FWD_ELIMINATOR, was TeamRaceConfig_0)', mark),
+  'modeFrom: the event launched with the eliminator\'s race mode (' .. tl .. ')')
+W.race(11); M.tick(30)
+W.backToMenu(); M.tick(45)
+T.check(T.logHas('[exp] modeFrom put back (main menu): ', mark) and T.logHas('-> TeamRaceConfig_0', mark), 'modeFrom: the event\'s own mode back at the menu')
 os.remove(EXP)
 T.finish()

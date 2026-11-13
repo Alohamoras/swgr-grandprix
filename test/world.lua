@@ -267,7 +267,8 @@ end
 function W.event(path, tag)
   local n = path:match('([^/]+)$')
   local e = M.new(n, { VehicleTypeTag = { TagName = { ToString = function() return tag or 'Vehicle.Standard' end } },
-    GridMakeup = { Entries = M.tarr({ { EntryType = 4, NumEntrants = 12 } }) } }, 'RaceEventDef')
+    GridMakeup = { Entries = M.tarr({ { EntryType = 4, NumEntrants = 12 } }) },
+    EventMode = M.new('TeamRaceConfig_0', {}, 'TeamRaceConfig') }, 'RaceEventDef')
   M.assets[path .. '.' .. n] = e
   return e
 end
@@ -374,7 +375,8 @@ function W.raceEvent(path, laps, cond)
     TrackDef = M.new((n:gsub('^EVT_', 'TRAK_')), {}, 'TrackDef'), LapCount = laps or 2,
     TrackConditionTag = { TagName = M.new(cond or 'TrackCondition.Sunset', {}, 'FName') },
     -- (v0.21: the grid make-up as the game's normal events have it: PlayerChoice x12; RaceFlowSpike B6)
-    GridMakeup = { Entries = M.tarr({ { EntryType = 4, NumEntrants = 12 } }) } }, 'RaceEventDef')
+    GridMakeup = { Entries = M.tarr({ { EntryType = 4, NumEntrants = 12 } }) },
+    EventMode = M.new('TeamRaceConfig_0', {}, 'TeamRaceConfig') }, 'RaceEventDef')
   M.assets[path .. '.' .. n] = e
   return e
 end

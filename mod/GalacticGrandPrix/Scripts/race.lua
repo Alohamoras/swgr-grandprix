@@ -149,7 +149,19 @@ local function applyMods(path, b, paths)
   return names
 end
 
+-- (race types research) the borrowed race mode back on its event (memory only)
+local function restoreMode(why)
+  local mr = R.modeRestore
+  if not mr then return end
+  R.modeRestore = nil
+  local e = C.asset(mr.path)
+  local orig = R.modeOrig and C.deref(R.modeOrig)
+  R.modeOrig = nil
+  local ok = e and alive(orig) and pcall(function() e.EventMode = orig end)
+  log(('[exp] modeFrom put back (%s): %s %s'):format(why or '', mr.path:match('([^/]+)$'), ok and ('-> ' .. mr.was) or 'FAILED'))
+end
 function R.restoreBuild(why)
+  pcall(restoreMode, why)
   local done = {}
   for path, orig in pairs(K.data.restores) do
     local b = C.asset(path)
@@ -329,6 +341,9 @@ function R.launch(ev, classKey, vehKey, picks, mods, opts)
     for _, pool in pairs(require('config').Pools or {}) do
       for _, r in ipairs(pool) do if r.title == exp.event then found = r end end
     end
+    if not found and type(exp.eventPath) == 'string' then
+      found = { path = exp.eventPath, title = exp.event, kind = 'Special', laps = 2 }
+    end
     if found then
       log(('[exp] event: %s instead of %s'):format(found.title, tostring(ev and ev.title)))
       local copy = {}
@@ -338,6 +353,18 @@ function R.launch(ev, classKey, vehKey, picks, mods, opts)
   end
   local p, msg = prepare(ev, classKey, vehKey, picks, mods, opts)
   if not p then return false, msg end
+  -- race types research (test-only): experiment.lua's modeFrom = another event's path whose race mode (EventMode, e.g.
+  -- the War Fields eliminator's TimeEliminatorConfig) this launch borrows; memory only, put back at the main menu
+  if exp and type(exp.modeFrom) == 'string' then
+    local src = C.asset(exp.modeFrom)
+    local m = src and try(function() return src.EventMode end)
+    local orig = try(function() return p.e.EventMode end)
+    if alive(m) and alive(orig) and pcall(function() p.e.EventMode = m end) then
+      R.modeRestore = { path = ev.path, was = C.idname(orig), from = exp.modeFrom }
+      R.modeOrig = C.ref(orig) -- (path + address, never the object: looked up again at the menu)
+      log(('[exp] modeFrom: %s races with %s (%s, was %s)'):format(ev.title, C.idname(m), exp.modeFrom:match('([^/]+)$'), C.idname(orig)))
+    else log('[exp] modeFrom: could not borrow the mode of ' .. exp.modeFrom) end
+  end
   local skip = worldKeys()
   local ok, err = try(function() fe:LaunchQuickRace(p.arch, p.e, p.build); return true end)
   if not ok then
@@ -385,6 +412,18 @@ local function readField(r)
       if not f.finished then
         local pos = try(function() return tonumber(rec.EventPosition) end)
         if pos and pos > 0 then f.pos = pos end
+        -- (race types research, v0.29.2) eliminated / wrecked: logged once per racer, in order, with the position
+        -- the game shows then - the elimination order for eliminator / knockout scoring
+        if not f.outAt then
+          local why = (try(function() return rec.bHasBeenEliminated end) == true and 'eliminated')
+            or (try(function() return rec.bHasVehicleWrecked end) == true and 'wrecked') or nil
+          if why then
+            r.outN = (r.outN or 0) + 1
+            f.outAt, f.outN, f.outWhy = C.clock - r.at, r.outN, why
+            log(('[elim] %d: %s %s %.0f s after the launch (position %s, fail reasons %s)'):format(r.outN, f.you and 'YOU' or name, why,
+              (C.clock - r.at) / 1000, tostring(pos), tostring(try(function() return rec.FailReasons end))))
+          end
+        end
         if try(function() return rec.bHasFinishedEvent end) == true then f.finished = true end
       end
       -- v0.10 (gap log): every racer's race time, from the same component as yours (EventFinishTime, 0 until they
