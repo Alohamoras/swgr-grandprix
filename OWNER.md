@@ -35,7 +35,7 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
     folder, then every medal, record, title, the boss and the leaders are cleared. Kept: your racer, your four
     abilities and your tune-ups. Kestar is locked again (if you race as him, you'll be Shade until you beat him after
     the Ace title). The log says it once: `[save] v0.26: three leagues - a clean start (backup ...)`.
-  - HOME: RIFF-RAFF, CHALLENGER, ACE with the medal pips top left (v0.27: no chevrons). Focus each poster: does its
+  - HOME: JUNKER, CHALLENGER, ACE with the medal pips top left (v0.27: no chevrons). Focus each poster: does its
     tagline show under the name ("Outer Rim junkers and scrapyard hopefuls" / "Tuned rigs and pilots out to make a
     name" / "The fastest pilots in the galaxy"), and do they suit? Open a league: is the brief under its name
     ("Tuned engines - two abilities - one tune-up") readable? Wording lives in config.lua `Leagues`.

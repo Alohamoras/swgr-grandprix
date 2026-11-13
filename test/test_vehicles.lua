@@ -59,7 +59,7 @@ T.clickTitle('YES'); M.tick(3)
 T.check(T.save().run == nil, 'YES forfeits it')
 T.check(T.logHas('cup forfeited: ACE crait after 1 of 4 races'), 'forfeit logged')
 T.check(T.save().best['ace'] == nil, 'no trophy saved')
-T.check(T.logHas('[menu] home') and T.titles() == 'RIFF-RAFF|CHALLENGER|ACE|GARAGE|RESET PROGRESS', 'YES goes HOME: the leagues, GARAGE, RESET (' .. T.titles() .. ')')
+T.check(T.logHas('[menu] home') and T.titles() == 'JUNKER|CHALLENGER|ACE|GARAGE|RESET PROGRESS', 'YES goes HOME: the leagues, GARAGE, RESET (' .. T.titles() .. ')')
 
 -- a cup alive when HOME is shown (here: the launch of race 2 timed out, which lands on the cups page) is dropped
 T.clickTitle('ACE'); M.tick(3)

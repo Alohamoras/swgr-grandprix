@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.28.3 (2026-11-12): JUNKER, more engine, no race list
+- **RIFF-RAFF is now JUNKER** (owner). The key stays `riffraff` (the save uses it); tagline "Scrapyard junk with too
+  much engine", brief "Hot-rodded junk - one ability - no tune-ups".
+- **Junker's afterburner and ramjet +2** (owner: "racing a piece of junk that can go faster than it probably should"):
+  parts slots 1 and 3 2 -> 4, battery stays 2.
+- **No race list on the start screen** (owner): the game's own track intro (the flyover with the track's name) plays
+  in our races since StreamlineCampaign is off. `StartRaceList = true` puts the list back.
+
 ## v0.28.2 (2026-11-12): test switch quitAfterS (launch checks)
 - `experiment.lua` `quitAfterS = N`: N s after the launch (once the field is read) the race goes back to the main menu
   the game's own way (`RequestReturnToMenus`) - a DNF; for launching every race variant once. A swapped `event` is now

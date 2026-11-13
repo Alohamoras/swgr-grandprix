@@ -118,9 +118,12 @@ return {
     -- battery (energy) at 2, the rest stock.
     -- (Old saves - the cc classes '50' / '100' / '150' / '200' - get a clean start at their first load: gp.lua K.load.)
     Leagues = {
-        { key = 'riffraff', name = 'RIFF-RAFF', parts = { [1] = 2, [3] = 2, [4] = 2 }, mods = 0, abilities = 1, open = true,
-          tagline = 'Outer Rim junkers and scrapyard hopefuls',
-          brief = 'Stock engines   -   one ability   -   no tune-ups' },
+        -- v0.28.3 (owner): JUNKER (was RIFF-RAFF; the key stays 'riffraff' - the save uses it), and the afterburner and
+        -- ramjet 2 points more ("racing a piece of junk that can go faster than it probably should"): slots 1 and 3
+        -- (Acceleration, Boost - the AFTERBURNER and RAMJET bars by their order on the parts screen) 2 -> 4, Battery 2
+        { key = 'riffraff', name = 'JUNKER', parts = { [1] = 4, [3] = 4, [4] = 2 }, mods = 0, abilities = 1, open = true,
+          tagline = 'Scrapyard junk with too much engine',
+          brief = 'Hot-rodded junk   -   one ability   -   no tune-ups' },
         { key = 'challenger', name = 'CHALLENGER', parts = 5, mods = 1, abilities = 2, open = true,
           tagline = 'Tuned rigs and pilots out to make a name',
           brief = 'Tuned engines   -   two abilities   -   one tune-up' },

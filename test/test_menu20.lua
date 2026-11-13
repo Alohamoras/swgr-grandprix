@@ -54,7 +54,7 @@ T.check(spec.hero.lines[1][1] == 'GOLD TROPHY' and spec.hero.lines[1][2] >= 44, 
 T.check(hasText(spec.hero.lines, 'PERFECT CUP'), 'PERFECT CUP as a badge (' .. joined(spec.hero.lines) .. ')')
 T.check(spec.table and #spec.table.rows == 3 and spec.table.rows[1].cells[2] == 'YOU' and spec.table.rows[1].cells[1] == '1st',
   'the final top 3 only (' .. (spec.table and #spec.table.rows or 0) .. ' rows)')
-T.check(hasText(spec.after, 'UNLOCKED:  GALACTIC CUP at RIFF-RAFF'), 'what\'s next: what it unlocked (' .. joined(spec.after) .. ')')
+T.check(hasText(spec.after, 'UNLOCKED:  GALACTIC CUP at JUNKER'), 'what\'s next: what it unlocked (' .. joined(spec.after) .. ')')
 T.check(not findText(spec.after, 'Next:'), 'one what\'s-next line only')
 T.check(not findText(spec.after, 'Last race') and findText(spec.after, 'NEW RECORD') ~= nil, 'v0.22: no Last race line, its record kept (' .. joined(spec.after) .. ')')
 local cont = spec.items[1]
@@ -140,7 +140,7 @@ for _, it in ipairs(home.items) do
     measures[#measures + 1] = tostring(it.badge) .. '/' .. tostring(it.desc) .. '/' .. table.concat(p)
   end
 end
-T.check(table.concat(measures, ' ; ') == 'nil/Outer Rim junkers and scrapyard hopefuls/mmmm--- ; nil/Tuned rigs and pilots out to make a name/-------', 'v0.24 HOME: no badge (v0.27: the tagline), a medal pip per cup (4 trophies at Riff-Raff; Challenger open, none; Ace locked) and the title star (' .. table.concat(measures, ' ; ') .. ')')
+T.check(table.concat(measures, ' ; ') == 'nil/Scrapyard junk with too much engine/mmmm--- ; nil/Tuned rigs and pilots out to make a name/-------', 'v0.24 HOME: no badge (v0.27: the tagline), a medal pip per cup (4 trophies at Riff-Raff; Challenger open, none; Ace locked) and the title star (' .. table.concat(measures, ' ; ') .. ')')
 K.data.best = {}
 T.check(not findText(SC.home().lines, 'Next:'), 'v0.21: a fresh save: no Next: line either')
 S.class = 'riffraff'
@@ -185,13 +185,13 @@ T.check(T.logHas('[footer] found WBP_ActionBar_C_7 (WBP_ActionBar_C) at depth 2'
 T.check(bp.__vis == 1, 'the footer hidden (collapsed) on our tab')
 -- v0.24 (owner: no dark grey bars behind tile text): the label strip is off by default (config TileLabelStrip)
 T.check(not T.logHas('[tiles] label strip', mark), 'no label strip made')
--- B into RIFF-RAFF and back: HOME remembers the tile; a fresh open goes to the class last raced again
+-- B into JUNKER and back: HOME remembers the tile; a fresh open goes to the class last raced again
 rawget(W.tiles[2], '__props').__focus = false
-rawget(W.tiles[1], '__props').__focus = true -- (the player moves to RIFF-RAFF)
+rawget(W.tiles[1], '__props').__focus = true -- (the player moves to JUNKER)
 M.tick(3)
-T.clickTitle('RIFF-RAFF'); M.tick(3)
+T.clickTitle('JUNKER'); M.tick(3)
 M.press('BACKSPACE'); M.tick(5)
-T.check(S.screen == 'home' and S.focus == 1, 'back from Riff-Raff: the focus stays on RIFF-RAFF')
+T.check(S.screen == 'home' and S.focus == 1, 'back from Riff-Raff: the focus stays on JUNKER')
 -- the medal icons on the Challenger cups: gold and bronze in their own colours (the brush tint)
 mark = #M.calls + 1
 T.clickTitle('CHALLENGER'); M.tick(3)

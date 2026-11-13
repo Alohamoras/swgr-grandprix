@@ -28,7 +28,7 @@ local H = rawget(_G, 'GU_TEST_SCREENS')
 local function info(i) return tostring(H.S.ui.items[i].info or '') end
 M.press('F6'); M.tick(6)
 local ALL = 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|TITLE RACE'
-for _, cls in ipairs({ 'RIFF-RAFF', 'CHALLENGER', 'ACE' }) do
+for _, cls in ipairs({ 'JUNKER', 'CHALLENGER', 'ACE' }) do
   T.clickTitle(cls); M.tick(3)
   T.check(T.titles() == ALL, cls .. ': the 7 tiles (' .. T.titles() .. ')')
   local d = descs()
@@ -47,10 +47,10 @@ T.check(T.medals():find('^GOLD|SILVER|', 1) ~= nil and T.marks():find('^STAR GOL
 M.press('BACKSPACE'); M.tick(3)
 
 -- a cup races its draw (the tests' fixed rnd: pool order, each track's last variant)
-T.clickTitle('RIFF-RAFF'); M.tick(3)
+T.clickTitle('JUNKER'); M.tick(3)
 local mark = T.mark()
 T.clickTitle('JAKKU CUP')
-T.check(T.logHas('[cup] RIFF-RAFF jakku drawn: THE WAR FIELDS (REVERSE, SCORCHING) / THE GIANTS\' GRAVEYARD / DEBRIS DUNES (REVERSE, SCORCHING) / FALLEN EMPIRE (SCORCHING)', mark),
+T.check(T.logHas('[cup] JUNKER jakku drawn: THE WAR FIELDS (REVERSE, SCORCHING) / THE GIANTS\' GRAVEYARD / DEBRIS DUNES (REVERSE, SCORCHING) / FALLEN EMPIRE (SCORCHING)', mark),
   'the draw logged')
 T.check(T.logHas('LAUNCH EVT_MAS_LOOP_A_REV_HARD (THE WAR FIELDS (REVERSE, SCORCHING) - Circuit) league=riffraff', mark), 'race 1 = the first race drawn')
 T.check(T.save().run.cup == 'jakku' and T.save().run.races == 4 and #T.save().run.list == 4, 'the planet cup, four races, the draw in the run')

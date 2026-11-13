@@ -34,7 +34,7 @@ local function count(s)
 end
 local function at(s) for i, l in ipairs(M.log) do if l:find(s, 1, true) then return i end end end
 local OPEN = '[boot] opening the GRAND PRIX tab (BootToGrandPrix)'
-local HOME = 'RIFF-RAFF|CHALLENGER|ACE|GARAGE|RESET PROGRESS'
+local HOME = 'JUNKER|CHALLENGER|ACE|GARAGE|RESET PROGRESS'
 local function save(extra)
   local s = { version = 3, races = 5, cups = 0, class = 'riffraff', best = {}, restores = {}, abilityRestores = {} }
   for k, v in pairs(extra or {}) do s[k] = v end
@@ -100,7 +100,7 @@ if scenario == 'main' then
   -- a cup race: the standings come back after it (as before); afterwards nothing reopens
   M.press('F6'); M.tick(6)
   check(T.titles() == HOME, 'F6 still opens HOME')
-  T.clickTitle('RIFF-RAFF'); M.tick(3)
+  T.clickTitle('JUNKER'); M.tick(3)
   T.clickTitle('JAKKU CUP')
   check(M.called('LaunchQuickRace') == 1, 'race launched')
   W.race(11); M.tick(5)

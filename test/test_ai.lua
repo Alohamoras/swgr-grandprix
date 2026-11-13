@@ -98,7 +98,7 @@ T.check(T.levels('VBD_Car_Base') == '0=0 1=0 2=0 3=0 4=0 5=0', 'the build put ba
 -- 50cc: Cadet pressure, the AI config untouched
 M.press('BACKSPACE'); M.tick(3) -- leave the cup (v0.9: B on the standings asks; YES first)
 T.clickTitle('YES'); M.tick(3)
-T.clickTitle('RIFF-RAFF'); M.tick(3)
+T.clickTitle('JUNKER'); M.tick(3)
 mark = T.mark()
 T.clickTitle('JAKKU CUP'); M.tick(3)
 T.check(M.called('LaunchQuickRace') == 2, 'launched at 50cc')

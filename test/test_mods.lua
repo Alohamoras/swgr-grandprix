@@ -114,7 +114,7 @@ T.check(#aff == 0 and rawget(b, '__props').UnlockedAffixSlots == 4, 'launch buil
 -- Riff-Raff: pure driving (and no AI packages there: the launch build stays empty)
 M.press('BACKSPACE'); M.tick(3) -- leave the cup (v0.9: B on the standings asks; YES first)
 T.clickTitle('YES'); M.tick(3)
-T.clickTitle('RIFF-RAFF'); M.tick(3)
+T.clickTitle('JUNKER'); M.tick(3)
 local mark = T.mark()
 T.clickTitle('JAKKU CUP')
 T.check(#aff == 0 and not T.logHas('mods in the launch build', mark), 'Riff-Raff: no mods on the build, none logged')

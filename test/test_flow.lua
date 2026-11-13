@@ -7,7 +7,7 @@ T.boot(nil, { Progression = { On = false } }) -- (unlocks: test_prog, test_unloc
 T.check(W.tab.label == 'GRAND PRIX', 'tab added with the label GRAND PRIX')
 M.press('F6'); M.tick(6)
 T.check(T.logHas('[menu] home'), 'F6 opens the home screen')
-T.check(T.titles() == 'RIFF-RAFF|CHALLENGER|ACE|GARAGE|RESET PROGRESS', 'home: the three leagues, GARAGE, RESET (no EXIT) (' .. T.titles() .. ')')
+T.check(T.titles() == 'JUNKER|CHALLENGER|ACE|GARAGE|RESET PROGRESS', 'home: the three leagues, GARAGE, RESET (no EXIT) (' .. T.titles() .. ')')
 T.clickTitle('CHALLENGER'); M.tick(3)
 T.check(T.ntiles() == 7 and T.ntiles() == #require('config').Cups + 1, 'v0.11: 7 tiles - every cup of the league plus the title race on one page, no BACK (' .. T.ntiles() .. ')')
 T.check(T.titles() == 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|TITLE RACE', 'the five planet cups, the Galactic Cup, the title race (' .. T.titles() .. ')')

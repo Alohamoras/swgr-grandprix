@@ -135,10 +135,13 @@ T.clickTitle('SENTINEL CUP'); M.tick(5)
 T.check(S.screen == 'garage' and S.start and #S.start.draw == 4, 'picking the cup draws its four races (start screen)')
 local first = {}
 for i, r in ipairs(S.start.draw) do first[i] = r.path end
+-- (v0.28.3: no race list on the start screen by default - the game's intro shows each track; StartRaceList = true)
+require('config').StartRaceList = true
 local spec = H.SCREENS.garage()
+require('config').StartRaceList = nil
 local shown = true
 for i, r in ipairs(S.start.draw) do shown = shown and spec.lines[i + 1][1] == ('%d   %s'):format(i, r.title) end
-T.check(shown and spec.lines[1][1] == 'CHALLENGER', 'the start screen shows the league, then the four drawn races')
+T.check(shown and spec.lines[1][1] == 'CHALLENGER', 'the start screen (StartRaceList) shows the league, then the four drawn races')
 M.press('BACKSPACE'); M.tick(3)
 T.check(S.screen == 'cups' and T.save().run == nil, 'B: back to the cups, nothing started')
 T.clickTitle('SENTINEL CUP'); M.tick(5)

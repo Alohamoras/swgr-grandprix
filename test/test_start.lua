@@ -12,14 +12,14 @@ local ART = require('art')
 M.press('F6'); M.tick(6)
 
 -- HOME
-T.check(T.titles() == 'RIFF-RAFF|CHALLENGER|ACE|RESET PROGRESS', 'HOME: the three leagues and RESET, no GARAGE (' .. T.titles() .. ')')
+T.check(T.titles() == 'JUNKER|CHALLENGER|ACE|RESET PROGRESS', 'HOME: the three leagues and RESET, no GARAGE (' .. T.titles() .. ')')
 T.check(S.ui.rows and S.ui.nav ~= nil, 'HOME in rows (the D-pad map made)')
 T.check(T.pips('CHALLENGER') == 'GB----.', 'Challenger: gold, bronze, four faint medals, the title star not won (' .. tostring(T.pips('CHALLENGER')) .. ')')
 T.check(T.badges() == '|||', 'no words on the HOME tiles (' .. T.badges() .. ')')
 T.check(T.marks():find('^pips:%S+|pips:%S+|pips:%S+|$') ~= nil, 'v0.27: only the medal pips on the posters, no chevrons (' .. T.marks() .. ')')
-T.check(S.ui.items[1].desc == 'Outer Rim junkers and scrapyard hopefuls' and S.ui.items[3].desc == 'The fastest pilots in the galaxy',
+T.check(S.ui.items[1].desc == 'Scrapyard junk with too much engine' and S.ui.items[3].desc == 'The fastest pilots in the galaxy',
   'v0.27: each poster\'s tagline (' .. tostring(S.ui.items[1].desc) .. ')')
-T.check(S.ui.nav[1].down == 4 and S.ui.nav[4].up ~= nil, 'down from RIFF-RAFF reaches RESET, and back up')
+T.check(S.ui.nav[1].down == 4 and S.ui.nav[4].up ~= nil, 'down from JUNKER reaches RESET, and back up')
 
 -- the cups page -> the start screen
 T.clickTitle('CHALLENGER'); M.tick(3)
@@ -55,8 +55,16 @@ local H1 = S.ui and H.SCREENS.garage()
 local head = {}
 for i = 1, 5 do head[i] = tostring((H1.lines[i] or {})[1]) end
 T.check(H1.title == 'JAKKU CUP' and head[1] == 'CHALLENGER', 'v0.26: the cup, then the league on top (' .. head[1] .. ')')
-T.check(head[2] == '1   THE WAR FIELDS (REVERSE, SCORCHING)' and head[3] == "2   THE GIANTS' GRAVEYARD" and head[4] == '3   DEBRIS DUNES (REVERSE, SCORCHING)'
-  and head[5] == '4   FALLEN EMPIRE (SCORCHING)', 'v0.26: then the four drawn races with their conditions (' .. table.concat(head, ' | ', 2) .. ')')
+local listed = false
+for i = 2, #H1.lines do if tostring(H1.lines[i][1]):find('^%d   ') then listed = true end end
+T.check(not listed, 'v0.28.3 (owner): no race list - the game\'s own intro shows each track (' .. table.concat(head, ' | ', 2) .. ')')
+do
+  require('config').StartRaceList = true
+  local H2 = H.SCREENS.garage()
+  require('config').StartRaceList = nil
+  T.check(H2.lines[2] and H2.lines[2][1] == '1   THE WAR FIELDS (REVERSE, SCORCHING)' and H2.lines[5] and H2.lines[5][1] == '4   FALLEN EMPIRE (SCORCHING)',
+    'StartRaceList = true: the four drawn races back')
+end
 
 -- B goes back to the cups, nothing started
 M.press('BACKSPACE'); M.tick(3)

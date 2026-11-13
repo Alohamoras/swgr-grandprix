@@ -20,7 +20,7 @@
 -- them), the Galactic Cup 4 from 4 planets. (The code and the save keep the word "class" for a league.)
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.28.2'
+local VERSION = '0.28.3'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -383,7 +383,7 @@ startLaunch = function()
   if res == 'launched' then S.start = nil end
   return res
 end
--- the start screen's title and header lines: a cup -> its name, then the league, then its four drawn races (v0.26);
+-- the start screen's title and header lines: a cup -> its name, then the league (v0.26-v0.28.2: then its four drawn races);
 -- the title race -> the league, the opponent and the track; the boss -> one line
 local function startHeader(st)
   local cls = K.league(st and st.class) or { name = '?' }
@@ -391,7 +391,11 @@ local function startHeader(st)
   if st.kind == 'cup' then
     local cup = K.cup(st.cup) or { name = '?' }
     local lines = { { cls.name:upper(), 22, U.WHITE } }
-    for i, r in ipairs(st.draw or {}) do lines[#lines + 1] = { ('%d   %s'):format(i, r.title), 20, U.WHITE } end
+    -- v0.28.3 (owner): no race list - the game's own track intro (the flyover with the track's name) shows each race;
+    -- config StartRaceList = true puts the four drawn races back
+    if cfg.StartRaceList == true then
+      for i, r in ipairs(st.draw or {}) do lines[#lines + 1] = { ('%d   %s'):format(i, r.title), 20, U.WHITE } end
+    end
     return cup.name, lines
   elseif st.kind == 'title' then
     local ev = TI.event(cls.key) or {}

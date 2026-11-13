@@ -13,12 +13,12 @@ T.boot({ version = 3, races = 30, cups = 4, class = 'riffraff',
     points = { YOU = 45, ['Katja Mox'] = 30 }, last = {}, history = { {}, {}, {} } },
   restores = {}, abilityRestores = {} })
 local NCUPS = #dofile(T.dir .. '/Scripts/config.lua').Cups
-T.check(T.logHas('[cup] sentinel RIFF-RAFF dropped at boot (race 4 of 4): cups cannot be resumed') and T.save().run == nil, 'the cup in the save dropped at boot')
+T.check(T.logHas('[cup] sentinel JUNKER dropped at boot (race 4 of 4): cups cannot be resumed') and T.save().run == nil, 'the cup in the save dropped at boot')
 M.press('F6'); M.tick(6)
-T.check(T.locks() == '||LOCKED||' and T.pips('RIFF-RAFF') == 'GGGG--.', 'home: Ace locked (v0.27.2: Challenger open from the start); Riff-Raff: four golds as pips (' .. T.marks() .. ')')
+T.check(T.locks() == '||LOCKED||' and T.pips('JUNKER') == 'GGGG--.', 'home: Ace locked (v0.27.2: Challenger open from the start); Riff-Raff: four golds as pips (' .. T.marks() .. ')')
 T.clickTitle('ACE'); M.tick(3)
-T.check(T.titles():find('RIFF-RAFF|CHALLENGER', 1, true) == 1, 'a locked league can\'t be entered')
-T.clickTitle('RIFF-RAFF'); M.tick(3)
+T.check(T.titles():find('JUNKER|CHALLENGER', 1, true) == 1, 'a locked league can\'t be entered')
+T.clickTitle('JUNKER'); M.tick(3)
 local b = T.badges()
 T.check(T.medals():find('^GOLD|GOLD|GOLD|GOLD||') ~= nil, 'Riff-Raff: the four golds, Sentinel not raced (' .. T.medals() .. ')')
 -- locked: the Galactic Cup and the title race
@@ -49,7 +49,7 @@ local function cup()
   end
 end
 cup()
-T.check(T.logHas('unlocked: GALACTIC CUP at RIFF-RAFF'), 'the fifth gold unlocks the Riff-Raff Galactic Cup (v0.27.2: Challenger was open already)')
+T.check(T.logHas('unlocked: GALACTIC CUP at JUNKER'), 'the fifth gold unlocks the Riff-Raff Galactic Cup (v0.27.2: Challenger was open already)')
 T.check(T.save().best.riffraff.sentinel == 1, 'Sentinel gold saved')
 T.clickTitle('CONTINUE'); M.tick(3)
 b = T.badges()
@@ -63,7 +63,7 @@ T.clickTitle('GALACTIC CUP')
 T.check(T.logHas('LAUNCH EVT_MAS_LOOP_A_REV_HARD (THE WAR FIELDS (REVERSE, SCORCHING)', mark), 'the Galactic Cup starts on its first race drawn')
 T.check(T.drawn()[4] == 'EVT_WHP_LOOP_A_FWD_RACE', 'and ends on The Galactic Gauntlet')
 cup()
-T.check(T.logHas('unlocked: TITLE RACE at RIFF-RAFF', mark), 'a Galactic Cup trophy unlocks the title race')
+T.check(T.logHas('unlocked: TITLE RACE at JUNKER', mark), 'a Galactic Cup trophy unlocks the title race')
 T.check(T.save().best.riffraff.galactic == 1, 'Galactic gold saved')
 T.clickTitle('CONTINUE'); M.tick(3)
 b = T.badges()
@@ -71,7 +71,7 @@ local ttd
 for _, it in ipairs(rawget(_G, 'GU_TEST_SCREENS').SCREENS.cups().items) do if it.title == 'TITLE RACE' then ttd = it.desc end end
 T.check(select(2, b:gsub('LOCKED', '')) == 0 and tostring(ttd):find('^vs ') ~= nil, 'Riff-Raff: everything open, the title race names its opponent (v0.21: ' .. tostring(ttd) .. ')')
 M.press('BACKSPACE'); M.tick(3)
-T.check(T.locks() == '||LOCKED||' and T.pips('RIFF-RAFF'):find('^[GSB][GSB][GSB][GSB][GSB][GSB]') ~= nil, 'home: 6 / 6 trophies at Riff-Raff, Challenger open, Ace still locked (' .. T.marks() .. ')')
+T.check(T.locks() == '||LOCKED||' and T.pips('JUNKER'):find('^[GSB][GSB][GSB][GSB][GSB][GSB]') ~= nil, 'home: 6 / 6 trophies at Riff-Raff, Challenger open, Ace still locked (' .. T.marks() .. ')')
 T.clickTitle('CHALLENGER'); M.tick(3)
 b = T.locks()
 T.check(T.titles() == 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|TITLE RACE' and select(2, b:gsub('LOCKED', '')) == 2,

@@ -80,7 +80,7 @@ local function race(you, order, time, lap)
 end
 
 M.press('F6'); M.tick(6)
-T.clickTitle('RIFF-RAFF'); M.tick(3)
+T.clickTitle('JUNKER'); M.tick(3)
 T.clickTitle('JAKKU CUP')
 -- race 1: Biddy Blas 1st, you 2nd (12 v 15), 0.4 s off the record with a better lap
 local tx = race(2, { 1, 2 }, 120.4, 58.5)

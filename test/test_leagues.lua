@@ -1,4 +1,4 @@
--- v0.26 (owner 2026-11-12, TASKS "Three leagues"): RIFF-RAFF, CHALLENGER and ACE replace the four cc classes.
+-- v0.26 (owner 2026-11-12, TASKS "Three leagues"): JUNKER, CHALLENGER and ACE replace the four cc classes.
 --   1. an old save (v2, the cc classes) at its first load: a clean start - backed up, every bit of progress gone, the
 --      garage kept (racer, four abilities, tune-ups normalised), Kestar locked again (a Kestar pick back to Shade),
 --      logged once;
@@ -51,7 +51,7 @@ K.load()
 T.check(not T.logHas('a clean start', mark) and K.data.version == 3 and K.data.picks[3] == 'vent.flame', 'the next load: a v3 save, no second clean start')
 -- HOME: three leagues, no cc anywhere
 M.press('F6'); M.tick(6)
-T.check(T.titles() == 'RIFF-RAFF|CHALLENGER|ACE|GARAGE|RESET PROGRESS', 'HOME: the three leagues (' .. T.titles() .. ')')
+T.check(T.titles() == 'JUNKER|CHALLENGER|ACE|GARAGE|RESET PROGRESS', 'HOME: the three leagues (' .. T.titles() .. ')')
 local H = rawget(_G, 'GU_TEST_SCREENS')
 local words = {}
 for _, it in ipairs(H.SCREENS.home().items) do words[#words + 1] = tostring(it.title) .. ' ' .. tostring(it.desc) .. ' ' .. tostring(it.info) end
@@ -66,7 +66,7 @@ T.boot({ version = 3, picks = { 'bolt.concuss', 'shield.impact', 'surge.impact',
 K = require('gp')
 local AB, MS, A = require('abil'), require('modsel'), require('ai')
 local WANT = {
-  riffraff = { parts = '0=0 1=2 2=0 3=2 4=2 5=0', level = 1, slots = 0, bolt = 'BP_Ability_Disruptor_C', pressure = -1 },
+  riffraff = { parts = '0=0 1=4 2=0 3=4 4=2 5=0', level = 1, slots = 0, bolt = 'BP_Ability_Disruptor_C', pressure = -1 },
   challenger = { parts = 5, level = 2, slots = 1, bolt = 'BP_Ability_Disruptor_Concuss_C', pressure = 0 },
   ace = { parts = 9, level = 3, slots = 2, bolt = 'BP_Ability_Disruptor_ConcussV2_C', pressure = 0.5 },
 }

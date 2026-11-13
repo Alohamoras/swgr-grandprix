@@ -31,7 +31,7 @@ local EV = '/Game/Griffin/Gameplay/Events/Planets/'
 local JAKKU1 = EV .. 'Mastiff/Loop_A/EVT_MAS_LOOP_A_REV_HARD' -- (the tests' Jakku draw: race 1)
 local CRAIT1 = EV .. 'Spaniel/Loop_A/EVT_SPA_Loop_A_REV_MINES' -- (the tests' Crait draw: race 1)
 M.press('F6'); M.tick(6)
-T.clickTitle('RIFF-RAFF'); M.tick(3)
+T.clickTitle('JUNKER'); M.tick(3)
 T.check(T.titles():find('|TITLE RACE$') ~= nil and T.ntiles() == 7, 'the TITLE RACE tile is the last of 7 on the Riff-Raff cups page (' .. T.titles() .. ')')
 local H = rawget(_G, 'GU_TEST_SCREENS')
 local tt
@@ -63,7 +63,7 @@ T.check(W.charsText() == 'Player=DarkEnigma Opp=Veteran', 'the racer settled in 
 W.finish(2, 130.5, 60); M.tick(25)
 wait3()
 W.backToMenu(); M.tick(45)
-T.check(T.logHas('TITLE RACE RIFF-RAFF: lost, 2nd vs Griff Halloran on THE WAR FIELDS (REVERSE, SCORCHING) (try 1)'), 'the loss logged')
+T.check(T.logHas('TITLE RACE JUNKER: lost, 2nd vs Griff Halloran on THE WAR FIELDS (REVERSE, SCORCHING) (try 1)'), 'the loss logged')
 T.check(grid(JAKKU1) == '12' and W.charsText() == 'Player=DarkEnigma Opp=' .. ORIG_OPP, 'at the menu: the make-up and the list put back (' .. W.charsText() .. ')')
 T.check(T.logCount('[title] grid put back') == 1 and T.logHas('[title] grid put back (main menu): make-up done (12 entrants); Opponents done (11:'),
   'put back exactly once, logged')
@@ -91,14 +91,14 @@ K.startCup('riffraff', 'crait', 'bike')
 for i = 1, 4 do K.record(K.nextRace(), 3, field(3), { time = 100 + i }) end
 T.check(K.data.leader.riffraff.name == 'Biddy Blas' and K.data.leader.riffraff.cup == 'crait' and K.data.leader.riffraff.path == CRAIT1,
   'the cup over: Biddy Blas (the winner) is the Riff-Raff leader, saved with the cup run\'s first race')
-T.check(T.logHas('[title] RIFF-RAFF leader: Biddy Blas (best bot of the crait) - the title race opponent, on CRIMSON MINES (REVERSE, MINES)'), 'the leader logged')
+T.check(T.logHas('[title] JUNKER leader: Biddy Blas (best bot of the crait) - the title race opponent, on CRIMSON MINES (REVERSE, MINES)'), 'the leader logged')
 -- (you won a cup: the 2nd is the leader)
 K.startCup('challenger', 'jakku', 'car')
 for i = 1, 4 do K.record(K.nextRace(), 1, field(1), { time = 100 + i }) end
 T.check(K.data.leader.challenger.name == 'Biddy Blas' and require('title').leaderOf({ points = { YOU = 60, A = 40, B = 41 }, last = {} }) == 'B',
   'you won: the best bot (2nd overall) is the leader')
 M.press('BACKSPACE'); M.tick(5)
-T.clickTitle('RIFF-RAFF'); M.tick(3)
+T.clickTitle('JUNKER'); M.tick(3)
 for _, it in ipairs(H.SCREENS.cups().items) do if it.title == 'TITLE RACE' then tt = it end end
 T.check(tt.desc == 'vs Biddy Blas' and tt.info:find('on CRIMSON MINES (REVERSE, MINES)', 1, true) ~= nil, 'the tile: vs Biddy Blas, on the Crait Cup run\'s first race (' .. tt.info .. ')')
 T.clickTitle('TITLE RACE')
@@ -108,7 +108,7 @@ W.race(1); M.tick(5)
 W.finish(1, 120, 55); M.tick(25)
 wait3()
 W.backToMenu(); M.tick(45)
-T.check(T.logHas('TITLE RACE RIFF-RAFF: WON - you are the champion vs Biddy Blas on CRIMSON MINES (REVERSE, MINES) (try 2)'), 'the win logged')
+T.check(T.logHas('TITLE RACE JUNKER: WON - you are the champion vs Biddy Blas on CRIMSON MINES (REVERSE, MINES) (try 2)'), 'the win logged')
 sv = T.save()
 T.check(sv.titles.riffraff.won == true and sv.titles.riffraff.tries == 2 and sv.titles.riffraff.vs == 'Biddy Blas', 'saved: won on the second try, vs Biddy Blas')
 T.check(grid(CRAIT1) == '12' and W.charsText() == 'Player=DarkEnigma Opp=' .. ORIG_OPP, 'put back again')
