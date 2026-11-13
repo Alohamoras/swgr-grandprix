@@ -66,14 +66,11 @@ put back at the menu, key binds only set flags):
       exact copy of YOUR car (same parts, power 30) - nothing in the cars tells pilots apart; no hidden handicap
       affixes at load (TNS_AI_General helps the bots); the boost rules are cautious, the bike's most of all. Step 2's
       switch (`experiment.lua`: styles, config, bot parts, a fixed event, every racer's time) is built (v0.27.7).
-- [ ] 2. Held-race batches (TestAutopilot `hold.txt`: your car stays on the line, the 11 bots race each other - a clean
-      measure; the autopilot uses the same driving styles, so never measure against it). One change at a time against
-      an untouched baseline, 3 races each on one track (The Giants' Graveyard, Challenger), plus one snow track (Cloister
-      Run) where the bots are worst. Order: (a) boost rules relaxed, (b) the handicap affixes / tune sets off, (c) bots'
-      parts +2, (d) catch-up tune applied once. Log finish times, spread 1st-12th, DNFs / crashes. ~15-20 races,
-      about 1-1.5 h of game time.
-- [ ] 3. Report (docs/ai-driving-results-<date>.md) and a proposal per league; the owner picks, then build it as a
-      version and the owner races a cup at Challenger and Ace.
+- [x] 2. Held-race batches (2026-11-12, 12 races, docs/ai-driving-results-2026-11-12.md "Step 2"): boost rules no
+      effect; bot parts work (+2 levels = ~3-4.5 s); pilot strength puts the Elite on top; the race-to-race swings
+      (~20 s per pilot) are the bots' own mistakes and stay.
+- [ ] 3. Report done, proposal in the results doc: **pilot strength per league + random form (+-1 level)**. The
+      owner picks, then build it as a version and the owner races a cup at Challenger and Ace.
 - Done: desk research (docs/ai-driving-research-2026-11-12.md). Tools: TestAutopilot v1.5 (hold.txt); the
   job-scratch scripts step.sh / apwait.sh / chainrace.sh / titlerun.sh (copy into tools/ if the job folder is gone).
 
