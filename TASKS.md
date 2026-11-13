@@ -81,6 +81,13 @@ put back at the menu, key binds only set flags):
 - [ ] Junker = banger racing: more aggressive bots (`AI.Profiles.riffraff.aggression`).
 - [ ] Ace = weather and night: the draw leans to condition variants (gp.lua `K.draw`, a per-league lean).
 
+## 1c. Looks (owner 2026-11-12; not started)
+- [ ] **Rust for Junker** (spike first): the game's All Rust patina (`LP_AllRust`), the dirt override and the panel
+      damage call on your car at a Junker race load - docs/custom-vehicle-models-2026-11-12.md "The cheap alternative".
+- [ ] **New vehicle models** (big; inspiration photos of a junker speeder): the process in
+      docs/custom-vehicle-models-2026-11-12.md. First step if wanted: a pipeline proof (one car kit cooked back with a
+      trivial change).
+
 ## 2. Waiting on the owner's play (details and tick boxes in OWNER.md "Playtests")
 - [ ] v0.27.x: the finish times then STANDINGS (A, or 6 s); Challenger open from the start; Riff-Raff's feel (parts
       2 on three slots); the posters' taglines and the cups page brief; the garage's TUNE-UP / ABILITY captions.
