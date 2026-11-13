@@ -21,6 +21,15 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - [ ] **Do you ever change your abilities or tune-ups between cups?** If not, the garage could shrink to the racer.
 - [ ] **PHILOSOPHY.md is out of date** (the rival is cut; 200cc is a keeper): OK to rewrite it to match today?
 - [ ] **Ideas from your Google Doc** (realism mode, a podracer cup): send the details when you want them on the list.
+- [ ] **Credits: the two `<author>` names** (UE4SS Galactic Racer Edition, Nexus mod 2; FreeRace, mod 80) in
+  docs/release/nexus-description.bbcode and the README - fill from the mods' "Created by" lines (Nexus blocked us).
+- [ ] **Underground: keep the test races on your career?** (2026-11-13) Four test races (v0.14 check + v0.15's three
+  leagues, Autopilot driving) played on your real Underground career: bank 2,010 -> 18,190, +4 races, Turbojet
+  Manifold level 4 unlocked. Keep, or restore `~/.local/share/swgr-save-backups/ai-fixed-test-20261113/ug-save.lua`
+  (the save before them; it converts to v4 on load)?
+- [ ] **Underground: the launch build at level 1 crashed the game** in testing (fixed: never below 2). The Grand
+  Prix's Junker parts leave some slots at 0 in the launch build (not 1) - no crash seen there in ~20 Junker races;
+  nothing to do unless you see one.
 
 ## Playtests (only a real race can tell)
 - [x] **v0.29, Junker: the crash fix and the rust look.** Owner 2026-11-12: no crash; looks show, dents overboard -> rust + dirt only (v0.29.1). Junker races load again (the crash was pilot strength
