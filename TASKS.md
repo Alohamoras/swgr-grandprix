@@ -75,6 +75,12 @@ put back at the menu, key binds only set flags):
 - Done: desk research (docs/ai-driving-research-2026-11-12.md). Tools: TestAutopilot v1.5 (hold.txt); the
   job-scratch scripts step.sh / apwait.sh / chainrace.sh / titlerun.sh (copy into tools/ if the job folder is gone).
 
+## 1b. League styles (owner 2026-11-12: "different styles of racing"; agreed, not built)
+**docs/league-styles-2026-11-12.md** - each league its own character (the car, the field, the tracks, the kit).
+- [x] Junker: renamed, afterburner and ramjet +2 (v0.28.3).
+- [ ] Junker = banger racing: more aggressive bots (`AI.Profiles.riffraff.aggression`).
+- [ ] Ace = weather and night: the draw leans to condition variants (gp.lua `K.draw`, a per-league lean).
+
 ## 2. Waiting on the owner's play (details and tick boxes in OWNER.md "Playtests")
 - [ ] v0.27.x: the finish times then STANDINGS (A, or 6 s); Challenger open from the start; Riff-Raff's feel (parts
       2 on three slots); the posters' taglines and the cups page brief; the garage's TUNE-UP / ABILITY captions.
