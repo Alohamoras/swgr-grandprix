@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.29.6 (2026-11-13): first release build
+- Same code as v0.29.5; the release texts final (the UE4SS link, "grimy" Junker cars, no licence - the owner uses
+  Nexus's own permission settings). Built with `tools/package.sh v0.29.6`.
+
 ## v0.29.5 (2026-11-13): the rust's real path
 - The patinas live in the GriffinSharedVehicles plugin: `/GriffinSharedVehicles/Griffin/Vehicles/Common/Liveries/
   Patinas/LP_AllRust` (the manifest's `Griffin/Plugins/GriffinSharedVehicles/Content/...`), not `/Game/...`. Seen in
