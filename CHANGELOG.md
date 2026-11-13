@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.29.8 (2026-11-13): AI test - the copies' power level (test-only)
+- `experiment.lua` (DevTools only): `botPower = true` with `botStacksAbs = N` also sets each bot copy's own PowerLevel
+  (copied from your build like the parts) to 6 x N; the `[exp] bot parts absolute` line logs the old and new value.
+  (Round B of the fixed-league test ran the bots ~15 s slower with your car at level 1 than at 10, parts equal.)
+
 ## v0.29.7 (2026-11-13): AI test switches (test-only)
 - `experiment.lua` (DevTools only - players never get it): `yourLevels = N` (or `{ [slot] = N }`) sets your part
   levels for the race; `botStacksAbs = N` sets every bot's parts to level N whatever your build (stacked upgrades to
