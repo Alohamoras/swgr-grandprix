@@ -59,3 +59,10 @@ FILES
 KNOWN LIMITS
 - English only. Tested at 4K; other resolutions not checked yet.
 - Game updates can break UE4SS mods; if the tab stops appearing after a patch, check for a new version.
+
+CREDITS
+- UE4SS (Re-UE4SS project) and the UE4SS Galactic Racer Edition (Nexus mod 2) - what this mod runs on.
+- FreeRace (https://www.nexusmods.com/starwarsgalacticracer/mods/80) - for showing how to press the results
+  screen's CONTINUE, its difficulty presets and the vehicle-recipe call.
+- STAR WARS: Galactic Racer by Fuse Games, published by EA. STAR WARS and related names are trademarks of Lucasfilm Ltd.
+- Developed with the help of Claude (Anthropic).
