@@ -84,11 +84,10 @@ put back at the menu, key binds only set flags):
 ## 1c. Looks (owner 2026-11-12; not started)
 - **Rust for Junker** (owner: research and build all three, then look in game) - docs/custom-vehicle-models-2026-11-12.md
   "The cheap alternative":
-  - [ ] **Patina:** the All Rust finish (`LP_AllRust`) on your car at a Junker race load.
-  - [ ] **Dirt:** the car grimy from the start (`DebugDirtOverrideValue` on its customisation component).
-  - [ ] **Damage:** dented, scratched panels from the start (`DebugApplyAllVehicleDamage`).
-  - Built in v0.29.0 (looks.lua, config `Looks.riffraff`: all three on every car). Owner to look in a Junker race;
-    then tick each lever that shows, switch off any that doesn't.
+  - [x] **Patina:** the All Rust finish (`LP_AllRust`) on your car at a Junker race load.
+  - [x] **Dirt:** the car grimy from the start (`DebugDirtOverrideValue` on its customisation component).
+  - [x] **Damage:** works, but off (owner: overboard on top of the rust).
+  - Built v0.29.0, seen in game; v0.29.1 = rust + dirt on every Junker car.
 - [ ] **New vehicle models** (big; inspiration photos of a junker speeder): the process in
       docs/custom-vehicle-models-2026-11-12.md. First step if wanted: a pipeline proof (one car kit cooked back with a
       trivial change).

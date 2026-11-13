@@ -5,7 +5,7 @@ local M = require('mock')
 local W = require('world')
 local T = require('util')
 T.boot({ version = 3 }, { StartScreen = true, Progression = { On = false },
-  Looks = { riffraff = { patina = true, dirt = 1.0, damage = 0.6, field = true, againS = 12 } } })
+  Looks = { riffraff = { patina = true, dirt = 1.0, damage = 0.6, field = true, againS = 12 } } }) -- (all three levers; the shipped config has no damage)
 
 -- a VehicleMaterialsComponent on every pawn of the race now; returns the components (yours first)
 local function giveComponents()

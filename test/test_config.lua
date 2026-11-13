@@ -17,7 +17,7 @@ check(keys(cfg.Leagues) == 'riffraff,challenger,ace', 'league keys (used in the 
 check(keys(cfg.Leagues, 'name') == 'JUNKER,CHALLENGER,ACE', 'league names on screen, no "cc" (' .. keys(cfg.Leagues, 'name') .. ')')
 check(cfg.Leagues[2].parts == 5 and cfg.Leagues[3].parts == 9, 'parts 5 / 9 at Challenger / Ace')
 local rl = K.levelsFor('riffraff')
-check(rl[0] == 0 and rl[1] == 4 and rl[2] == 0 and rl[3] == 4 and rl[4] == 2 and rl[5] == 0, 'v0.28.3: Junker afterburner and ramjet at 4, battery 2, the rest stock')
+check(rl[0] == 0 and rl[1] == 6 and rl[2] == 0 and rl[3] == 6 and rl[4] == 2 and rl[5] == 0, 'v0.29.1: Junker afterburner and ramjet at 6, battery 2, the rest stock')
 check(K.levelsFor('ace')[0] == 9 and K.levelsFor('ace')[5] == 9, 'Ace: every slot 9')
 check(keys(cfg.Leagues, 'mods') == '0,1,2', 'tune-up slots 0 / 1 / 2 (' .. keys(cfg.Leagues, 'mods') .. ')')
 check(keys(cfg.Leagues, 'abilities') == '1,2,3', 'ability levels 1 / 2 / 3')

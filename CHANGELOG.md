@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.29.1 (2026-11-12): Junker afterburner and ramjet 6
+- Owner: another +2 at JUNKER - parts slots 1 and 3 (afterburner, ramjet) 4 -> 6, battery 2 (set in the installed
+  config by the other session, carried here).
+- Seen in game (owner): the JUNKER crash is fixed; the looks show. The dents were "a little overboard" (on top of the
+  rust): `Looks.riffraff` is now rust + dirt only (the damage lever stays in looks.lua, off).
+
 ## v0.29.0 (2026-11-12): the JUNKER crash fixed; rust, dirt and damage at Junker
 - **Fix: every JUNKER race crashed while loading** (since v0.28.0; UE4SS.dll+0x2ace27, a null read at +0x18). Pilot
   strength (loadout.lua `L.botParts`) named each part upgrade's tune set before checking it had one; Junker's parts

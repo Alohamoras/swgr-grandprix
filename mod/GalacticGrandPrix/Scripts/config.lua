@@ -121,7 +121,8 @@ return {
         -- v0.28.3 (owner): JUNKER (was RIFF-RAFF; the key stays 'riffraff' - the save uses it), and the afterburner and
         -- ramjet 2 points more ("racing a piece of junk that can go faster than it probably should"): slots 1 and 3
         -- (Acceleration, Boost - the AFTERBURNER and RAMJET bars by their order on the parts screen) 2 -> 4, Battery 2
-        { key = 'riffraff', name = 'JUNKER', parts = { [1] = 4, [3] = 4, [4] = 2 }, mods = 0, abilities = 1, open = true,
+        -- v0.29.1 (owner): another +2 - afterburner and ramjet 6
+        { key = 'riffraff', name = 'JUNKER', parts = { [1] = 6, [3] = 6, [4] = 2 }, mods = 0, abilities = 1, open = true,
           tagline = 'Scrapyard junk with too much engine',
           brief = 'Hot-rodded junk   -   one ability   -   no tune-ups' },
         { key = 'challenger', name = 'CHALLENGER', parts = 5, mods = 1, abilities = 2, open = true,
@@ -423,7 +424,8 @@ return {
     -- (the crash-damage look: dents, scratches); field = the AI's cars too (false = yours only); againS = the second
     -- pass, seconds after the launch. Leave a lever out to switch it off; Looks.On = false switches all of it off.
     Looks = {
-        riffraff = { patina = true, dirt = 1.0, damage = 0.6, field = true, againS = 12 },
+        -- v0.29.1 (owner: "a little overboard" - the dents sit on top of the rust): rust and dirt, no damage
+        riffraff = { patina = true, dirt = 1.0, field = true, againS = 12 },
     },
 
     -- AI strength per league (ai.lua; DESIGN.md §4, docs/research-2026-11-10.md "Difficulty"). Everything is

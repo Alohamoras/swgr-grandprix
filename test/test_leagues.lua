@@ -66,7 +66,7 @@ T.boot({ version = 3, picks = { 'bolt.concuss', 'shield.impact', 'surge.impact',
 K = require('gp')
 local AB, MS, A = require('abil'), require('modsel'), require('ai')
 local WANT = {
-  riffraff = { parts = '0=0 1=4 2=0 3=4 4=2 5=0', level = 1, slots = 0, bolt = 'BP_Ability_Disruptor_C', pressure = -1 },
+  riffraff = { parts = '0=0 1=6 2=0 3=6 4=2 5=0', level = 1, slots = 0, bolt = 'BP_Ability_Disruptor_C', pressure = -1 },
   challenger = { parts = 5, level = 2, slots = 1, bolt = 'BP_Ability_Disruptor_Concuss_C', pressure = 0 },
   ace = { parts = 9, level = 3, slots = 2, bolt = 'BP_Ability_Disruptor_ConcussV2_C', pressure = 0.5 },
 }

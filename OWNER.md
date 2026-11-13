@@ -19,7 +19,7 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - [ ] **Ideas from your Google Doc** (realism mode, a podracer cup): send the details when you want them on the list.
 
 ## Playtests (only a real race can tell)
-- [ ] **v0.29, Junker: the crash fix and the rust look.** Junker races load again (the crash was pilot strength
+- [x] **v0.29, Junker: the crash fix and the rust look.** Owner 2026-11-12: no crash; looks show, dents overboard -> rust + dirt only (v0.29.1). Junker races load again (the crash was pilot strength
   meeting Junker's empty parts slots). In a Junker race: does your car (and the field) look rusted, dirty and dented?
   The log's `[looks]` lines say what was applied. Each part can be switched off in config `Looks.riffraff`
   (`patina`, `dirt`, `damage`; `field = false` = your car only).
