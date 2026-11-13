@@ -15,7 +15,7 @@ local cfg = require('config')
 local try, alive, log = C.try, C.alive, C.log
 
 local L = {}
-L.RUST = '/Game/Griffin/Vehicles/Common/Liveries/Patinas/LP_AllRust'
+L.RUST = '/GriffinSharedVehicles/Griffin/Vehicles/Common/Liveries/Patinas/LP_AllRust'
 L.COMP = '/Script/Griffin.VehicleMaterialsComponent'
 
 -- the looks for a league: { patina = bool, dirt = 0..1, damage = 0..1, field = bool } or nil

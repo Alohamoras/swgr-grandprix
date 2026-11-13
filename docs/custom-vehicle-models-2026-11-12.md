@@ -51,7 +51,7 @@ clean-up).
 
 ## The cheap alternative: rust on the existing cars (owner, 2026-11-12: "just adding some rust ... for the junker class")
 No modelling, no cooking - Lua only. The game's livery system already has **patinas** (finishes), picked in the
-campaign garage (`WBP_Paddock_VehicleCustPatina`): `/Game/Griffin/Vehicles/Common/Liveries/Patinas/LP_AllRust`
+campaign garage (`WBP_Paddock_VehicleCustPatina`): `/GriffinSharedVehicles/Griffin/Vehicles/Common/Liveries/Patinas/LP_AllRust`
 (**All Rust**, the rust layer `MLI_RustPatina`), `LP_NoPaint11`, `LP_AllSteel`, `LP_Patina211` (a mix), `LP_AllPaint`,
 `LP_AllGold`, `LP_Deluxe` (**the paid edition's - never use it**, house rule).
 Three levers on a car, all in the header dump:

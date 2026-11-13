@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.29.5 (2026-11-13): the rust's real path
+- The patinas live in the GriffinSharedVehicles plugin: `/GriffinSharedVehicles/Griffin/Vehicles/Common/Liveries/
+  Patinas/LP_AllRust` (the manifest's `Griffin/Plugins/GriffinSharedVehicles/Content/...`), not `/Game/...`. Seen in
+  game: v0.29.4 still logged "not found" with the right load call.
+
 ## v0.29.4 (2026-11-13): the rust actually applies; MIT licence; release texts filled in
 - **Fix: the All Rust patina never applied** (every Junker race since v0.29.0 logged `[looks] All Rust patina not
   found`; what showed was the dirt and the dents). core.lua `C.asset` asked `LoadAsset` for the full object name; it

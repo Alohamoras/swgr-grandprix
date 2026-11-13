@@ -35,7 +35,7 @@ W.zeroSlots = { true, false, true, false, false, true } -- (Junker's parts: Grip
 M.resetSweeps()
 -- (v0.29.4: in game the All Rust patina isn't in memory until loaded by its package path - v0.29.0-v0.29.3 asked for
 -- it by its full object name and never found it: only the dirt showed)
-M.unloaded['/Game/Griffin/Vehicles/Common/Liveries/Patinas/LP_AllRust.LP_AllRust'] = true
+M.unloaded['/GriffinSharedVehicles/Griffin/Vehicles/Common/Liveries/Patinas/LP_AllRust.LP_AllRust'] = true
 W.race(11)
 local comps = giveComponents()
 M.tick(30)
