@@ -6,7 +6,7 @@ local M = require('mock')
 local W = require('world')
 local T = require('util')
 -- an old (v0.6) save holding catalogue keys: dropped with a log line
-T.boot({ version = 3, mods = { 'Conditions_FreezeProtection', 'Cooled_GainWhileSlipstream', false, false } }, { Progression = { On = false } })
+T.boot({ version = 3, mods = { 'Conditions_FreezeProtection', 'Cooled_GainWhileSlipstream', false, false } }, { Progression = { On = false }, DevTools = true })
 M.press('F6'); M.tick(6)
 T.clickTitle('GARAGE'); M.tick(3)
 T.check(T.titles():find('|NONE|NONE$') ~= nil, 'garage: two empty tune-up slots, the old catalogue keys gone (' .. T.titles() .. ')')

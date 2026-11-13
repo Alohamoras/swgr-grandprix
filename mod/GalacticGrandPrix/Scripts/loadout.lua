@@ -257,6 +257,7 @@ local function listNames(arr)
   return #out > 0 and table.concat(out, ',') or '-'
 end
 function L.logBuilds(all)
+  if cfg.DevTools ~= true then return end -- (v0.29.3: test switches only with config DevTools = true)
   local f = io.open(C.DIR .. '/logbuilds.txt', 'r')
   if not f then return end
   f:close()

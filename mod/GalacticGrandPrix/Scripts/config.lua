@@ -17,6 +17,10 @@ local function race(path, title, kind, laps)
 end
 
 return {
+    -- v0.29.3 (release pass): the test switches (experiment.lua, logbuilds.txt in the mod folder - AI and race-type
+    -- research) only work with DevTools = true. Off for players; `./deploy.sh <tag> --dev` turns it on.
+    DevTools = false,
+
     -- The tab on the game's main menu, next to the game's own tabs
     TabLabel = 'GRAND PRIX',
     -- Tile layout on the tab's page (at 4K one UI unit is about one pixel)

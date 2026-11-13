@@ -3,11 +3,16 @@
 #   ./deploy.sh            -> the newest tagged version
 #   ./deploy.sh v0.2       -> that tag (see: git tag -l, or CHANGELOG.md)
 #   ./deploy.sh HEAD       -> the latest work in progress (may be untested)
+#   ./deploy.sh v0.2 --dev -> with the test switches on (config DevTools = true: experiment.lua, logbuilds.txt)
 # Your save (save.lua) and log (grandprix.log) in the game folder are never touched.
 # Do this with the game closed (Ctrl+F4 hot reload has crashed the game - restart instead).
 set -euo pipefail
 cd "$(dirname "$0")"
 GAME="${GAME_MODS:-$HOME/.local/share/Steam/steamapps/common/STAR WARS Galactic Racer/Griffin/Binaries/Win64/ue4ss/Mods}"
+DEV=""
+args=()
+for a in "$@"; do if [ "$a" = "--dev" ]; then DEV=1; else args+=("$a"); fi; done
+set -- "${args[@]+"${args[@]}"}"
 REF="${1:-$(git tag -l 'v*' --sort=-v:refname | head -1)}"
 [ -n "$REF" ] || { echo "no tags yet"; exit 1; }
 git rev-parse --verify -q "$REF^{commit}" >/dev/null || { echo "unknown version: $REF"; git tag -l 'v*'; exit 1; }
@@ -20,6 +25,10 @@ git archive "$REF" mod/GalacticGrandPrix | tar -x -C "$TMP"
 rm -rf "$DEST/Scripts"
 cp -r "$TMP/mod/GalacticGrandPrix/." "$DEST/"
 echo "$REF ($(git rev-parse --short "$REF^{commit}"))" > "$DEST/VERSION.txt"
+if [ -n "$DEV" ]; then
+  sed -i 's/^    DevTools = false,/    DevTools = true,/' "$DEST/Scripts/config.lua"
+  grep -q '^    DevTools = true,' "$DEST/Scripts/config.lua" && echo "  (--dev: test switches on)" || echo "  (--dev: could not set DevTools)"
+fi
 # UE4SS only starts a mod folder that has enabled.txt
 [ -f "$DEST/disabled.txt" ] || touch "$DEST/enabled.txt"
 echo "Installed Galactic Grand Prix $REF into the game."

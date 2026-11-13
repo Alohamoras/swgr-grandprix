@@ -3,7 +3,7 @@
 local M = require('mock')
 local W = require('world')
 local T = require('util')
-T.boot()
+T.boot(nil, { Looks = { On = false } }) -- (the per-tick budget; looks.lua's two one-off passes per Junker race: test_looks)
 -- real-looking frame timing (v0.3.4's PERF line broke on non-integer numbers: the race was recorded every tick)
 local gsl = StaticFindObject('/Script/Engine.Default__GameplayStatics')
 local t = 0

@@ -4,7 +4,7 @@
 local M = require('mock')
 local W = require('world')
 local T = require('util')
-T.boot({ version = 3 }, { StartScreen = true, Progression = { On = false } })
+T.boot({ version = 3 }, { StartScreen = true, Progression = { On = false }, DevTools = true })
 local EXP = T.dir .. '/experiment.lua'
 os.remove(EXP)
 local function startCup()
@@ -35,6 +35,10 @@ f:write([[return { label = 'boost-a', styles = { Car = { MinEnergyForAfterburner
   event = "THE GIANTS' GRAVEYARD", config = { ForcedErrorDuration = 4 }, botStacks = 2, botStacksBy = { ['Katja Mox'] = -1 } }]])
 f:close()
 local mark = T.mark()
+-- v0.29.3 (release pass): with DevTools off the file does nothing (players never get the test switches)
+require('config').DevTools = false
+T.check(require('ai').experiment() == nil, 'DevTools = false: experiment.lua ignored')
+require('config').DevTools = true
 T.clickTitle('CHALLENGER'); M.tick(3) -- (YES left the cup to HOME)
 T.clickTitle('JAKKU CUP'); M.tick(5)
 T.clickTitle('START'); M.tick(5)

@@ -75,6 +75,16 @@ put back at the menu, key binds only set flags):
 - Done: desk research (docs/ai-driving-research-2026-11-12.md). Tools: TestAutopilot v1.5 (hold.txt); the
   job-scratch scripts step.sh / apwait.sh / chainrace.sh / titlerun.sh (copy into tools/ if the job folder is gone).
 
+## 1a. Release pass for Nexus (owner 2026-11-13: "start the release pass")
+Owner's plan: keep playing ~a week without crashes, then publish as a beta.
+- [x] Test switches behind config `DevTools` (off for players; `deploy.sh --dev` for research).
+- [x] `tools/package.sh`: the release zip (checks: no save / log, DevTools off, every script compiles, no local paths).
+- [x] Player README (docs/release/README.txt, in the zip) and the Nexus description (docs/release/nexus-description.bbcode).
+- [x] `tools/mods-toggle.sh`: all mods off for multiplayer.
+- [ ] Owner: the UE4SS download link (fills `{UE4SS_LINK}` in both), a licence, screenshots for the page.
+- [ ] Resolution check: the menus and the results panel at 1080p and 1440p (a few minutes of game time).
+- [ ] A week of crash-free play, then `tools/package.sh <tag>` and upload as a beta.
+
 ## 1b. League styles (owner 2026-11-12: "different styles of racing"; agreed, not built)
 **docs/league-styles-2026-11-12.md** - each league its own character (the car, the field, the tracks, the kit).
 - [x] Junker: renamed, afterburner and ramjet +2 (v0.28.3).

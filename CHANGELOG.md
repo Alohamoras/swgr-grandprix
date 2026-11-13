@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.29.3 (2026-11-13): release pass
+- **Test switches off for players:** `experiment.lua` / `logbuilds.txt` only work with config `DevTools = true`
+  (default false; `./deploy.sh <tag> --dev` turns it on).
+- **Fix:** looks.lua looped forever when a pawn's component lookup gave back an object instead of a plain list (seen
+  in the tests; the game gave a list). Now read by index, at most 16.
+- **Release tooling:** `tools/package.sh` (the player zip in `dist/`, with checks: no save / log, DevTools off, every
+  script compiles, no local paths, no placeholder left), the player README (docs/release/README.txt) and the Nexus
+  description (docs/release/nexus-description.bbcode), `tools/mods-toggle.sh` (all mods off for multiplayer).
+
 ## v0.29.2 (2026-11-13): race types research tools
 - `[elim] n: <racer> eliminated|wrecked <s> after the launch (position, fail reasons)`: every racer's eliminated /
   wrecked flag, logged once each, in order, from the field read already done every 2 s (no extra lookups) - the

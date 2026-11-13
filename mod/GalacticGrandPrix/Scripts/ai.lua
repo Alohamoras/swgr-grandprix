@@ -159,6 +159,7 @@ end
 -- botStacksBy = { ['Racer Name'] = n } (per racer, instead of botStacks for them).
 A.STYLES = '/Game/Griffin/AI/DS_%s_Base'
 function A.experiment()
+  if cfg.DevTools ~= true then return nil end -- (v0.29.3: test switches only with config DevTools = true)
   local path = C.DIR .. '/experiment.lua'
   local f = io.open(path, 'r')
   if not f then return nil end

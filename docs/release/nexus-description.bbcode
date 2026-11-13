@@ -1,0 +1,45 @@
+[size=5][b]Galactic Grand Prix[/b][/size]
+[i]Kart-racer-style cups for STAR WARS: Galactic Racer - race back to back, score points, win trophies. Offline only.[/i]
+
+The campaign is great, but sometimes you just want to race. Galactic Grand Prix adds a [b]GRAND PRIX[/b] tab to the main menu: pick a league and a cup, and race four tracks in a row against the full field, with points after every race and a trophy at the end.
+
+[size=4][b]Features[/b][/size]
+[list]
+[*][b]Three leagues, three styles[/b]
+[list]
+[*][b]JUNKER[/b] - scrapyard junk with too much engine: rusty, dirty cars, one ability, no tune-ups
+[*][b]CHALLENGER[/b] - tuned rigs: two abilities, one tune-up
+[*][b]ACE[/b] - full power: three abilities, two tune-ups
+[/list]
+[*][b]Random cups[/b] - each planet's cup (Jakku, Lantaana, Ando Prime, Crait, Sentinel I) draws four races from that planet's tracks, directions and conditions (night, wet, snow, scorching, mines, storm). Plus the Galactic Cup across planets.
+[*][b]Points and trophies[/b] - 15-12-10-9...1 after every race, the standings right on the results screen, then straight into the next race. Gold, silver, bronze, track records, and "near miss" call-outs.
+[*][b]Title races[/b] - a 1 v 1 against each league's points leader, and a final boss for the Ace champion.
+[*][b]Rivals that stay rivals[/b] - the elite pilots drive stronger cars and are usually the ones fighting you for the cup. No AI catch-up at Challenger and Ace: a lead you build is yours.
+[*][b]Your loadout[/b] - pick your pilot (their vehicle and look), four abilities and your tune-ups on each cup's start screen.
+[*][b]Safe for your campaign[/b] - its own save file; everything it changes in the game is in memory only and put back at the main menu.
+[/list]
+
+[size=4][b]Requirements[/b][/size]
+[list]
+[*]STAR WARS: Galactic Racer (Steam, PC)
+[*]UE4SS for Galactic Racer ("Galactic Racer Edition", Open Beta v0.9.4 or later): {UE4SS_LINK}
+[/list]
+
+[size=4][b]Install[/b][/size]
+[list=1]
+[*]Install UE4SS (it goes in [i]Griffin\Binaries\Win64[/i]).
+[*]Unzip into [i]Griffin\Binaries\Win64\ue4ss\Mods\[/i] - you should have [i]Mods\GalacticGrandPrix\Scripts\main.lua[/i].
+[*]Start the game: the GRAND PRIX tab is on the main menu (or press F6).
+[/list]
+
+[size=4][color=#ff6666][b]Multiplayer[/b][/color][/size]
+This mod is for [b]offline play[/b]. It won't run its races while you're in a party or matchmaking, but for online play the safest thing is to switch mods off completely: rename [i]Griffin\Binaries\Win64\dwmapi.dll[/i] to [i]dwmapi.dll.off[/i], and back afterwards. Using mods online is at your own risk.
+
+[size=4][b]Settings[/b][/size]
+In [i]Scripts\config.lua[/i] (copy it first): open the tab at start-up ([i]BootToGrandPrix[/i]), the menu key, how much stronger each pilot tier is per league ([i]AI.Strength[/i]), the Junker look ([i]Looks[/i]).
+
+[size=4][b]Bug reports[/b][/size]
+Please attach [i]Mods\GalacticGrandPrix\grandprix.log[/i] and say what you were doing. English only for now; tested at 4K.
+
+[size=4][b]Uninstall[/b][/size]
+Delete the [i]GalacticGrandPrix[/i] folder.

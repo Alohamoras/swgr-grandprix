@@ -1,15 +1,18 @@
 # Galactic Grand Prix (STAR WARS Galactic Racer, UE4SS Lua mod)
 
-Kart-racer-style cups for STAR WARS Galactic Racer: three leagues (RIFF-RAFF / CHALLENGER / ACE), cups of 4 tracks drawn from each planet,
-points and trophies, four abilities instead of upgrades. Offline only.
+Kart-racer-style cups for STAR WARS Galactic Racer as a GRAND PRIX tab on the main menu: three leagues (JUNKER /
+CHALLENGER / ACE), random cups of four races per planet plus the Galactic Cup, points and trophies, title races, pilot
+strength, four abilities and tune-ups. Offline only. Players' readme: docs/release/README.txt.
 
-Status: v0.8.0 built, not yet seen in game (two-level menu, title race per class, your racer, AI profile per class, track records, twelve tune-ups, conditions cups). v0.7.1 is the last version checked in game.
-See DESIGN.md (the design), TASKS.md (the work plan), CHANGELOG.md.
+Where things are: DESIGN.md (the design), TASKS.md (open work; history in docs/TASKS-done.md), OWNER.md (questions and
+playtests for the owner), CHANGELOG.md (per version), docs/ (research and decisions). Shared lessons for all the
+Galactic Racer mods: ~/Projects/swgr-underground/KNOWLEDGE.md.
 
-**To check in game:** the list is at the top of TASKS.md ("v0.8: to see in game"). Research behind v0.8: docs/research-2026-11-10.md.
-
-## Install / test
-- `./deploy.sh` installs the newest tagged version into the game (game closed); `./deploy.sh HEAD` the work in progress.
-- `test/all.sh` runs every test against a fake game (no game needed).
-- In game: the GRAND PRIX tab on the main menu, or F6 (v0.17: the game starts on it, once per launch; config
-  `BootToGrandPrix = false` turns that off). Log: `Mods/GalacticGrandPrix/grandprix.log`.
+## Commands
+- `test/all.sh` - every test against a fake game (no game needed; `SANDBOX_DIR=/tmp/<x>` when runs overlap).
+- `./deploy.sh [tag] [--dev]` - install a tagged version into the game (game closed). `--dev` turns the test switches
+  on (config `DevTools`: `experiment.lua`, `logbuilds.txt` in the mod folder - AI and race-type research).
+- `tools/package.sh [tag]` - the release zip for players in `dist/` (Scripts, enabled.txt, README.txt; never the save
+  or the log; refuses if DevTools is on or the README still has a placeholder).
+- `tools/mods-toggle.sh [on|off]` - all UE4SS mods off for multiplayer (renames dwmapi.dll), and back on.
+- In game: the GRAND PRIX tab or F6. Log: `Mods/GalacticGrandPrix/grandprix.log`; save: `Mods/GalacticGrandPrix/save.lua`.

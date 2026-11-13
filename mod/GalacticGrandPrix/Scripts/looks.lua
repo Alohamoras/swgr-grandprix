@@ -40,8 +40,15 @@ local function components(look)
   local missing = {}
   for _, w in ipairs(want) do
     local list = alive(cls) and try(function() return w.pawn:K2_GetComponentsByClass(cls) end)
+    -- (a plain Lua list, or a TArray: read by index, at most 16 - never an open-ended iterator over an unknown object)
+    local n = 0
+    if type(list) == 'table' and getmetatable(list) == nil then n = #list
+    elseif list ~= nil then n = tonumber(try(function() return list:GetArrayNum() end)) or 0 end
     local comp
-    if type(list) == 'table' then for _, c in ipairs(list) do if alive(c) then comp = c; break end end end
+    for i = 1, math.min(n, 16) do
+      local c = try(function() return list[i] end)
+      if alive(c) then comp = c; break end
+    end
     if comp then
       local key = C.addr(comp)
       if not seen[key] then seen[key] = true; out[#out + 1] = { comp = comp, who = w.who } end
