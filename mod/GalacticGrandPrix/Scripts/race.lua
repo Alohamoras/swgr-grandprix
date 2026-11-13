@@ -7,6 +7,7 @@ local LO = require('loadout')
 local MS = require('modsel')
 local RC = require('racer')
 local AI = require('ai')
+local LK = require('looks')
 local try, alive, addr, log = C.try, C.alive, C.addr, C.log
 
 local R = { run = nil }
@@ -301,6 +302,9 @@ local function startRun(ev, classKey, p, skip, extra)
     tostring(classKey), p.veh.key, tostring(p.tag), C.idname(try(function() return p.e.EventMode end))))
   R.run = { ev = ev, at = C.clock, skip = skip, phase = 'loading', top = 0, field = {}, ticks = 0, ai = p.ai }
   for k, v in pairs(extra or {}) do R.run[k] = v end
+  -- v0.29: the league's looks (looks.lua: Junker's rust, dirt and damage), applied while the race loads
+  local look = LK.forLeague(classKey)
+  if look then R.run.looks = { look = look } end
   R.menuSeen = false
   R.menuGone()
   local ok3, lo = pcall(LO.begin, classKey, p.modNames, p.yourKeys)
@@ -608,6 +612,10 @@ function R.watch()
     if not ok then log('[loadout] apply failed: ' .. tostring(err)); r.lo = nil end
   end
   R.perf(r)
+  if r.looks and not r.looks.done2 then
+    local okL, errL = pcall(LK.tick, r)
+    if not okL then log('[looks] stopped: ' .. tostring(errL)); r.looks = nil end
+  end
   -- AI driving spike / launch checks (test-only): experiment.lua's quitAfterS - once the field is read, N s after the
   -- launch the race goes back to the main menu the game's own way (RacingGameMode:RequestReturnToMenus): a DNF
   if r.exp and tonumber(r.exp.quitAfterS) and r.fieldLogged and not r.quitSent and C.clock - r.at >= r.exp.quitAfterS * 1000 then

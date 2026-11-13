@@ -288,6 +288,13 @@ local function buildCopies(slots)
     for j, nm in ipairs({ 'Grip_Max', 'Acceleration_Max', 'Resilience_Max', 'Boost_Max', 'Battery_05', 'Advanced_Max' }) do
       local stacking = nm:find('_Max$') ~= nil
       ups[j] = { TunesetToApply = M.new('TNS_Upgrade_' .. nm, {}, 'TuneSet'), StacksToApply = stacking and 5 or 1, PowerLevel = 5, UserFacingStatIncrease = 5 }
+      -- (v0.28.4: W.zeroSlots = slots at level 0, as at JUNKER - no tune set: an empty object; naming it crashed the
+      -- real game, UE4SS.dll+0x2ace27 null+0x18 - W.nullNamed records any GetFName on it)
+      if W.zeroSlots and W.zeroSlots[j] then
+        local empty = M.new('null', { GetFName = function() W.nullNamed = (W.nullNamed or 0) + 1; return FName('None') end }, 'None')
+        rawset(empty, '__dead', true)
+        ups[j] = { TunesetToApply = empty, StacksToApply = 0, PowerLevel = 0, UserFacingStatIncrease = 0 }
+      end
     end
     copies[i] = { AbilitySlots = M.tarr(list), AffixSlots = M.tarr(aff), UpgradeSlots = M.tarr(ups), PowerLevel = 30 }
   end

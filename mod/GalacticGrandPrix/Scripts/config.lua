@@ -417,6 +417,15 @@ return {
         { key = 'Antagonist',          name = 'Kestar Bool',    vehicle = 'car',     line = 'Galactic League Champion, proud son of the Bool family', unlockBoss = true },
     },
 
+    -- v0.29 (owner: "adding some rust to existing models to make them look less good (for the junker class)";
+    -- docs/custom-vehicle-models-2026-11-12.md): looks per league (looks.lua), applied while each race loads.
+    -- patina = the game's own All Rust finish; dirt = 0..1 (the race's own dirt build-up, started high); damage = 0..1
+    -- (the crash-damage look: dents, scratches); field = the AI's cars too (false = yours only); againS = the second
+    -- pass, seconds after the launch. Leave a lever out to switch it off; Looks.On = false switches all of it off.
+    Looks = {
+        riffraff = { patina = true, dirt = 1.0, damage = 0.6, field = true, againS = 12 },
+    },
+
     -- AI strength per league (ai.lua; DESIGN.md §4, docs/research-2026-11-10.md "Difficulty"). Everything is
     -- memory-only and put back at the menu. Enabled = false switches all of it off.
     AI = {

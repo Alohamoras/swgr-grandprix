@@ -303,8 +303,11 @@ function L.botParts(bots, exp, league)
         for i = 1, (try(function() return us:GetArrayNum() end) or 0) do
           local u = us[i]
           local s = try(function() return u.StacksToApply end)
-          local tn = try(function() return u.TunesetToApply:GetFName():ToString() end) or ''
-          if type(s) == 'number' and s >= 1 and (s > 1 or tn:find('_Max$')) then
+          -- v0.28.4 (crash at every JUNKER race load, UE4SS.dll+0x2ace27, a null read at +0x18 = an empty object's
+          -- name): a part slot at level 0 has no tune set - never call anything on it; only a live one is named
+          local ts = type(s) == 'number' and s >= 1 and try(function() return u.TunesetToApply end) or nil
+          local tn = alive(ts) and (try(function() return ts:GetFName():ToString() end) or '') or ''
+          if type(s) == 'number' and s >= 1 and alive(ts) and (s > 1 or tn:find('_Max$')) then
             local nv = math.max(1, s + d)
             pcall(function() u.StacksToApply = nv end)
             pcall(function() u.PowerLevel = nv end)

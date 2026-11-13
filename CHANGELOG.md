@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.29.0 (2026-11-12): the JUNKER crash fixed; rust, dirt and damage at Junker
+- **Fix: every JUNKER race crashed while loading** (since v0.28.0; UE4SS.dll+0x2ace27, a null read at +0x18). Pilot
+  strength (loadout.lua `L.botParts`) named each part upgrade's tune set before checking it had one; Junker's parts
+  slots at level 0 (Grip, Resilience, Advanced) have none, and naming an empty object reads its name at +0x18.
+  Challenger and Ace fill every slot, so they never crashed. Now only a live tune set is named or changed.
+  test_looks reproduces it (an empty slot named 48 times on the old code).
+- **Junker looks** (owner: "adding some rust ... for the junker class"; looks.lua, config `Looks.riffraff`): at each
+  Junker race load, every car (`field = true`) gets the game's own All Rust finish (`LP_AllRust` on its
+  VehicleMaterialsComponent), dirt 1 and the crash-damage look 0.6, applied at load and again ~12 s in. Log: `[looks]`.
+  Unproven in game: whether the patina / debug levers show - the owner looks. Each lever has its own switch.
+
 ## v0.28.3 (2026-11-12): JUNKER, more engine, no race list
 - **RIFF-RAFF is now JUNKER** (owner). The key stays `riffraff` (the save uses it); tagline "Scrapyard junk with too
   much engine", brief "Hot-rodded junk - one ability - no tune-ups".

@@ -19,6 +19,10 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - [ ] **Ideas from your Google Doc** (realism mode, a podracer cup): send the details when you want them on the list.
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.29, Junker: the crash fix and the rust look.** Junker races load again (the crash was pilot strength
+  meeting Junker's empty parts slots). In a Junker race: does your car (and the field) look rusted, dirty and dented?
+  The log's `[looks]` lines say what was applied. Each part can be switched off in config `Looks.riffraff`
+  (`patina`, `dirt`, `damage`; `field = false` = your car only).
 - [ ] **v0.28.1, the end of a cup and a DNF.** After the last race: the finish times with a CUP RESULT button (the
   game's CONTINUE gone); A takes you to the cup result. If you wreck or get knocked out: once the others finish, the
   standings and NEXT RACE show on the results screen like any race (the log says `out of the race (wrecked): a DNF`).
