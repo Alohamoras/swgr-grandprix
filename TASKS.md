@@ -89,6 +89,9 @@ Owner's plan: keep playing ~a week without crashes, then publish as a beta.
 - [ ] **Launch hang** (1 of 5 launches today, 3 of 4 on 2026-11-12): black screen before the main menu, UE4SS.log
       ends at "Event loop start" (all mods loaded). Not yet known whether it's the mods, SkipIntro or Proton: try
       launches with GP off, then SkipIntro off. A must-know before publishing (players will blame the mod).
+  **2026-11-13 lead:** three launches in a row looked exactly like this (blank screen, log ends at `Event loop start`)
+  but were busy (CPU 800-1400%) and reached the menu after 4.5-5 min. Most "hangs" may be slow starts (shader rebuild?):
+  wait 5+ min, watching CPU, before killing. KNOWLEDGE.md section 3.
 - [ ] A week of crash-free play, then `tools/package.sh <tag>` and upload as a beta.
 
 ## 1b. League styles (owner 2026-11-12: "different styles of racing"; agreed, not built)
