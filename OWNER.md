@@ -4,10 +4,7 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
-- [ ] **Nexus release:** (1) where did you get UE4SS "Galactic Racer Edition"? Its download link goes in the readme and
-  the Nexus page. (2) A licence: e.g. MIT (anyone may reuse the code) or "all rights reserved, ask first" (Nexus's
-  permission settings cover the rest). (3) Screenshots for the page (HOME, a cups page, the start screen, the
-  standings on the results screen, a Junker race).
+- [x] **Nexus release:** UE4SS link (Nexus mod 2), MIT, screenshots in docs/release/screenshots/ (2026-11-13).
 - [ ] **Special rounds (race types):** docs/race-types-2026-11-13.md section 4 - A eliminator mid-cup, B knockout as
   the Galactic Cup finale, C by league style (Junker eliminator, Ace knockout finale), D bonus events. Pick after the
   in-game recon (needs the PC to Claude for ~30 min).

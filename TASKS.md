@@ -81,8 +81,14 @@ Owner's plan: keep playing ~a week without crashes, then publish as a beta.
 - [x] `tools/package.sh`: the release zip (checks: no save / log, DevTools off, every script compiles, no local paths).
 - [x] Player README (docs/release/README.txt, in the zip) and the Nexus description (docs/release/nexus-description.bbcode).
 - [x] `tools/mods-toggle.sh`: all mods off for multiplayer.
-- [ ] Owner: the UE4SS download link (fills `{UE4SS_LINK}` in both), a licence, screenshots for the page.
-- [ ] Resolution check: the menus and the results panel at 1080p and 1440p (a few minutes of game time).
+- [x] UE4SS link (Nexus mod 2), MIT licence (2026-11-13), screenshots: docs/release/screenshots/ (5, 2560x1440, the
+      Steam name blurred).
+- [x] Resolution check (2026-11-13, windowed 1920x1080 and 2560x1440): HOME, cups, start screen and the standings
+      scale cleanly. Small fixes: [ ] the SENTINEL CUP label is cut off at 1440p (wraps at 1080p); [ ] the Junker
+      tagline runs past its strip on HOME (all sizes).
+- [ ] **Launch hang** (1 of 5 launches today, 3 of 4 on 2026-11-12): black screen before the main menu, UE4SS.log
+      ends at "Event loop start" (all mods loaded). Not yet known whether it's the mods, SkipIntro or Proton: try
+      launches with GP off, then SkipIntro off. A must-know before publishing (players will blame the mod).
 - [ ] A week of crash-free play, then `tools/package.sh <tag>` and upload as a beta.
 
 ## 1b. League styles (owner 2026-11-12: "different styles of racing"; agreed, not built)
@@ -97,7 +103,11 @@ Owner's plan: keep playing ~a week without crashes, then publish as a beta.
   - [x] **Patina:** the All Rust finish (`LP_AllRust`) on your car at a Junker race load.
   - [x] **Dirt:** the car grimy from the start (`DebugDirtOverrideValue` on its customisation component).
   - [x] **Damage:** works, but off (owner: overboard on top of the rust).
-  - Built v0.29.0, seen in game; v0.29.1 = rust + dirt on every Junker car.
+  - Built v0.29.0; v0.29.1 = rust + dirt. **2026-11-13: the rust never showed** - the patina was never found (wrong
+    load call, then the wrong path: it's in /GriffinSharedVehicles/), fixed in v0.29.5 and now set on every car, but
+    the paint doesn't change (side-by-side screenshots): the materials component doesn't redraw from PatinaData.
+    What players see is the dirt. [ ] Spike: the recipe route (the car's PatinaTag + RefreshRecipe on its
+    customisation component).
 - [ ] **New vehicle models** (big; inspiration photos of a junker speeder): the process in
       docs/custom-vehicle-models-2026-11-12.md. First step if wanted: a pipeline proof (one car kit cooked back with a
       trivial change).
