@@ -81,7 +81,7 @@ Owner's plan: keep playing ~a week without crashes, then publish as a beta.
 - [x] `tools/package.sh`: the release zip (checks: no save / log, DevTools off, every script compiles, no local paths).
 - [x] Player README (docs/release/README.txt, in the zip) and the Nexus description (docs/release/nexus-description.bbcode).
 - [x] `tools/mods-toggle.sh`: all mods off for multiplayer.
-- [x] UE4SS link (Nexus mod 2), MIT licence (2026-11-13), screenshots: docs/release/screenshots/ (5, 2560x1440, the
+- [x] UE4SS link (Nexus mod 2); no licence (owner: Nexus's own permission settings instead), screenshots: docs/release/screenshots/ (5, 2560x1440, the
       Steam name blurred).
 - [x] Resolution check (2026-11-13, windowed 1920x1080 and 2560x1440): HOME, cups, start screen and the standings
       scale cleanly. Small fixes: [ ] the SENTINEL CUP label is cut off at 1440p (wraps at 1080p); [ ] the Junker

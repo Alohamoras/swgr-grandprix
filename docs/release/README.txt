@@ -59,6 +59,3 @@ FILES
 KNOWN LIMITS
 - English only. Tested at 4K; other resolutions not checked yet.
 - Game updates can break UE4SS mods; if the tab stops appearing after a patch, check for a new version.
-
-LICENSE
-MIT - see LICENSE.txt.

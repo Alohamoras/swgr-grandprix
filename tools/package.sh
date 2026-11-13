@@ -7,12 +7,11 @@ cd "$(dirname "$0")/.."
 REF="${1:-$(git tag -l 'v*' --sort=-v:refname | head -1)}"
 git rev-parse --verify -q "$REF^{commit}" >/dev/null || { echo "unknown version: $REF"; exit 1; }
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
-git archive "$REF" mod/GalacticGrandPrix docs/release/README.txt LICENSE | tar -x -C "$TMP"
+git archive "$REF" mod/GalacticGrandPrix docs/release/README.txt | tar -x -C "$TMP"
 OUT="$TMP/pkg/GalacticGrandPrix"
 mkdir -p "$OUT"
 cp -r "$TMP/mod/GalacticGrandPrix/Scripts" "$OUT/"
 touch "$OUT/enabled.txt"
-[ -f "$TMP/LICENSE" ] && cp "$TMP/LICENSE" "$OUT/LICENSE.txt"
 if [ -f "$TMP/docs/release/README.txt" ]; then sed "s/{VERSION}/$REF/g" "$TMP/docs/release/README.txt" > "$OUT/README.txt"; fi
 # checks: no player data, test switches off, every script compiles
 for bad in save.lua grandprix.log experiment.lua logbuilds.txt; do
