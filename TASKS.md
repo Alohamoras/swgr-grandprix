@@ -78,13 +78,13 @@ put back at the menu, key binds only set flags):
 ## 2. Waiting on the owner's play (details and tick boxes in OWNER.md "Playtests")
 - [ ] v0.27.x: the finish times then STANDINGS (A, or 6 s); Challenger open from the start; Riff-Raff's feel (parts
       2 on three slots); the posters' taglines and the cups page brief; the garage's TUNE-UP / ABILITY captions.
-- [ ] Does the game's own track intro (flyover) show in our races now StreamlineCampaign is off? If yes: drop the
-      race list from the start screen header (`startHeader`, main.lua) for a cinematic intro instead.
+- [x] The game's own track intro (flyover) shows in our races with StreamlineCampaign off (seen in all 23 launch
+      checks, 2026-11-12). Owner's call: drop the race list from the start screen header (`startHeader`, main.lua)?
 - [ ] v0.27.5: the tab at game start (no auto-open; ~1 s sooner; `TabSettleS = 1.0` if the menu misbehaves).
 - [ ] The parts slot-to-stat mapping: slots confirmed in game 2026-11-12 (0 Grip, 1 Acceleration, 2 Resilience,
       3 Boost, 4 Battery, 5 Advanced); which on-screen bar each drives is still a guess by name.
 - [ ] Riff-Raff's brief "Stock engines" now it has parts 2 (e.g. "Hot-rodded junkers")?
-- [ ] 27 never-launched race variants from the random pools (OWNER.md v0.26) - launch each once.
+- [x] The pool races never launched (23 by the log): all launched 2026-11-12, all fine (docs/data/launch-check-2026-11-12.txt).
 - [ ] Do the AI fire their abilities, Shields included (R7)?
 
 ## 3. Known gaps (small fixes)

@@ -42,6 +42,8 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
     No more "Leave the cup?" after pressing A.
   - StreamlineCampaign is now OFF (its enabled.txt renamed disabled.txt): does the game's own track intro (flyover
     with the track name) play at the start of our races? If yes, the track list can leave the cup screen.
+    **Seen by Claude 2026-11-12:** yes - in all 23 launch checks the game's own intro (the flyover with the track's
+    name, planet, RACE and laps) played. So the start screen's race list could go (your cinematic idea) - your call.
   - v0.27.2: Riff-Raff and Challenger open on a fresh save; only Ace is locked (5 Challenger trophies).
   - v0.27.1: after races 1-3 of a cup the game's finish times stay up for 6 s, then the standings. Long enough? (config
     `ChainRaces.Panel.TimesS`)
@@ -51,7 +53,9 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
     a new draw. Does a drawn cup feel like a real season? Is the Galactic Cup (three planets, then the Gauntlet) right?
   - Riff-Raff (parts 0, the old 50cc AI), Challenger (parts 5, the old 150cc AI), Ace (parts 9, the old 200cc AI):
     does the ladder feel right?
-  - **Never raced by the Grand Prix - the risk.** The in-game check should launch each of these once (a quick race
+  - **Done by Claude 2026-11-12:** all 23 pool races the GP had never launched were launched once (v0.28.2
+    quitAfterS): all load with 12 racers and the right conditions - docs/data/launch-check-2026-11-12.txt / .png.
+  - ~~**Never raced by the Grand Prix - the risk.**~~ The in-game check should launch each of these once (a quick race
     from the cup is enough: it loads, 12 cars, the right track and conditions). 27 variants (the doc's not-✓ ones);
     the 12 marked * were in the v0.6-v0.10 remix / conditions cups, the other 15 have never been in any version:
     - Jakku: THE WAR FIELDS (SCORCHING)* `EVT_MAS_LOOP_A_FWD_HARD`; THE WAR FIELDS (REVERSE, SCORCHING)
