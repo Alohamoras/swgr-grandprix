@@ -123,3 +123,18 @@ Average time per pilot (s):
   Ace: you're at parts 9; Elite at 10 (the top) + the others as you, unless +2 above the top works (to test).
 - **Form:** each pilot +-1 level at random each race (on top), so the order isn't fixed - an underdog can have a day.
 - Keep the boost rules as they are. Look at the steering / avoidance numbers later only if the blowouts still bother.
+
+## Ace check: parts above the top (2026-11-12, 20:42-21:11, 6 held races)
+Ace, The Giants' Graveyard, test save with Ace opened. At Ace the bots' upgrades already sit at 11 stacks (parts 9);
+every bot +3 (14 stacks) against every bot +1 (12). Data: docs/data/ai-held-races-ace-2026-11-12.txt.
+
+| Round | Best bot | Median bot | Last bot |
+|---|---|---|---|
+| all +3 (14 stacks) | 85.1 | 96.0 | 108.4 |
+| all +1 (12 stacks) | 88.1 | 94.8 | 111.0 |
+
+**Mixed: little or no gain up there.** The best bot was 3 s quicker, the median 1.2 s slower - within the noise. At
+Challenger, +2 moved the median 3.2 s; at Ace the extra stacks show diminishing returns (or a cap). So v0.28's Ace
+strength (Elite +2) probably does little: the Elite at Ace are about as fast as everyone else. If the owner finds Ace
+too even, the lever there is another one - e.g. `TNS_AI_Aggression_Boost` (acceleration, +10% afterburner top
+speed) applied to the Elite at load - untested.

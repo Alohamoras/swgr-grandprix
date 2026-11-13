@@ -70,8 +70,8 @@ put back at the menu, key binds only set flags):
       effect; bot parts work (+2 levels = ~3-4.5 s); pilot strength puts the Elite on top; the race-to-race swings
       (~20 s per pilot) are the bots' own mistakes and stay.
 - [x] 3. Report and proposal (results doc). Owner: fixed strengths, no per-race randomness. **Built as v0.28.0**
-      (config `AI.Strength`). Next: the owner races cups at Challenger and Ace (OWNER.md); Ace's Elite go above the top
-      parts level, untested.
+      (config `AI.Strength`). Next: the owner races cups at Challenger and Ace (OWNER.md). Ace checked 2026-11-12:
+      extra parts barely change the bots there (results doc); if Ace feels even, try TNS_AI_Aggression_Boost on the Elite.
 - Done: desk research (docs/ai-driving-research-2026-11-12.md). Tools: TestAutopilot v1.5 (hold.txt); the
   job-scratch scripts step.sh / apwait.sh / chainrace.sh / titlerun.sh (copy into tools/ if the job folder is gone).
 
