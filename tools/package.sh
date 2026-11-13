@@ -7,7 +7,9 @@ cd "$(dirname "$0")/.."
 REF="${1:-$(git tag -l 'v*' --sort=-v:refname | head -1)}"
 git rev-parse --verify -q "$REF^{commit}" >/dev/null || { echo "unknown version: $REF"; exit 1; }
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
-git archive "$REF" mod/GalacticGrandPrix docs/release/README.txt | tar -x -C "$TMP"
+git archive "$REF" mod/GalacticGrandPrix | tar -x -C "$TMP"
+# (the player README is text, not code: always the newest committed one, so a text fix doesn't need a new version)
+mkdir -p "$TMP/docs/release"; git show HEAD:docs/release/README.txt > "$TMP/docs/release/README.txt"
 OUT="$TMP/pkg/GalacticGrandPrix"
 mkdir -p "$OUT"
 cp -r "$TMP/mod/GalacticGrandPrix/Scripts" "$OUT/"
