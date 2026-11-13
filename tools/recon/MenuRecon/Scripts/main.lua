@@ -91,6 +91,8 @@ fmtProp = function(p, get, depth)
   return '<' .. pt .. '>'
 end
 
+local BASES = { Object = 1, Actor = 1, ActorComponent = 1, Widget = 1, Visual = 1, UserWidget = 1, CommonUserWidget = 1,
+  CommonActivatableWidget = 1 }
 local function dumpObject(o, label)
   log(('%s %s'):format(label or '-', full(o)))
   local cls = try(function() return o:GetClass() end)
@@ -111,6 +113,12 @@ local function dumpObject(o, label)
     if #props > 0 then
       log('  [' .. cn .. ']')
       for _, l in ipairs(props) do log(l) end
+    end
+    -- (2026-11-13: function names too, for the game's own classes - not the engine's widget bases)
+    if not BASES[cn] then
+      local fns = {}
+      try(function() cls:ForEachFunction(function(f) fns[#fns + 1] = f:GetFName():ToString() end) end)
+      if #fns > 0 then log('  [' .. cn .. '] functions: ' .. table.concat(fns, ', ')) end
     end
     flush()
     if cn == 'Object' or cn == 'Actor' or cn == 'ActorComponent' then break end
