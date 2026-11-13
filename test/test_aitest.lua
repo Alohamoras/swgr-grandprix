@@ -1,0 +1,30 @@
+-- AI test tooling (2026-11-13, Underground plan chunk 0; test-only, DevTools): experiment.lua's yourLevels sets your
+-- part levels for the race, botStacksAbs sets every bot's parts to one level whatever your build. Empty (level-0)
+-- slots are counted and never named (the v0.28.4 crash).
+local M = require('mock')
+local W = require('world')
+local T = require('util')
+T.boot({ version = 3 }, { StartScreen = true, Progression = { On = false }, DevTools = true })
+local EXP = T.dir .. '/experiment.lua'
+local f = io.open(EXP, 'w')
+f:write("return { label = 'abs', yourLevels = 1, botStacksAbs = 8 }")
+f:close()
+M.press('F6'); M.tick(6)
+T.clickTitle('CHALLENGER'); M.tick(3)
+T.clickTitle('JAKKU CUP'); M.tick(5)
+T.clickTitle('START'); M.tick(5)
+T.check(T.logHas('[exp] your levels: 0=1 1=1 2=1 3=1 4=1 5=1'), 'yourLevels = 1: every part at level 1 on your build')
+T.check(T.logHas('build for this race: VBD_Car_Base 0=1 1=1 2=1 3=1 4=1 5=1'), 'your launch build carries them')
+W.zeroSlots = { false, false, true, false, false, false } -- (one slot at level 0 in the copies: Resilience)
+W.race(11); M.tick(5)
+W.zeroSlots = nil
+T.check(T.logHas('[exp] bot parts absolute: '), 'the absolute bot parts logged')
+T.check(T.logHas('16 stacked set to 8'), 'four stacking parts x four copies set to 8')
+T.check(T.logHas('4 slots empty (left as they are)'), 'the empty slot counted (one per copy), not touched')
+T.check((W.nullNamed or 0) == 0, 'no empty tune set ever named (the v0.28.4 crash)')
+T.check(not T.logHas('[ai] pilot strength'), 'the experiment replaces the pilot strength for this race')
+local copy = rawget(rawget(W.bots[1], '__props').RacerBuildState, 'VehicleBuilds')
+local u = copy[1].UpgradeSlots[1]
+T.check(u.StacksToApply == 8, 'a bot\'s Grip stacks read back 8 (' .. tostring(u.StacksToApply) .. ')')
+os.remove(EXP)
+T.finish()

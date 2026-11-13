@@ -287,7 +287,48 @@ function L.strengthFor(name, league)
   local per = sc[tostring(league)]
   return (tier and type(per) == 'table' and tonumber(per[tier])) or 0
 end
+-- AI test 2026-11-13 (Underground plan chunk 0, test-only): experiment.lua's botStacksAbs = N sets every bot's parts
+-- to level N whatever your build: the stacking upgrades' stacks to N, and the Battery (one item per level,
+-- Upgrade_Battery_NN, not stacked) swapped for its level-N item. Returns the log text.
+local function absParts(ps, n)
+  local vb = ps.RacerBuildState.VehicleBuilds
+  local stacked, battery, empty = 0, 0, 0
+  for b = 1, (try(function() return vb:GetArrayNum() end) or 0) do
+    local us = vb[b].UpgradeSlots
+    for i = 1, (try(function() return us:GetArrayNum() end) or 0) do
+      local u = us[i]
+      local s = try(function() return u.StacksToApply end)
+      -- (never call anything on an empty tune set: a level-0 slot has none - the v0.28.4 crash)
+      local ts = type(s) == 'number' and s >= 1 and try(function() return u.TunesetToApply end) or nil
+      local full = alive(ts) and (try(function() return ts:GetFullName() end) or '') or ''
+      local path = full:match('^%S+%s+(.+)$') or ''
+      local nm = path:match('([^%.]+)$') or ''
+      if nm:find('_Max$') or (type(s) == 'number' and s > 1) then
+        pcall(function() u.StacksToApply = n end); pcall(function() u.PowerLevel = n end)
+        if try(function() return u.StacksToApply end) == n then stacked = stacked + 1 end
+      elseif nm:match('_%d%d$') then
+        local want = path:gsub('_%d%d%.([%w_]-)_%d%d$', ('_%02d.%%1_%02d'):format(n, n))
+        local obj = want ~= path and C.asset(want:match('^(.-)%.') or want) or nil
+        if obj and pcall(function() u.TunesetToApply = obj end) then pcall(function() u.PowerLevel = n end); battery = battery + 1
+        elseif want ~= path then log('[exp] battery item not found: ' .. want) end
+      else
+        empty = empty + 1
+      end
+    end
+  end
+  return ('%d stacked set to %d, %d battery items to level %d, %d slots empty (left as they are)'):format(stacked, n, battery, n, empty)
+end
+
 function L.botParts(bots, exp, league)
+  if exp and tonumber(exp.botStacksAbs) then
+    local n, parts = math.floor(tonumber(exp.botStacksAbs)), {}
+    for _, ps in ipairs(bots) do
+      local ok, txt = pcall(absParts, ps, n)
+      parts[#parts + 1] = (psName(ps) or '?') .. ': ' .. (ok and txt or ('error ' .. tostring(txt)))
+    end
+    log('[exp] bot parts absolute: ' .. table.concat(parts, '; '))
+    return
+  end
   local testing = exp and (exp.botStacks ~= nil or exp.botStacksBy ~= nil)
   if not testing and type(strengthConf()) ~= 'table' then return end
   local parts = {}

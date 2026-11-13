@@ -269,7 +269,17 @@ local function prepare(ev, classKey, vehKey, picks, mods, opts)
   local arch = archetype(veh.arch)
   local build = C.asset(veh.build)
   if not (alive(arch) and build) then log('vehicle or build not found: ' .. veh.key); return nil, 'Vehicle or build not found' end
-  applyBuild(veh.build, build, K.levelsFor(classKey))
+  -- AI test 2026-11-13 (Underground plan chunk 0, test-only): experiment.lua's yourLevels = N (or { [slot] = N })
+  -- replaces the league's part levels on your build for this race
+  local levels = K.levelsFor(classKey)
+  local exp = AI.experiment()
+  if exp and exp.yourLevels ~= nil then
+    local y, out = exp.yourLevels, {}
+    for s = 0, 5 do out[s] = math.floor(tonumber(type(y) == 'table' and y[s] or y) or levels[s] or 0) end
+    levels = out
+    log('[exp] your levels: ' .. R.levelsText(out))
+  end
+  applyBuild(veh.build, build, levels)
   if picks then
     local okA, errA = pcall(applyAbilities, veh.build, build, AB.classPaths(picks, AB.levelFor(classKey)))
     if not okA then log('abilities not set: ' .. tostring(errA)) end

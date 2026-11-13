@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.29.7 (2026-11-13): AI test switches (test-only)
+- `experiment.lua` (DevTools only - players never get it): `yourLevels = N` (or `{ [slot] = N }`) sets your part
+  levels for the race; `botStacksAbs = N` sets every bot's parts to level N whatever your build (stacked upgrades to
+  N, the Battery item swapped for its level-N one; empty level-0 slots counted, never named). For the Underground's
+  fixed-league AI test (`~/Projects/swgr-underground/docs/ai-fixed-difficulty-plan-2026-11-13.md`). Test:
+  `test_aitest.lua`. Nothing changes with DevTools off.
+
 ## v0.29.6 (2026-11-13): first release build
 - Same code as v0.29.5; the release texts final (the UE4SS link, "grimy" Junker cars, no licence - the owner uses
   Nexus's own permission settings). Built with `tools/package.sh v0.29.6`.
