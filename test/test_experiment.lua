@@ -19,6 +19,13 @@ startCup()
 T.check(M.called('LaunchQuickRace') == 1 and W.ds.Car.MinEnergyForAfterburner == 0.4 and not T.logHas('[exp]'), 'no experiment.lua: no [exp], the styles untouched')
 W.race(11); M.tick(5)
 T.check(not T.logHas('[exp]'), 'no experiment.lua: nothing at load')
+-- v0.28 pilot strength (config AI.Strength, no experiment): fixed, by tier, at Challenger Elite +2 / contender +1 / weak -1
+T.check(T.logHas('[ai] pilot strength (challenger): ') and T.logHas('Biddy Blas +2 (') and T.logHas('Sen Fira +2 (') and T.logHas('Kestar Bool +2 (')
+  and not T.logHas('Katja Mox +') and not T.logHas('Katja Mox -'), 'v0.28: pilot strength at load - the Elite +2, an unlisted pilot left as you')
+T.check(T.logHas('Biddy Blas +2 (20 upgrades, now 7)'), 'v0.28: Biddy\'s stacking parts 5 -> 7 (the Battery upgrade left alone)')
+local LO = require('loadout')
+T.check(LO.strengthFor('Biddy Blas', 'riffraff') == 1 and LO.strengthFor('Goli & 02-R0', 'riffraff') == 0 and LO.strengthFor('Malis Vazosk', 'ace') == -1
+  and LO.strengthFor('Shade', 'ace') == 0 and LO.strengthFor('Biddy Blas', 'nosuch') == 0, 'v0.28: the strength table per league (Riff-Raff: the Elite +1 only)')
 W.backToMenu(); M.tick(45)
 M.press('BACKSPACE'); M.tick(3); T.clickTitle('YES'); M.tick(3) -- (leave the cup)
 
@@ -39,8 +46,8 @@ T.check(T.save().aiRestores['/Game/Griffin/AI/DS_Car_Base'].MinEnergyForAfterbur
 T.check(W.ai.ForcedErrorDuration == 4, 'an extra DA_AIConfig field from the experiment')
 T.check(T.logHas("[exp] event: THE GIANTS' GRAVEYARD instead of", mark) and T.launched() == 'EVT_MAS_P2P_FWD', 'the experiment\'s fixed event launched (' .. tostring(T.launched()) .. ')')
 W.race(11); M.tick(5)
-T.check(T.logHas('[exp] bot parts: ', mark) and T.logHas('Katja Mox -1 (', mark) and T.logHas('Biddy Blas +2 (', mark),
-  'the bots\' part stacks moved at load (Katja -1, the rest +2)')
+T.check(T.logHas('[exp] bot parts: ', mark) and not T.logHas('[ai] pilot strength', mark) and T.logHas('Katja Mox -1 (', mark) and T.logHas('Biddy Blas +2 (', mark),
+  'the bots\' part stacks moved at load (Katja -1, the rest +2; the test switch replaces pilot strength)')
 local biddy
 for _, ps in ipairs(W.players or {}) do
   if tostring(rawget(rawget(ps, '__props'), 'PlayerNamePrivate')):find('Biddy', 1, true) then biddy = ps end

@@ -4,9 +4,7 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
-- [ ] **AI pilots: fixed strength + small form, or fully random?** For the AI driving spike (TASKS.md section 1).
-  Claude's pick: each pilot a fixed strength (Sen Fira, Biddy, Lyren always quick; Malis, Ary always slow) plus a
-  small swing race to race, so the same rivals are usually the ones to beat but an underdog can have a good day.
+- [x] **AI pilots: fixed strength + small form, or fully random?** Answered 2026-11-12: fixed, no per-race randomness (built in v0.28).
 - [ ] **Kestar is a weak final boss** (Claude's tests, 2026-11-11 night: he veers left off the line, then loses by
   20 s over 6 laps even to the autopilot). The Showdown was likely built around the game's own catch-up, which our
   150cc settings switch off. Give the boss race the game's own AI (a rubber band, but only for him), a boss profile
@@ -19,6 +17,10 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - [ ] **Ideas from your Google Doc** (realism mode, a podracer cup): send the details when you want them on the list.
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.28, pilot strength.** The Elite (Sen Fira, Biddy, Lyren) now drive +2 parts levels above you at Challenger
+  and Ace (+1 at Riff-Raff); Goli, Griff and Nik +1; Malis and Ary -1. Does the same group fight you for the cup? Too
+  hard, too easy? Each number is in config `AI.Strength` (one level = about 1.5-2 s on a ~110 s race). Not yet tested
+  at Ace: there the Elite go above the top parts level (11 on a scale that stops at 10) - say if Ace feels off.
 - [ ] **v0.27.5, the GRAND PRIX tab at game start.** The game now opens on its own main menu; pick GRAND PRIX
   yourself (or press F6). The tab should appear about a second sooner than before. If the menu ever acts up just
   after it appears (a crash, a tab that vanishes), say so: config `TabSettleS = 1.0` puts back the old wait.

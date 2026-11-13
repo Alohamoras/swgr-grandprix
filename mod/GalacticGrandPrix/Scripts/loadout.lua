@@ -273,15 +273,28 @@ function L.logBuilds(all)
   end
 end
 
--- AI driving spike, step 2 (test-only, ai.lua A.experiment): each bot's stacking part upgrades (StacksToApply > 1,
--- the `_Max` ones) moved by botStacks / botStacksBy[name] on its race copy, at load, before the upgrades are applied.
--- Its PowerLevel field follows. Nothing to put back: the copies go with the race world.
-function L.botParts(bots, exp)
-  if not exp or (exp.botStacks == nil and exp.botStacksBy == nil) then return end
+-- v0.28 pilot strength (config AI.Strength) and the AI spike's test switch (ai.lua A.experiment: botStacks /
+-- botStacksBy, which win when present): each bot's stacking part upgrades (the `_Max` tune sets: one stack a level)
+-- moved by d levels on its race copy, at load, before the upgrades are applied (proven in game 2026-11-12: +2 =
+-- ~3-4 s). Its PowerLevel field follows. Nothing to put back: the copies go with the race world.
+local function strengthConf() local a = cfg.AI or {}; return a.Strength end
+function L.strengthFor(name, league)
+  local sc = strengthConf()
+  if type(sc) ~= 'table' then return 0 end
+  local key = nameIndex()[name or '']
+  local tier = key and (sc.Pilots or {})[key]
+  local per = sc[tostring(league)]
+  return (tier and type(per) == 'table' and tonumber(per[tier])) or 0
+end
+function L.botParts(bots, exp, league)
+  local testing = exp and (exp.botStacks ~= nil or exp.botStacksBy ~= nil)
+  if not testing and type(strengthConf()) ~= 'table' then return end
   local parts = {}
   for _, ps in ipairs(bots) do
     local name = psName(ps) or '?'
-    local d = (type(exp.botStacksBy) == 'table' and exp.botStacksBy[name]) or tonumber(exp.botStacks) or 0
+    local d
+    if testing then d = (type(exp.botStacksBy) == 'table' and exp.botStacksBy[name]) or tonumber(exp.botStacks) or 0
+    else d = L.strengthFor(name, league) end
     if d ~= 0 then
       local vb = ps.RacerBuildState.VehicleBuilds
       local changed, lvl = 0, nil
@@ -290,7 +303,8 @@ function L.botParts(bots, exp)
         for i = 1, (try(function() return us:GetArrayNum() end) or 0) do
           local u = us[i]
           local s = try(function() return u.StacksToApply end)
-          if type(s) == 'number' and s > 1 then
+          local tn = try(function() return u.TunesetToApply:GetFName():ToString() end) or ''
+          if type(s) == 'number' and s >= 1 and (s > 1 or tn:find('_Max$')) then
             local nv = math.max(1, s + d)
             pcall(function() u.StacksToApply = nv end)
             pcall(function() u.PowerLevel = nv end)
@@ -301,7 +315,8 @@ function L.botParts(bots, exp)
       parts[#parts + 1] = ('%s %+d (%d upgrades, now %s)'):format(name, d, changed, tostring(lvl))
     end
   end
-  log('[exp] bot parts: ' .. (#parts > 0 and table.concat(parts, ', ') or 'none changed'))
+  log((testing and '[exp] bot parts: ' or ('[ai] pilot strength (%s): '):format(tostring(league)))
+    .. (#parts > 0 and table.concat(parts, ', ') or 'none changed'))
 end
 
 function L.apply(st)
@@ -329,7 +344,7 @@ function L.apply(st)
     for _, b in ipairs(bots) do all[#all + 1] = b end
     local okB, errB = pcall(L.logBuilds, all)
     if not okB then log('[builds] read failed: ' .. tostring(errB)) end
-    local okE, errE = pcall(L.botParts, bots, require('ai').experiment())
+    local okE, errE = pcall(L.botParts, bots, require('ai').experiment(), st.class)
     if not okE then log('[exp] bot parts failed: ' .. tostring(errE)) end
   end
   if st.mods then

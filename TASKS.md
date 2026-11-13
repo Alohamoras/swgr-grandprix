@@ -69,8 +69,9 @@ put back at the menu, key binds only set flags):
 - [x] 2. Held-race batches (2026-11-12, 12 races, docs/ai-driving-results-2026-11-12.md "Step 2"): boost rules no
       effect; bot parts work (+2 levels = ~3-4.5 s); pilot strength puts the Elite on top; the race-to-race swings
       (~20 s per pilot) are the bots' own mistakes and stay.
-- [ ] 3. Report done, proposal in the results doc: **pilot strength per league + random form (+-1 level)**. The
-      owner picks, then build it as a version and the owner races a cup at Challenger and Ace.
+- [x] 3. Report and proposal (results doc). Owner: fixed strengths, no per-race randomness. **Built as v0.28.0**
+      (config `AI.Strength`). Next: the owner races cups at Challenger and Ace (OWNER.md); Ace's Elite go above the top
+      parts level, untested.
 - Done: desk research (docs/ai-driving-research-2026-11-12.md). Tools: TestAutopilot v1.5 (hold.txt); the
   job-scratch scripts step.sh / apwait.sh / chainrace.sh / titlerun.sh (copy into tools/ if the job folder is gone).
 

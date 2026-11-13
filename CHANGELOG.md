@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.28.0 (2026-11-12): pilot strength - the same few drivers to beat
+The AI driving spike (docs/ai-driving-results-2026-11-12.md) found every bot races an exact copy of your car, so
+nothing told the pilots apart and the winner was mostly whoever crashed least. Held-race tests: a bot's parts change
+its pace (+2 levels = ~3-4 s on a ~110 s race), and giving the Elite +2 put them on top. The owner: no per-race
+randomness - "the same few drivers should be competitive for the cup".
+- **Pilot strength** (config `AI.Strength`, loadout.lua): at load each bot's car gets its tier's parts levels on top
+  of yours. Elite (Sen Fira, Biddy Blas, Lyren Shok, Kestar Bool) +2, contenders (Goli & 02-R0, Griff Halloran,
+  Nik Skandaro) +1, weak (Malis Vazosk, Ary Quill) -1, the rest as you. Riff-Raff: the Elite +1 only. Fixed, no
+  rubber band. Logged: `[ai] pilot strength (<league>): ...`.
+- The boost-rule change tested in the spike had no effect: not used.
+
 ## v0.27.7 (2026-11-12): AI driving spike tools (test-only, nothing changes without their files)
 Step 1 done (docs/ai-driving-results-2026-11-12.md); step 2's switches:
 - `logbuilds.txt` in the mod folder: every racer's race copy logged at load (`[builds]`), read only.

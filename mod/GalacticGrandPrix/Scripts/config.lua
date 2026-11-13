@@ -455,6 +455,19 @@ return {
         -- notch above 150cc (pressure 0.5).
         -- v0.26 (owner, 2026-11-12): one profile per league - Riff-Raff today's 50cc one, Challenger today's 150cc
         -- one, Ace today's 200cc one (pressure 0.5). (The 100cc profile - mercy 0.45 - went with its class.)
+        -- v0.28 (AI driving spike, docs/ai-driving-results-2026-11-12.md; owner: "the same few drivers should be
+        -- competitive for the cup"): every bot races a copy of YOUR car, so nothing told the pilots apart. Now each
+        -- pilot's car is set at load: their parts levels moved by their tier's number at the league (+2 = about 3-4 s
+        -- quicker on a ~110 s race). Fixed - no per-race randomness, no rubber band. Pilots = DA_Racer_<key> -> tier
+        -- (a pilot not listed, or you, is left as you); per league: tier -> levels. Strength = false switches it off.
+        Strength = {
+            Pilots = { Thrall = 'elite', Rager = 'elite', Star = 'elite', Antagonist = 'elite',
+                       Ghost = 'contender', Veteran = 'contender', QuietStrength = 'contender',
+                       Mercenary = 'weak', Protege = 'weak' },
+            riffraff = { elite = 1 },
+            challenger = { elite = 2, contender = 1, weak = -1 },
+            ace = { elite = 2, contender = 1, weak = -1 },
+        },
         Profiles = {
             riffraff = { pressure = -1, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.4 },
                          config = { SpeedMatchingMaxMatchers = 0 } },
