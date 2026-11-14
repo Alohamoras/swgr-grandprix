@@ -31,11 +31,24 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
   Prix's Junker parts leave some slots at 0 in the launch build (not 1) - no crash seen there in ~20 Junker races;
   nothing to do unless you see one.
 
+- [ ] **Underground LOOKS page (D22):** the recon worked - a look can go onto your car in our races, paint and all,
+  without touching your saved CUSTOMIZE looks (screenshots in swgr-underground docs/screens/looks/). Proposal: LOOKS
+  lists your owned themes (the 3 defaults + the 10 you bought in the campaign; never the paid Deluxe ones) **plus the
+  look of each rival you beat in a duel** (Kestar's white and gold car after the Stadium Showdown). OK to build?
+  (docs/looks-recon-2026-11-13.md)
+- [ ] **Underground: Claude's test races on your career (2026-11-13 evening):** 10 races (3 Ace, 6 Junker, 1
+  Challenger; one more crashed): the Junker gatekeeper beaten, 9 of 12 Junker cleared, bank 50,400. Keep them, or go back to before
+  (`~/.local/share/swgr-save-backups/looks-econ-20261113/ug-save.lua`, bank 25,750, 32 races)? Your campaign save was put back.
+  If Steam asks about a cloud conflict, pick the local files.
+
 ## Playtests (only a real race can tell)
 - [x] **v0.29, Junker: the crash fix and the rust look.** Owner 2026-11-12: no crash; looks show, dents overboard -> rust + dirt only (v0.29.1). Junker races load again (the crash was pilot strength
   meeting Junker's empty parts slots). In a Junker race: does your car (and the field) look rusted, dirty and dented?
   The log's `[looks]` lines say what was applied. Each part can be switched off in config `Looks.riffraff`
   (`patina`, `dirt`, `damage`; `field = false` = your car only).
+- [ ] **Underground v0.24, the money (economy pass):** leagues pay more (Junker x1.4, Challenger x3.4), a lost duel
+  pays as last place. Does the cash feel right - enough to keep upgrading, not so much that it's trivial? The aim is a
+  maxed car around race 60 (docs/economy-2026-11-13.md).
 - [ ] **Underground v0.23, the Ace finals (when you get there).** Beating the Ace gatekeeper (The Qualifier) and then
   Kestar's Stadium Showdown should end on our result page (CHAMPION OF THE UNDERGROUND), with no black screen - the
   campaign's story scene is switched off for that race. Only tested in the test harness so far.
