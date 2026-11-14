@@ -31,11 +31,9 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
   Prix's Junker parts leave some slots at 0 in the launch build (not 1) - no crash seen there in ~20 Junker races;
   nothing to do unless you see one.
 
-- [ ] **Underground LOOKS page (D22):** the recon worked - a look can go onto your car in our races, paint and all,
-  without touching your saved CUSTOMIZE looks (screenshots in swgr-underground docs/screens/looks/). Proposal: LOOKS
-  lists your owned themes (the 3 defaults + the 10 you bought in the campaign; never the paid Deluxe ones) **plus the
-  look of each rival you beat in a duel** (Kestar's white and gold car after the Stadium Showdown). OK to build?
-  (docs/looks-recon-2026-11-13.md)
+- [ ] **Underground v0.25 LOOKS (built, your OK 2026-11-13):** beat a rival's duel and wear their car (garage ->
+  LOOKS). **Your bought themes are NOT offered:** putting a theme look on the car crashed the game in both races I
+  tried; the rivals' looks were fine in 4. If you'd still like themes, they can come back on the menu car only.
 - [ ] **Underground: Claude's test races on your career (2026-11-13 evening):** 10 races (3 Ace, 6 Junker, 1
   Challenger; one more crashed): the Junker gatekeeper beaten, 9 of 12 Junker cleared, bank 50,400. Keep them, or go back to before
   (`~/.local/share/swgr-save-backups/looks-econ-20261113/ug-save.lua`, bank 25,750, 32 races)? Your campaign save was put back.
