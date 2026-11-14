@@ -36,6 +36,9 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
   meeting Junker's empty parts slots). In a Junker race: does your car (and the field) look rusted, dirty and dented?
   The log's `[looks]` lines say what was applied. Each part can be switched off in config `Looks.riffraff`
   (`patina`, `dirt`, `damage`; `field = false` = your car only).
+- [ ] **Underground v0.23, the Ace finals (when you get there).** Beating the Ace gatekeeper (The Qualifier) and then
+  Kestar's Stadium Showdown should end on our result page (CHAMPION OF THE UNDERGROUND), with no black screen - the
+  campaign's story scene is switched off for that race. Only tested in the test harness so far.
 - [ ] **v0.28.1, the end of a cup and a DNF.** After the last race: the finish times with a CUP RESULT button (the
   game's CONTINUE gone); A takes you to the cup result. If you wreck or get knocked out: once the others finish, the
   standings and NEXT RACE show on the results screen like any race (the log says `out of the race (wrecked): a DNF`).
