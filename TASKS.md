@@ -159,7 +159,7 @@ Takedown / Ramjet later.
 
 ## 5. Housekeeping
 - [ ] attic/ cleanup (old study mode, the chain reset route): keep, or delete now nothing uses it.
-- [ ] Test mods left disabled in the Mods folder (LookSpike, RaceFlowSpike, the recon mods): remove when done.
+- [x] Test mods left disabled in the Mods folder: moved to `~/.local/share/swgr-mod-attic/2026-11-13/` (2026-11-13; sources in the repos, UndergroundProto only there).
 
 ## 6. v1.0
 - [ ] The owner plays every cup at every league; tune parts, AI, AI kits, points. Tag v1.0.0.
