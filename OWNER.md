@@ -39,6 +39,14 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
   (`~/.local/share/swgr-save-backups/looks-econ-20261113/ug-save.lua`, bank 25,750, 32 races)? Your campaign save was put back.
   If Steam asks about a cloud conflict, pick the local files.
 
+- **Underground - the speed leak fix (2026-11-15, T1-6).** Confirmed: the shared launch build (set to the race's top
+  level, 10 in Ace) makes every car faster, yours included, whatever its own parts. Fix: **one fixed launch level for
+  every league** - your pace then depends only on your parts; the leagues' fields get re-checked (they lose the extra
+  Ace pace). Which level: **6** or **3**? Details: swgr-underground docs/power-leak-plan-2026-11-15.md.
+- **Underground - speed matching off (v0.25.1)?** Still on in the Underground (2 bots near you copy your speed);
+  the Grand Prix has it off. Yes / no.
+- **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12.
+
 ## Playtests (only a real race can tell)
 - [x] **v0.29, Junker: the crash fix and the rust look.** Owner 2026-11-12: no crash; looks show, dents overboard -> rust + dirt only (v0.29.1). Junker races load again (the crash was pilot strength
   meeting Junker's empty parts slots). In a Junker race: does your car (and the field) look rusted, dirty and dented?
