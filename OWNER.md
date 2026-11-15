@@ -43,6 +43,8 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
   level, 10 in Ace) makes every car faster, yours included, whatever its own parts. Fix: **one fixed launch level for
   every league** - your pace then depends only on your parts; the leagues' fields get re-checked (they lose the extra
   Ace pace). Which level: **6** or **3**? Details: swgr-underground docs/power-leak-plan-2026-11-15.md.
+  **Answered 2026-11-15:** plan agreed - 3 if a crash check (cars above the template) is clean, else 10; then an
+  ENGINE upgrade (Underground TASKS.md SPEED PLAN).
 - **Underground - speed matching off (v0.25.1)?** Still on in the Underground (2 bots near you copy your speed);
   the Grand Prix has it off. Yes / no.
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12.
