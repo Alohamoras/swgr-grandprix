@@ -47,7 +47,10 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
   ENGINE upgrade (Underground TASKS.md SPEED PLAN).
 - **Underground - speed matching off (v0.25.1)?** Still on in the Underground (2 bots near you copy your speed);
   the Grand Prix has it off. Yes / no.
-- **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
+- **Underground - revised leak fix (2026-11-22, SPEED PLAN S2).** S4 showed the opponents' speed comes only from the
+  shared template, so it can't be fixed at one level. Proposal: keep the template per league and cancel the leak on YOUR
+  car (your power figure = parts total - a league correction, ~24 points in Ace). OK? Then ~8 calibration races.
+- **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
 - [x] **v0.29, Junker: the crash fix and the rust look.** Owner 2026-11-12: no crash; looks show, dents overboard -> rust + dirt only (v0.29.1). Junker races load again (the crash was pilot strength
