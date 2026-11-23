@@ -191,4 +191,7 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 ## Vehicle model project (swgr-vehiclemodel, 2026-11-22)
 - What vehicle class and look do you want (landspeeder / podracer / bike)? Sketches or references welcome.
 - Where did the "Anakin's Podracer" reference mod come from (file location or link)?
-- OK to install Blender and Unreal Editor 5.7 (tens of GB)?
+- ~~OK to install Blender?~~ Done 2026-11-22 (Blender 5.3, no root).
+- **Unreal Editor 5.7.4 needs your Epic login** (Claude can't download it): either download the Linux zip while signed
+  in at https://www.unrealengine.com/linux, or link your GitHub account to Epic (Epic account → Apps and Accounts →
+  GitHub, then accept the EpicGames org email invite) so Claude can build it from source.
