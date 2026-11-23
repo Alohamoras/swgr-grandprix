@@ -4,6 +4,8 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
+- [ ] **Streamline Campaign on Nexus (2026-11-23):** title, category, permissions, "1.0.0" or "beta", screenshots
+      (any?). Release checklist: ~/Projects/swgr-streamline/TASKS.md "Release 1.0.0".
 - [x] **Nexus release:** UE4SS link (Nexus mod 2), no licence (Nexus permissions instead), screenshots in docs/release/screenshots/ (2026-11-13).
 - [ ] **Special rounds (race types):** docs/race-types-2026-11-13.md section 4 - A eliminator mid-cup, B knockout as
   the Galactic Cup finale, C by league style (Junker eliminator, Ace knockout finale), D bonus events. Pick after the
@@ -53,6 +55,8 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
+- [ ] **Streamline Campaign 1.0.0-rc1** (installed 2026-11-23): a normal campaign session, ideally with one story
+      cutscene and one Restart Campaign. Tell me if anything got skipped that you wanted to see.
 - [x] **v0.29, Junker: the crash fix and the rust look.** Owner 2026-11-12: no crash; looks show, dents overboard -> rust + dirt only (v0.29.1). Junker races load again (the crash was pilot strength
   meeting Junker's empty parts slots). In a Junker race: does your car (and the field) look rusted, dirty and dented?
   The log's `[looks]` lines say what was applied. Each part can be switched off in config `Looks.riffraff`
