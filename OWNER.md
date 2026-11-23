@@ -89,6 +89,8 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
     with the track name) play at the start of our races? If yes, the track list can leave the cup screen.
     **Seen by Claude 2026-11-12:** yes - in all 23 launch checks the game's own intro (the flyover with the track's
     name, planet, RACE and laps) played. So the start screen's race list could go (your cinematic idea) - your call.
+  - 2026-11-23: StreamlineCampaign turned back ON at the owner's request (campaign cutscene speed-ups). It also skips
+    intro dialogue in our quick races (KNOWLEDGE §3); turn it off again before Grand Prix / Underground intro checks.
   - v0.27.2: Riff-Raff and Challenger open on a fresh save; only Ace is locked (5 Challenger trophies).
   - v0.27.1: after races 1-3 of a cup the game's finish times stay up for 6 s, then the standings. Long enough? (config
     `ChainRaces.Panel.TimesS`)
