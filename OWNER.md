@@ -187,3 +187,8 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
   CONTINUE to the next cup, HOME "Next:" line).
 - 2026-11-11: run AI batches with the autopilot (done: docs/ai-study-2026-11-11.md); boot into the Grand Prix
   (v0.17); cups without the menu (v0.19.1); the next four tasks (TASKS "Next").
+
+## Vehicle model project (swgr-vehiclemodel, 2026-11-22)
+- What vehicle class and look do you want (landspeeder / podracer / bike)? Sketches or references welcome.
+- Where did the "Anakin's Podracer" reference mod come from (file location or link)?
+- OK to install Blender and Unreal Editor 5.7 (tens of GB)?
