@@ -126,6 +126,24 @@ Takedown / Ramjet later.
       cinematic, `modeFrom` on another track.
 - [ ] Owner picks a shape (A-D in the doc), then build.
 
+## 1e. Rally cup (owner 2026-11-24: "all the tracks that are point to point")
+**14 point-to-point race events, 6 routes, 5 planets** (Derven Acos has none; all 14 already in config.lua as 1-lap
+Sprints): Jakku The Giants' Graveyard (day); Lantaana Geothermal Tour (day, night, wet); Ando Prime Mountain to Sea
+(day, night, snow) and Dai Bendu Ascension = the same road reversed (day, night, snow); Crait Rhodochrosite Run (day,
+mines); Sentinel I Bool River Run (reverse day, forward overcast). The `P2P` folders' SHORT_0N events (Ahlren Jungle
+Speedway, Andobi Edge, Skakoan Gambit, Mineral Loop, Corrosion Hypersphere) are 4-6 lap loops, not point to point.
+- Shapes: (a) one 7-race cup, one race per route and direction, one weather variant each; (b) all 14 as two cups
+  ("Rally: Day" / "Rally: Night and Weather"). Owner to pick.
+- **Hidden Jakku tracks (TrackDefs with no EVT_):** `Mastiff/P2P_A/TRAK_MAS_P2P_SHORT_03` (+ `_MINES`),
+  `TRAK_MAS_P2P_FWD_MINES`; `Mastiff/Loop_A/TRAK_MAS_P2P_SUNSET` is the campaign intro's (its event
+  `EVT_MAS_POINTTOPOINT_SUNSET_CampaignIntro` is story-only). Only reachable through `LaunchCustomRace`.
+- [ ] **tools/recon/TrackTry** (installed 2026-11-24): HOME / PAGE UP / PAGE DOWN / DELETE at the main menu launch
+      the four tracks above via LaunchCustomRace (GMV_Race, car, VBD_Car_Base, TrackCondition.Sunset); logs the
+      TrackDef's p2p / laps / conditions / cinematic chains, clears the chains for the launch and puts them back at
+      the menu. Owner to try; read `[TrackTry]` in UE4SS.log.
+- [ ] If a hidden track races fine: add it to the Jakku pool / the rally cup (needs a LaunchCustomRace route in
+      race.lua beside LaunchQuickRace, or a stand-in event).
+
 ## 2. Waiting on the owner's play (details and tick boxes in OWNER.md "Playtests")
 - [ ] v0.27.x: the finish times then STANDINGS (A, or 6 s); Challenger open from the start; Riff-Raff's feel (parts
       2 on three slots); the posters' taglines and the cups page brief; the garage's TUNE-UP / ABILITY captions.

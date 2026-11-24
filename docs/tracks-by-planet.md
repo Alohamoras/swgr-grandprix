@@ -19,7 +19,8 @@ list is kept in docs/data/events-2026-11-12.txt.
 | Debris Dunes | circuit (Loop_B) | forward ✓, scorching ✓, reverse ✓, reverse scorching; Act 1 / 2 / 3 (story) |
 | Fallen Empire | short circuit (Loop_A SHORT_02) | normal ✓, scorching ✓ |
 | Scrap Spiral | short circuit (Loop_B SHORT_01) | normal ✓ (the only one) |
-Also: the campaign intro (a sunset point-to-point).
+Also: the campaign intro (a sunset point-to-point, `TRAK_MAS_P2P_SUNSET`). **Tracks with no event** (TrackDefs only,
+LaunchCustomRace): `TRAK_MAS_P2P_SHORT_03` (+ mines), `TRAK_MAS_P2P_FWD_MINES`. Tried with tools/recon/TrackTry (2026-11-24).
 
 ## Lantaana (Dalmatian)
 | Track | Kind | Variants in the game |
