@@ -8,6 +8,7 @@ local MS = require('modsel')
 local RC = require('racer')
 local AI = require('ai')
 local LK = require('looks')
+local PT = require('paint')
 local try, alive, addr, log = C.try, C.alive, C.addr, C.log
 
 local R = { run = nil }
@@ -206,6 +207,9 @@ function R.restoreBuild(why)
   -- v0.21: the title race's two-car grid back (the event's make-up, CharacterList.Opponents), before the racer
   local okG, errG = pcall(function() return require('title').gridRestore(why) end)
   if not okG then log('[title] grid put back failed: ' .. tostring(errG)) end
+  -- the alternate-vehicle scheme off the racer (paint.lua), then the pilot back
+  local okS, errS = pcall(PT.restore, why)
+  if not okS then log('[paint] put back failed: ' .. tostring(errS)) end
   -- v0.8: your pilot (CharacterList.Player) back, if the race never settled it (quit early, crash, failed launch)
   local okR, errR = pcall(RC.restore, why)
   if not okR then log('[racer] put back failed: ' .. tostring(errR)) end
@@ -319,6 +323,9 @@ local function prepare(ev, classKey, vehKey, picks, mods, opts)
   end
   local okR, errR = pcall(RC.begin, RC.current().key)
   if not okR then log('[racer] not set: ' .. tostring(errR)) end
+  -- the scheme for a vehicle that is not this pilot's own, on the racer before the game builds the race
+  local okS, errS = pcall(PT.arm, RC.current().key, veh.key)
+  if not okS then log('[paint] ' .. tostring(errS)) end
   return { e = e, veh = veh, tag = tag, arch = arch, build = build, ai = ai, modNames = modNames, yourKeys = yourKeys }
 end
 

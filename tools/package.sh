@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Build the release zip for players (Nexus): ./tools/package.sh [tag]  (default: the newest tag)
-# -> dist/GalacticGrandPrix-<tag>.zip with GalacticGrandPrix/{Scripts/, enabled.txt, README.txt}. Never the save, the
+# -> dist/GalacticGrandPrix-<tag>.zip with GalacticGrandPrix/{Scripts/, icons/, enabled.txt, README.txt}. Never the save, the
 # log, the tests or the tools. The test switches stay off (config DevTools = false - checked).
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -13,6 +13,7 @@ mkdir -p "$TMP/docs/release"; git show HEAD:docs/release/README.txt > "$TMP/docs
 OUT="$TMP/pkg/GalacticGrandPrix"
 mkdir -p "$OUT"
 cp -r "$TMP/mod/GalacticGrandPrix/Scripts" "$OUT/"
+if [ -d "$TMP/mod/GalacticGrandPrix/icons" ]; then cp -r "$TMP/mod/GalacticGrandPrix/icons" "$OUT/"; fi
 touch "$OUT/enabled.txt"
 if [ -f "$TMP/docs/release/README.txt" ]; then sed "s/{VERSION}/$REF/g" "$TMP/docs/release/README.txt" > "$OUT/README.txt"; fi
 # checks: no player data, test switches off, every script compiles

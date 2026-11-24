@@ -101,15 +101,19 @@ local function find(items, pat)
     if not nth and ((it.badge or ''):find(pat) or (it.kind or ''):upper():find(pat)) then return i end
   end
 end
--- (v0.15: no VEHICLE tile; the RACER tile names the racer's vehicle type, and HOME's GARAGE tile the racer and it.
--- Kestar Bool unlocked here (v0.21: the boss beaten), so every racer is on the tile.)
+-- (the VEHICLE tile names the category; cycling the pilot covers each category. Kestar Bool unlocked here
+-- (v0.21: the boss beaten), so every racer is on the tile.)
 K.data.boss = { beaten = true, tries = 1 }
 for _, c in ipairs(K.leagues()) do
   local items = garage(c.key)
-  T.check(find(items, '^VEHICLE') == nil, 'no VEHICLE tile in the garage at ' .. c.key)
+  T.check(find(items, '^VEHICLE') ~= nil, 'a VEHICLE tile in the garage at ' .. c.key)
   for _ = 1, #(cfg.Racers or {}) do
     local i = find(items, '^RACER'); seenRacer[items[i].title] = true
-    seenVeh[items[i].desc] = true
+    local vi = find(items, '^VEHICLE')
+    if vi then
+      local n = items[vi].title
+      seenVeh[n:sub(1, 1) .. n:sub(2):lower()] = true
+    end
     check('home racer ' .. items[i].title, SC.home())
     items[i].act(); items = garage(c.key)
   end

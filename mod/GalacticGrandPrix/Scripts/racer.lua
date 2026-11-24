@@ -11,9 +11,10 @@
 -- Memory only, nothing kept between ticks (the list is found again each time: a full sweep, at launch / the menu / the
 -- one settle read), every engine access in try / pcall. Object pointers only (Player, Opponents[]): no soft pointers.
 --
--- v0.15 (TASKS.md A6): the racer decides the vehicle. config Racers[].vehicle (car / bike / skimmer) is the source of
--- truth: RC.vehicle() picks the launch build (config Vehicles), so the menu never looks anything up in the game. At
--- launch the picked racer's URacerDef.PreferredVehicleType (a plain enum byte: 0 car, 2 bike, 3 skimmer) is read once
+-- v0.15: config Racers[].vehicle (car / bike / skimmer) is that pilot's own category. RC.vehicle(key) is that.
+-- The category you actually launch is separate (K.data.vehicle): RC.chosenVehicle(). Choosing a pilot sets it back
+-- to theirs; the vehicle tile then cycles the three. At launch the picked racer's URacerDef.PreferredVehicleType
+-- (a plain enum byte: 0 car, 2 bike, 3 skimmer) is read once
 -- per racer per session from the def already in hand and a mismatch with config is logged (no extra sweep, no soft
 -- pointers). Kestar Bool (unlockBoss, v0.21; was unlockTitle = '150') is locked until you beat him as the final boss
 -- (title.lua): RC.cycle skips him, and a save that still has him picked races as Shade (logged once).
@@ -63,22 +64,45 @@ end
 function RC.current()
   local r = RC.get(K.data.racer)
   if r and RC.locked(r) then
-    log(('[racer] %s is locked (%s) - racing as %s'):format(r.name, RC.unlockText(r):lower(), RC.list()[1].name))
-    K.data.racer = RC.list()[1].key
+    local fb = RC.list()[1]
+    log(('[racer] %s is locked (%s) - racing as %s'):format(r.name, RC.unlockText(r):lower(), fb.name))
+    K.data.racer = fb.key
+    K.data.vehicle = fb.vehicle
+    local okA, AB = pcall(require, 'abil')
+    if okA then K.data.picks = AB.racerPicks(fb.key); K.data.picksRacer = fb.key end
     K.save()
     r = nil
   end
   return r or RC.list()[1]
 end
 function RC.path(key) return RACERS .. key end
--- v0.15: the racer's vehicle (a config Vehicles entry): the build the race launches with. No key = the pick.
+-- v0.15: the pilot's own category (a config Vehicles entry). No key = the current pilot's. The launch uses RC.chosenVehicle.
 function RC.vehicle(key)
   local r = key == nil and RC.current() or RC.get(key)
   return K.vehicle(r and r.vehicle or 'car')
 end
--- the vehicle type in words for the menu: 'Speeder bike'
+-- the category this launch uses. A saved one wins; otherwise the current pilot's own.
+function RC.chosenVehicle()
+  local k = K.data.vehicle
+  local v = k and K.vehicle(k)
+  if v and v.key == k then return v end
+  return RC.vehicle()
+end
+-- the next (dir = 1) or previous (-1) of the three categories, saved. The pilot's own is what a new pilot starts on.
+function RC.cycleVehicle(dir)
+  local list = K.vehicles()
+  if #list == 0 then return nil end
+  local cur = RC.chosenVehicle().key
+  local at = 1
+  for i, v in ipairs(list) do if v.key == cur then at = i end end
+  at = ((at - 1 + (dir or 1)) % #list) + 1
+  K.data.vehicle = list[at].key
+  K.save()
+  return list[at]
+end
+-- the vehicle type in words for the menu: 'Speeder bike'. No key = the category you launch with.
 function RC.vehicleText(key)
-  local n = tostring(RC.vehicle(key).name or '?')
+  local n = tostring((key == nil and RC.chosenVehicle() or RC.vehicle(key)).name or '?')
   return n:sub(1, 1):upper() .. n:sub(2):lower()
 end
 -- the next (dir = 1) or previous (-1) pilot, saved. Returns the entry. (v0.9: no lock while a cup runs - the garage
@@ -93,6 +117,7 @@ function RC.cycle(dir)
     if not RC.locked(list[at]) then r = list[at]; break end
   end
   K.data.racer = r.key
+  K.data.vehicle = r.vehicle
   K.save()
   return r
 end
@@ -253,6 +278,17 @@ end
 function RC.restore(why)
   if not RC.pending() then return false end
   return putBack(why or 'main menu', false)
+end
+
+-- the pilot tile's icon: icons/<racer key>.png in the mod folder (Shade is DarkEnigma.png, and so on).
+-- A file name only. The menu imports it (ui.lua). Nothing of the racer def is read.
+function RC.face(key)
+  if not key then return nil end
+  local name = key .. '.png'
+  local f = io.open(C.DIR .. '/icons/' .. name, 'rb')
+  if not f then return nil end
+  f:close()
+  return name
 end
 
 return RC

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+- Pilot portraits on the garage tile, from `icons/<racer key>.png`.
+- A vehicle tile. A new pilot starts on their own category. The other two categories launch the shared base build wearing that rider's preset (a model, a faction swatch, and paint, rust, or steel). Their own vehicle is left as the game built it. The preset is written onto the racer before the race and taken off again at the menu.
+- Choosing a pilot, or opening the garage on a pilot you have not built a kit for, starts the four abilities as that pilot's signature kit. Edits stay until the pilot changes.
+
 ## v0.29.9 (2026-11-13): AI test - your level on your own race copy (test-only)
 - `experiment.lua` (DevTools only): `yourCopy = true` puts the shared launch build at the bots' level
   (`botStacksAbs`) and your `yourLevels` onto your own race copy at load. Round B2 showed the bots still ~15 s slower
