@@ -137,12 +137,15 @@ Speedway, Andobi Edge, Skakoan Gambit, Mineral Loop, Corrosion Hypersphere) are 
 - **Hidden Jakku tracks (TrackDefs with no EVT_):** `Mastiff/P2P_A/TRAK_MAS_P2P_SHORT_03` (+ `_MINES`),
   `TRAK_MAS_P2P_FWD_MINES`; `Mastiff/Loop_A/TRAK_MAS_P2P_SUNSET` is the campaign intro's (its event
   `EVT_MAS_POINTTOPOINT_SUNSET_CampaignIntro` is story-only). Only reachable through `LaunchCustomRace`.
-- [ ] **tools/recon/TrackTry** (installed 2026-11-24): HOME / PAGE UP / PAGE DOWN / DELETE at the main menu launch
-      the four tracks above via LaunchCustomRace (GMV_Race, car, VBD_Car_Base, TrackCondition.Sunset); logs the
-      TrackDef's p2p / laps / conditions / cinematic chains, clears the chains for the launch and puts them back at
-      the menu. Owner to try; read `[TrackTry]` in UE4SS.log.
-- [ ] If a hidden track races fine: add it to the Jakku pool / the rally cup (needs a LaunchCustomRace route in
-      race.lua beside LaunchQuickRace, or a stand-in event).
+- [x] **tools/recon/TrackTry** (2026-11-24): HOME / PAGE UP / PAGE DOWN / DELETE at the main menu launch the four
+      tracks above via LaunchCustomRace (GMV_Race, car, VBD_Car_Base, TrackCondition.Sunset); logs the TrackDef's
+      flags and cinematic chains, clears the chains for the launch, puts them back at the menu. **Raced by the owner
+      the same evening: `TRAK_MAS_P2P_SHORT_03` = "Star Destroyer Speedway", a 5-lap short circuit (p2p=false),
+      dev status "L6 - DESIGN - Stoney to look at", conditions Sunset / BlueHour. Owner: "just the short track,
+      nothing special." Not a sprint; no rally material. LaunchCustomRace from our own code works.** The other three
+      (sunset intro track, the two mines layouts) untried.
+- [ ] (only if wanted) Star Destroyer Speedway in the Jakku pool as a 5-lap short circuit: needs a LaunchCustomRace
+      route in race.lua beside LaunchQuickRace. Low value.
 
 ## 2. Waiting on the owner's play (details and tick boxes in OWNER.md "Playtests")
 - [ ] v0.27.x: the finish times then STANDINGS (A, or 6 s); Challenger open from the start; Riff-Raff's feel (parts

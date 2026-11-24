@@ -20,7 +20,8 @@ list is kept in docs/data/events-2026-11-12.txt.
 | Fallen Empire | short circuit (Loop_A SHORT_02) | normal ✓, scorching ✓ |
 | Scrap Spiral | short circuit (Loop_B SHORT_01) | normal ✓ (the only one) |
 Also: the campaign intro (a sunset point-to-point, `TRAK_MAS_P2P_SUNSET`). **Tracks with no event** (TrackDefs only,
-LaunchCustomRace): `TRAK_MAS_P2P_SHORT_03` (+ mines), `TRAK_MAS_P2P_FWD_MINES`. Tried with tools/recon/TrackTry (2026-11-24).
+LaunchCustomRace): `TRAK_MAS_P2P_SHORT_03` = **Star Destroyer Speedway**, a 5-lap short circuit (dev status "L6 - DESIGN", unfinished; raced via
+tools/recon/TrackTry 2026-11-24: ordinary, not a sprint) (+ mines), `TRAK_MAS_P2P_FWD_MINES`.
 
 ## Lantaana (Dalmatian)
 | Track | Kind | Variants in the game |
