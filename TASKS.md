@@ -132,8 +132,16 @@ Sprints): Jakku The Giants' Graveyard (day); Lantaana Geothermal Tour (day, nigh
 (day, night, snow) and Dai Bendu Ascension = the same road reversed (day, night, snow); Crait Rhodochrosite Run (day,
 mines); Sentinel I Bool River Run (reverse day, forward overcast). The `P2P` folders' SHORT_0N events (Ahlren Jungle
 Speedway, Andobi Edge, Skakoan Gambit, Mineral Loop, Corrosion Hypersphere) are 4-6 lap loops, not point to point.
-- Shapes: (a) one 7-race cup, one race per route and direction, one weather variant each; (b) all 14 as two cups
-  ("Rally: Day" / "Rally: Night and Weather"). Owner to pick.
+- **Shape picked (owner 2026-11-24): one cup, 7 stages (one per route and direction), the night / weather variant
+  drawn at random per stage.** Rally-vibe extras offered the same evening (owner to pick):
+  1. **Stage times, not points:** standings by total time across the stages, gaps shown ("+4.2 s"); a DNF scores the
+     slowest finisher's time + a penalty. Every racer's EventFinishTime is already read per race (race.lua v0.10).
+  2. **Small field:** you + 3 (special-stage feel) through the GridMakeup entries, as title.lua cuts the title race to 2.
+  3. **Tour order:** Jakku, Lantaana, Ando Prime x2, Crait, Sentinel x2; the finale always at night (Bool River Run).
+  4. **Weather roulette:** the stage's variant drawn when the cup starts but only shown on the stage's start screen.
+  5. **Mines finale:** Rhodochrosite Run (Mines) as a fixed stage.
+  6. **Group B spec:** a fixed build for the cup, defensive / utility abilities only (no lock-on bolts).
+  7. **Power stage:** a time bonus for the fastest final stage (needs 1).
 - **Hidden Jakku tracks (TrackDefs with no EVT_):** `Mastiff/P2P_A/TRAK_MAS_P2P_SHORT_03` (+ `_MINES`),
   `TRAK_MAS_P2P_FWD_MINES`; `Mastiff/Loop_A/TRAK_MAS_P2P_SUNSET` is the campaign intro's (its event
   `EVT_MAS_POINTTOPOINT_SUNSET_CampaignIntro` is story-only). Only reachable through `LaunchCustomRace`.

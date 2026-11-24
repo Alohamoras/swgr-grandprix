@@ -204,3 +204,4 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Unreal Editor 5.7.4 needs your Epic login** (Claude can't download it): either download the Linux zip while signed
   in at https://www.unrealengine.com/linux, or link your GitHub account to Epic (Epic account → Apps and Accounts →
   GitHub, then accept the EpicGames org email invite) so Claude can build it from source.
+- [ ] **Rally cup extras** (2026-11-24, TASKS 1e list 1-7): which of stage-time standings, a 4-car field, tour order with a night finale, hidden weather, a mines finale, Group B spec, power stage?
