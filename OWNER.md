@@ -4,6 +4,9 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
+- [ ] **Mechanic shop mod (2026-11-24):** "highest level parts" - level 10 outright (one visit = a maxed slot), or the biggest
+      upgrade step the shop can offer over your current level? ShopRecon's first dump (after you visit the mechanic once) will show
+      which the game can do. Half price = 50 % off the shown price. Repo ~/Projects/swgr-mechanic.
 - [x] **Streamline Campaign on Nexus (2026-11-23):** 1.0.0 uploaded and live (owner). Was: title, category, permissions, the upload
       (any?). Release checklist: ~/Projects/swgr-streamline/TASKS.md "Release 1.0.0".
 - [x] **Nexus release:** UE4SS link (Nexus mod 2), no licence (Nexus permissions instead), screenshots in docs/release/screenshots/ (2026-11-13).
