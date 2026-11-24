@@ -4,7 +4,7 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
-- [ ] **Streamline Campaign on Nexus (2026-11-23):** 1.0.0 built, no screenshots (owner). Left: title, category, permissions, the upload
+- [x] **Streamline Campaign on Nexus (2026-11-23):** 1.0.0 uploaded and live (owner). Was: title, category, permissions, the upload
       (any?). Release checklist: ~/Projects/swgr-streamline/TASKS.md "Release 1.0.0".
 - [x] **Nexus release:** UE4SS link (Nexus mod 2), no licence (Nexus permissions instead), screenshots in docs/release/screenshots/ (2026-11-13).
 - [ ] **Special rounds (race types):** docs/race-types-2026-11-13.md section 4 - A eliminator mid-cup, B knockout as
