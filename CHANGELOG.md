@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.34.0 (2026-11-25): the car per league - Junker engine 10, Challenger 7, Ace 10 (owner; L1 of §1b)
+- Owner (docs/league-styles-2026-11-12.md "2026-11-25"): "for ace let's set everything to 10 ... take the afterburner
+  and ramjet to 10" at Junker. Config `Leagues[].parts`: Junker `{ [1] = 10, [3] = 10, [4] = 2 }` (afterburner and
+  ramjet 6 -> 10, battery 2, cornering / resilience / drift stock), Challenger 7 everywhere (was 5; **owner to
+  confirm**, OWNER.md), Ace 10 everywhere (was 9). Every bot races a copy of your car, so each league's car is the
+  whole field's. Taglines: Challenger "Balanced rigs and pilots out to make a name", Ace "Money, maxed out, and a clean
+  field"; briefs "Balanced engines" / "Maxed-out engines".
+- `AI.Strength.ace` shifted down to `{ elite = 0, contender = -1, weak = -3 }`: with your car at 10 the old +2 / +1 had
+  nowhere to go, so the Elite race your car, contenders 9, the weak 7. (Open: the game's own level 10 writes 13 stacks,
+  so stacks above 10 may still count - a held race would tell; docs/league-styles §"2026-11-25".) Challenger 7 + 2 = 9
+  keeps its room. The `[builds]` log lines show each tier's levels at load as before.
+- Config only, no code. Tests: test_config, test_leagues, test_start, test_menu20, test_experiment, test_vehicles,
+  test_title, test_racervehicle updated to the new levels; 50 files pass.
+
 ## v0.33.0 (2026-11-25): Kestar closes the Galactic Cup, no title race; the planets on the cup tiles (owner)
 - Owner: "ditch the title race and put the Kestar race at the end of the Galactic Cup" - his pick: race 5, only with
   a trophy. The Galactic Cup's four points races decide the trophy as before; a trophy (config `Boss.Gate`: 'trophy' /

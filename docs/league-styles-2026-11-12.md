@@ -74,6 +74,18 @@ Levers on `AI.Profiles.ace` (ai.lua, all written at launch and put back at the m
 - Check: the `[gaps]` spread at Ace should shrink (fewer crashes, a tighter field). The 2026-11-25 Ace log had a wet
   sprint with a 146 s spread from crashes.
 
+### Built: v0.34.0 (2026-11-25), L1 - the parts and the strength shift
+Config only (`Leagues[].parts`, `AI.Strength.ace`, taglines, briefs); tests updated; installed for the owner's test.
+Two corrections to the plan above, found in the code while building:
+- **"Junker's `elite = 1` still lifts the 0 slots" is wrong.** loadout.lua `L.botParts` only moves a slot that has a live
+  tune set (a level-0 slot has none - the v0.28.4 crash). At Junker the Elite's +1 goes onto the afterburner and ramjet
+  (10 -> 11 stacks); their cornering stays stock like everyone's. The Elite are the ones with even more engine, not the
+  ones who corner well.
+- **"Nothing above 10" is unproven.** Our mods write 10 stacks at level 10, but the game's own level 10 is 13 stacks
+  (KNOWLEDGE §5), so a stack count of 11 or 12 may well still add speed. The shift to `{ elite = 0, contender = -1,
+  weak = -3 }` is built as decided; if the owner wants the old shape back (Elite above you), a held race at Ace with
+  `{ elite = 2 }` and the `[builds]` lines would show whether 12 stacks count.
+
 ### Knock-on
 - **HEAT (docs/heat-2026-11-25.md):** *Detuned* becomes *Budget cap* (10 → 8 / 6), the money league's handicap. *Grudge*
   undoes the clean field on purpose (heat makes them dirty).

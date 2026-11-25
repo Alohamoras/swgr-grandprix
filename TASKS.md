@@ -103,9 +103,13 @@ Owner's plan: keep playing ~a week without crashes, then publish as a beta.
 - [ ] Junker = banger racing: more aggressive bots (`AI.Profiles.riffraff.aggression`).
 - [ ] Ace = weather and night: the draw leans to condition variants (gp.lua `K.draw`, a per-league lean).
 **2026-11-25 (owner): the car per league decided** - the plan in the doc's "2026-11-25" section. One tag per chunk:
-- [ ] L1. **Parts** (config only): Junker `{ [1] = 10, [3] = 10, [4] = 2 }`, Challenger `7`, Ace `10`; `AI.Strength.ace` shifted
+- [x] L1. **Parts** (config only): Junker `{ [1] = 10, [3] = 10, [4] = 2 }`, Challenger `7`, Ace `10`; `AI.Strength.ace` shifted
       to `{ elite = 0, contender = -1, weak = -3 }` (no room above 10); briefs / taglines. Tests; the `[builds]` lines
-      show each tier's levels. **Owner to confirm Challenger 7** (OWNER.md).
+      show each tier's levels. **Owner to confirm Challenger 7** (OWNER.md). **Built v0.34.0 (2026-11-25), installed;
+      the owner's test is next.** Found while building: a strength lift only reaches a slot that has a tune set
+      (loadout.lua L.botParts skips level-0 slots), so at Junker the Elite's +1 goes onto the afterburner and ramjet
+      (10 -> 11 stacks), not onto cornering / grip as the plan said; and the game's own level 10 is 13 stacks, so
+      "no room above 10" is unproven - a held race with Ace back at `{ elite = 2 }` would show whether 12 stacks count.
 - [ ] L2. **Ace clean field:** `AI.Profiles.ace` aggression (VersusPlayer and VersusAI) down; check the `[gaps]` spread.
 - [ ] L3. **Wreck limit per league** (= §1g item 8): `Leagues[].wrecks`, Junker 5, the others the game's 3; the mod tops
       `VehicleHealth` up and grows the HUD pips (`WBP_HUD_Crashes_C`).

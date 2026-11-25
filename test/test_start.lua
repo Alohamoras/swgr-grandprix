@@ -17,14 +17,14 @@ T.check(S.ui.rows and S.ui.nav ~= nil, 'HOME in rows (the D-pad map made)')
 T.check(T.pips('CHALLENGER') == 'GB-----.', 'Challenger: gold, bronze, five faint medals, the title star not won (' .. tostring(T.pips('CHALLENGER')) .. ')')
 T.check(T.badges() == '|||', 'no words on the HOME tiles (' .. T.badges() .. ')')
 T.check(T.marks():find('^pips:%S+|pips:%S+|pips:%S+|$') ~= nil, 'v0.27: only the medal pips on the posters, no chevrons (' .. T.marks() .. ')')
-T.check(S.ui.items[1].desc == 'Scrapyard junk with too much engine' and S.ui.items[3].desc == 'The fastest pilots in the galaxy',
+T.check(S.ui.items[1].desc == 'Scrapyard junk with too much engine' and S.ui.items[3].desc == 'Money, maxed out, and a clean field',
   'v0.27: each poster\'s tagline (' .. tostring(S.ui.items[1].desc) .. ')')
 T.check(S.ui.nav[1].down == 4 and S.ui.nav[4].up ~= nil, 'down from JUNKER reaches RESET, and back up')
 
 -- the cups page -> the start screen
 T.clickTitle('CHALLENGER'); M.tick(3)
 local CP = H.SCREENS.cups()
-T.check(CP.title == 'CHALLENGER' and CP.lines[1][1] == 'Tuned engines   -   two abilities   -   one tune-up', 'v0.27: the league\'s brief under its name on the cups page (' .. tostring(CP.lines[1][1]) .. ')')
+T.check(CP.title == 'CHALLENGER' and CP.lines[1][1] == 'Balanced engines   -   two abilities   -   one tune-up', 'v0.27: the league\'s brief under its name on the cups page (' .. tostring(CP.lines[1][1]) .. ')')
 local mark = T.mark()
 local calls = #M.calls
 T.clickTitle('JAKKU CUP'); M.tick(5)

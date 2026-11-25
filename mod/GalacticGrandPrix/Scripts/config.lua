@@ -160,15 +160,20 @@ return {
         -- ramjet 2 points more ("racing a piece of junk that can go faster than it probably should"): slots 1 and 3
         -- (Acceleration, Boost - the AFTERBURNER and RAMJET bars by their order on the parts screen) 2 -> 4, Battery 2
         -- v0.29.1 (owner): another +2 - afterburner and ramjet 6
-        { key = 'riffraff', name = 'JUNKER', parts = { [1] = 6, [3] = 6, [4] = 2 }, mods = 0, abilities = 1, open = true,
+        -- v0.34.0 (owner 2026-11-25, docs/league-styles-2026-11-12.md "2026-11-25"): the car per league decided. Junker:
+        -- afterburner and ramjet 10 ("take the afterburner and ramjet to 10"), battery 2, cornering / resilience / drift
+        -- stock - too much engine on a scrapyard chassis. Challenger 7 everywhere (was 5; owner to confirm). Ace 10
+        -- everywhere ("for ace let's set everything to 10") - the money league. Every bot races a copy of your car
+        -- (KNOWLEDGE §5), so this is the whole field's car at each league.
+        { key = 'riffraff', name = 'JUNKER', parts = { [1] = 10, [3] = 10, [4] = 2 }, mods = 0, abilities = 1, open = true,
           tagline = 'Scrapyard junk with too much engine',
           brief = 'Hot-rodded junk   -   one ability   -   no tune-ups' },
-        { key = 'challenger', name = 'CHALLENGER', parts = 5, mods = 1, abilities = 2, open = true,
-          tagline = 'Tuned rigs and pilots out to make a name',
-          brief = 'Tuned engines   -   two abilities   -   one tune-up' },
-        { key = 'ace', name = 'ACE', parts = 9, mods = 2, abilities = 3,
-          tagline = 'The fastest pilots in the galaxy',
-          brief = 'Full-power engines   -   three abilities   -   two tune-ups' },
+        { key = 'challenger', name = 'CHALLENGER', parts = 7, mods = 1, abilities = 2, open = true,
+          tagline = 'Balanced rigs and pilots out to make a name',
+          brief = 'Balanced engines   -   two abilities   -   one tune-up' },
+        { key = 'ace', name = 'ACE', parts = 10, mods = 2, abilities = 3,
+          tagline = 'Money, maxed out, and a clean field',
+          brief = 'Maxed-out engines   -   three abilities   -   two tune-ups' },
     },
 
     -- Points by place in each race (1st first); a racer who doesn't finish scores 0
@@ -562,7 +567,11 @@ return {
                        Mercenary = 'weak', Protege = 'weak' },
             riffraff = { elite = 1 },
             challenger = { elite = 2, contender = 1, weak = -1 },
-            ace = { elite = 2, contender = 1, weak = -1 },
+            -- v0.34.0: Ace's car is at 10, so the tiers shift down instead of up - the Elite race your car, contenders a
+            -- step back (9), the weak three (7). (A lift only reaches a slot that has a tune set - loadout.lua
+            -- L.botParts - so at Junker the Elite's +1 goes onto the afterburner and ramjet, 10 -> 11 stacks, not onto
+            -- the stock slots.)
+            ace = { elite = 0, contender = -1, weak = -3 },
         },
         -- v0.32 (thrust.lua; docs/freerace-review-2026-11-25.md §6.3): a per-bot pace dial to TEST - a run-time tune set
         -- on the bot's vehicle multiplying its thrust (MaxRPM and the accelerations), applied ThrustAfterS after the

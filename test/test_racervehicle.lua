@@ -91,7 +91,7 @@ T.clickTitle('JAKKU CUP')
 local args = M.lastCall('LaunchQuickRace').args
 T.check(rawget(args[1], '__name') == 'VA_Skimmer' and rawget(args[3], '__name'):find('VBD_Skimmer_Base', 1, true) ~= nil,
   'Sebulba races the skim speeder build')
-T.check(T.levels('VBD_Skimmer_Base') == '0=5 1=5 2=5 3=5 4=5 5=5', 'Challenger parts on the skimmer build')
+T.check(T.levels('VBD_Skimmer_Base') == '0=7 1=7 2=7 3=7 4=7 5=7', 'Challenger parts on the skimmer build')
 T.check(T.levels('VBD_Car_Base') == '0=0 1=0 2=0 3=0 4=0 5=0' and T.levels('VBD_Bike_Base') == '0=0 1=0 2=0 3=0 4=0 5=0', 'the car and bike builds untouched')
 T.check(T.logHas('vehicle=skimmer') and not T.logHas('PreferredVehicleType'), 'launch logged with the skimmer; the game\'s byte agrees (no mismatch line)')
 W.race(11); M.tick(10)
@@ -109,7 +109,7 @@ local ev = { path = EV .. 'Mastiff/EVT_MAS_LOOP_A_FWD', title = 'The War Fields'
 local ok = R.launch(ev, 'ace', RC.vehicle().key, nil, nil)
 T.check(ok and T.logHas('[racer] Fola Kanjen: the game\'s PreferredVehicleType is 2, config says skimmer (arch 3) - racing the config\'s skimmer'),
   'mismatch logged; config wins (' .. tostring(ok) .. ')')
-T.check(T.levels('VBD_Skimmer_Base') == '0=9 1=9 2=9 3=9 4=9 5=9', 'the skimmer build at Ace')
+T.check(T.levels('VBD_Skimmer_Base') == '0=10 1=10 2=10 3=10 4=10 5=10', 'the skimmer build at Ace')
 W.race(11); M.tick(10)
 W.backToMenu(); M.tick(45)
 T.check(T.levels('VBD_Skimmer_Base') == '0=0 1=0 2=0 3=0 4=0 5=0', 'put back')

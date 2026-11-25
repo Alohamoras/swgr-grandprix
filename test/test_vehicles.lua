@@ -17,7 +17,7 @@ T.clickTitle('JAKKU CUP')
 local args = M.lastCall('LaunchQuickRace').args
 T.check(rawget(args[1], '__name') == 'VA_Car', 'Shade races the landspeeder')
 T.check(rawget(args[3], '__name'):find('VBD_Car_Base', 1, true) ~= nil, 'with the car build')
-T.check(T.levels('VBD_Car_Base') == '0=9 1=9 2=9 3=9 4=9 5=9' and T.levels('VBD_Bike_Base') == '0=0 1=0 2=0 3=0 4=0 5=0',
+T.check(T.levels('VBD_Car_Base') == '0=10 1=10 2=10 3=10 4=10 5=10' and T.levels('VBD_Bike_Base') == '0=0 1=0 2=0 3=0 4=0 5=0',
   'Ace parts on the car build, the bike build untouched')
 W.race(11); M.tick(10)
 local t0 = os.time(); while os.time() - t0 < 3 do end
@@ -41,7 +41,7 @@ T.clickTitle('ACE'); M.tick(3)
 T.clickTitle('CRAIT CUP')
 local args = M.lastCall('LaunchQuickRace').args
 T.check(rawget(args[1], '__name') == 'VA_Bike', 'the cup races with the bike')
-T.check(T.levels('VBD_Bike_Base') == '0=9 1=9 2=9 3=9 4=9 5=9', 'Ace: every part at 9 (not maxed)')
+T.check(T.levels('VBD_Bike_Base') == '0=10 1=10 2=10 3=10 4=10 5=10', 'Ace: every part at 10 (v0.34.0)')
 T.check(T.levels('VBD_Car_Base') == '0=0 1=0 2=0 3=0 4=0 5=0', 'the landspeeder build untouched')
 -- you quit the race from the pause menu: back at the menu without finishing = DNF, 0 points
 W.race(11); M.tick(10)

@@ -4,10 +4,11 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
-- [ ] **League cars (2026-11-25, plan in docs/league-styles-2026-11-12.md "2026-11-25"):** (1) Challenger at 7 on every
-      part - confirm (was 5)? (2) Junker wreck limit 5 (the game's is 3) - or more? (3) Ace bots: keep their full ability
-      kits, or defensive / utility only for a cleaner field? (4) OK to shift Ace pilot strength down (Elite at your 10,
-      contenders 9, weak 7), since nothing goes above 10?
+- [ ] **League cars (2026-11-25, plan in docs/league-styles-2026-11-12.md "2026-11-25"; L1 built as v0.34.0, installed):**
+      (1) Challenger at 7 on every part - confirm (was 5)? (2) Junker wreck limit 5 (the game's is 3) - or more? (3) Ace
+      bots: keep their full ability kits, or defensive / utility only for a cleaner field? (4) Ace pilot strength is
+      shifted down (Elite at your 10, contenders 9, weak 7) - but "nothing goes above 10" is unproven (the game's own
+      level 10 is 13 stacks): keep the shift, or test the old +2 / +1 / -1 at 10 in a held race?
 - [ ] **HEAT for Ace (2026-11-25, plan in docs/heat-2026-11-25.md):** (1) the name - HEAT, or something Star Wars-y
       (BOUNTY, WAGER, HOT RUN)? (2) opens at your first Ace gold (Claude's pick) or after the Ace title? (3) the first
       set (Claude's pick: Faster field, Budget cap, Bare garage, Weak kit, No mercy at the start, Grudge, Armed field - all on
@@ -67,6 +68,10 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.34.0 league cars (2026-11-25):** a cup at each league (§1b L4 after L2 / L3 too). Junker: do the engine-10
+      straights and stock corners feel like junk that goes too fast, and is it fun or a pinball? Challenger at 7: right
+      step up? Ace at 10: too fast (the old 200cc at 9 was "fast and brutal")? Do Sen / Biddy / Lyren still lead at Ace
+      now they race your car (`[builds]` lines in grandprix.log show each tier's levels)?
 - [ ] **v0.33.0 (2026-11-25, your two asks of the afternoon; install with the game closed: `./deploy.sh`):**
   - **The planets on the cup tiles:** the game's round planet pictures on the left of every cup tile, the name to the
     right. Too big / too small (config `CupPlanets`, 0.86 of the tile height now), the name clipped (SENTINEL CUP was

@@ -67,9 +67,9 @@ T.boot({ version = 3, picks = { 'bolt.concuss', 'shield.impact', 'surge.impact',
 K = require('gp')
 local AB, MS, A = require('abil'), require('modsel'), require('ai')
 local WANT = {
-  riffraff = { parts = '0=0 1=6 2=0 3=6 4=2 5=0', level = 1, slots = 0, bolt = 'BP_Ability_Disruptor_C', pressure = -1 },
-  challenger = { parts = 5, level = 2, slots = 1, bolt = 'BP_Ability_Disruptor_Concuss_C', pressure = 0 },
-  ace = { parts = 9, level = 3, slots = 2, bolt = 'BP_Ability_Disruptor_ConcussV2_C', pressure = 0.5 },
+  riffraff = { parts = '0=0 1=10 2=0 3=10 4=2 5=0', level = 1, slots = 0, bolt = 'BP_Ability_Disruptor_C', pressure = -1 },
+  challenger = { parts = 7, level = 2, slots = 1, bolt = 'BP_Ability_Disruptor_Concuss_C', pressure = 0 },
+  ace = { parts = 10, level = 3, slots = 2, bolt = 'BP_Ability_Disruptor_ConcussV2_C', pressure = 0.5 },
 }
 M.press('F6'); M.tick(6)
 for _, key in ipairs({ 'riffraff', 'challenger', 'ace' }) do
@@ -102,7 +102,7 @@ H = rawget(_G, 'GU_TEST_SCREENS')
 M.press('F6'); M.tick(6)
 T.check(T.locks() == '||LOCKED||', 'v0.27.2 (owner): a new save: Riff-Raff and Challenger open, Ace locked (' .. T.marks() .. ')')
 local items = H.SCREENS.home().items
-T.check(items[2].desc == 'Tuned rigs and pilots out to make a name' and items[3].desc == 'To open: 5 trophies at CHALLENGER',
+T.check(items[2].desc == 'Balanced rigs and pilots out to make a name' and items[3].desc == 'To open: 5 trophies at CHALLENGER',
   'Challenger shows its tagline; the Ace lock says what opens it (' .. tostring(items[2].desc) .. ' / ' .. tostring(items[3].desc) .. ')')
 T.check(items[3].info:find('A trophy in all 5 planet cups at CHALLENGER (0 / 5)', 1, true) ~= nil, 'the full why in the info line')
 T.clickTitle('ACE'); M.tick(3)

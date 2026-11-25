@@ -117,10 +117,11 @@ own part levels don't change its pace. So a league sets **your** part level, and
 v0.26 (owner, 2026-11-12): three leagues named after the game's own racer ranks replace the four cc classes ("cc" is
 Mario Kart's word). The speed shows as 1-3 chevrons on each league's HOME poster, not words.
 
-| | RIFF-RAFF | CHALLENGER | ACE |
+| | JUNKER (was RIFF-RAFF) | CHALLENGER | ACE |
 |---|---|---|---|
 | Save key | `riffraff` | `challenger` | `ace` |
-| Your parts (all 6 slots) | 0 (no upgrades) | 5 | 9 |
+| Your parts (v0.34.0, owner 2026-11-25; docs/league-styles-2026-11-12.md) | afterburner and ramjet 10, battery 2, cornering / resilience / drift stock (0): too much engine on a scrapyard chassis | 7 (all 6 slots) | 10 (all 6 slots) - the money league |
+| Pilot strength (`AI.Strength`, v0.28 / v0.34.0) | Elite +1 (onto the engine slots only: a lift needs a tune set) | Elite +2, contender +1, weak -1 | Elite 0 (your car), contender -1, weak -3 (nothing above 10) |
 | Abilities (yours and the AI's) | level 1 | level 2 | level 3 |
 | Tune-up slots | 0 | 1 | 2 |
 | AI profile (ai.lua, config `AI.Profiles`) | the old 50cc one: pressure -1 (Cadet), mercy slowdown 0.4, forced errors | the old 150cc one: pressure 0, honest pacing, no easing off while you crash | the old 200cc one: the Challenger one plus pressure 0.5 |

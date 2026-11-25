@@ -184,7 +184,7 @@ T.check(T.marks():find('|$') ~= nil and not T.badges():find('BOSS', 1, true), 'v
 mark = T.mark()
 T.clickTitle('KESTAR BOOL')
 T.check(rawget(M.lastCall('LaunchQuickRace').args[2], '__name') == 'EVT_WHP_SHORTBOSS_FAIR', 'the Stadium Showdown')
-T.check(T.levels('VBD_Car_Base') == '0=9 1=9 2=9 3=9 4=9 5=9', 'Ace parts')
+T.check(T.levels('VBD_Car_Base') == '0=10 1=10 2=10 3=10 4=10 5=10', 'Ace parts')
 T.check(not T.logHas('[title] grid cut', mark), 'no grid cut for the boss (the Showdown is a 2-car grid already)')
 W.race(1); M.tick(5)
 W.finish(1, 300, 50); M.tick(25)
