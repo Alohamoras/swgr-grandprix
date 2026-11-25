@@ -18,6 +18,10 @@
 -- chain.lua's flags); AddToViewport under 10000 drew under the menu; the timeline's race widgets only show the place
 -- for a podium, so each one's place box is shown for every race, found by class a few times while the timeline plays in.
 -- Nothing is kept between ticks but the screen's path + address and numbers; the view models are told apart by address.
+-- v0.36.2 (owner 2026-11-25: "the top half with the planet and medals looks great, but the bottom half doesn't really
+-- make much sense"): the bottom half was the game's PvP rank-up panel wearing our numbers - a bar from "1st" to "GOLD",
+-- the points as XP, the races as XP awards ticking in. Config CupResult.Progress = false (the default) collapses that
+-- panel; the two tiles say the result instead: GOLD TROPHY over 1ST, POINTS over 102 OF 105. Progress = true: the panel.
 -- Config CupResult.Native = false: the old flow (CUP RESULT goes straight to our cup result page at the menu, which
 -- still follows either way).
 local C = require('core')
@@ -36,6 +40,8 @@ local VIS_COLLAPSED, VIS_SELF_HIT_INVISIBLE = 1, 4
 
 local function conf() return type(cfg.CupResult) == 'table' and cfg.CupResult or {} end
 function CE.on() return conf().Native ~= false end
+local function progressOn() return conf().Progress == true end   -- (v0.36.2: the XP rank-up panel only when asked)
+local function pointsText(sm) return ('%d OF %d'):format(sm.total, sm.max) end
 local function fixupMs() return (tonumber(conf().FixupS) or 12) * 1000 end
 function CE.closeMs() return (tonumber(conf().CloseS) or 120) * 1000 end
 -- v0.32.9 (owner, after the first one in game: "I love the layout ... I'd rather have something more prominent that
@@ -234,13 +240,17 @@ local function panels(w, d, sm)
   end
   if part then
     if tilesMode() == 'trophy' then
-      -- v0.34.2: the participation tile goes (the owner: superfluous); its function never called
-      ok[#ok + 1] = 'Participation hidden' .. (try(function() part:SetVisibility(VIS_COLLAPSED); return true end) == true and '' or ' (failed)')
+      -- v0.34.2: the participation tile's own function never called (the owner: streaks superfluous); v0.36.2: the tile
+      -- stays, as the POINTS tile (its texts written by direct(); its second pair of texts collapsed there)
+      ok[#ok + 1] = 'Participation = POINTS'
     else
       call('UpdateParticipation', function() part:UpdateParticipation(#sm.races - sm.dnfs, sm.streak) end)
     end
   end
-  if prog then
+  if prog and not progressOn() then
+    -- v0.36.2: the PvP rank-up panel (a bar from "1st" to "GOLD", the points as XP) makes no sense for a cup: collapsed
+    ok[#ok + 1] = 'Progress hidden' .. (try(function() prog:SetVisibility(VIS_COLLAPSED); return true end) == true and '' or ' (failed)')
+  elseif prog then
     if d.xp then set(prog, 'PVPXPVM', d.xp) end
     set(prog, 'StartRank', 1); set(prog, 'CurrentRank', 1); set(prog, 'NextRank', 2); set(prog, 'StartXP', 0)
     set(prog, 'TotalXPEarned', 0)                      -- (the animation adds each award itself)
@@ -274,17 +284,27 @@ local function direct(w, sm, readBack)
   if readBack then
     -- v0.34.2: what the texts hold now, before this pass writes them again - bound texts would show the game's numbers
     local wins, part = try(function() return w.WBP_MP_Wins end), try(function() return w.WBP_MP_Participation end)
-    log(('[cupend] tiles read back (%s): Wins label=%s amount=%s | Participation vis=%s races=%s streak=%s'):format(tilesMode(),
+    local prog = try(function() return w.WBP_MP_Progress end)
+    log(('[cupend] tiles read back (%s): Wins label=%s amount=%s | Participation vis=%s label=%s amount=%s races=%s streak=%s | Progress vis=%s'):format(tilesMode(),
       textOf(wins, 'Txt_Label'), textOf(wins, 'Txt_Amount'), tostring(alive(part) and try(function() return part:GetVisibility() end) or '-'),
-      textOf(part, 'Txt_Amount_1'), textOf(part, 'Txt_WinsAmount')))
+      textOf(part, 'Txt_WinRaces'), textOf(part, 'Txt_WinsAmount'), textOf(part, 'Txt_Amount_1'), textOf(part, 'Txt_WinsAmount'),
+      tostring(alive(prog) and try(function() return prog:GetVisibility() end) or '-')))
   end
   if tilesMode() == 'trophy' then
-    -- the WINS tile: the trophy over your standing; the participation tile kept collapsed (the game's set-up may show it)
+    -- the WINS tile: the trophy over your standing; v0.36.2: the participation tile is the POINTS tile - its first pair of
+    -- texts POINTS over "102 OF 105", its second pair (the game's races / streak) collapsed
     local t = trophyName(sm)
     put('WBP_MP_Wins', 'Txt_Label', t and (t .. ' TROPHY') or 'NO TROPHY')
     put('WBP_MP_Wins', 'Txt_Amount', standing(sm))
+    put('WBP_MP_Participation', 'Txt_WinRaces', 'POINTS')
+    put('WBP_MP_Participation', 'Txt_WinsAmount', pointsText(sm))
     local part = try(function() return w.WBP_MP_Participation end)
-    if alive(part) then try(function() part:SetVisibility(VIS_COLLAPSED) end) end
+    if alive(part) then
+      for _, f in ipairs({ 'Txt_Races', 'Txt_Amount_1' }) do
+        local o = try(function() return part[f] end)
+        if alive(o) then try(function() o:SetVisibility(VIS_COLLAPSED) end) end
+      end
+    end
   elseif resultTiles() then
     -- the WINS tile: the trophy and your place; the participation tile: points and podiums
     local t = trophyName(sm)
@@ -299,9 +319,14 @@ local function direct(w, sm, readBack)
     put('WBP_MP_Participation', 'Txt_Amount_1', tostring(#sm.races - sm.dnfs))
     put('WBP_MP_Participation', 'Txt_WinsAmount', tostring(sm.streak))
   end
-  put('WBP_MP_Progress', 'Txt_RankThreshold', ('%d / %d'):format(sm.total, sm.max))
-  if sm.rank then put('WBP_MP_Progress', 'Txt_CurrentRank', C.ordinal(sm.rank)) end
-  if type(sm.trophy) == 'string' then put('WBP_MP_Progress', 'Txt_NextRank', sm.trophy:upper()) end
+  if progressOn() then
+    put('WBP_MP_Progress', 'Txt_RankThreshold', ('%d / %d'):format(sm.total, sm.max))
+    if sm.rank then put('WBP_MP_Progress', 'Txt_CurrentRank', C.ordinal(sm.rank)) end
+    if type(sm.trophy) == 'string' then put('WBP_MP_Progress', 'Txt_NextRank', sm.trophy:upper()) end
+  else
+    local prog = try(function() return w.WBP_MP_Progress end)
+    if alive(prog) then try(function() prog:SetVisibility(VIS_COLLAPSED) end) end
+  end
 end
 
 -- v0.33 recon (once per summary, for the cups page's planets - art.lua A.ball): what the timeline's planet widgets

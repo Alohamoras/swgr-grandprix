@@ -154,7 +154,10 @@ return {
     -- Tiles (cupend.lua): 'trophy' (v0.34.2, owner: the streak and win-count tiles are superfluous) = the WINS tile is the
     -- trophy over your standing, the participation tile hidden; 'result' = v0.32.9's trophy + points / podiums tiles;
     -- 'streaks' = the game's own wins and streaks.
-    CupResult = { Native = true, FixupS = 12, CloseS = 120, Tiles = 'trophy', MenuPage = false },
+    -- v0.36.2 (owner: "the bottom half doesn't really make much sense"): Progress = false collapses the game's PvP rank-up
+    -- panel (a bar from "1st" to "GOLD", the points as XP, a race per award line); the second tile is POINTS over
+    -- "102 OF 105" instead. Progress = true: the panel with the award lines as in v0.32.8-v0.36.1.
+    CupResult = { Native = true, FixupS = 12, CloseS = 120, Tiles = 'trophy', Progress = false, MenuPage = false },
 
     -- Lua garbage: collect a little on every tick (KB of work per step) so it never piles up into one big pause
     -- (v0.3.4, race stutter). GcStep = false to switch off for a comparison.

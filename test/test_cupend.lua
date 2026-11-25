@@ -81,12 +81,14 @@ T.check(na == 4 and awards[1].XP == 12 and awards[2].XP == 15 and rawget(awards[
   and rawget(awards[1].Reason, '__props').__text:find(', 2nd', 1, true) ~= nil, 'A: the XP awards are your points per race (12, 15, 15, 10) with the race and place')
 T.check(xp.TotalXPEarned == 52 and xp.NextRankXPThreshold == 60, 'A: the total 52 points against the cup\'s maximum 60')
 T.check(M.called('RefreshPlanets') == 1 and M.called('TriggerTimelineAnimation') == 1 and M.called('UpdateWins') == 1 and M.called('UpdateParticipation') == 0
-  and M.called('BeginProgressAnimationFromXPAwards') == 1, 'A: the panels filled through their own functions; v0.34.2: UpdateParticipation never called')
+  and M.called('BeginProgressAnimationFromXPAwards') == 0, 'A: the panels filled through their own functions; v0.34.2: UpdateParticipation never called; v0.36.2: the progress panel never started')
 local uw = M.lastCall('UpdateWins')
 T.check(uw.args[1] == 1, 'A: UpdateWins(1) = one medal (the silver)')
-T.check(rawget(p.WBP_MP_Participation, '__props').__vis == 1 or (function()
-  for _, c in ipairs(M.calls) do if c.name == 'SetVisibility' and c.args[1] == 1 then return true end end end)(), 'A: v0.34.2: the participation tile collapsed')
-T.check(T.logHas('Participation hidden', mark), 'A: the panels line says the participation tile is hidden')
+-- v0.36.2: the progress panel collapsed, the participation tile kept as the POINTS tile
+T.check(rawget(p.WBP_MP_Progress, '__props').__vis == 1 or (function()
+  for _, c in ipairs(M.calls) do if c.name == 'SetVisibility' and c.args[1] == 1 then return true end end end)(), 'A: v0.36.2: the progress panel collapsed')
+T.check(rawget(p.WBP_MP_Participation, '__props').__vis ~= 1, 'A: v0.36.2: the participation tile not collapsed (it is the POINTS tile)')
+T.check(T.logHas('Participation = POINTS, Progress hidden', mark), 'A: the panels line says POINTS tile, progress hidden')
 T.check(rawget(p.WBP_MP_Wins, '__props').MedalColour ~= nil and rawget(p.WBP_MP_Wins, '__props').MedalColour.R == 0.8, 'A: the medal in the silver colour')
 T.check(T.logHas('[cupend] view models: 1 planets (1 shown), 4 races, 4 awards = 52 points of 60', mark), 'A: the view models logged')
 T.check(T.logHas('[cupend] the cup result on the game\'s tour-end screen: JAKKU CUP, CHALLENGER - 2nd, 52 points, 2 wins, 0 DNF', mark), 'A: the summary line')
@@ -96,9 +98,9 @@ T.check(W.runEnd ~= nil and W.continued == 0, 'A: still up 1.2 s on (the opening
 local wins = rawget(p.WBP_MP_Wins, '__props')
 T.check(rawget(wins.Txt_Amount, '__props').__text == nil or true, '(texts)')
 local setTexts = W.textsSince(1)
-T.check(setTexts:find('52 / 60', 1, true) ~= nil and setTexts:find('JAKKU CUP  -  CHALLENGER', 1, true) ~= nil, 'A: the points text and the title written (' .. (setTexts:find('52 / 60', 1, true) and 'points ok' or 'no points') .. ')')
-T.check(setTexts:find('SILVER TROPHY\n2ND\n52 / 60', 1, true) ~= nil and setTexts:find('PODIUMS', 1, true) == nil,
-  'A: v0.34.2 tiles - the WINS tile SILVER TROPHY over 2ND, then the progress panel; no PODIUMS tile')
+T.check(setTexts:find('52 OF 60', 1, true) ~= nil and setTexts:find('JAKKU CUP  -  CHALLENGER', 1, true) ~= nil, 'A: the points text and the title written (' .. (setTexts:find('52 OF 60', 1, true) and 'points ok' or 'no points') .. ')')
+T.check(setTexts:find('SILVER TROPHY\n2ND\nPOINTS\n52 OF 60', 1, true) ~= nil and setTexts:find('PODIUMS', 1, true) == nil and setTexts:find('52 / 60', 1, true) == nil,
+  'A: v0.36.2 tiles - SILVER TROPHY over 2ND, POINTS over 52 OF 60; no PODIUMS, no progress panel texts (' .. setTexts:gsub('\n', ' | ') .. ')')
 T.check(setTexts:find('JAKKU CUP  -  CHALLENGER  -  SILVER TROPHY, 2ND', 1, true) ~= nil, 'A: v0.34.2: the title line says the trophy and the standing')
 -- A again: closes, leaves for the menu
 M.tick(10)

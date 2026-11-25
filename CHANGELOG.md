@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.36.2 (2026-11-25): the cup result screen's bottom half - the XP rank-up panel gone, a POINTS tile instead (owner)
+- Owner: "the top half with the planet and medals looks great, but the bottom half doesn't really make much sense". The
+  bottom half was the game's PvP rank-up panel wearing our numbers: a rank badge "1st", a next-rank badge "GOLD", a bar
+  filling to 102 / 105 as XP, and the races ticking in as XP awards ("SCRAP SPIRAL, 1st  +15") in the game's small font -
+  a level-up for a cup that has no levels. cupend.lua, config `CupResult.Progress = false` (the default): that panel is
+  collapsed and never started. The two tiles say the result: the WINS tile GOLD TROPHY over 1ST as before, the second
+  tile POINTS over "102 OF 105" (its game-side races / streak pair of texts collapsed, its own function never called). The
+  title line keeps the verdict ("RALLY CUP  -  JUNKER  -  GOLD TROPHY, 1ST"). `Progress = true` brings the panel and the
+  award lines back. The 20 s read-back line now reports the POINTS texts and the panel's visibility too. Not yet seen in
+  game (built while the game ran): if the tiles sit oddly without the panel under them, the next step is our own text
+  over that space (the final top 3 with points).
+- Tests: test_cupend updated (the progress panel collapsed, POINTS over 52 OF 60, no "52 / 60"); 51 files pass.
+
 ## v0.36.1 (2026-11-25): the league's rules on HOME, no track names on the cups page (owner, two asks of the evening)
 - Owner: "drop the names of the planet tracks for the cup's selection screen". Config `CupTracks = false`: a planet cup's
   info line is its planet's own line alone ("Jakku. Starship wrecks boil under the scorching heat of this desert world."),

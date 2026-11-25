@@ -104,7 +104,7 @@ Owner's plan: keep playing ~a week without crashes, then publish as a beta.
       them in game: HOME, a cups page, a START screen, one results panel (OWNER.md).
 - [ ] Pass 2, the layout, one item a version, each seen in game: §3.1 the results prompt as two text blocks (next race left,
       the B hint right); §3.3 RESET PROGRESS smaller and off the D-pad path; §3.4 the cups page header centred over the tiles;
-      §3.5 check the cup result's award lines fit without the game's ellipsis.
+      ~~§3.5 check the cup result's award lines fit without the game's ellipsis~~ (moot: the award lines are off, v0.36.2).
 - [ ] **Layout grammar (2026-11-25, docs/layout-grammar-2026-11-25.md):** measured against the game's own CAMPAIGN page.
       Units are a 3840 x 2160 slate; the game's content is a left column x 120-2205 (clear of the speeder and the droid),
       ours are centred and 750-1135 units wider; our out-of-tile text is UMG's Roboto, not the game's faces; one ink on pale
@@ -112,7 +112,7 @@ Owner's plan: keep playing ~a week without crashes, then publish as a beta.
       - [x] 1 game fonts: v0.36.0 built + installed 2026-11-25 while the game ran (restart needed); owner to look at HOME,
             a cups page, START and one results panel; `[fonts]` log lines say which assets were found
       - [ ] 2 the column (spec.column x 120 w 2085, rows + header left-aligned, GAP 28 / 40)
-      - [ ] 3 cups 4 + 3 at 500 x 340, circuits into the info line, the info line's 2-line box
+      - [ ] 3 cups 4 + 3 at 500 x 340, the info line's 2-line box (the circuits are off the page since v0.36.1, `CupTracks`)
       - [ ] 4 the results prompt as two blocks (§3.1), RESET PROGRESS small (§3.3)
 
 ## 1a-rally-ai. The Rally Cup's catch-up (owner 2026-11-25) - v0.34.3, untested in game
@@ -121,11 +121,15 @@ x1.6 after 0.5 s behind. **Open:** the number (1.6 a guess; the owner's next ral
 15 s start grace should hold the catch-up at the game's value (FreeRace held MaxAiCatchupScale at 0 for 15 s; ours lives on
 the assets, written at launch, so a hold would need a second write at 15 s); a catch-up for the planet cups' back markers.
 
-## 1a-cupend. The cup result screen's tiles (owner 2026-11-25) - v0.34.2
-"Participation streak and win count seem superfluous, replace those with just the trophy or ending standing of the cup":
-participation tile collapsed, WINS tile = trophy over standing, title line carries the verdict. **Open:** did the owner see
-v0.32.9's texts (POINTS / PODIUMS) at the 16:22 Ando cup, or the game's WINS / streak numbers? If the game's, the tile texts
-are bound and `SetText` loses - the v0.34.2 `[cupend] tiles read back` line (20 s in) tells; then draw our own text over the tile.
+## 1a-cupend. The cup result screen's bottom half (owner 2026-11-25) - v0.34.2, v0.36.2
+v0.34.2: "Participation streak and win count seem superfluous": WINS tile = trophy over standing, title line carries the
+verdict. The 18:01 read-back (Rally Cup, Junker) settled the open question: `SetText` sticks (Wins label=GOLD TROPHY
+amount=1ST), the tile texts are not bound.
+v0.36.2 (owner: "the bottom half doesn't really make much sense"): the bottom half was the game's PvP rank-up panel - a bar
+from "1st" to "GOLD", the points as XP, the races as XP awards. `CupResult.Progress = false` collapses it; the second tile
+is POINTS over "102 OF 105". **Open (owner's look):** the two tiles alone under the timeline - enough, or does the space
+want the final top 3 with points (our own text over the screen; needs a canvas on the tour-end widget, one recon)? The
+old `[cupend] tiles read back` line now says the POINTS texts and `Progress vis=1` (collapsed).
 
 ## 1a-planets. The planets on the cup tiles (v0.33.0) - reverted v0.34.1
 Owner 2026-11-25 (seen in game): "didn't really turn out like I wanted them to" -> `CupPlanets = false`. Code kept behind the

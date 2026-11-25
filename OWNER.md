@@ -73,6 +73,17 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.36.2, the cup result's bottom half (2026-11-25, installed while the game ran - restart first):** the rank-up bar,
+      the XP numbers and the race-by-race award lines are gone; under the timeline two tiles only: GOLD TROPHY over 1ST, and
+      POINTS over "102 OF 105". Does the screen hold together without the panel (a hole where it was, the tiles off-centre)?
+      If you miss "who did I beat", the next step is the final top 3 with points written over that space. `CupResult.Progress
+      = true` brings the old panel back.
+- [ ] **v0.36.1, HOME and the cups page (2026-11-25):** focus each league on HOME: the rules line under the posters -
+      JUNKER "Afterburner and ramjet wound to ten on a scrapyard chassis. Cornering, resilience and drift stock, the battery
+      barely holding. One ability, no tune-ups." / CHALLENGER "Every part at seven, and every rig on the grid the same. Two
+      abilities, one tune-up." / ACE "Every part at ten, every credit spent. Three abilities, two tune-ups, and the field fires
+      everything it carries." Right facts, right voice, short enough? The cups page: no track names and no brief under the
+      league's name any more; each planet cup's info is its planet's line alone.
 - [ ] **v0.36.0, the game's fonts (2026-11-25, installed while the game ran - restart first):** every line outside a
       tile now uses the game's own typefaces (page titles the display face, sentences and the info line the body face,
       the standings' number columns the numbers face). Look at HOME, a cups page, a START screen and one results panel:
