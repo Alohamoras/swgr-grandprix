@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.36.3 (2026-11-25): HOME reads - a sand strip behind the league's rules line, and a heading (owner)
+- Owner: "The grey text on the league selection screen is often in front of a grey background and you can't read it, not
+  sure what the solution is here, maybe another washed out color that fits the vibe." The line is the dark ink every pale
+  page uses (0.12 grey); it sits above the posters and runs to the right of the page's block, under the droid and the
+  Steam box - no one text colour reads on both the sand and that grey. ui.lua, config `InfoStrip`: a washed sand strip
+  (R 0.95 G 0.93 B 0.89, alpha 0.82 - the menu art's own light bands) behind HOME's info line, as wide as the block,
+  two lines tall so the posters never move between leagues, collapsed while the line is blank. The ink stays dark on it.
+  `InfoStrip = false` = none. HOME only (main.lua spec.infoStrip): the cups page pads its info line to five lines.
+- Owner: "you should probably have a heading like 'Choose a league' or 'League selection'". HOME's title is CHOOSE A LEAGUE
+  (the display face, like every page title; it was blank since v0.21).
+- The structural fix stays on the list (TASKS §1a-menus, layout grammar step 2: the game's left column, clear of the droid
+  and the speeder); the strip holds either way.
+- Tests: 51 files pass (no test reads HOME's title or the strip).
+
 ## v0.36.2 (2026-11-25): the cup result screen's bottom half - the XP rank-up panel gone, a POINTS tile instead (owner)
 - Owner: "the top half with the planet and medals looks great, but the bottom half doesn't really make much sense". The
   bottom half was the game's PvP rank-up panel wearing our numbers: a rank badge "1st", a next-rank badge "GOLD", a bar

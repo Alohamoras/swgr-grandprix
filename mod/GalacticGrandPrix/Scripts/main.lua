@@ -277,7 +277,7 @@ SCREENS.home = function()
         -- (v0.21, owner: less clutter - no blurb, no counts the tile already shows; v0.22: no parts / abilities line)
         -- v0.36.1 (owner: "below each of the difficulties there should be an explanation of what that league mechanics
         -- are"): the league's rules line (config Leagues[].rules) as the focused poster's info line
-        info = padInfo(c.rules or '', 1),
+        info = padInfo(c.rules or '', 2),   -- (v0.36.3: two lines, so the posters never move between leagues)
         act = function() S.class = c.key; K.data.class = c.key; K.save(); return go('cups') end }
     end
   end
@@ -308,7 +308,8 @@ SCREENS.home = function()
   local last = (K.data.last and K.data.last.class) or K.data.class
   local focus
   for i, it in ipairs(items) do if it.classKey and it.classKey == last and not it.disabled then focus = i end end
-  return { key = 'home', title = '', lines = { msgLine() }, items = items, info = true, focus = focus,
+  -- v0.36.3 (owner: "a heading like 'Choose a league' ... to let the player know what this choice screen is")
+  return { key = 'home', title = 'CHOOSE A LEAGUE', lines = { msgLine() }, items = items, info = true, infoStrip = true, focus = focus,
     rows = cfg.HomeRows, center = cfg.HomeRows ~= nil }
 end
 

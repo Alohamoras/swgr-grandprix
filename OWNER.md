@@ -73,6 +73,9 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.36.3, HOME (2026-11-25, installed while the game ran - restart first):** CHOOSE A LEAGUE as the heading; the
+      league's rules line on a washed sand strip (two lines tall, the width of the posters' row). Readable over the droid
+      now? Does the strip fit the vibe, or would you rather a colour alone (`InfoStrip = false`, then name the colour)?
 - [ ] **v0.36.2, the cup result's bottom half (2026-11-25, installed while the game ran - restart first):** the rank-up bar,
       the XP numbers and the race-by-race award lines are gone; under the timeline two tiles only: GOLD TROPHY over 1ST, and
       POINTS over "102 OF 105". Does the screen hold together without the panel (a hole where it was, the tiles off-centre)?

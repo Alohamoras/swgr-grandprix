@@ -706,10 +706,24 @@ local function buildInner(spec, host)
 
   -- v0.6: an info line (spec.info = true): the full text of the focused tile (its item.info), set on every focus change
   -- (tile descriptions are cut after two lines; for mods the description is the point)
-  local info
+  local info, infoStrip
   if spec.info then
     info = textBlock(make, ' ', 20, GOLD, wrap, 'body')
-    local sl = info and try(function() return box:AddChildToVerticalBox(info) end)
+    -- v0.36.3 (owner: "the grey text on the league selection screen is often in front of a grey background and you
+    -- can't read it"): a washed pale strip behind the info line (config InfoStrip, the sand of the menu's art), so the
+    -- dark ink reads whatever sits behind it - the droid, the speeder, the Steam box. Collapsed while the line is blank.
+    local IS = cfg.InfoStrip
+    if info and spec.infoStrip and type(IS) == 'table' and inkOn then   -- (spec.infoStrip: HOME today)
+      local b = make('/Script/UMG.Border')
+      if alive(b) then
+        try(function() b:SetBrushColor({ R = IS.R or 0.95, G = IS.G or 0.93, B = IS.B or 0.89, A = IS.A or 0.82 }) end)
+        try(function() b:SetPadding({ Left = 16, Top = 8, Right = 16, Bottom = 8 }) end)
+        try(function() b:SetContent(info) end)
+        try(function() b:SetVisibility(1) end)   -- (Collapsed until a tile with an info line is focused)
+        infoStrip = b
+      end
+    end
+    local sl = info and try(function() return box:AddChildToVerticalBox(infoStrip or info) end)
     if sl then try(function() sl:SetPadding({ Left = 0, Top = 6, Right = 0, Bottom = 0 }) end) end
   end
 
@@ -774,7 +788,7 @@ local function buildInner(spec, host)
   -- v0.32.7: one D-pad map for every layout, from the tiles' boxes (U.boxNav)
   local boxes = spec.rows and U.rowBoxes(spec.rows, list) or U.gridBoxes(#list, U.COLS, U.TILE_W, U.TILE_H)
   local screen = { w = border, host = host, items = list, scroll = (not spec.rows and alive(scroll)) and scroll or nil, pc = pc,
-    grid = grid, info = info, cols = U.COLS, rows = spec.rows ~= nil, boxes = boxes, nav = U.boxNav(boxes) }
+    grid = grid, info = info, infoStrip = infoStrip, cols = U.COLS, rows = spec.rows ~= nil, boxes = boxes, nav = U.boxNav(boxes) }
   try(function() host.panel:ClearChildren() end)
   local sl = try(function() return host.panel:AddChildToVerticalBox(border) end)
   if not alive(sl) then sl = try(function() return host.panel:AddChild(border) end) end
@@ -828,6 +842,11 @@ function U.highlight(screen, i)
   end
   local it = screen.items[i]
   if screen.info and alive(screen.info) then try(function() screen.info:SetText(FText(it and it.info or ' ')) end) end
+  -- (v0.36.3: the pale strip only behind a line with words in it)
+  if screen.infoStrip and alive(screen.infoStrip) then
+    local blank = not tostring(it and it.info or ''):find('%S')
+    try(function() screen.infoStrip:SetVisibility(blank and 1 or 4) end)   -- (4 = SelfHitTestInvisible: drawn, no focus)
+  end
 end
 
 function U.focus(screen, i)
