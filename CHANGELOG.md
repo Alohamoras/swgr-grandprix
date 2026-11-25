@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.32.2 (2026-11-25): a per-bot thrust dial, as a test (tune.lua, thrust.lua)
+- tune.lua: tune sets made at run time (the FreeRace technique, `docs/freerace-review-2026-11-25.md` §3.6): a
+  `UTuneSet` constructed from the Shield condition's class under the racer's tune component, its operations filled in
+  (category, property, ETuneOperations, value), applied to ONE vehicle with the pawn's own `RequestApplyTuneSet`
+  (`Server_ApplyTuneSet` on the component as the fallback). Nothing written to a game asset, nothing to put back.
+- thrust.lua: KNOWLEDGE.md §5 says the bots' pace follows the shared launch template and their parts barely move it.
+  FreeRace's lever: `VehicleThrustConfig.MaxRPM` and the three accelerations multiplied per bot by such a set, after
+  the start. Off unless asked: config `AI.Thrust` (the shape of `AI.Strength`: pilots -> tier -> factor per league) or,
+  for the held-race test, experiment.lua's `botThrust = 1.2` / `botThrustBy = { ['Biddy Blas'] = 1.1 }` (DevTools).
+  Applied `AI.ThrustAfterS` (15) after the start; one `[thrust]` line names each bot, its factor and the call that
+  took it, and each bot's `BodyState.TopSpeedKmph` is logged then and 20 s later - the log tells whether the dial did
+  anything before a race is timed. **Test before trusting**: three held races (TASKS.md). Tests: test_tune.
+
 ## v0.32.1 (2026-11-25): the bots use their kits (aiuse.lua)
 - loadout.lua hands every bot four abilities at load, but (FreeRace's finding, `docs/freerace-review-2026-11-25.md`
   §3.1, §6.2; the owner's open question R7) a bot only fires its SELECTED ability, and only one the AI's ability

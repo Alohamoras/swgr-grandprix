@@ -11,6 +11,7 @@ local LK = require('looks')
 local PT = require('paint')
 local HZ = require('hazards')
 local AU = require('aiuse')
+local TH = require('thrust')
 local try, alive, addr, log = C.try, C.alive, C.addr, C.log
 
 local R = { run = nil }
@@ -358,6 +359,9 @@ local function startRun(ev, classKey, p, skip, extra)
   -- v0.32: the bots' kits put to use (aiuse.lua): the selection cycled, the configs covered, the uses counted
   local okU, au = pcall(AU.begin, classKey)
   if okU then R.run.au = au else log('[aiuse] ' .. tostring(au)) end
+  -- v0.32: the bots' thrust dial (thrust.lua; off unless config AI.Thrust or an experiment asks)
+  local okT, th = pcall(TH.begin, classKey)
+  if okT then R.run.th = th else log('[thrust] ' .. tostring(th)) end
   R.menuSeen = false
   R.menuGone()
   local ok3, lo = pcall(LO.begin, classKey, p.modNames, p.yourKeys)
@@ -477,6 +481,11 @@ local function readField(r)
         -- v0.32: the bot's kit in use (aiuse.lua), read in this same sweep
         local okB, errB = pcall(AU.onBot, r.au, ps, name)
         if not okB then log('[aiuse] stopped: ' .. tostring(errB)); r.au = nil end
+      end
+      if not you and r.th and r.startedAt then
+        -- v0.32: the bot's thrust dial (thrust.lua), after the start grace
+        local okT, errT = pcall(TH.onBot, r.th, ps, name, r.startedAt)
+        if not okT then log('[thrust] stopped: ' .. tostring(errT)); r.th = nil end
       end
       if you then
         local pawn = try(function() return ps.PawnPrivate end)
@@ -742,6 +751,7 @@ function R.watch()
         if not okC then log('[aiuse] coverage check failed: ' .. tostring(errC)) end
         pcall(AU.report, r.au)
       end
+      if r.th then pcall(TH.flush, r.th) end
       -- v0.8: the race is under way with its own copy of your pilot: the character list goes back (once, in this
       -- read; a sweep for the list, nothing kept)
       if RC.pending() and C.clock - (r.racingAt or r.at) >= RC.SETTLE_MS then

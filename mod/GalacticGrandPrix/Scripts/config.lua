@@ -541,6 +541,13 @@ return {
             challenger = { elite = 2, contender = 1, weak = -1 },
             ace = { elite = 2, contender = 1, weak = -1 },
         },
+        -- v0.32 (thrust.lua; docs/freerace-review-2026-11-25.md §6.3): a per-bot pace dial to TEST - a run-time tune set
+        -- on the bot's vehicle multiplying its thrust (MaxRPM and the accelerations), applied ThrustAfterS after the
+        -- start (the launch stays the game's own). The shape of Strength: Pilots -> tier, <league> -> { tier = factor }.
+        -- false = off. The test switch: experiment.lua's botThrust = 1.2 (every bot) / botThrustBy = { ['Name'] = f }.
+        -- If the held-race test shows it moves the bots' pace, this replaces Strength's part stacks.
+        Thrust = false,
+        ThrustAfterS = 15,
         Profiles = {
             riffraff = { pressure = -1, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.4 },
                          config = { SpeedMatchingMaxMatchers = 0 } },
