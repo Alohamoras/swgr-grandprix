@@ -397,39 +397,74 @@ function U.rowsWidth(rows)
   for _, row in ipairs(rows) do w = math.max(w, (row.n or 4) * (row.w + U.GAP)) end
   return w
 end
--- the D-pad map of a rows page: { [i] = { left, right, up, down } } (indices; nil at an edge). Up / down go to the
--- tile in the next row whose middle is nearest this tile's middle (rows are centred, so the x's are from the middle).
-function U.rowsNav(rows, items)
+-- v0.32.7: the D-pad map from BOXES (docs/freerace-review-2026-11-25.md §4.2, the FreeRace mod's idea; our own
+-- rules). Every tile gets a box { x, y, w, h } in layout units, and the map { [i] = { left, right, up, down } }
+-- (indices; nil at an edge) is worked out from the boxes alone, the same way for every layout - the rows page, the
+-- uniform grid, a spanning tile, a short last row - so a tile added or moved never needs a link wired by hand:
+--   up / down   the tile whose box lies that way, the nearest row first (the smallest gap along the direction), then
+--               the nearest centre; a wide tile looks for the one under its middle
+--   left / right  only a tile overlapping this one vertically (its own row), the nearest; nil at the row's edge
+-- U.wire pushes the same map into the game's own navigation (SetNavigationRuleExplicit), so the stick follows it too.
+local function gap(a0, a1, b0, b1) return math.max(b0 - a1, a0 - b1, 0) end
+function U.boxNav(boxes)
+  local nav = {}
+  for i, a in ipairs(boxes) do
+    local ax, ay = a.x + a.w / 2, a.y + a.h / 2
+    local out = {}
+    for _, dir in ipairs({ 'left', 'right', 'up', 'down' }) do
+      local best, bs
+      for j, b in ipairs(boxes) do
+        if j ~= i then
+          local bx, by = b.x + b.w / 2, b.y + b.h / 2
+          local ok, along, line
+          if dir == 'left' or dir == 'right' then
+            ok = (dir == 'left' and bx < ax - 0.5) or (dir == 'right' and bx > ax + 0.5)
+            if gap(a.y, a.y + a.h, b.y, b.y + b.h) > 0 then ok = false end
+            along, line = gap(a.x, a.x + a.w, b.x, b.x + b.w), math.abs(by - ay)
+          else
+            ok = (dir == 'up' and by < ay - 0.5) or (dir == 'down' and by > ay + 0.5)
+            along, line = gap(a.y, a.y + a.h, b.y, b.y + b.h), math.abs(bx - ax)
+          end
+          if ok then
+            local score = along * 1000 + line
+            if not bs or score < bs - 1e-6 then best, bs = j, score end
+          end
+        end
+      end
+      out[dir] = best
+    end
+    nav[i] = out
+  end
+  return nav
+end
+-- the boxes of a rows page: each row centred (x from the row's middle), rows stacked by their heights
+function U.rowBoxes(rows, items)
   local spans = rowItems(rows, #items)
-  local mids = {}
+  local boxes, y = {}, 0
   for r, sp in ipairs(spans) do
     local row, total = rows[r], 0
     for i = sp.from, sp.to do total = total + U.itemWidth(row, items[i]) + U.GAP end
     local x = -total / 2
     for i = sp.from, sp.to do
-      local w = U.itemWidth(row, items[i]) + U.GAP
-      mids[i] = { r = r, x = x + w / 2 }
-      x = x + w
+      local w = U.itemWidth(row, items[i])
+      boxes[i] = { x = x + U.GAP / 2, y = y, w = w, h = row.h }
+      x = x + w + U.GAP
     end
+    y = y + row.h + U.GAP
   end
-  local function nearest(r, x)
-    local sp = spans[r]
-    if not sp or sp.to < sp.from then return nil end
-    local best, bd
-    for j = sp.from, sp.to do
-      local d = math.abs(mids[j].x - x)
-      if not bd or d < bd - 0.01 then best, bd = j, d end
-    end
-    return best
-  end
-  local nav = {}
-  for i = 1, #items do
-    local m, sp = mids[i], spans[mids[i].r]
-    nav[i] = { left = (i > sp.from) and i - 1 or nil, right = (i < sp.to) and i + 1 or nil,
-      up = nearest(m.r - 1, m.x), down = nearest(m.r + 1, m.x) }
-  end
-  return nav
+  return boxes
 end
+-- the boxes of a uniform grid of n tiles, `cols` wide, tiles w x h
+function U.gridBoxes(n, cols, w, h)
+  local boxes = {}
+  for i = 1, n do
+    local r, c = (i - 1) // cols, (i - 1) % cols
+    boxes[i] = { x = c * (w + U.GAP), y = r * (h + U.GAP), w = w, h = h }
+  end
+  return boxes
+end
+-- (kept for the callers: the rows page's map, from its boxes)
+function U.rowsNav(rows, items) return U.boxNav(U.rowBoxes(rows, items)) end
 -- v0.24 (owner: "i don't like the text on the tiles with a dark grey background ... find a prettier way"): pictures
 -- drawn over a rows tile, each the game's own icon tinted (the icons are one-colour shapes):
 --   it.icon / it.iconColor  the medal, top right (U.MEDAL_PX)
@@ -697,9 +732,10 @@ local function buildInner(spec, host)
   end
   if #list == 0 then log('[menu] no tiles'); return nil end
 
+  -- v0.32.7: one D-pad map for every layout, from the tiles' boxes (U.boxNav)
+  local boxes = spec.rows and U.rowBoxes(spec.rows, list) or U.gridBoxes(#list, U.COLS, U.TILE_W, U.TILE_H)
   local screen = { w = border, host = host, items = list, scroll = (not spec.rows and alive(scroll)) and scroll or nil, pc = pc,
-    grid = grid, info = info, cols = U.COLS, rows = spec.rows ~= nil,
-    nav = spec.rows and U.rowsNav(spec.rows, list) or nil }
+    grid = grid, info = info, cols = U.COLS, rows = spec.rows ~= nil, boxes = boxes, nav = U.boxNav(boxes) }
   try(function() host.panel:ClearChildren() end)
   local sl = try(function() return host.panel:AddChildToVerticalBox(border) end)
   if not alive(sl) then sl = try(function() return host.panel:AddChild(border) end) end
@@ -709,35 +745,16 @@ local function buildInner(spec, host)
   return screen
 end
 
--- D-pad links between the tiles from their grid positions (the game's own navigation then moves focus). Edges are
+-- D-pad links between the tiles from the screen's map (the game's own navigation then moves focus). Edges are
 -- left to the game (up from the top row reaches the tab bar). EUINavigation: Left 0, Right 1, Up 2, Down 3.
 function U.wire(screen)
-  if screen.nav then
-    for i, it in ipairs(screen.items) do
-      local n = screen.nav[i] or {}
-      for dir, k in pairs({ left = 0, right = 1, up = 2, down = 3 }) do
-        local j = n[dir]
-        if j and screen.items[j] then try(function() it.btn:SetNavigationRuleExplicit(k, screen.items[j].btn) end) end
-      end
+  -- (v0.32.7: every screen has its map now - the grid's arithmetic links are gone)
+  for i, it in ipairs(screen.items) do
+    local n = (screen.nav or {})[i] or {}
+    for dir, k in pairs({ left = 0, right = 1, up = 2, down = 3 }) do
+      local j = n[dir]
+      if j and screen.items[j] then try(function() it.btn:SetNavigationRuleExplicit(k, screen.items[j].btn) end) end
     end
-    return
-  end
-  local items, cols = screen.items, U.COLS
-  local n = #items
-  for i, it in ipairs(items) do
-    local r, c = (i - 1) // cols, (i - 1) % cols
-    local function at(rr, cc)
-      if rr < 0 or cc < 0 or cc >= cols then return nil end
-      local j = rr * cols + cc + 1
-      return j <= n and items[j] or nil
-    end
-    local left, right, up = at(r, c - 1), at(r, c + 1), at(r - 1, c)
-    local down = at(r + 1, c)
-    if not down and r + 1 <= (n - 1) // cols then down = items[n] end   -- short last row: its last tile
-    if left then try(function() it.btn:SetNavigationRuleExplicit(0, left.btn) end) end
-    if right then try(function() it.btn:SetNavigationRuleExplicit(1, right.btn) end) end
-    if up then try(function() it.btn:SetNavigationRuleExplicit(2, up.btn) end) end
-    if down then try(function() it.btn:SetNavigationRuleExplicit(3, down.btn) end) end
   end
 end
 

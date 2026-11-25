@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.32.7 (2026-11-25): the D-pad map from the tiles' boxes (owner's pick 11 of the FreeRace list)
+- ui.lua `U.boxNav` (`docs/freerace-review-2026-11-25.md` §4.2, the FreeRace mod's idea with our own rules): every
+  tile gets a box in layout units and the map { left, right, up, down } is worked out from the boxes alone, the same
+  way for every layout - the rows page (`U.rowBoxes`), the uniform grid (`U.gridBoxes`; its arithmetic links are gone),
+  a spanning tile, a short last row. Up / down go to the nearest row first, then the nearest centre (a tie to the left
+  one, as before); left / right stay in the row, nil at its edge. The map is pushed into the game's own navigation
+  (`SetNavigationRuleExplicit`) for every screen now, and kept as `screen.boxes` / `screen.nav`. No page changes its
+  links today (every test holds); a tile added or moved never needs a link by hand. Test: test_boxnav.
+
 ## v0.32.6 (2026-11-25): the back of the grid stays in the race (owner's pick 9 of the FreeRace list)
 - ai.lua `A.launchRows`, config `AI.BackRows` (`docs/freerace-review-2026-11-25.md` §3.7): the pacing assets' tier
   windows (`PacingConfigs[].AIMaxTimeAhead / AIMinTimeAhead`, curve-table rows named by tier) set the RiffRaff and

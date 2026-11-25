@@ -211,8 +211,8 @@ The rest, in the order recommended (details and engine names in the review doc's
       renamed to the league's tier at launch, put back at the menu. Owner to playtest: do Ary and Malis stay in touch?
 - [ ] 10. **The game's tour-summary screen as CUP RESULT** (§6.1): `WBP_PostRace_InstantAction_RunEnd_C` filled with
       RunFinishedVM / PlanetStatVM / RunTimelineEntryVM; native end-of-cup screen. Medium-large; owner's call.
-- [ ] 11. **Box-based navigation** (§4.2): tiles get `{ x, y, w, h }`, nearest-in-direction wired into
-      `SetNavigationRuleExplicit`; replaces main.lua's hand-wired nav tables (tests updated).
+- [x] 11. **Box-based navigation** (§4.2): v0.32.7, ui.lua `U.boxNav` - every layout's map from the tiles' boxes, pushed
+      into the game's navigation; the grid's arithmetic links gone. No page's links changed today.
 - [ ] 12. **Runtime tune sets as a general tool** (§3.6; tune.lua is the start): damage resistance, respawn shield
       (god mode 3 s after a reset), ramjet on / off, per-racer handicaps.
 - [ ] 13. **RESTART in the pause menu** (§3.8): a row of RESUME's class, `ReturnToMainMenu` + our via-menu relaunch;
