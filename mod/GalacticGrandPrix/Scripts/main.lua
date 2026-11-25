@@ -20,7 +20,7 @@
 -- them), the Galactic Cup 4 from 4 planets. (The code and the save keep the word "class" for a league.)
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.32.3'
+local VERSION = '0.32.5'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -1002,6 +1002,21 @@ local function tick()
     end
     if S.openAt and C.clock - S.openAt > 30000 then S.openAt = nil; pcall(U.cover, false); log('the GRAND PRIX tab never came back - not opening the result') end
   end
+end
+
+-- v0.32 (FreeRace's 2026-11-08 lesson, docs/freerace-review-2026-11-25.md §6.5): while you are queued for an online
+-- match the game locks every WBP_FE_TileCommon_Btn, ours included (CommonUI's locked state; a disabled tile counts
+-- too). A launch then would race under the queue: race.lua asks this before any launch (R.atMainMenu).
+R.menuLocked = function()
+  if not (S.ui and S.ui.items) then return nil end
+  for _, it in ipairs(S.ui.items) do
+    local b = it.btn
+    if alive(b) then
+      if try(function() return b:GetLocked() end) == true then return 'the game has locked its tiles (an online queue?)' end
+      if try(function() return b:GetIsEnabled() end) == false then return 'the game has disabled its tiles (an online queue?)' end
+    end
+  end
+  return nil
 end
 
 -- one permanent game-thread loop (v0.10; it used to start and stop itself - see C.gameLoop)

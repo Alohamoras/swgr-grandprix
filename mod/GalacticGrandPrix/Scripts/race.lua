@@ -14,7 +14,7 @@ local AU = require('aiuse')
 local TH = require('thrust')
 local try, alive, addr, log = C.try, C.alive, C.addr, C.log
 
-local R = { run = nil }
+local R = { run = nil, menuLocked = nil }
 local MULTIPLAYER_FLOW = 4
 
 ---------------------------------------------------------------------------------------------------------------------
@@ -44,6 +44,11 @@ function R.atMainMenu()
   if not alive(fe) then return nil, 'not at the main menu' end
   local why = online()
   if why then return nil, why end
+  -- v0.32 (docs/freerace-review-2026-11-25.md §6.5): the game locks its tiles (WBP_FE_TileCommon_Btn, CommonUI's
+  -- locked state) while you are queued for an online match; our tiles are that class, so one of ours locked means the
+  -- game is busy online. main.lua sets R.menuLocked (it knows our tiles); nil = no page up, nothing to read.
+  local lockedWhy = R.menuLocked and try(R.menuLocked) or nil
+  if lockedWhy then log('[menu] ' .. lockedWhy .. ' - nothing launched'); return nil, lockedWhy end
   if why == nil then
     -- couldn't read party / matchmaking: fall back to the stricter flow test
     local gi = C.first('GfnGameInstance')
