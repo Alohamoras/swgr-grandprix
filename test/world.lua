@@ -465,6 +465,8 @@ function W.results(opts)
   rawget(w, '__props')[require('chain').CONTINUE_EVENT] = function() W.continued = W.continued + 1 end
   M.add('WBP_SimpleRaceResultsScreen_C', w)
   W.screen = w
+  -- (v0.32: the game tells of every new user widget; opts.quiet = no notification, the sweep must find it)
+  if not opts.quiet and M.fireNew then M.fireNew('/Script/UMG.UserWidget', w) end
   -- (v0.19.1) the game's own results table on it: chain.lua hides it under the panel (W.tableVis: its visibility)
   W.tableVis = 4
   M.add('WBP_Simple_RaceResultsPanel_C', M.new('WBP_Simple_RaceResultsPanel_C_' .. M.nextAddr, {

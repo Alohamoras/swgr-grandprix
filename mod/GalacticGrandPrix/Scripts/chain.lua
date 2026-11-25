@@ -43,7 +43,7 @@ local CH = { key = false, back = false }
 CH.RESULTS = 'WBP_SimpleRaceResultsScreen_C'
 -- the results screen's own CONTINUE click (FreeRace's retry.lua presses CONTINUE the same way)
 CH.CONTINUE_EVENT = 'BndEvt__WBP_SimpleRaceResultsScreen_WBP_Common_Btn_K2Node_ComponentBoundEvent_1_CommonButtonBaseClicked__DelegateSignature'
-local LOOK_MS = 300   -- the results screen looked for this often once you have finished (a sweep each time)
+local LOOK_MS = 300   -- the results screen looked for this often once you have finished (v0.32: one lookup of the screen the game told us of; a sweep only every SweepS)
 local POLL_MS = 200   -- our NEXT RACE button read this often while the panel is up (a lookup each time)
 local FOCUS_MS = 1500 -- focus given back to NEXT RACE for this long after it is added (the screen may take it once)
 local GAP = 80        -- canvas units between NEXT RACE and CONTINUE (v0.19.1: was 40, and they overlapped in game)
@@ -89,9 +89,28 @@ end
 
 local used = {} -- results screens already given a panel (name@address: a finished race's screen can linger a moment)
 local function key(o) return C.idname(o) .. '@' .. tostring(C.addr(o)) end
-local function findScreen()
+-- v0.32: the results screen is told as the game makes it (FreeRace's 2026-11-11 lesson: a sweep for it every look,
+-- from your finish on, dropped a frame each time while the rest of the field raced home). Kept as path + address only
+-- (C.ref), looked up again on each look (one lookup) until it is in the viewport; a sweep stays as the fallback, every
+-- ChainRaces.SweepS (3) instead of every look. Nothing but a class name is read in the notification.
+CH.fresh = nil
+pcall(NotifyOnNewObject, '/Script/UMG.UserWidget', function(o)
+  if C.clsname(o) == CH.RESULTS then CH.fresh = C.ref(o) end
+end)
+local function findScreen(st)
+  if CH.fresh then
+    local w = C.deref(CH.fresh)
+    if not w then CH.fresh = nil -- (gone before it ever showed)
+    elseif not used[key(w)] and try(function() return w:IsInViewport() end) == true then
+      CH.fresh = nil
+      st.found = 'told by the game'
+      return w
+    end
+  end
+  if C.clock - (st.lastSweep or -1e9) < (tonumber(conf().SweepS) or 3) * 1000 then return nil end
+  st.lastSweep = C.clock
   for _, w in ipairs(C.find(CH.RESULTS)) do
-    if not used[key(w)] and try(function() return w:IsInViewport() end) == true then return w end
+    if not used[key(w)] and try(function() return w:IsInViewport() end) == true then st.found = 'a sweep'; return w end
   end
   return nil
 end
@@ -401,9 +420,10 @@ function CH.tick(r, api)
       log(('[chain] no results screen %d s after the finish: the standings at the main menu'):format(waitMs // 1000))
       return
     end
-    local w = findScreen()
+    local w = findScreen(st)
     if not w then return end
     used[key(w)] = true
+    log('[chain] the results screen found (' .. tostring(st.found) .. ')')
     st.screen, r.screenRef = C.ref(w), C.ref(w)
     -- the race recorded now, by race.lua's own recording (the main menu hands this result back instead of recording)
     api.readField(r)

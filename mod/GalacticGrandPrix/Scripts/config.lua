@@ -111,7 +111,8 @@ return {
     -- after a cup race that isn't the last, only NEXT RACE, centred where the two buttons were; the game's CONTINUE is
     -- hidden (HideContinue = false: v0.20's two buttons). B / Escape / Backspace there: the main menu and straight to
     -- "Leave the cup?" (NO = the standings with NEXT RACE). The last race keeps the game's CONTINUE (the cup result).
-    ChainRaces = { On = true, Key = 'N', ResultsWaitS = 90, MenuSettleS = 5,
+    -- (v0.32: SweepS = the fallback sweep for the results screen, seconds; the screen is normally told by the game)
+    ChainRaces = { On = true, Key = 'N', ResultsWaitS = 90, MenuSettleS = 5, SweepS = 3,
         Panel = { Y = 330, MinWidth = 1700, MinHeight = 1250, ButtonGap = 80, HideGameTable = true, HideContinue = true,
             -- v0.27: seconds the game's own results (the finish times) show before the standings panel; 0 = at once
             TimesS = 6 } },

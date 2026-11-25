@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.32.5 (2026-11-25): START refuses while the game's tiles are locked (an online queue)
+- race.lua / main.lua (FreeRace's 2026-11-08 lesson, `docs/freerace-review-2026-11-25.md` §6.5): while you are queued
+  for an online match the game locks every `WBP_FE_TileCommon_Btn` - ours are that class. Before any launch (START,
+  NEXT RACE, the via-menu relaunch) our page's tiles are read: one locked (CommonUI's `GetLocked`) or disabled refuses
+  the launch with "the game has locked its tiles (an online queue?)", logged `[menu]`. One more guard for the
+  offline-only rule; nothing to see in normal play. Test: test_guard.
+
+## v0.32.4 (2026-11-25): the results screen told by the game, not swept for
+- chain.lua (FreeRace's 2026-11-11 lesson, `docs/freerace-review-2026-11-25.md` §6.5: "a full sweep here every look,
+  from the featured racer's finish on, was a dropped frame each time while the rest of the field raced home"): the
+  results screen is now caught as the game makes it (`NotifyOnNewObject` on user widgets, its class name read, the
+  screen kept as path + address) and looked up once per look until it is in the viewport; the sweep stays as the
+  fallback, every `ChainRaces.SweepS` (3) instead of every 300 ms. `[chain] the results screen found (told by the
+  game | a sweep)`. Tests: test_resultsnotify; test_chain unchanged (167 checks).
+
 ## v0.32.3 (2026-11-25): the start grace (owner: the field launching away at the green light)
 - ai.lua, config `AI.Grace` (FreeRace's fix, `docs/freerace-review-2026-11-25.md` §3.2): for the first 15 s after the
   start the race tune carries `AiAbilityChanceMultiplier` 0 (no bot fires anything in the first corner) and the
