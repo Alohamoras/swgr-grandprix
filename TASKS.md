@@ -286,6 +286,14 @@ Follow-ups once this stands: the "clean" no-offence cup (§4) could reuse P3's f
       check: OWNER.md).
 
 ## 4. Discussions (owner's call; talk before building)
+- [ ] **Auto-brake, a small mod of its own (owner 2026-11-25: "when you release the gas, brake is auto applied";
+      feasibility after 15:00 when their credits reset).** Where to look: the vehicle controls are Enhanced Input
+      contexts (`IMC_Vehicle_Default` / `_Alternative`, throttle and brake on the trigger axes - FreeRace edited their
+      deadzone modifiers at launch and rebuilt the mappings with `EnhancedInputLocalPlayerSubsystem:RequestRebuildControlMappings`);
+      `AVehiclePawn` / its movement and input components in the header dump for a brake input the mod could write each
+      frame while the throttle axis reads 0 (and the player isn't braking); or an input modifier object on the brake
+      mapping. Questions: does writing the brake input fight the game's own input every frame (a 1 ms loop, as FreeRace's
+      HUD frame)? Only your car (bots have no input). Offline only. A tiny mod, its own repo.
 - [ ] **A podracing cup (owner 2026-11-25: "many tracks are probably too small and tight")**. What we know
       (KNOWLEDGE.md §3-4, docs/tracks-by-planet.md, the FreeRace read): podracer = archetype 1 ("Plane"), tag
       `Vehicle.Special.Plane`; the game has pod-made tracks only on Beagle / Outer Rim (Mos Espa Speedway + variants),
