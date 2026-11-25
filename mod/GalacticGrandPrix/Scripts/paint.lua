@@ -53,19 +53,27 @@ local SCHEME = {
 
 P.scheme = SCHEME
 
--- the preset's class (the map holds TSubclassOf<UCstVehiclePresetRecipe>): found, else loaded by its package path
--- (v0.31: LoadAsset wants the package path, core.lua v0.29.4 - the full object name loaded nothing)
+-- the preset's class (the map holds TSubclassOf<UCstVehiclePresetRecipe>): found, else loaded. v0.31.1: both forms of
+-- LoadAsset are tried and the one that worked is logged - the full class name first (a cooked Blueprint package holds
+-- PRE_X_C, no PRE_X asset: the PR's form), then the package path (core.lua C.asset's). In the v0.31.0 playtest the
+-- package path alone left every Shakedown preset "not loaded" (2026-11-25 02:31).
 local function loadPreset(path)
   local name = path:match('([^/]+)$')
-  local names = { path .. '.' .. name .. '_C', path .. '.' .. name }
-  for _, full in ipairs(names) do
-    local o = try(StaticFindObject, full)
-    if alive(o) then return o end
+  local clsName, objName = path .. '.' .. name .. '_C', path .. '.' .. name
+  local function find()
+    for _, full in ipairs({ clsName, objName }) do
+      local o = try(StaticFindObject, full)
+      if alive(o) then return o end
+    end
+    return nil
   end
-  try(LoadAsset, path)
-  for _, full in ipairs(names) do
-    local o = try(StaticFindObject, full)
-    if alive(o) then return o end
+  local o = find()
+  if o then return o, 'in memory' end
+  for _, form in ipairs({ { clsName, 'class name' }, { path, 'package path' }, { objName, 'object name' } }) do
+    local okL, err = pcall(LoadAsset, form[1])
+    o = find()
+    if o then return o, 'loaded by ' .. form[2] end
+    log(('[paint] LoadAsset(%s) %s - not found after'):format(form[2], okL and 'ran' or ('failed: ' .. tostring(err))))
   end
   return nil
 end
@@ -111,8 +119,9 @@ function P.arm(racerKey, vehKey)
   local veh = require('gp').vehicle(vehKey)
   local arch = veh and veh.arch
   if arch == nil then log('[paint] ' .. who .. ': no archetype for ' .. tostring(vehKey)); return end
-  local preset = loadPreset(path)
+  local preset, how = loadPreset(path)
   if not alive(preset) then log('[paint] ' .. who .. ': preset not loaded: ' .. path); return end
+  log(('[paint] %s: preset %s (%s)'):format(who, C.idname(preset), how))
   local def = C.asset(RC.path(racerKey))
   if not alive(def) then log('[paint] ' .. who .. ': racer not loaded'); return end
   local list, why = customs(def)

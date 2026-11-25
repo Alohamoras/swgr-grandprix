@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.31.1 (2026-11-25): the rider's scheme actually loads (fix)
+- The v0.31.0 playtest (owner: "playtest was good" - the faces, the tiles, the kept picks) logged
+  `[paint] ... preset not loaded` for every alternate vehicle: `LoadAsset` by package path does not load a cooked
+  Blueprint class (the package holds `PRE_X_C`, no `PRE_X`). paint.lua now tries the full class name first (the PR's
+  form), then the package path, and logs which one worked (`[paint] <name>: preset PRE_..._C (loaded by class name)`).
+  The v0.29.4 note that the full name "loaded nothing" came from the rust's wrong path (fixed in v0.29.5).
+
 ## v0.31.0 (2026-11-25): pilot faces, any vehicle for any pilot, signature kits (PR #1 by MilkManEX, reworked)
 From [PR #1](https://github.com/Alohamoras/swgr-grandprix/pull/1) (MilkManEX, 2026-11-24): thank you. Merged with
 these changes:
