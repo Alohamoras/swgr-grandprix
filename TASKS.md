@@ -97,6 +97,12 @@ Owner's plan: keep playing ~a week without crashes, then publish as a beta.
 - [ ] A week of crash-free play, then `tools/package.sh <tag>` and upload as a beta.
 - [x] **FreeRace 1.1c + 1.3 read (2026-11-25)**: `docs/freerace-review-2026-11-25.md`; items 1-6 built as v0.32.x, the rest listed in §1g.
 
+## 1a-menus. Menu text and layout review (owner 2026-11-25) - recommendations written, nothing built
+**docs/menu-text-review-2026-11-25.md**: the voice (§1), every screen's text with replacements (§2), four layout changes
+(§3), the build plan (§4: pass 1 the words, config and format strings only, test_tiletext guards the tile budget; pass 2 the
+layout, one item a version). Waiting on the owner's answers (OWNER.md: the voice, the two taglines, the planet lines, one
+version or screen by screen).
+
 ## 1a-rally-ai. The Rally Cup's catch-up (owner 2026-11-25) - v0.34.3, untested in game
 "the enemies need a much stronger catch up factor": config `Rally.AI` on top of the league's profile (`A.merged`): catch-up
 x1.6 after 0.5 s behind. **Open:** the number (1.6 a guess; the owner's next rally's `[gaps]` lines decide); whether the

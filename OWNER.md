@@ -4,6 +4,12 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
+- [ ] **Menu text and layout review (2026-11-25, docs/menu-text-review-2026-11-25.md):** your ask "any text we do put on the
+      screen should have the feel of star wars ... explain enough ... but not extra". (1) The voice: a paddock announcer at
+      the Galactic League (terse, third person, in-universe nouns) - or drier, like the game's own menus? (2) The two
+      taglines that change: CHALLENGER "Proper rigs, and pilots out to make a name", ACE "Every credit on the rig. The best
+      pilots in the galaxy" - or your own lines? (3) The planet's own line above each cup's circuits ("Jakku. Starship wrecks
+      boil under the scorching heat of this desert world.")? (4) Build pass 1 (the words) as one version, or screen by screen?
 - [ ] **League cars (2026-11-25, plan in docs/league-styles-2026-11-12.md "2026-11-25"; L1 built as v0.34.0, installed):**
       (1) Challenger at 7 on every part - confirm (was 5)? (2) Junker wreck limit 5 (the game's is 3) - or more? (3) Ace
       bots: keep their full ability kits, or defensive / utility only for a cleaner field? (4) Ace pilot strength is
