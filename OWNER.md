@@ -73,6 +73,11 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.36.0, the game's fonts (2026-11-25, installed while the game ran - restart first):** every line outside a
+      tile now uses the game's own typefaces (page titles the display face, sentences and the info line the body face,
+      the standings' number columns the numbers face). Look at HOME, a cups page, a START screen and one results panel:
+      is the display face the same heavy face as the tiles (else `GameFonts.display` should point at Font_Decorative)?
+      Too big or too small anywhere (`size` multipliers in config)? Layout is unchanged in this version on purpose.
 - [ ] **v0.35.0 the menus' words (2026-11-25):** read them where they live - HOME (the taglines, a locked league), a cups page
       (the brief, a cup's planet line and circuits, the Galactic Cup and Rally Cup lines), a START screen (the pilot, vehicle,
       ability and tune-up info lines; a locked tune-up tile now titled ACE), one results panel (the caps headline, the

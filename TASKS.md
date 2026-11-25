@@ -109,7 +109,8 @@ Owner's plan: keep playing ~a week without crashes, then publish as a beta.
       Units are a 3840 x 2160 slate; the game's content is a left column x 120-2205 (clear of the speeder and the droid),
       ours are centred and 750-1135 units wider; our out-of-tile text is UMG's Roboto, not the game's faces; one ink on pale
       pages. Owner 2026-11-25: left column, game fonts, cups 4 + 3. Build order (§5), one item a version, each seen in game:
-      - [ ] 1 game fonts (ui.lua textBlock: display / body / numbers faces, config GameFonts)
+      - [x] 1 game fonts: v0.36.0 built + installed 2026-11-25 while the game ran (restart needed); owner to look at HOME,
+            a cups page, START and one results panel; `[fonts]` log lines say which assets were found
       - [ ] 2 the column (spec.column x 120 w 2085, rows + header left-aligned, GAP 28 / 40)
       - [ ] 3 cups 4 + 3 at 500 x 340, circuits into the info line, the info line's 2-line box
       - [ ] 4 the results prompt as two blocks (§3.1), RESET PROGRESS small (§3.3)
