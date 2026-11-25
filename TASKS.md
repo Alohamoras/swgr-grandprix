@@ -97,6 +97,10 @@ Owner's plan: keep playing ~a week without crashes, then publish as a beta.
 - [ ] A week of crash-free play, then `tools/package.sh <tag>` and upload as a beta.
 - [x] **FreeRace 1.1c + 1.3 read (2026-11-25)**: `docs/freerace-review-2026-11-25.md`; items 1-6 built as v0.32.x, the rest listed in §1g.
 
+## 1a-planets. The planets on the cup tiles (v0.33.0) - reverted v0.34.1
+Owner 2026-11-25 (seen in game): "didn't really turn out like I wanted them to" -> `CupPlanets = false`. Code kept behind the
+switch. Open, if ever wanted again: what look was wanted (smaller? a corner badge? the planet instead of the poster?).
+
 ## 1b. League styles (owner 2026-11-12: "different styles of racing"; agreed, not built)
 **docs/league-styles-2026-11-12.md** - each league its own character (the car, the field, the tracks, the kit).
 - [x] Junker: renamed, afterburner and ramjet +2 (v0.28.3).

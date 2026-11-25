@@ -23,6 +23,9 @@ M.press('F6'); M.tick(6)
 T.clickTitle('JUNKER'); M.tick(3)
 T.check(T.titles() == 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|RALLY CUP' and T.ntiles() == 7,
   'the cups page: the seven cups, no TITLE RACE, no KESTAR BOOL (' .. T.titles() .. ')')
+-- v0.34.1: the planets are off by default (owner); the code is still covered with the switch set
+T.check(cfg.CupPlanets == false and H.SCREENS.cups().items[1].glyph == nil, 'v0.34.1: CupPlanets off by default, no planet on the tiles')
+cfg.CupPlanets = 0.86
 local items = H.SCREENS.cups().items
 local function ball(i) local g = items[i].glyph; return g and g[1] or 'none' end
 T.check(ball(1) == PLANETS .. 'Mas' and ball(2) == PLANETS .. 'Dal' and ball(3) == PLANETS .. 'Cor' and ball(4) == PLANETS .. 'Spa' and ball(5) == PLANETS .. 'Hus',
@@ -32,7 +35,6 @@ T.check(items[1].glyph.side == 'left' and items[1].glyph.scale == cfg.CupPlanets
 T.check(items[6].info:find('A trophy adds the finale: Kestar Bool, 1 v 1 in the stadium, for the league title', 1, true) ~= nil, 'the Galactic Cup\'s info says the finale')
 cfg.CupPlanets = false
 T.check(H.SCREENS.cups().items[1].glyph == nil, 'CupPlanets = false: no planet')
-cfg.CupPlanets = 0.86
 T.check(T.pips('JUNKER') == nil, '(not on this page)')
 M.press('BACKSPACE'); M.tick(3)
 T.check(T.pips('JUNKER') == '-------.', 'home: no trophies, the champion\'s star grey (' .. tostring(T.pips('JUNKER')) .. ')')

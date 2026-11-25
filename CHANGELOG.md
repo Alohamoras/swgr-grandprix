@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.34.1 (2026-11-25): the planets off the cup tiles (owner)
+- Owner, after seeing v0.33.0's planet pictures on the cup tiles in game: "didn't really turn out like I wanted them
+  to, go ahead and revert that change". Config `CupPlanets = false`: the cup tiles are as they were before v0.33.0
+  (the poster, the cup's name). The code stays behind the switch (0.86 brings it back); the once-per-cup-result
+  `[cupend] the timeline's planet widgets` recon line stays too. Tests: test_finale updated.
+
 ## v0.34.0 (2026-11-25): the car per league - Junker engine 10, Challenger 7, Ace 10 (owner; L1 of §1b)
 - Owner (docs/league-styles-2026-11-12.md "2026-11-25"): "for ace let's set everything to 10 ... take the afterburner
   and ramjet to 10" at Junker. Config `Leagues[].parts`: Junker `{ [1] = 10, [3] = 10, [4] = 2 }` (afterburner and

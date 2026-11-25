@@ -41,7 +41,9 @@ return {
     -- v0.33 (owner 2026-11-25: "use the planets from the end of cup screen"): the game's round planet picture (the
     -- one the cup result's timeline draws) on the left of every cup tile, over the poster, the cup's name to its
     -- right. A number = its height as a share of the tile's (1 = the full height, like the pilot portraits); false = off.
-    CupPlanets = 0.86,
+    -- v0.34.1 (owner, after seeing it in game: "didn't really turn out like I wanted them to"): off. The code stays
+    -- (main.lua ball, art.lua A.ball, ui.lua's left glyph); 0.86 brings it back.
+    CupPlanets = false,
     -- v0.24: HOME in rows: the leagues as tall posters (a medal per cup on each), RESET small below; the garage
     -- (the start screen) at this tile size, START this tall. v0.26: three leagues, wider (760)
     HomeRows = { { w = 760, h = 560, n = 3 }, { w = 600, h = 200 } },

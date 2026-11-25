@@ -73,10 +73,8 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
       step up? Ace at 10: too fast (the old 200cc at 9 was "fast and brutal")? Do Sen / Biddy / Lyren still lead at Ace
       now they race your car (`[builds]` lines in grandprix.log show each tier's levels)?
 - [ ] **v0.33.0 (2026-11-25, your two asks of the afternoon; install with the game closed: `./deploy.sh`):**
-  - **The planets on the cup tiles:** the game's round planet pictures on the left of every cup tile, the name to the
-    right. Too big / too small (config `CupPlanets`, 0.86 of the tile height now), the name clipped (SENTINEL CUP was
-    tight before), or should the planet replace the poster instead? If they look different from the ones on the cup
-    result's timeline, the log says what that screen draws (`[cupend] the timeline's planet widgets: ...`): paste it.
+  - ~~**The planets on the cup tiles**~~ seen 2026-11-25: "didn't really turn out like I wanted them to" - off in
+    v0.34.1 (`CupPlanets = false`, code kept). If you ever want another go, say what look you had in mind.
   - **Kestar as the Galactic Cup finale:** race a Galactic Cup to a trophy - after race 4 the standings should say
     "... TROPHY SECURED - NEXT: KESTAR BOOL, 1 v 1 FOR THE ... TITLE" and NEXT RACE launches the Stadium Showdown (6
     laps, his cinematics off). Then the cup result: CHAMPION (or "KESTAR BOOL KEEPS THE TITLE"), the crown on the last
