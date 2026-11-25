@@ -59,7 +59,9 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 
 ## Playtests (only a real race can tell)
 - [ ] **v0.32.6-8 (2026-11-25 evening, your picks 9-11), installed 2026-11-25 18:00 after the playtest:**
-  - **The cup result screen (10):** after a cup's last race, CUP RESULT now shows the game's own tour-end screen first
+  - **The cup result screen (10):** seen 2026-11-25 (Sentinel gold): "I love the layout of the screen and the recap". v0.32.9 puts
+    the trophy / place / points / podiums on the two tiles and skips our old page after it - check both.
+    (Was:) after a cup's last race, CUP RESULT now shows the game's own tour-end screen first
     (planets, your place per race, the points as the XP bar), then A / Enter / Escape takes you on to our cup result
     page. Built from another mod's notes, never seen in game by us: tell me what it looks like, what's wrong on it, or
     if it never appears (the log says `[cupend] ...` or `no tour-end screen (why)`). `CupResult.Native = false` in

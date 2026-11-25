@@ -38,6 +38,13 @@ local function conf() return type(cfg.CupResult) == 'table' and cfg.CupResult or
 function CE.on() return conf().Native ~= false end
 local function fixupMs() return (tonumber(conf().FixupS) or 12) * 1000 end
 function CE.closeMs() return (tonumber(conf().CloseS) or 120) * 1000 end
+-- v0.32.9 (owner, after the first one in game: "I love the layout ... I'd rather have something more prominent that
+-- just says how I did overall in the cup (gold / silver medal etc.)" than the wins-in-a-row and races-in-a-row tiles):
+-- the WINS tile carries the trophy - one medal in the trophy's colour, "GOLD TROPHY" over "1ST" - and the
+-- participation tile your points and podiums. Config CupResult.Tiles = 'streaks' keeps the game's own meaning.
+local MEDAL = { GOLD = { R = 1.0, G = 0.78, B = 0.2, A = 1 }, SILVER = { R = 0.8, G = 0.8, B = 0.85, A = 1 }, BRONZE = { R = 0.8, G = 0.5, B = 0.25, A = 1 } }
+local function resultTiles() return conf().Tiles ~= 'streaks' end
+local function trophyName(sm) return type(sm.trophy) == 'string' and sm.trophy:upper() or nil end
 
 ---------------------------------------------------------------------------------------------------------------------
 -- the cup as numbers: { races = { { title, planet (config entry), place (nil = DNF), pts, path } }, wins, top3, dnfs,
@@ -185,7 +192,16 @@ local function panels(w, d, sm)
   end
   call('RefreshPlanets', function() w:RefreshPlanets() end)
   if tl then call('TriggerTimelineAnimation', function() tl:TriggerTimelineAnimation() end) end
-  if wins then call('UpdateWins', function() wins:UpdateWins(sm.wins) end) end
+  if wins then
+    if resultTiles() then
+      -- the trophy as the medal: its colour on the tile, one medal drawn (none without a trophy)
+      local t = trophyName(sm)
+      if t and MEDAL[t] then set(wins, 'MedalColour', MEDAL[t]) end
+      call('UpdateWins', function() wins:UpdateWins(t and 1 or 0) end)
+    else
+      call('UpdateWins', function() wins:UpdateWins(sm.wins) end)
+    end
+  end
   if part then call('UpdateParticipation', function() part:UpdateParticipation(#sm.races - sm.dnfs, sm.streak) end) end
   if prog then
     if d.xp then set(prog, 'PVPXPVM', d.xp) end
@@ -216,9 +232,20 @@ local function direct(w, sm)
     local t = alive(o) and try(function() return o[field] end)
     if alive(t) then try(function() t:SetText(FText(s)) end) end
   end
-  put('WBP_MP_Wins', 'Txt_Amount', tostring(sm.wins))
-  put('WBP_MP_Participation', 'Txt_Amount_1', tostring(#sm.races - sm.dnfs))
-  put('WBP_MP_Participation', 'Txt_WinsAmount', tostring(sm.streak))
+  if resultTiles() then
+    -- the WINS tile: the trophy and your place; the participation tile: points and podiums
+    local t = trophyName(sm)
+    put('WBP_MP_Wins', 'Txt_Label', t and (t .. ' TROPHY') or 'NO TROPHY')
+    put('WBP_MP_Wins', 'Txt_Amount', sm.rank and C.ordinal(sm.rank):upper() or '-')
+    put('WBP_MP_Participation', 'Txt_WinRaces', 'POINTS')
+    put('WBP_MP_Participation', 'Txt_WinsAmount', ('%d / %d'):format(sm.total, sm.max))
+    put('WBP_MP_Participation', 'Txt_Races', 'PODIUMS')
+    put('WBP_MP_Participation', 'Txt_Amount_1', ('%d OF %d'):format(sm.top3, #sm.races))
+  else
+    put('WBP_MP_Wins', 'Txt_Amount', tostring(sm.wins))
+    put('WBP_MP_Participation', 'Txt_Amount_1', tostring(#sm.races - sm.dnfs))
+    put('WBP_MP_Participation', 'Txt_WinsAmount', tostring(sm.streak))
+  end
   put('WBP_MP_Progress', 'Txt_RankThreshold', ('%d / %d'):format(sm.total, sm.max))
   if sm.rank then put('WBP_MP_Progress', 'Txt_CurrentRank', C.ordinal(sm.rank)) end
   if type(sm.trophy) == 'string' then put('WBP_MP_Progress', 'Txt_NextRank', sm.trophy:upper()) end

@@ -412,6 +412,7 @@ function CH.pollFinal(r, st)
     local w, why = CE.show(r.recorded)
     if w then
       st.summary, st.summaryAt = true, C.clock
+      CH.summaryShown = true   -- (v0.32.9: main.lua skips our cup result page at the menu, the screen showed it)
       local scr = C.deref(r.screenRef)
       if scr then try(function() scr:SetRenderOpacity(0) end) end
       log('[chain] CUP RESULT pressed (' .. how .. '): the cup result on the game\'s tour-end screen (A / Enter / Escape: on to the menu)')

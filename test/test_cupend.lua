@@ -83,7 +83,8 @@ T.check(xp.TotalXPEarned == 52 and xp.NextRankXPThreshold == 60, 'A: the total 5
 T.check(M.called('RefreshPlanets') == 1 and M.called('TriggerTimelineAnimation') == 1 and M.called('UpdateWins') == 1 and M.called('UpdateParticipation') == 1
   and M.called('BeginProgressAnimationFromXPAwards') == 1, 'A: the panels filled through their own functions')
 local uw = M.lastCall('UpdateWins'); local up = M.lastCall('UpdateParticipation')
-T.check(uw.args[1] == 2 and up.args[1] == 4 and up.args[2] == 2, 'A: UpdateWins(2), UpdateParticipation(4 finishes, streak 2)')
+T.check(uw.args[1] == 1 and up.args[1] == 4 and up.args[2] == 2, 'A: UpdateWins(1) = one medal (the silver), UpdateParticipation(4 finishes, streak 2)')
+T.check(rawget(p.WBP_MP_Wins, '__props').MedalColour ~= nil and rawget(p.WBP_MP_Wins, '__props').MedalColour.R == 0.8, 'A: the medal in the silver colour')
 T.check(T.logHas('[cupend] view models: 1 planets (1 shown), 4 races, 4 awards = 52 points of 60', mark), 'A: the view models logged')
 T.check(T.logHas('[cupend] the cup result on the game\'s tour-end screen: JAKKU CUP, CHALLENGER - 2nd, 52 points, 2 wins, 0 DNF', mark), 'A: the summary line')
 -- the press that opened it is not read again for 1.5 s; the texts written a moment later
@@ -93,6 +94,8 @@ local wins = rawget(p.WBP_MP_Wins, '__props')
 T.check(rawget(wins.Txt_Amount, '__props').__text == nil or true, '(texts)')
 local setTexts = W.textsSince(1)
 T.check(setTexts:find('52 / 60', 1, true) ~= nil and setTexts:find('JAKKU CUP  -  CHALLENGER', 1, true) ~= nil, 'A: the points text and the title written (' .. (setTexts:find('52 / 60', 1, true) and 'points ok' or 'no points') .. ')')
+T.check(setTexts:find('SILVER TROPHY', 1, true) ~= nil and setTexts:find('\n2ND\n', 1, true) ~= nil and setTexts:find('POINTS', 1, true) ~= nil and setTexts:find('PODIUMS', 1, true) ~= nil and setTexts:find('4 OF 4', 1, true) ~= nil,
+  'A: v0.32.9 tiles - SILVER TROPHY / 2ND, POINTS 52 / 60, PODIUMS 4 OF 4')
 -- A again: closes, leaves for the menu
 M.tick(10)
 W.pressNext(); M.tick(3)
@@ -101,7 +104,8 @@ T.check(W.continued == 1 and T.logHas('[chain] CUP RESULT pressed (the CUP RESUL
 T.check(rawget(W.runEnd, '__dead') == true or M.called('RemoveFromParent') >= 1, 'A: the screen taken down')
 W.dropRaceWorld(); W.backToMenu(); M.tick(60)
 T.check(T.logHas('cup over: CHALLENGER jakku - you 2nd with 52 points, SILVER trophy'), 'A: the cup recorded as before')
-T.check(T.logHas('[menu] standings (1 tiles)'), 'A: our cup result page at the menu as before')
+T.check(T.logHas('[cupend] the cup result page skipped: the tour-end screen showed it') and not T.logHas('[menu] standings (1 tiles)') and T.logHas('[menu] cups'),
+  'A: v0.32.9 - at the menu the cups page, not our old cup result page')
 T.check(M.deadTouches == 0, 'A: no freed object touched (' .. M.deadTouches .. ')')
 
 -- B. Escape closes it too (chain.lua's back flag)
@@ -113,6 +117,7 @@ M.tick(22)
 M.press('ESCAPE'); M.tick(3)
 T.check(W.continued == 1 and T.logHas('[chain] CUP RESULT pressed (Backspace / Escape): the summary closes', mark), 'B: Escape closes it and leaves')
 W.dropRaceWorld(); W.backToMenu(); M.tick(60)
+T.check(T.logHas('[menu] cups', mark) and not T.logHas('[menu] standings (1 tiles)', mark), 'B: the cups page at the menu')
 
 -- C. CupResult.Native = false: straight to the menu, nothing made
 start({ CupResult = { Native = false } })
@@ -121,5 +126,5 @@ W.pressNext(); M.tick(3)
 T.check(W.runEnd == nil and W.continued == 1 and T.logHas('[chain] CUP RESULT pressed (the CUP RESULT button)', mark) and not T.logHas('[cupend]', mark),
   'C: Native = false: CUP RESULT leaves for the menu at once, no tour-end screen')
 W.dropRaceWorld(); W.backToMenu(); M.tick(60)
-T.check(T.logHas('[menu] standings (1 tiles)'), 'C: the cup result page at the menu')
+T.check(T.logHas('[menu] standings (1 tiles)') and not T.logHas('[cupend]'), 'C: our cup result page at the menu, as before')
 T.finish()

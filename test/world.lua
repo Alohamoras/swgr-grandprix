@@ -50,9 +50,10 @@ function W.widgetLib()
     if cname == 'WBP_PostRace_InstantAction_RunEnd_C' then
       -- v0.32.8: the game's tour-end screen (cupend.lua): its panels as named widgets, the calls recorded by the mock
       p.WBP_Timeline = M.new('WBP_Timeline', { HB_Planets = M.new('HB_Planets', {}), TourPlanetsToShow = M.tarr({}) }, 'WBP_Timeline_C')
-      p.WBP_MP_Wins = M.new('WBP_MP_Wins', { Txt_Amount = M.new('Txt_Amount', {}, 'FuseTextBlock') }, 'WBP_MP_Wins_C')
+      p.WBP_MP_Wins = M.new('WBP_MP_Wins', { Txt_Amount = M.new('Txt_Amount', {}, 'FuseTextBlock'), Txt_Label = M.new('Txt_Label', {}, 'FuseTextBlock') }, 'WBP_MP_Wins_C')
       p.WBP_MP_Participation = M.new('WBP_MP_Participation', { Txt_Amount_1 = M.new('Txt_Amount_1', {}, 'FuseTextBlock'),
-        Txt_WinsAmount = M.new('Txt_WinsAmount', {}, 'FuseTextBlock') }, 'WBP_MP_Participation_C')
+        Txt_WinsAmount = M.new('Txt_WinsAmount', {}, 'FuseTextBlock'), Txt_WinRaces = M.new('Txt_WinRaces', {}, 'FuseTextBlock'),
+        Txt_Races = M.new('Txt_Races', {}, 'FuseTextBlock') }, 'WBP_MP_Participation_C')
       p.WBP_MP_Progress = M.new('WBP_MP_Progress', { XPAwards = M.tarr({}), Txt_RankThreshold = M.new('Txt_RankThreshold', {}, 'FuseTextBlock') }, 'WBP_MP_Progress_C')
       p.WBP_Continue = M.new('WBP_Continue', {}, 'WBP_Hero_Btn_C')
       p.WBP_Screen_Title = M.new('WBP_Screen_Title', { Txt_Title = M.new('Txt_Title', {}, 'FuseTextBlock') }, 'WBP_Screen_Title_C')

@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.32.9 (2026-11-25): the cup result screen says how you did (owner, after the first one in game)
+- Owner: "I love the layout of the screen and the recap of the cup, however I'm not sure how useful the wins in a row
+  and races in a row stats are ... I'd rather have something more prominent that just says how I did overall in the
+  cup (gold / silver medal etc.)". cupend.lua: the WINS tile now carries the trophy - one medal drawn in the trophy's
+  colour (`MedalColour`), "GOLD TROPHY" over "1ST" (no trophy: "NO TROPHY" over the place) - and the other tile your
+  points ("POINTS 47 / 60") and podiums ("PODIUMS 3 OF 4"). Config `CupResult.Tiles = 'streaks'` keeps the game's
+  meaning.
+- Owner: "after the new results screen it took me back to the original screen you built, we probably don't need that
+  anymore": after the tour-end screen the menu opens on the cups page, not our old cup result page
+  (`CupResult.MenuPage = true` keeps it). The old page stays for `Native = false`.
+- Seen in game 2026-11-25 (Sentinel Cup, Ace, gold): the screen made, the planet found, all five panel calls took,
+  the four race widgets given their place boxes. Tests: test_cupend (45 checks).
+
 ## v0.32.8 (2026-11-25): the CUP RESULT on the game's own tour-end screen (owner's pick 10 of the FreeRace list)
 - cupend.lua (`docs/freerace-review-2026-11-25.md` §6.1: the FreeRace mod's TOUR summary technique, our own code):
   after a cup's last race, CUP RESULT first puts the game's PvP tour-end screen (`WBP_PostRace_InstantAction_RunEnd`)

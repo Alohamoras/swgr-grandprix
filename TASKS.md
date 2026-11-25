@@ -209,8 +209,8 @@ The rest, in the order recommended (details and engine names in the review doc's
       HUD icons `WBP_HUD_Crashes_C` matched; closes DESIGN §7 ("no crash limit") and a per-league allowance.
 - [x] 9. **Catch-up for the back of the grid** (§3.7): v0.32.6, `AI.BackRows` - the `RiffRaff*` / `Losers*` pacing rows
       renamed to the league's tier at launch, put back at the menu. Owner to playtest: do Ary and Malis stay in touch?
-- [x] 10. **The game's tour-summary screen as CUP RESULT** (§6.1): v0.32.8, cupend.lua - built on FreeRace's notes,
-      NOT yet seen in game. Owner to playtest at the next cup end (OWNER.md); `CupResult.Native = false` is the way back.
+- [x] 10. **The game's tour-summary screen as CUP RESULT** (§6.1): v0.32.8 cupend.lua; seen in game 2026-11-25 (owner:
+      "I love the layout"); v0.32.9 the tiles say the trophy / place / points / podiums, and the old result page is skipped.
 - [x] 11. **Box-based navigation** (§4.2): v0.32.7, ui.lua `U.boxNav` - every layout's map from the tiles' boxes, pushed
       into the game's navigation; the grid's arithmetic links gone. No page's links changed today.
 - [ ] 12. **Runtime tune sets as a general tool** (§3.6; tune.lua is the start): damage resistance, respawn shield

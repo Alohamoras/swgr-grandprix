@@ -20,7 +20,7 @@
 -- them), the Galactic Cup 4 from 4 planets. (The code and the save keep the word "class" for a league.)
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.32.8'
+local VERSION = '0.32.9'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -984,9 +984,16 @@ local function tick()
       local run = S.result and S.result.run
       if run then S.class, S.cup = run.class, run.cup
       elseif S.result and (S.result.titleRace or S.result.boss) and S.result.ev then S.class = S.result.ev.class end
-      S.screen = run and 'standings' or (S.result and (S.result.titleRace or S.result.boss)) and 'titleResult' or 'cups'
-      -- v0.21: B on the results screen's panel (chain.lua): straight to "Leave the cup?" (NO = the standings)
+      -- v0.32.9 (owner: "after the new results screen it took me back to the original screen you built, we probably
+      -- don't need that anymore"): a cup result the game's tour-end screen already showed goes to the cups page
+      -- (config CupResult.MenuPage = true keeps our page)
       local CHm = require('chain')
+      local shown = CHm.summaryShown
+      CHm.summaryShown = nil
+      local skip = run and S.result.cupOver and shown and (type(cfg.CupResult) ~= 'table' or cfg.CupResult.MenuPage ~= true)
+      if skip then log('[cupend] the cup result page skipped: the tour-end screen showed it') end
+      S.screen = (run and not skip) and 'standings' or (S.result and (S.result.titleRace or S.result.boss)) and 'titleResult' or 'cups'
+      -- v0.21: B on the results screen's panel (chain.lua): straight to "Leave the cup?" (NO = the standings)
       local ask = CHm.leaveAsk
       CHm.leaveAsk = nil
       local liveRun = K.run()

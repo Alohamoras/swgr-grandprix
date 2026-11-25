@@ -122,7 +122,10 @@ return {
     -- finishes tiles, the XP panel carrying your points - then A / Enter / Escape on to the menu (our cup result page
     -- follows as before). Native = false: straight to the menu as up to v0.32.7. FixupS: how long the timeline's race
     -- widgets are given their place boxes; CloseS: closed by itself after this long.
-    CupResult = { Native = true, FixupS = 12, CloseS = 120 },
+    -- Tiles (v0.32.9, owner): 'result' = the WINS tile shows the trophy and your place, the other one points and podiums;
+    -- 'streaks' = the game's own wins-in-a-row / races meaning.
+    -- MenuPage (v0.32.9, owner): false = after the tour-end screen the menu opens on the cups page, not our old result page.
+    CupResult = { Native = true, FixupS = 12, CloseS = 120, Tiles = 'result', MenuPage = false },
 
     -- Lua garbage: collect a little on every tick (KB of work per step) so it never piles up into one big pause
     -- (v0.3.4, race stutter). GcStep = false to switch off for a comparison.
