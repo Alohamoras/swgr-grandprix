@@ -102,6 +102,14 @@ Owner's plan: keep playing ~a week without crashes, then publish as a beta.
 - [x] Junker: renamed, afterburner and ramjet +2 (v0.28.3).
 - [ ] Junker = banger racing: more aggressive bots (`AI.Profiles.riffraff.aggression`).
 - [ ] Ace = weather and night: the draw leans to condition variants (gp.lua `K.draw`, a per-league lean).
+**2026-11-25 (owner): the car per league decided** - the plan in the doc's "2026-11-25" section. One tag per chunk:
+- [ ] L1. **Parts** (config only): Junker `{ [1] = 10, [3] = 10, [4] = 2 }`, Challenger `7`, Ace `10`; `AI.Strength.ace` shifted
+      to `{ elite = 0, contender = -1, weak = -3 }` (no room above 10); briefs / taglines. Tests; the `[builds]` lines
+      show each tier's levels. **Owner to confirm Challenger 7** (OWNER.md).
+- [ ] L2. **Ace clean field:** `AI.Profiles.ace` aggression (VersusPlayer and VersusAI) down; check the `[gaps]` spread.
+- [ ] L3. **Wreck limit per league** (= §1g item 8): `Leagues[].wrecks`, Junker 5, the others the game's 3; the mod tops
+      `VehicleHealth` up and grows the HUD pips (`WBP_HUD_Crashes_C`).
+- [ ] L4. **Owner playtest:** a cup at each league. Junker fun or a pinball? Ace too fast at 10? Do the Elite still lead at Ace?
 
 ## 1c. Looks (owner 2026-11-12; not started)
 - **Rust for Junker** (owner: research and build all three, then look in game) - docs/custom-vehicle-models-2026-11-12.md
@@ -270,6 +278,24 @@ as the field, points as usual, no title-race link. One tag per chunk; nothing to
 - [ ] **P8. Pacing pass (owner's races).** Two cups, read the gaps; tune the pod profile and grace; decide whether the
       pod pilots get a strength tier.
 Follow-ups once this stands: the "clean" no-offence cup (§4) could reuse P3's family filter for the player's picks.
+
+## 1i. HEAT: optional handicaps for Ace cups (owner 2026-11-25: "the heat options sound brutal and fun, write up that work") - not started
+The plan: `docs/heat-2026-11-25.md` (rules, the 15 modifiers with their dials, screens, save, risks). Switch handicaps on
+before an Ace cup; each is worth heat; each cup keeps the best heat you won gold at. One tag per chunk.
+- [ ] **H0. Owner's calls** (OWNER.md): the name, when it opens (first Ace gold or the Ace title), the first set, and
+      whether a gold at heat should be the only thing that counts.
+- [ ] **H1. Rules and save** (heat.lua, config `Heat`, gp.lua fill): `run.heat`, `heatPicks`, `heatBest`; the modifiers as
+      overrides merged over the league / AI profile at launch only; the `[heat]` log line; tests (merge, stacking, best on
+      gold only, old save, Rally / title untouched, put back at the menu).
+- [ ] **H2. First modifiers, all on today's dials:** Faster field I-III, Budget cap I-II, Bare garage, Weak kit, No mercy at
+      the start, Grudge, Armed field (doc §3 rows 1-4, 6-8). Held race first: does Budget cap drop the bots with you?
+- [ ] **H3. Screens:** the HEAT tile and panel on the start screen, the badge on the Ace cup tiles, `HEAT n` on the
+      standings header, the CUP RESULT line / NEW HEAT BEST.
+- [ ] **H4. Small builds:** Unarmed (the `noOffence` idea, §4), Podium or bust (cup.lua).
+- [ ] **H5. With other work:** Wreck limit (after §1g-8), Long haul (after §1g-7), Foul weather (after the §1b lean),
+      Faster field+ (after the thrust test).
+- [ ] **H6. Recon:** start from the back of the grid (no grid-slot write known); Kestar Bool in a normal event's field.
+- [ ] **H7. Owner playtest:** a few Ace cups climbing the heat; tune the points; watch the `[gaps]` spread at high heat.
 
 ## 2. Waiting on the owner's play (details and tick boxes in OWNER.md "Playtests")
 - [ ] v0.27.x: the finish times then STANDINGS (A, or 6 s); Challenger open from the start; Riff-Raff's feel (parts
