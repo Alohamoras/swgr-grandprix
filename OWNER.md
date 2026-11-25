@@ -67,6 +67,11 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
+- [ ] **BikeDrift v0.1.0 (2026-11-25, new mod, repo ~/Projects/swgr-bikedrift) - not installed yet (the game was running):**
+      close the game, then `~/Projects/swgr-bikedrift/deploy.sh`. Race any bike event and corner hard with X (the energy
+      brake): it should slide out and keep its speed instead of skidding and jolting. Tell me: too loose / too slow /
+      too grippy, and whether the slide runs out mid-corner on long bends. All bikes slide, the bots' too. Values with the
+      game's own beside each: `mod/BikeDrift/Scripts/config.lua`. Off: `Mods/BikeDrift/enabled.txt` -> `disabled.txt`.
 - [ ] **v0.32.6-8 (2026-11-25 evening, your picks 9-11), installed 2026-11-25 18:00 after the playtest:**
   - **The cup result screen (10):** seen 2026-11-25 (Sentinel gold): "I love the layout of the screen and the recap". v0.32.9 puts
     the trophy / place / points / podiums on the two tiles and skips our old page after it - check both.
