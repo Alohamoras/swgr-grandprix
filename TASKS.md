@@ -271,6 +271,24 @@ as the field, points as usual, no title-race link. One tag per chunk; nothing to
       pod pilots get a strength tier.
 Follow-ups once this stands: the "clean" no-offence cup (§4) could reuse P3's family filter for the player's picks.
 
+## 1i. HEAT: optional handicaps for Ace cups (owner 2026-11-25: "the heat options sound brutal and fun, write up that work") - not started
+The plan: `docs/heat-2026-11-25.md` (rules, the 15 modifiers with their dials, screens, save, risks). Switch handicaps on
+before an Ace cup; each is worth heat; each cup keeps the best heat you won gold at. One tag per chunk.
+- [ ] **H0. Owner's calls** (OWNER.md): the name, when it opens (first Ace gold or the Ace title), the first set, and
+      whether a gold at heat should be the only thing that counts.
+- [ ] **H1. Rules and save** (heat.lua, config `Heat`, gp.lua fill): `run.heat`, `heatPicks`, `heatBest`; the modifiers as
+      overrides merged over the league / AI profile at launch only; the `[heat]` log line; tests (merge, stacking, best on
+      gold only, old save, Rally / title untouched, put back at the menu).
+- [ ] **H2. First modifiers, all on today's dials:** Faster field I-III, Detuned I-II, Bare garage, Weak kit, No mercy at
+      the start, Grudge, Armed field (doc §3 rows 1-4, 6-8). Held race first: does Detuned drop the bots with you?
+- [ ] **H3. Screens:** the HEAT tile and panel on the start screen, the badge on the Ace cup tiles, `HEAT n` on the
+      standings header, the CUP RESULT line / NEW HEAT BEST.
+- [ ] **H4. Small builds:** Unarmed (the `noOffence` idea, §4), Podium or bust (cup.lua).
+- [ ] **H5. With other work:** Wreck limit (after §1g-8), Long haul (after §1g-7), Foul weather (after the §1b lean),
+      Faster field+ (after the thrust test).
+- [ ] **H6. Recon:** start from the back of the grid (no grid-slot write known); Kestar Bool in a normal event's field.
+- [ ] **H7. Owner playtest:** a few Ace cups climbing the heat; tune the points; watch the `[gaps]` spread at high heat.
+
 ## 2. Waiting on the owner's play (details and tick boxes in OWNER.md "Playtests")
 - [ ] v0.27.x: the finish times then STANDINGS (A, or 6 s); Challenger open from the start; Riff-Raff's feel (parts
       2 on three slots); the posters' taglines and the cups page brief; the garage's TUNE-UP / ABILITY captions.

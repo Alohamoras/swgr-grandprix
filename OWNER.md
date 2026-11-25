@@ -4,6 +4,11 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
+- [ ] **HEAT for Ace (2026-11-25, plan in docs/heat-2026-11-25.md):** (1) the name - HEAT, or something Star Wars-y
+      (BOUNTY, WAGER, HOT RUN)? (2) opens at your first Ace gold (Claude's pick) or after the Ace title? (3) the first
+      set (Claude's pick: Faster field, Detuned, Bare garage, Weak kit, No mercy at the start, Grudge, Armed field - all on
+      dials we already have)? (4) only a gold records the heat (Claude's pick), or any trophy? (5) any modifier you'd
+      cut or add?
 - [ ] **Mechanic shop mod (2026-11-24):** "highest level parts" - level 10 outright (one visit = a maxed slot), or the biggest
       upgrade step the shop can offer over your current level? ShopRecon's first dump (after you visit the mechanic once) will show
       which the game can do. Half price = 50 % off the shown price. Repo ~/Projects/swgr-mechanic.
