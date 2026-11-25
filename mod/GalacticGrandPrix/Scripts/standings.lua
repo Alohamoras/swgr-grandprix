@@ -140,6 +140,16 @@ function SD.cupSpec(r)
   hero.lines[#hero.lines + 1] = { ('%s   -   %s   -   %s%s'):format(cup.name, cls.name,
     (run and run.timed) and (K.fmtTime(r.total) .. ' in all') or ((r.pts or 0) .. ' points'), r.newBest and '   -   NEW BEST' or ''), 22, U.WHITE }
   if r.perfect then hero.lines[#hero.lines + 1] = { 'PERFECT CUP', 30, U.GOLD } end
+  -- v0.33: the Galactic Cup's finale (Kestar's 1 v 1): the champion, or who kept the title
+  local fin = r.finale
+  if type(fin) == 'table' then
+    if fin.won then
+      hero.lines[#hero.lines + 1] = { ('%s CHAMPION'):format(tostring(fin.league or ''):upper()), 30, U.GOLD }
+      if fin.unlockedRacer then hero.lines[#hero.lines + 1] = { 'UNLOCKED:  ' .. tostring(fin.vs or 'Kestar Bool'):upper() .. ' races for you now (the garage)', 22, U.GOLD } end
+    else
+      hero.lines[#hero.lines + 1] = { ('%s KEEPS THE TITLE'):format(tostring(fin.vs or 'Kestar Bool'):upper()), 26, U.GREY }
+    end
+  end
   local after = {}
   -- v0.22 (quiet pass): no 'Last race' line - only its record / near misses and the cup's near miss, when there are
   -- any; what the cup unlocked, but no goal line (owner: no goal lines)
@@ -167,6 +177,12 @@ function SD.spec(r)
   -- you chase or lead); then ONE line for the record, the best lap and the near misses together
   local stakes = run and K.run() and CU.stakes(run, cfg.Points) or nil
   if stakes then lines[#lines + 1] = { stakes, 22, U.WHITE } end
+  -- v0.33: the points races done, a trophy in hand: the finale next
+  local fn = r.finaleNext
+  if type(fn) == 'table' then
+    lines[#lines + 1] = { ('%s   -   NEXT: %s, 1 v 1 FOR THE %s TITLE'):format(fn.trophy and (fn.trophy .. ' TROPHY SECURED') or ('%s PLACE SECURED'):format(ordinal(fn.rank or 0):upper()),
+      tostring(fn.vs or 'KESTAR BOOL'):upper(), tostring(fn.league or ''):upper()), 22, U.GOLD }
+  end
   local note, big = raceNotes(r, ev)
   if #note > 0 then lines[#lines + 1] = { table.concat(note, '   -   '), big and 22 or 20, U.GOLD } end
   return { key = 'standings', title = '', lines = lines, center = true,

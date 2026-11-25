@@ -52,6 +52,15 @@ function A.cup(cup, vehicleKey)
   return A.planet(p, 'Tile', vehicleKey)
 end
 
+-- v0.33 (owner 2026-11-25: "use the planets from the end of cup screen"): the game's round planet pictures
+-- (Content/Planets/T_UI_Planet_<code>, 2048 px, the set the tour-end timeline draws its planets from) for the cup
+-- tiles' left side (ui.lua glyph, side = 'left'); the Galactic Cup = Derven Acos (the ringed one), the Rally Cup = Ando
+local BALL = TEX .. 'Content/Planets/T_UI_Planet_'
+function A.ball(cup)
+  local p = cup and PLANET[cup.key]
+  return p and (BALL .. p) or nil
+end
+
 -- the trophy medals (best = 1 / 2 / 3)
 local MEDAL = { 'Gold', 'Silver', 'Bronze' }
 function A.medal(best)

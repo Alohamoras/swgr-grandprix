@@ -244,10 +244,13 @@ Recon R3 picks the one that works; set before launch, put back at the menu. Cras
   (`Progression.Unlock = 'trophy' | 'gold'`), so it can be made stricter.
 - **The Galactic Cup** (the finale, `final = true`) opens at a league with a trophy (any colour; gold with
   `Unlock = 'gold'`) in all five planet cups at that league.
-- **The title race** opens at a league with a trophy in the Galactic Cup at that league. Winning it makes you the
-  league champion. **The final boss** (v0.21, §17; v0.26: after Ace): Kestar Bool, a tile on the Ace cups page once
-  the Ace title is won; beating him unlocks him as a racer.
-- Ace is the top of the ladder: nothing outside Ace opens from its results but Kestar (after its title).
+- **v0.33 (owner 2026-11-25): no title race.** Kestar Bool's Stadium Showdown is the Galactic Cup's finale at every
+  league: a trophy in the cup's four points races adds it as race 5 of the same cup (no points; config `Boss.Gate`).
+  Winning it makes you the league champion (the star on the league poster); at Ace it unlocks him as a racer. Off the
+  podium the cup ends after race 4. (Was: **the title race** opened at a league with a trophy in the Galactic Cup at
+  that league, winning it made you champion; **the final boss** (v0.21, §17; v0.26: after Ace) a tile on the Ace cups
+  page once the Ace title was won. `Title.On = true` and `Boss.Where = 'tile'` bring that back.)
+- Ace is the top of the ladder: nothing outside Ace opens from its results.
 - Best trophy per cup and league saved, shown on the cup tiles (a gold = "won a Jakku Cup at Ace": the races are
   drawn). No money, no shop, no upgrades. The league poster shows a medal pip per cup and the title star.
 - Unlocks are worked out from the saved best finishes every time (nothing extra saved). Locked leagues / cups / the

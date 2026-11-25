@@ -472,7 +472,8 @@ function U.rowsNav(rows, items) return U.boxNav(U.rowBoxes(rows, items)) end
 --   it.pips = { {tex, color, alpha}, ... }  a row of small icons top left, where the badge was (a league's medals)
 --   it.glyph = {tex, color, px, side = 'left'}  one big icon, top middle (an ability's or a tune-up's icon).
 --     side = 'left' (v0.31, PR #1): flush to the left edge, as tall as the tile (a pilot's portrait, the game's own
---     256 px MainIcon texture); the tile's title shifts right of it
+--     256 px MainIcon texture); the tile's title shifts right of it. v0.33: scale = a share of the tile's height
+--     (the cup tiles' planets, config CupPlanets), centred on the left edge
 U.PIP_PX, U.CORNER_PX = 66, 72
 function U.hasDecor(it) return (it.icon or it.corner or it.pips or it.glyph or it.tag) and true or false end
 local function picture(make, tex, color, px, alpha)
@@ -522,6 +523,7 @@ function U.decorate(make, ov, it, tileH, tile)
     local tex = texture(g[1])
     if g.side == 'left' then
       px, ha, va = tileH or U.TILE_H, 1, 2
+      if type(g.scale) == 'number' and g.scale > 0 and g.scale < 1 then px = math.floor(px * g.scale) end
       pad = { Left = 0, Top = 0, Right = 0, Bottom = 0 }
       local title = tex and alive(tile) and try(function() return tile.Txt_Label_Title end)
       -- a little over the portrait, so a long name (Goli & 02-R0) stays inside the button

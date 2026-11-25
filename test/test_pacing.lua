@@ -51,7 +51,7 @@ local ALL = {}
 for _, c in ipairs(K.leagues()) do
   ALL[#ALL + 1] = c.name
   for _, cup in ipairs(K.cups()) do if cup.final then ALL[#ALL + 1] = cup.name .. ' at ' .. c.name end end
-  ALL[#ALL + 1] = 'TITLE RACE at ' .. c.name
+  if (cfg.Title or {}).On ~= false then ALL[#ALL + 1] = 'TITLE RACE at ' .. c.name end -- (v0.33: off)
 end
 local function copyBest(b) local o = {}; for k, v in pairs(b) do o[k] = {}; for k2, v2 in pairs(v) do o[k][k2] = v2 end end; return o end
 -- the cups open now: { class, cup }

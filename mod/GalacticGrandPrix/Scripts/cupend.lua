@@ -65,16 +65,19 @@ function CE.summary(out)
       if place <= 3 then top3 = top3 + 1 end
     end
     if streak > best then best = streak end
-    races[i] = { title = race.shown or race.title or '?', planet = K.planetOf(race.path), place = place, pts = (me and tonumber(me.pts)) or 0, path = race.path }
+    races[i] = { title = race.shown or race.title or '?', planet = K.planetOf(race.path), place = place, pts = (me and tonumber(me.pts)) or 0, path = race.path,
+      finale = race.boss == true } -- (v0.33: the Galactic Cup's finale, Kestar's 1 v 1: no points)
   end
   local cup = K.cup(run.cup)
   local pts = type(cfg.Points) == 'table' and tonumber(cfg.Points[1]) or 15
+  local scored = 0
+  for _, r in ipairs(races) do if not r.finale then scored = scored + 1 end end
   -- (your points: out.pts from K.record; the sum of the races' points when it isn't there)
   local total = tonumber(out.pts)
   if not total then total = 0; for _, r in ipairs(races) do total = total + r.pts end end
   return { races = races, wins = wins, top3 = top3, dnfs = dnfs, streak = best, total = total,
-    max = pts * #list, rank = tonumber(out.rank), trophy = out.trophy, name = cup and cup.name or tostring(run.cup),
-    league = K.leagueName(run.class), timed = run.timed == true }
+    max = pts * scored, rank = tonumber(out.rank), trophy = out.trophy, name = cup and cup.name or tostring(run.cup),
+    league = K.leagueName(run.class), timed = run.timed == true, finale = type(out.finale) == 'table' and out.finale or nil }
 end
 
 ---------------------------------------------------------------------------------------------------------------------
@@ -127,7 +130,8 @@ local function fill(w, sm)
     if e then
       set(e, 'FinishPosition', r.place or 0)
       set(e, 'NumberOfWrecks', 0)
-      set(e, 'Activity', (i == #sm.races) and ACT_CHAMPION or ACT_STANDARD)
+      -- (the crown on the cup's last race; v0.33: on the finale only when you won it)
+      set(e, 'Activity', (i == #sm.races and not (r.finale and r.place ~= 1)) and ACT_CHAMPION or ACT_STANDARD)
       local a = C.addr(e)
       if a then d.byVm[a] = r end
       p.entries[#p.entries + 1] = e
@@ -162,7 +166,15 @@ local function fill(w, sm)
   local awards = {}
   for i, r in ipairs(sm.races) do
     local what = r.place and C.ordinal(r.place) or 'DNF'
-    awards[#awards + 1] = { XP = r.pts, Tag = { TagName = FName('None') }, Reason = FText(('%s %d: %s, %s'):format(sm.timed and 'Stage' or 'Race', i, r.title, what)) }
+    if r.finale then
+      -- v0.33: the finale's line: won - the champion; lost - who kept the title
+      local fin = sm.finale or {}
+      what = r.place == 1 and ('won - %s CHAMPION'):format(tostring(fin.league or sm.league):upper())
+        or ((r.place and 'lost' or 'DNF') .. ' - ' .. tostring(fin.vs or 'Kestar Bool') .. ' keeps the title')
+      awards[#awards + 1] = { XP = 0, Tag = { TagName = FName('None') }, Reason = FText(('Finale: %s 1 v 1, %s'):format(r.title, what)) }
+    else
+      awards[#awards + 1] = { XP = r.pts, Tag = { TagName = FName('None') }, Reason = FText(('%s %d: %s, %s'):format(sm.timed and 'Stage' or 'Race', i, r.title, what)) }
+    end
   end
   local xp = new('PvpXPResultsVM', w)
   if xp then
@@ -215,6 +227,7 @@ local function panels(w, d, sm)
   local title = sub('WBP_Screen_Title')
   if title then
     local text = ('%s  -  %s'):format(sm.name, sm.league)
+    if sm.finale and sm.finale.won then text = text .. '  -  CHAMPION' end
     local done = false
     for _, f in ipairs({ 'Txt_Title', 'Txt_Label', 'Txt_Header' }) do
       local t = try(function() return title[f] end)
@@ -249,6 +262,29 @@ local function direct(w, sm)
   put('WBP_MP_Progress', 'Txt_RankThreshold', ('%d / %d'):format(sm.total, sm.max))
   if sm.rank then put('WBP_MP_Progress', 'Txt_CurrentRank', C.ordinal(sm.rank)) end
   if type(sm.trophy) == 'string' then put('WBP_MP_Progress', 'Txt_NextRank', sm.trophy:upper()) end
+end
+
+-- v0.33 recon (once per summary, for the cups page's planets - art.lua A.ball): what the timeline's planet widgets
+-- draw: each child of the planets box, its class and the texture behind the first image field found. Read only.
+local function planetPictures(w)
+  local tl = try(function() return w.WBP_Timeline end)
+  local hb = alive(tl) and try(function() return tl.HB_Planets end)
+  local n = alive(hb) and try(function() return hb:GetChildrenCount() end)
+  if type(n) ~= 'number' or n < 1 then return nil end
+  local out = {}
+  for i = 0, math.min(n, 8) - 1 do
+    local c = try(function() return hb:GetChildAt(i) end)
+    if alive(c) then
+      local found = {}
+      for _, f in ipairs({ 'Img_Planet', 'Img_PlanetIcon', 'Img_Planet_Icon', 'Image_Planet', 'Img_Icon', 'Img_Bg', 'Img_Background' }) do
+        local img = try(function() return c[f] end)
+        local res = alive(img) and try(function() return img.Brush.ResourceObject end)
+        if alive(res) then found[#found + 1] = f .. '=' .. tostring(try(function() return res:GetFName():ToString() end)) end
+      end
+      out[#out + 1] = tostring(C.clsname(c)) .. (#found > 0 and (' (' .. table.concat(found, ' ') .. ')') or '')
+    end
+  end
+  return table.concat(out, ', ')
 end
 
 -- the timeline's race widgets show the place for a podium only: the place box shown for every race (matched to its
@@ -314,6 +350,10 @@ function CE.tick()
   if (st.direct == 0 and age > 1000) or (st.direct == 1 and age > 2500) or (st.direct == 2 and age > 8000) then
     st.direct = st.direct + 1
     direct(w, st.sm)
+    if st.direct == 2 then
+      local pics = planetPictures(w)
+      if pics then log('[cupend] the timeline\'s planet widgets: ' .. pics) end
+    end
   end
   return true
 end

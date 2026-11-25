@@ -115,11 +115,15 @@ end
 -- in race k first; racers who weren't in race k after those who were)
 function CU.rankAt(st, k)
   local pts, last, tm = {}, {}, {}
-  for i = 1, math.min(k, #st.history) do
+  k = math.min(k, #st.history)
+  -- (v0.33: the finale's rows carry no points and no tie rule: the latest POINTS race breaks ties, as the standings do)
+  local tie = k
+  while tie > 0 and st.history[tie][1] and st.history[tie][1].finale do tie = tie - 1 end
+  for i = 1, k do
     for _, r in ipairs(st.history[i]) do
       pts[r.key] = (pts[r.key] or 0) + r.pts
       tm[r.key] = (tm[r.key] or 0) + (tonumber(r.t) or 0)
-      if i == k then last[r.key] = r.dnf and 99 or r.place end
+      if i == tie then last[r.key] = r.dnf and 99 or r.place end
     end
   end
   local list = {}
@@ -233,6 +237,7 @@ function CU.stakes(st, points)
   points = points or CU.DEFAULT_POINTS
   local done = #(st.history or {})
   local left = (st.races or 4) - done
+  if st.finale then left = left - 1 end -- (v0.33: the finale scores no points: nothing at stake in it)
   if done < 1 or left < 1 then return nil end
   if st.timed then return timedStakes(st, left) end
   local mine, rank

@@ -20,7 +20,7 @@
 -- them), the Galactic Cup 4 from 4 planets. (The code and the save keep the word "class" for a league.)
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.32.10'
+local VERSION = '0.33.0'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -135,7 +135,8 @@ local SCREENS = {}
 -- v0.8 (owner's menu rules, 2026-11-10): never more than two levels deep, no words you don't need, no scrolling.
 --   Level 1 HOME: the leagues (v0.26: three), RESET PROGRESS. B leaves the tab.
 --   Level 2 CUPS (a class): the five planet cups, the GALACTIC CUP and the TITLE RACE on one page (4 + 3, v0.11;
---     v0.21: + KESTAR BOOL at Ace once its title is won, 4 + 4); focusing a cup shows its planet's tracks (v0.26)
+--     v0.21: + KESTAR BOOL at Ace once its title is won, 4 + 4; v0.33: no title race, no boss tile - Kestar closes
+--     the Galactic Cup); focusing a cup shows its planet's tracks (v0.26)
 --     ; Select draws its races and opens the start screen. No cup page.
 --   Level 2 GARAGE: vehicle, racer, four abilities, tune-ups - Select cycles the option in place. No pick screens.
 -- v0.9: a cup lives from its first race's launch to the standings of its last race, and nowhere else: the standings
@@ -233,8 +234,9 @@ local function titleTile(cls)
     act = function() return toStart('title', cls.key) end }
 end
 -- v0.21: the final boss tile (Kestar Bool in the Stadium Showdown) on the boss class's cups page once its title is won
+-- (v0.33: only with config Boss.Where = 'tile' - he is the Galactic Cup's finale now)
 local function bossTile(cls)
-  if not (TI.bossOn() and cls.key == TI.bossClass() and TI.bossOpen(K.data)) then return nil end
+  if not (TI.bossOn() and TI.bossWhere() == 'tile' and cls.key == TI.bossClass() and TI.bossOpen(K.data)) then return nil end
   local beaten = TI.bossBeaten(K.data)
   local face = portrait('Antagonist')
   return { title = 'KESTAR BOOL', art = ART.SHOWDOWN, desc = 'Final boss',
@@ -266,7 +268,8 @@ SCREENS.home = function()
         if b and b <= 3 then pips[#pips + 1] = { ART.medal(b), ART.medalColor(b) }
         else pips[#pips + 1] = { ART.medal(1), ART.GREY, 0.35 } end
       end
-      local st = TI.on() and TI.status(c.key)
+      -- (v0.33: the title comes from the Galactic Cup's finale - the star reads the save whatever Title.On says)
+      local st = TI.status(c.key)
       local won = type(st) == 'table' and st.won
       pips[#pips + 1] = won and { ART.STAR, ART.medalColor(1) } or { ART.STAR, ART.GREY, 0.35 }
       items[#items + 1] = { title = c.name:upper(), art = ART.league(c.key), pips = pips, classKey = c.key,
@@ -334,6 +337,7 @@ local function cupInfo(cup, head)
       local p = K.planetOf(fin[1].path)
       lines[#lines + 1] = 'Then ' .. table.concat(t, ' or ') .. (p and (' at ' .. p.name) or '')
     end
+    if TI.finaleOn() then lines[#lines + 1] = TI.finaleText() end -- (v0.33: Kestar's 1 v 1 with a trophy)
   elseif cup.rally then
     -- v0.30
     local R = cfg.Rally or {}
@@ -350,10 +354,19 @@ end
 SCREENS.cups = function()
   local cls = K.league(S.class) or K.leagues()[1]
   local items = {}
+  -- v0.33 (owner: "use the planets from the end of cup screen"): the planet's round picture on the tile's left (config
+  -- CupPlanets: its height as a share of the tile's; false = none)
+  local function ball(cup)
+    local s = cfg.CupPlanets
+    if s == false then return nil end
+    local tex = ART.ball(cup)
+    return tex and { tex, { 1, 1, 1 }, side = 'left', scale = type(s) == 'number' and s or nil } or nil
+  end
   local function cupTile(cup)
     local open, why, short = PR.cupOpen(K.data, cls.key, cup.key)
     if not open then
       items[#items + 1] = { title = cup.name, art = ART.cup(cup, myVehicle().key) or cup.art, span = (cup.final and cfg.CupsRows) and 2 or nil, corner = lockCorner(), disabled = true,
+        glyph = ball(cup),
         desc = 'To open: ' .. tostring(short or why), info = padInfo(cupInfo(cup, 'To open: ' .. why)),
         act = function() S.message = cup.name .. ' is locked at ' .. cls.name .. '. To open it: ' .. why; return true end }
     else
@@ -363,6 +376,7 @@ SCREENS.cups = function()
       -- drawn when you pick the cup)
       items[#items + 1] = { title = cup.name, art = ART.cup(cup, myVehicle().key) or cup.art, span = (cup.final and cfg.CupsRows) and 2 or nil,
         icon = mIcon, iconColor = mColor, -- (v0.22: no medal words, no planet badge)
+        glyph = ball(cup),
         corner = perfect and { { ART.STAR, ART.medalColor(1) } } or nil,
         info = padInfo(cupInfo(cup)),
         act = function() return toStart('cup', cls.key, cup.key) end }
@@ -617,11 +631,14 @@ SCREENS.standings = function()
     -- v0.9: NEXT RACE only (no LATER: cups cannot be resumed; B asks "Leave the cup?" - handle, below)
     local nxt = K.nextRace()
     local run2 = K.run()
-    items[#items + 1] = { title = 'NEXT RACE', art = ART.cup(K.cup(run2.cup), run2.vehicle) or 'T_UI_FE_Tile_Campaign_Hero',
+    -- (v0.33: the Galactic Cup's finale - Kestar's face on the stadium picture)
+    local face = nxt.boss and portrait('Antagonist') or nil
+    items[#items + 1] = { title = 'NEXT RACE', art = nxt.boss and ART.SHOWDOWN or ART.cup(K.cup(run2.cup), run2.vehicle) or 'T_UI_FE_Tile_Campaign_Hero',
+      glyph = face and { face, { 1, 1, 1 }, side = 'left' } or nil,
       badge = ('%s %d / %d'):format(run2.timed and 'STAGE' or 'RACE', run2.race, run2.races),
       -- (the badge says which race; the race's name, without its conditions when they don't fit; v0.30: the Rally Cup
       -- names the route only - nxt.shown)
-      desc = nxt.shown or nxt.title, act = launchNext }
+      desc = nxt.boss and (nxt.title .. '  -  1 v 1') or (nxt.shown or nxt.title), act = launchNext }
     local it = items[#items]
     if not U.tileFits(it) then it.desc = nxt.title:match('^(.-)%s*%(') or nxt.title end
   else

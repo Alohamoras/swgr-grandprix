@@ -36,8 +36,12 @@ return {
     -- cols / rows / w / h (nil = the TabLayout grid)
     CupsLayout = { cols = 4, rows = 2, w = 520, h = 350 },
     -- v0.23 (TASKS round 3 item 2): the cups page in rows, centred: the five planet cups in one row, then the Galactic
-    -- Cup two tiles wide, the title race and (Ace, after its title) Kestar Bool. nil = the CupsLayout grid.
+    -- Cup two tiles wide and (v0.33: no title race) the Rally Cup. nil = the CupsLayout grid.
     CupsRows = { { w = 560, h = 380, n = 5 }, { w = 560, h = 380 } },
+    -- v0.33 (owner 2026-11-25: "use the planets from the end of cup screen"): the game's round planet picture (the
+    -- one the cup result's timeline draws) on the left of every cup tile, over the poster, the cup's name to its
+    -- right. A number = its height as a share of the tile's (1 = the full height, like the pilot portraits); false = off.
+    CupPlanets = 0.86,
     -- v0.24: HOME in rows: the leagues as tall posters (a medal per cup on each), RESET small below; the garage
     -- (the start screen) at this tile size, START this tall. v0.26: three leagues, wider (760)
     HomeRows = { { w = 760, h = 560, n = 3 }, { w = 600, h = 200 } },
@@ -178,6 +182,9 @@ return {
 
     -- (v0.21: the rival per class is gone - owner, 2026-11-11.)
 
+    -- v0.33 (owner 2026-11-25: "ditch the title race and put the Kestar race at the end of the Galactic Cup"): the
+    -- title race is OFF - Kestar Bool's 1 v 1 closes the Galactic Cup instead (Boss below). On = true brings the tile
+    -- back as it was (v0.8-v0.32):
     -- The title race (v0.8, title.lua; v0.21 owner; v0.26): a 1 v 1 on a normal track against the league leader, at
     -- the end of each league. Opens with a trophy in the Galactic Cup at the league. The opponent = the best-placed bot
     -- in the final standings of your most recent finished cup at that league (if you won it, the 2nd; else the
@@ -187,14 +194,19 @@ return {
     -- Default = the opponent (a DA_Racer_ key) before any cup has finished at the league: Riff-Raff Griff Halloran,
     -- Challenger Biddy Blas, Ace Sen Fira; the track then the first race of a random draw of the DefaultCup, made once
     -- per league and saved (titleTrack), so the tile shows a stable track.
-    Title = { On = true, Name = 'TITLE RACE', DefaultCup = 'jakku',
+    Title = { On = false, Name = 'TITLE RACE', DefaultCup = 'jakku',
         Default = { riffraff = 'Veteran', challenger = 'Rager', ace = 'Thrall' } },
 
-    -- The final boss (v0.21, owner; v0.26: after the ACE title): Kestar Bool in the game's Stadium Showdown (6 laps,
-    -- about 5 minutes; he copies your build). A KESTAR BOOL tile on the cups page of League once that league's title is
-    -- won; raced at that league's parts. Beating him saves `boss` and unlocks him as a racer (Racers, unlockBoss). The
-    -- event's story cinematics are taken off for the race and put back (title.lua). On = false: no boss tile.
-    Boss = { On = true, Event = EV .. 'Whippet/FINALBOSS/EVT_WHP_SHORTBOSS_FAIR', Name = 'KESTAR BOOL', Opponent = 'Kestar Bool', League = 'ace' },
+    -- v0.33 (owner 2026-11-25): Kestar Bool's Stadium Showdown (6 laps, about 5 minutes; he copies your build) is the
+    -- Galactic Cup's FINALE at every league: after the cup's four points races, a trophy (Gate = 'trophy'; 'gold' =
+    -- 1st only; 'always') adds the 1 v 1 as race 5 of the same cup - no points, the trophy is decided already. Win
+    -- and you are that league's champion (the star on its HOME tile; titles[league] in the save). Beating him at
+    -- League (Ace) also unlocks him as a racer (Racers, unlockBoss). Off the podium the cup simply ends. The event's
+    -- story cinematics are taken off for the race and put back (title.lua). On = false: no finale.
+    -- Where = 'tile' = the v0.21-v0.32 way instead: a KESTAR BOOL tile on League's cups page once its title is won
+    -- (needs Title.On). Laps = display only (the event runs its own).
+    Boss = { On = true, Event = EV .. 'Whippet/FINALBOSS/EVT_WHP_SHORTBOSS_FAIR', Name = 'KESTAR BOOL', Opponent = 'Kestar Bool',
+        League = 'ace', Gate = 'trophy', Where = 'cup', Laps = 6 },
 
     -- The planets, by the codename in the event paths (Events/Planets/<codename>/...). name and line are the game's
     -- own (PlanetDef). key doubles as the planet's pool and cup key (jakku ... sentinel; derven = the finals' pool).

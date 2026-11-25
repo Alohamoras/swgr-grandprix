@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.33.0 (2026-11-25): Kestar closes the Galactic Cup, no title race; the planets on the cup tiles (owner)
+- Owner: "ditch the title race and put the Kestar race at the end of the Galactic Cup" - his pick: race 5, only with
+  a trophy. The Galactic Cup's four points races decide the trophy as before; a trophy (config `Boss.Gate`: 'trophy' /
+  'gold' / 'always') adds Kestar Bool's Stadium Showdown as race 5 of the same cup - no points (the standings and the
+  tie rule stay as the points races left them), the standings page says "BRONZE TROPHY SECURED - NEXT: KESTAR BOOL,
+  1 v 1 FOR THE JUNKER TITLE" and NEXT RACE carries his face. Win it and you are that league's champion (the star on the
+  league's HOME tile, `titles[league]` in the save); at Ace it also unlocks him as a racer. Off the podium the cup just
+  ends. The cup result (both screens) says CHAMPION or "KESTAR BOOL KEEPS THE TITLE"; the tour-end screen's crown goes
+  on the finale only when you won it, its points line reads "Finale: KESTAR BOOL 1 v 1, won - ACE CHAMPION". The
+  TITLE RACE tile and the KESTAR BOOL tile are gone: seven tiles per league. `Title.On = true` / `Boss.Where = 'tile'`
+  keep the old flow (test_title, test_leagues cover it under that config).
+- Owner: "for the cup selection screen, let's try and use the planets from the end of cup screen": every cup tile
+  now carries the game's round planet picture (`Content/Planets/T_UI_Planet_<code>`, the set the tour-end timeline
+  draws from) flush left at 0.86 of the tile's height, the cup's name to its right (config `CupPlanets`: a share of
+  the height, or false). The Galactic Cup shows Derven Acos (the ringed one), the Rally Cup Ando Prime. Not yet seen
+  in game: the exact texture the timeline draws is logged once per cup result (`[cupend] the timeline's planet
+  widgets: ...`) so the tiles can be matched to it if they differ.
+- Tests: test_finale (48 checks, new), test_cups / flow / leagues / pacing / prog / racervehicle / title / trophies /
+  unlocks updated; 50 files, 1537 checks.
+
 ## v0.32.10 (2026-11-25): the cup result screen closes on A, Enter, Space, B or Escape (fix)
 - The first one in game closed by its 120 s timer, not by the owner: with the summary over the results our CUP RESULT
   button lost the focus, so the pad's A reached nothing, and Enter was never bound. Now, while the summary is up, the

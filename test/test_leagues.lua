@@ -4,7 +4,8 @@
 --      logged once;
 --   2. each league's parts, ability level, tune-up slots and AI profile, on a real launch;
 --   3. the unlock ladder in the menus: Riff-Raff open, Challenger from Riff-Raff, Ace from Challenger;
---   4. Kestar Bool's tile on the Ace cups page after the Ace title (not after the Challenger one).
+--   4. Kestar Bool's tile on the Ace cups page after the Ace title (not after the Challenger one) - the v0.21-v0.32
+--      way, kept under config Title.On / Boss.Where = 'tile' (v0.33: Kestar closes the Galactic Cup - test_finale).
 local M = require('mock')
 local W = require('world')
 local T = require('util')
@@ -119,7 +120,7 @@ K.data.best.challenger.sentinel = 2
 M.press('F6'); M.tick(3); M.press('F6'); M.tick(6)
 T.check(T.locks() == '||||', 'five Challenger trophies: Ace open (' .. T.marks() .. ')')
 T.clickTitle('ACE'); M.tick(3)
-T.check(H.S.screen == 'cups' and T.titles() == 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|TITLE RACE|RALLY CUP', 'the Ace cups page')
+T.check(H.S.screen == 'cups' and T.titles() == 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|RALLY CUP', 'the Ace cups page')
 T.finish()
 
 ---------------------------------------------------------------------------------------------------------------------
@@ -127,7 +128,9 @@ T.finish()
 T.reset()
 local all = { jakku = 1, lantaana = 1, ando = 1, crait = 1, sentinel = 1, galactic = 1 }
 T.boot({ version = 3, best = { riffraff = all, challenger = all, ace = all },
-  titles = { riffraff = { won = true, tries = 1 }, challenger = { won = true, tries = 1 } }, restores = {}, abilityRestores = {} })
+  titles = { riffraff = { won = true, tries = 1 }, challenger = { won = true, tries = 1 } }, restores = {}, abilityRestores = {} },
+  { Title = { On = true, Name = 'TITLE RACE', DefaultCup = 'jakku', Default = { riffraff = 'Veteran', challenger = 'Rager', ace = 'Thrall' } },
+    Boss = { On = true, Event = EV .. 'Whippet/FINALBOSS/EVT_WHP_SHORTBOSS_FAIR', Name = 'KESTAR BOOL', Opponent = 'Kestar Bool', League = 'ace', Where = 'tile', Laps = 6 } })
 K = require('gp')
 local TI = require('title')
 RC = require('racer')

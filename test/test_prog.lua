@@ -74,8 +74,13 @@ local before = P.openSet(d({ riffraff = { jakku = 1, lantaana = 1, ando = 1, cra
 local after = P.openSet(d({ riffraff = { jakku = 1, lantaana = 1, ando = 1, crait = 1, sentinel = 3 } }))
 local nw = P.newlyOpen(before, after)
 check(table.concat(nw, ', ') == 'CHALLENGER, GALACTIC CUP at JUNKER', 'newly open after the fifth trophy: Challenger and the Galactic Cup (' .. table.concat(nw, ', ') .. ')')
-local nt = P.newlyOpen(after, P.openSet(d({ riffraff = { jakku = 1, lantaana = 1, ando = 1, crait = 1, sentinel = 3, galactic = 2 } })))
-check(table.concat(nt, ', ') == 'TITLE RACE at JUNKER', 'a Galactic Cup trophy opens the title race (' .. table.concat(nt, ', ') .. ')')
+local galTrophy = d({ riffraff = { jakku = 1, lantaana = 1, ando = 1, crait = 1, sentinel = 3, galactic = 2 } })
+local nt = P.newlyOpen(after, P.openSet(galTrophy))
+check(table.concat(nt, ', ') == '', 'v0.33: a Galactic Cup trophy opens nothing (no title race: Kestar is the cup\'s finale) (' .. table.concat(nt, ', ') .. ')')
+cfg.Title.On = true
+nt = P.newlyOpen(after, P.openSet(galTrophy))
+check(table.concat(nt, ', ') == 'TITLE RACE at JUNKER', 'Title.On: a Galactic Cup trophy opens the title race (' .. table.concat(nt, ', ') .. ')')
+cfg.Title.On = false
 local na = P.newlyOpen(P.openSet(d({ riffraff = five(1), challenger = { jakku = 1, lantaana = 1, ando = 1, crait = 1 } })),
   P.openSet(d({ riffraff = five(1), challenger = five(1) })))
 check(table.concat(na, ', ') == 'ACE, GALACTIC CUP at CHALLENGER', 'the fifth Challenger trophy opens Ace and its Galactic Cup (' .. table.concat(na, ', ') .. ')')
@@ -85,7 +90,7 @@ check(P.classOpen(new, 'ace') and P.cupOpen(new, 'ace', 'galactic'), 'On = false
 cfg.Progression.On = true
 
 -- the title race (v0.8; v0.11: a trophy in the Galactic Cup at the league); a league's own lock comes first; once
--- tried it stays open
+-- tried it stays open (v0.33: the rule stays for Title.On = true)
 do
   local t5 = { jakku = 3, lantaana = 1, ando = 2, crait = 3, sentinel = 1 }
   local ok, why = P.titleOpen(d(), 'riffraff')

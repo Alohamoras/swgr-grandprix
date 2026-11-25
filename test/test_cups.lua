@@ -27,10 +27,10 @@ end
 local H = rawget(_G, 'GU_TEST_SCREENS')
 local function info(i) return tostring(H.S.ui.items[i].info or '') end
 M.press('F6'); M.tick(6)
-local ALL = 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|TITLE RACE|RALLY CUP'
+local ALL = 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|RALLY CUP' -- (v0.33: no title race)
 for _, cls in ipairs({ 'JUNKER', 'CHALLENGER', 'ACE' }) do
   T.clickTitle(cls); M.tick(3)
-  T.check(T.titles() == ALL, cls .. ': the 8 tiles (' .. T.titles() .. ')')
+  T.check(T.titles() == ALL, cls .. ': the 7 tiles (' .. T.titles() .. ')')
   local d = descs()
   local none = true
   for i = 1, 6 do none = none and d[i] == '' end
@@ -38,7 +38,8 @@ for _, cls in ipairs({ 'JUNKER', 'CHALLENGER', 'ACE' }) do
   T.check(info(1):find("THE WAR FIELDS   -   THE GIANTS' GRAVEYARD   -   DEBRIS DUNES   -   FALLEN EMPIRE\nSCRAP SPIRAL", 1, true) ~= nil,
     cls .. ': the Jakku Cup\'s info names its planet\'s five tracks (' .. info(1):gsub('\n', ' | ') .. ')')
   T.check(info(6):find('A race on 3 of:   Jakku   -   Lantaana   -   Ando Prime   -   Crait   -   Sentinel I', 1, true) ~= nil
-    and info(6):find('Then THE GALACTIC GAUNTLET at Derven Acos', 1, true) ~= nil, cls .. ': the Galactic Cup\'s info: the planets, then the finals')
+    and info(6):find('Then THE GALACTIC GAUNTLET at Derven Acos\nA trophy adds the finale: Kestar Bool, 1 v 1 in the stadium, for the league title', 1, true) ~= nil,
+    cls .. ': the Galactic Cup\'s info: the planets, then the finals, then (v0.33) the finale (' .. info(6):gsub('\n', ' | ') .. ')')
   M.press('BACKSPACE'); M.tick(3)
 end
 T.clickTitle('CHALLENGER'); M.tick(3)

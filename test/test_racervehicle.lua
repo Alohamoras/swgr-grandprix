@@ -38,7 +38,7 @@ T.check(RC.vehicle('DarkEnigma').key == 'car', 'Shade: the base landspeeder')
 -- 2. Kestar locked -> Shade
 T.check(RC.locked('Antagonist') and not RC.locked('Mentor') and not RC.locked('DarkEnigma'), 'Kestar locked (not beaten), the others not')
 T.check(RC.current().key == 'DarkEnigma' and T.save().racer == 'DarkEnigma', 'Kestar picked but locked: Shade, saved')
-T.check(T.logHas('[racer] Kestar Bool is locked (to unlock: beat kestar bool after the ace title) - racing as Shade'), 'the fall back logged')
+T.check(T.logHas('[racer] Kestar Bool is locked (to unlock: beat kestar bool in the ace galactic cup finale) - racing as Shade'), 'the fall back logged')
 
 -- 3. cycling skips him while locked
 local seen, kestar = {}, false
@@ -63,7 +63,7 @@ end
 T.check(racer and racer.title == 'BIDDY BLAS', 'the RACER tile: Biddy Blas')
 T.check(veh and veh.title == 'SPEEDER BIKE', 'the VEHICLE tile: his speeder bike (' .. tostring(veh and veh.title) .. ')')
 T.check(racer and racer.info:find('^Biddy Blas:  Hot%-headed') ~= nil, 'its info: "Biddy Blas: <bio>" (' .. tostring(racer and racer.info) .. ')')
-T.check(racer and racer.info:find('Kestar Bool is locked. To unlock: beat Kestar Bool after the ACE title.', 1, true) ~= nil, 'and how to unlock Kestar')
+T.check(racer and racer.info:find('Kestar Bool is locked. To unlock: beat Kestar Bool in the ACE Galactic Cup finale.', 1, true) ~= nil, 'and how to unlock Kestar')
 -- HOME's GARAGE tile: the racer and the vehicle type
 local garage
 for _, it in ipairs(SC.home().items) do if it.title == 'GARAGE' then garage = it end end

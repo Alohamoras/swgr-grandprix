@@ -58,6 +58,16 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.33.0 (2026-11-25, your two asks of the afternoon; install with the game closed: `./deploy.sh`):**
+  - **The planets on the cup tiles:** the game's round planet pictures on the left of every cup tile, the name to the
+    right. Too big / too small (config `CupPlanets`, 0.86 of the tile height now), the name clipped (SENTINEL CUP was
+    tight before), or should the planet replace the poster instead? If they look different from the ones on the cup
+    result's timeline, the log says what that screen draws (`[cupend] the timeline's planet widgets: ...`): paste it.
+  - **Kestar as the Galactic Cup finale:** race a Galactic Cup to a trophy - after race 4 the standings should say
+    "... TROPHY SECURED - NEXT: KESTAR BOOL, 1 v 1 FOR THE ... TITLE" and NEXT RACE launches the Stadium Showdown (6
+    laps, his cinematics off). Then the cup result: CHAMPION (or "KESTAR BOOL KEEPS THE TITLE"), the crown on the last
+    dot only if you won. Known from before: he is a weak boss without the game's catch-up (OWNER "Kestar is a weak
+    final boss") - say if the finale feels too easy and I'll give him a profile of his own.
 - [ ] **v0.32.6-8 (2026-11-25 evening, your picks 9-11), installed 2026-11-25 18:00 after the playtest:**
   - **The cup result screen (10):** seen 2026-11-25 (Sentinel gold): "I love the layout of the screen and the recap". v0.32.9 puts
     the trophy / place / points / podiums on the two tiles and skips our old page after it - check both.

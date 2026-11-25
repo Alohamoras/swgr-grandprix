@@ -83,6 +83,11 @@ end
 -- the finale cup (the Galactic Cup), or nil
 local function finalCup() for _, c in ipairs(cfg.Cups or {}) do if c.final then return c end end return nil end
 
+local function titleOn() return (cfg.Title or {}).On ~= false end
+-- v0.33: Kestar as the Galactic Cup's finale (config Boss) - the champion comes from there, no title race
+local function finaleOn() return type(cfg.Boss) == 'table' and cfg.Boss.On ~= false and cfg.Boss.Where ~= 'tile' and not titleOn() end
+P.finaleOn = finaleOn
+
 -- the title race at a class (v0.8, title.lua; v0.11): a trophy (or gold: Unlock) in the Galactic Cup at that class;
 -- once raced (a result saved under titles[class]) it stays open -> open, why, short
 function P.titleOpen(data, classKey)
@@ -109,7 +114,7 @@ function P.openSet(data)
       for _, cup in ipairs(cfg.Cups or {}) do
         if cup.final and P.cupOpen(data, c.key, cup.key) then s[cup.name .. ' at ' .. c.name] = true end
       end
-      if P.titleOpen(data, c.key) then s['TITLE RACE at ' .. c.name] = true end
+      if titleOn() and P.titleOpen(data, c.key) then s['TITLE RACE at ' .. c.name] = true end
     end
   end
   return s
@@ -135,7 +140,6 @@ end
 -- v0.20 (menu review 1b / 4b, docs/PHILOSOPHY.md point 6: "one thing just out of reach"): the nearest unlock, worked
 -- out from the same rules as above (nothing new): what is still locked that this class's results open, and how many
 -- more trophies (or golds: Unlock) that takes. Pure; the menus put 'Next: ' in front.
-local function titleOn() return (cfg.Title or {}).On ~= false end
 local function joinNames(list)
   if #list <= 1 then return list[1] or '' end
   return table.concat(list, ', ', 1, #list - 1) .. ' and ' .. list[#list]
@@ -210,6 +214,11 @@ function P.nextGoal(data, prefer)
       local t = (data.titles or {})[c.key]
       if titleOn() and P.titleOpen(data, c.key) and not (t and t.won) then
         better({ need = 1, class = c.key, text = ('win the TITLE RACE at %s'):format(c.name) })
+      elseif finaleOn() and not (t and t.won) then
+        local fin = finalCup()
+        if fin and P.cupOpen(data, c.key, fin.key) then
+          better({ need = 1, class = c.key, text = ('beat %s in the %s finale at %s'):format(cfg.Boss.Opponent or 'Kestar Bool', titleCase(fin.name), c.name) })
+        end
       end
     end
   end
