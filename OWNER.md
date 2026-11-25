@@ -4,6 +4,8 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
+- [x] **Layout grammar (2026-11-25, docs/layout-grammar-2026-11-25.md):** answered the same day: (1) the game's left
+      column, (2) the game's typefaces, (3) the cups page as 4 + 3 at 500 x 340. Built one item a version (TASKS §1a-menus).
 - [x] **Menu text and layout review (2026-11-25, docs/menu-text-review-2026-11-25.md):** answered "use your recommendations,
       do one version, go" - the announcer's voice, Claude's taglines, the planet lines, one version: **v0.35.0** (the words).
       Pass 2 (the layout: the results prompt split, RESET smaller, the cups header) one item a version, after your read.

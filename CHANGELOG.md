@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.36.0 (2026-11-25): the game's typefaces on our text (docs/layout-grammar-2026-11-25.md §5 step 1; owner)
+- The layout grammar doc (measured against the game's own CAMPAIGN page): layout units are a 3840 x 2160 slate; the
+  game's pages are a left column x 120 - 2205 that stops at the yellow speeder, ours are centred and 750 - 1135 units
+  wider; every text we drew outside a tile was UMG's default Roboto (ui.lua textBlock set only the size) while the tiles
+  and tabs use the game's display face; pale pages had one ink. Owner's answers the same day: the left column, the
+  game's typefaces, the cups page as 4 + 3. One item a version; this is the first.
+- config `GameFonts`: the game's font assets `Font_Display` (page titles), `Font_Body` (sentences, the info line, table
+  headers and names, the tiles' small captions) and `Font_Numbers` (a table's right-aligned columns) set as the
+  `FontObject` of our TextBlocks, each with a size multiplier (`size = 1`; the faces are not Roboto's width). The
+  assets are looked up once per screen build and the log says `[fonts] display: found` (or NOT FOUND, Roboto instead).
+  `GameFonts = false`: Roboto as before. No layout change in this version, so the faces can be judged on their own.
+- Unproven until seen in game: that `Font_Display` is the tiles' heavy face and not `Font_Decorative`, and the sizes
+  (a composite font's default typeface at Roboto's point sizes). The paths and multipliers are config.
+
 ## v0.35.0 (2026-11-25): the menus' words - the paddock announcer's voice (owner; docs/menu-text-review-2026-11-25.md pass 1)
 - Owner: "any text we do put on the screen should have the feel of star wars ... explain enough about the choices so
   the player understands what they are choosing, but not put extra information that they might not need" - then

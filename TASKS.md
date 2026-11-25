@@ -105,6 +105,14 @@ Owner's plan: keep playing ~a week without crashes, then publish as a beta.
 - [ ] Pass 2, the layout, one item a version, each seen in game: §3.1 the results prompt as two text blocks (next race left,
       the B hint right); §3.3 RESET PROGRESS smaller and off the D-pad path; §3.4 the cups page header centred over the tiles;
       §3.5 check the cup result's award lines fit without the game's ellipsis.
+- [ ] **Layout grammar (2026-11-25, docs/layout-grammar-2026-11-25.md):** measured against the game's own CAMPAIGN page.
+      Units are a 3840 x 2160 slate; the game's content is a left column x 120-2205 (clear of the speeder and the droid),
+      ours are centred and 750-1135 units wider; our out-of-tile text is UMG's Roboto, not the game's faces; one ink on pale
+      pages. Owner 2026-11-25: left column, game fonts, cups 4 + 3. Build order (§5), one item a version, each seen in game:
+      - [ ] 1 game fonts (ui.lua textBlock: display / body / numbers faces, config GameFonts)
+      - [ ] 2 the column (spec.column x 120 w 2085, rows + header left-aligned, GAP 28 / 40)
+      - [ ] 3 cups 4 + 3 at 500 x 340, circuits into the info line, the info line's 2-line box
+      - [ ] 4 the results prompt as two blocks (§3.1), RESET PROGRESS small (§3.3)
 
 ## 1a-rally-ai. The Rally Cup's catch-up (owner 2026-11-25) - v0.34.3, untested in game
 "the enemies need a much stronger catch up factor": config `Rally.AI` on top of the league's profile (`A.merged`): catch-up

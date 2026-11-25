@@ -56,6 +56,18 @@ return {
     FocusHoldMs = 1000,
     -- v0.25: a dark drop shadow on tile text (no grey strips since v0.24); false = none
     TileTextShadow = true,
+    -- v0.36 (docs/layout-grammar-2026-11-25.md §5 step 1; owner 2026-11-25: the game's typefaces): the game's own font
+    -- assets on every text we draw outside a tile (page titles, briefs, the info line, tables, prompts - Roboto, UMG's
+    -- default, until now; the tiles' own text was always the game's). display = page titles, body = sentences, the
+    -- info line, table headers and names, numbers = a table's right-aligned columns. A path can be swapped for another
+    -- of the game's composite fonts (Font_Decorative, Font_Diegetic, Font_DiegeticBody, Font_Subtitles_Fiction);
+    -- size = a multiplier on that role's sizes (the faces are not Roboto's width). false = Roboto as before.
+    -- The log says which were found: `[fonts] display: found`.
+    GameFonts = {
+      display = { '/Game/Griffin/UI/Library/Fonts/Font_Display', size = 1 },
+      body = { '/Game/Griffin/UI/Library/Fonts/Font_Body', size = 1 },
+      numbers = { '/Game/Griffin/UI/Library/Fonts/Font_Numbers', size = 1 },
+    },
     -- v0.23: racers' faces on the title race and final boss tiles, by racer key. v0.25 (seen in game 2026-11-11): the
     -- game's large character pictures (Content/Characters/*_Fallback) draw broken through the tile's picture (a white
     -- tile with scraps), so none are listed; the stadium picture stays. Format: { RacerKey = '/Game/...texture' }.
