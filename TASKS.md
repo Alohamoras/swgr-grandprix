@@ -246,6 +246,14 @@ PNG tiles, the cockpit / mix / deadzone work (a mod of their own if ever wanted)
       check: OWNER.md).
 
 ## 4. Discussions (owner's call; talk before building)
+- [ ] **A mode without offensive abilities (owner 2026-11-25)**: "a nice break for the constant combat of regular
+      gameplay", possibly as an extension of the Rally Cup (a clean rally). Needs a lot of pacing testing. Levers we
+      already have: the start grace's mechanism for the whole race (`AiAbilityChanceMultiplier` 0 on the race tune =
+      the bots fire nothing; or kits of defensive / utility families only - shield, scrubber, vent, surge - via
+      aiuse / loadout), and the player's offensive picks (bolt, shockwave, mine) greyed in the garage for that cup.
+      Ramming is separate (`AiAggressionVPlayerChanceMultiplier`): decide whether "no combat" means no ramming too.
+      Open: a cup flag (`noOffence = true`, like `rally`) or a league rule; whether the bots' pace changes without
+      abilities (they lose Surges too) - the held-race method and the `[gaps]` lines tell.
 - **Kestar is a weak final boss** (veers off the line, loses by ~20 s even to the autopilot; the Showdown was likely
   built around the game's catch-up). Boss keeps the game's own AI, a boss profile, or leave him? (OWNER.md) The AI
   spike above may fix it anyway.
