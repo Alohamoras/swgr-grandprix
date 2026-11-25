@@ -1,17 +1,29 @@
 v0.31.1 - The Rally Cup, pilot faces, any vehicle for any pilot, signature kits
 
-NEW: THE RALLY CUP (a seventh cup on every league's page)
-- Every point-to-point road in the game as a seven-stage rally in tour order: The Giants' Graveyard, Geothermal Tour,
-  Rhodochrosite Run, Bool River Run both ways, Mountain to Sea, and Dai Bendu Ascension at night as the finale.
-- Four cars: you and three rivals drawn when the cup starts, the same three on every stage.
-- Standings by total time, with gaps. A stage not finished costs the slowest finisher's time plus 30 seconds.
-- The night and weather of each stage are drawn at the start and kept secret until the stage loads.
+NEW: THE RALLY CUP
+A seventh cup on every league's page. Every point-to-point road in the game, run as a
+seven-stage rally in tour order: The Giants' Graveyard, Geothermal Tour, Rhodochrosite
+Run, Bool River Run both ways, Mountain to Sea, and Dai Bendu Ascension at night as the
+finale.
+- Four cars: you and three rivals drawn when the cup starts, the same three every stage.
+- Standings by total time, with gaps to the leader. A stage you don't finish costs the
+  slowest finisher's time plus 30 seconds.
+- The night and weather of each stage are drawn when you start the cup and kept secret
+  until the stage loads.
+- The Rally Cup counts for nothing else: leagues and the Galactic Cup unlock as before.
 
 NEW: PILOTS AND VEHICLES (from pull request #1 by MilkManEX - thank you)
-- The garage has a PILOT tile with the racer's face and a VEHICLE tile: race any pilot in a landspeeder, a speeder
-  bike or a skim speeder. A pilot's own vehicle looks as the game built it; the other two wear that rider's scheme.
-- Each pilot starts with their signature four abilities. Change them as before; your saved picks from an earlier
-  version are kept.
+- The garage now has a PILOT tile with the racer's face and a VEHICLE tile. Race any
+  pilot in a landspeeder, a speeder bike or a skim speeder. A pilot's own vehicle looks
+  as the game built it; the other two wear that rider's scheme (ace, enforcer, raider,
+  vintage or robotic, in paint, rust or steel).
+- Each pilot starts with their signature four abilities. Change them as before. Your
+  saved picks from an earlier version are kept.
+- The title race and the final boss use the vehicle you picked too.
 
-Requires UE4SS for Galactic Racer (Open Beta v0.9.4 or later). Offline only. Nothing from the game is shipped in this
-archive: every picture and preset is read from your own installation.
+ALSO
+- The rider's scheme is put back at the main menu, and after a crash at the next start.
+- Nothing from the game is shipped in this archive: every picture and preset is read
+  from your own installation.
+
+Requires UE4SS for Galactic Racer (Open Beta v0.9.4 or later). Offline only.
