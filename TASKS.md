@@ -154,6 +154,11 @@ Speedway, Andobi Edge, Skakoan Gambit, Mineral Loop, Corrosion Hypersphere) are 
       (sunset intro track, the two mines layouts) untried.
 - [ ] (only if wanted) Star Destroyer Speedway in the Jakku pool as a 5-lap short circuit: needs a LaunchCustomRace
       route in race.lua beside LaunchQuickRace. Low value.
+- [x] **v0.30.0 built (2026-11-24): the Rally Cup with extras 1-4** (owner: "go with 1 through 4") - config `Pools.rally`
+      / `Cups.rally` / `Rally`, gp.lua drawRally + pickRivals, cup.lua timed, title.lua gridCut, standings timed
+      tables, chain / main hide the weather. 41 test files pass (test_rally.lua). Installed; **owner to race it**:
+      the 4-car grid loads, the stage times read for all four, the put-back at the menu, the tile layout (row 2 now
+      Galactic + title + Kestar + Rally). Extras 5-7 (mines finale, Group B spec, power stage) not built.
 
 ## 2. Waiting on the owner's play (details and tick boxes in OWNER.md "Playtests")
 - [ ] v0.27.x: the finish times then STANDINGS (A, or 6 s); Challenger open from the start; Riff-Raff's feel (parts

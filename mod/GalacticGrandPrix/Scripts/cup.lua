@@ -8,20 +8,42 @@ local CU = {}
 CU.YOU = 'YOU'
 CU.DEFAULT_POINTS = { 15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 }
 
-function CU.new(classKey, cupKey, vehicleKey, nRaces)
-  return { class = classKey, cup = cupKey, vehicle = vehicleKey, race = 1, races = nRaces or 4,
+-- v0.30 (the Rally Cup): opts = { timed = true, dnfPenalty = s, gapGuess = s, rivals = { racer keys } } makes a TIMED
+-- cup: the standings by total time over the stages (st.times), not points (the points are still counted, unused).
+-- A racer who did not finish a stage takes the slowest finisher's time + dnfPenalty; one who finished but whose time
+-- could not be read (rare: the gap log shows 11-12 of 12 timed) takes the slowest timed finisher's + gapGuess per
+-- place behind it (flagged est). rivals = the bots on the cup's small grid (race.lua cuts the grid to them).
+function CU.new(classKey, cupKey, vehicleKey, nRaces, opts)
+  local st = { class = classKey, cup = cupKey, vehicle = vehicleKey, race = 1, races = nRaces or 4,
     points = {}, last = {}, history = {} }
+  if type(opts) == 'table' and opts.timed then
+    st.timed, st.times = true, {}
+    st.dnfPenalty = tonumber(opts.dnfPenalty) or 30
+    st.gapGuess = tonumber(opts.gapGuess) or 2
+    st.rivals = opts.rivals
+  end
+  return st
 end
+local function secs(x) return ('%.1f S'):format(math.abs(tonumber(x) or 0)) end
 
--- the race's finishing order: racers with a position, by position; you, if you didn't finish, go last (no points)
-function CU.order(field)
+-- the race's finishing order: racers with a position, by position; you, if you didn't finish, go last (no points).
+-- timed (v0.30): by race time (finished racers with a time first, fastest first), then the finished without a time by
+-- position, then everyone who did not finish (bots too)
+function CU.order(field, timed)
   local list = {}
   for _, r in ipairs(field or {}) do
     local key = r.you and CU.YOU or r.name
-    if key then list[#list + 1] = { key = key, pos = tonumber(r.pos) or 99, dnf = (r.you and not r.finished) == true } end
+    if key then
+      local t = tonumber(r.time)
+      if not (r.finished and t and t > 0) then t = nil end
+      list[#list + 1] = { key = key, pos = tonumber(r.pos) or 99, t = t,
+        dnf = timed and (not r.finished) or (r.you and not r.finished) == true }
+    end
   end
   table.sort(list, function(a, b)
     if a.dnf ~= b.dnf then return not a.dnf end
+    if timed and (a.t ~= nil) ~= (b.t ~= nil) then return a.t ~= nil end
+    if timed and a.t and b.t and a.t ~= b.t then return a.t < b.t end
     if a.pos ~= b.pos then return a.pos < b.pos end
     return a.key < b.key
   end)
@@ -29,16 +51,35 @@ function CU.order(field)
 end
 
 -- add a finished race: points by place (the n-th racer in order gets points[n]; a DNF gets none).
--- Returns the race's rows { key, place, pts, dnf }.
+-- Returns the race's rows { key, place, pts, dnf } (timed: + t = the stage time counted, est / pen when made up).
 function CU.addRace(st, field, points)
   points = points or CU.DEFAULT_POINTS
   local rows = {}
   st.last = {}
-  for i, r in ipairs(CU.order(field)) do
+  local order = CU.order(field, st.timed)
+  if st.timed then
+    local slowest
+    for _, r in ipairs(order) do if r.t then slowest = r.t end end
+    slowest = slowest or 0
+    local k = 0
+    for _, r in ipairs(order) do
+      if not r.t then
+        k = k + 1
+        if r.dnf then r.t, r.pen = slowest + st.dnfPenalty, true
+        else r.t, r.est = slowest + st.gapGuess * k, true end
+      end
+    end
+  end
+  for i, r in ipairs(order) do
     local pts = r.dnf and 0 or (points[i] or 0)
     st.points[r.key] = (st.points[r.key] or 0) + pts
     st.last[r.key] = r.dnf and 99 or i
-    rows[#rows + 1] = { key = r.key, place = i, pts = pts, dnf = r.dnf }
+    local row = { key = r.key, place = i, pts = pts, dnf = r.dnf }
+    if st.timed then
+      row.t, row.est, row.pen = r.t, r.est, r.pen
+      st.times[r.key] = (st.times[r.key] or 0) + r.t
+    end
+    rows[#rows + 1] = row
   end
   -- a racer from earlier races who wasn't in this one keeps their points (and finishes last on ties)
   for k in pairs(st.points) do if st.last[k] == nil then st.last[k] = 100 end end
@@ -49,15 +90,23 @@ end
 
 function CU.finished(st) return st.race > st.races end
 
--- the standings: { key, pts, rank } by points; ties go to the better finish in the latest race
-function CU.standings(st)
-  local list = {}
-  for k, p in pairs(st.points) do list[#list + 1] = { key = k, pts = p, last = st.last[k] or 100 } end
-  table.sort(list, function(a, b)
-    if a.pts ~= b.pts then return a.pts > b.pts end
+-- the standings: { key, pts, rank } by points; ties go to the better finish in the latest race.
+-- timed: { key, pts, time, rank } by total time, fastest first (the same tie rule)
+local function sorter(timed)
+  return function(a, b)
+    if timed then
+      if a.time ~= b.time then return a.time < b.time end
+    elseif a.pts ~= b.pts then return a.pts > b.pts end
     if a.last ~= b.last then return a.last < b.last end
     return a.key < b.key
-  end)
+  end
+end
+function CU.standings(st)
+  local list = {}
+  for k, p in pairs(st.points) do
+    list[#list + 1] = { key = k, pts = p, last = st.last[k] or 100, time = st.timed and (st.times[k] or 0) or nil }
+  end
+  table.sort(list, sorter(st.timed))
   for i, r in ipairs(list) do r.rank = i end
   return list
 end
@@ -65,27 +114,25 @@ end
 -- the ranking after race k (k = 0 .. races run): { key, pts, rank }, same tie rule as the standings (better finish
 -- in race k first; racers who weren't in race k after those who were)
 function CU.rankAt(st, k)
-  local pts, last = {}, {}
+  local pts, last, tm = {}, {}, {}
   for i = 1, math.min(k, #st.history) do
     for _, r in ipairs(st.history[i]) do
       pts[r.key] = (pts[r.key] or 0) + r.pts
+      tm[r.key] = (tm[r.key] or 0) + (tonumber(r.t) or 0)
       if i == k then last[r.key] = r.dnf and 99 or r.place end
     end
   end
   local list = {}
-  for key, p in pairs(pts) do list[#list + 1] = { key = key, pts = p, last = last[key] or 100 } end
-  table.sort(list, function(a, b)
-    if a.pts ~= b.pts then return a.pts > b.pts end
-    if a.last ~= b.last then return a.last < b.last end
-    return a.key < b.key
-  end)
+  for key, p in pairs(pts) do list[#list + 1] = { key = key, pts = p, last = last[key] or 100, time = st.timed and tm[key] or nil } end
+  table.sort(list, sorter(st.timed))
   local byKey = {}
   for i, r in ipairs(list) do r.rank = i; byKey[r.key] = r end
   return list, byKey
 end
 
 -- the ranking table after the latest race: { rank, key, gain (points this race), total, move (places up since the
--- race before; nil after race 1), dnf, you }
+-- race before; nil after race 1), dnf, you }. timed: gain / total are seconds, + gap = seconds behind the leader
+-- (0 for the leader), est / pen when this stage's time was made up
 function CU.table(st)
   local k = #st.history
   local now = CU.rankAt(st, k)
@@ -93,17 +140,24 @@ function CU.table(st)
   local race = {}
   for _, r in ipairs(st.history[k] or {}) do race[r.key] = r end
   local out = {}
+  local lead = now[1] and now[1].time or 0
   for _, r in ipairs(now) do
     local rr = race[r.key]
-    out[#out + 1] = { rank = r.rank, key = r.key, total = r.pts, gain = rr and rr.pts or 0, dnf = rr and rr.dnf or false,
+    local row = { rank = r.rank, key = r.key, total = r.pts, gain = rr and rr.pts or 0, dnf = rr and rr.dnf or false,
       raced = rr ~= nil, you = r.key == CU.YOU,
       move = (k > 1 and before[r.key]) and (before[r.key].rank - r.rank) or nil }
+    if st.timed then
+      row.total, row.gain, row.gap = r.time, rr and rr.t or 0, r.time - lead
+      row.est, row.pen = rr and rr.est or nil, rr and rr.pen or nil
+    end
+    out[#out + 1] = row
   end
   return out
 end
 
+-- -> rank, points (timed: rank, points, total time)
 function CU.yourRank(st)
-  for _, r in ipairs(CU.standings(st)) do if r.key == CU.YOU then return r.rank, r.pts end end
+  for _, r in ipairs(CU.standings(st)) do if r.key == CU.YOU then return r.rank, r.pts, r.time end end
   return nil, 0
 end
 
@@ -160,11 +214,27 @@ end
 -- the one stakes line between races: "2 POINTS BEHIND BIDDY BLAS, 1 RACE LEFT", "LEADING BY 4 OVER SEN FIRA, 2 RACES
 -- LEFT", "LEADING BY 4 OVER SEN FIRA: 6TH OR BETTER WINS THE CUP", "GOLD IS OUT OF REACH, SILVER IS NOT", ...
 -- nil before the first race, after the last, or when you are not in the standings.
+local function stagesLeft(n) return n == 1 and '1 STAGE LEFT' or (n .. ' STAGES LEFT') end
+-- timed (v0.30): "LEADING BY 4.2 S OVER BIDDY BLAS, 3 STAGES LEFT" / "4.2 S BEHIND BIDDY BLAS, 3 STAGES LEFT" /
+-- "LEVEL WITH BIDDY BLAS, 3 STAGES LEFT"
+local function timedStakes(st, left)
+  local mine, others = nil, {}
+  for _, r in ipairs(CU.standings(st)) do
+    if r.key == CU.YOU then mine = r else others[#others + 1] = r end
+  end
+  if not mine or #others == 0 then return nil end
+  local other = others[1]
+  local d = other.time - mine.time
+  if math.abs(d) < 0.05 then return ('LEVEL WITH %s, %s'):format(upper(other.key), stagesLeft(left)) end
+  if d > 0 then return ('LEADING BY %s OVER %s, %s'):format(secs(d), upper(other.key), stagesLeft(left)) end
+  return ('%s BEHIND %s, %s'):format(secs(d), upper(other.key), stagesLeft(left))
+end
 function CU.stakes(st, points)
   points = points or CU.DEFAULT_POINTS
   local done = #(st.history or {})
   local left = (st.races or 4) - done
   if done < 1 or left < 1 then return nil end
+  if st.timed then return timedStakes(st, left) end
   local mine, rank
   local others = {}
   for _, r in ipairs(CU.standings(st)) do
@@ -212,14 +282,21 @@ end
 -- after the last race: how close you came to the next trophy colour up (rank 2 -> gold, 3 -> silver, 4th or lower ->
 -- bronze), when within `within` points: "1 POINT FROM GOLD", "TIED FOR GOLD, LOST ON THE LAST RACE"; nil otherwise
 -- (gold, not close, no threshold)
+-- timed: within = seconds ("0.8 S FROM GOLD")
 function CU.nearTrophy(st, within)
   within = tonumber(within)
   if not within or within < 0 or not CU.finished(st) then return nil end
   local std = CU.standings(st)
   local mine, rank
-  for _, r in ipairs(std) do if r.key == CU.YOU then mine, rank = r.pts, r.rank end end
+  for _, r in ipairs(std) do if r.key == CU.YOU then mine, rank = (st.timed and r.time or r.pts), r.rank end end
   if not rank or rank == 1 then return nil end
   local t = math.min(rank - 1, 3)
+  if st.timed then
+    local gap = mine - std[t].time
+    if gap > within then return nil end
+    if gap < 0.05 then return ('TIED FOR %s, LOST ON THE LAST STAGE'):format(CU.TROPHIES[t]) end
+    return ('%s FROM %s'):format(secs(gap), CU.TROPHIES[t])
+  end
   local gap = std[t].pts - mine
   if gap > within then return nil end
   if gap <= 0 then return ('TIED FOR %s, LOST ON THE LAST RACE'):format(CU.TROPHIES[t]) end

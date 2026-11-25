@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.30.0 (2026-11-24): the RALLY CUP (owner: "a rally cup, all the tracks that are point to point")
+- A seventh cup on every league's cups page (after the title race and Kestar): **seven point-to-point stages**, one
+  per route and direction, in tour order - The Giants' Graveyard (Jakku), Geothermal Tour (Lantaana), Rhodochrosite
+  Run (Crait), Bool River Run both ways (Sentinel I), Mountain to Sea and Dai Bendu Ascension (Ando Prime). The night /
+  weather variant of each stage is drawn when the cup starts; the finale is always Dai Bendu Ascension at night.
+- **The weather stays a surprise:** the start screen's list, the NEXT RACE tile and the results-screen prompt name the
+  route only (`Rally.HideWeather`); the stage shows itself when it loads. The log knows (`[cup] ... drawn:`).
+- **Four cars:** you and three rivals drawn from the racers when the cup starts, the same three on every stage, through
+  the title race's grid cut (`GridMakeup` 4 entrants, `CharacterList.Opponents` = the three; put back at the menu).
+- **Standings by total time** (cup.lua `timed`): THIS STAGE / TOTAL / GAP table, stakes in seconds ("1.5 S BEHIND BIDDY
+  BLAS, 6 STAGES LEFT"), the near miss in seconds (`Near.TrophySeconds` 5), the cup result "11:40.00 in all". A racer
+  who does not finish a stage takes the slowest finisher's time + 30 s (`Rally.DnfPenaltyS`); a finisher whose time
+  can't be read, the slowest timed + 2 s a place (`*`).
+- The Rally Cup counts for no planet-cup unlock (Challenger, Ace, the Galactic Cup) and sets no title-race leader.
+- Also: tools/recon/TrackTry (a LaunchCustomRace launcher for TrackDefs with no event; the hidden Jakku track is Star
+  Destroyer Speedway, a 5-lap short circuit, nothing special).
+
 ## v0.29.9 (2026-11-13): AI test - your level on your own race copy (test-only)
 - `experiment.lua` (DevTools only): `yourCopy = true` puts the shared launch build at the bots' level
   (`botStacksAbs`) and your `yourLevels` onto your own race copy at load. Round B2 showed the bots still ~15 s slower

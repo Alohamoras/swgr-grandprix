@@ -165,11 +165,11 @@ for _, c in ipairs(K.leagues()) do
     end
   end
 end
-T.check(races == #K.leagues() * 4 * #K.cups(), 'the standings before every race (' .. races .. ')')
+T.check(races == #K.leagues() * (4 * (#K.cups() - 1) + 7), 'the standings before every race (4 a cup, 7 stages of the Rally Cup) (' .. races .. ')')
 -- v0.26 (random cups): any race of any pool can be the NEXT RACE tile's name - each one there, at its tile size
 local pooled = 0
 for key, pool in pairs(cfg.Pools) do
-  for _, r in ipairs(pool) do
+  for _, r in ipairs(pool) do if key ~= 'rally' then -- (v0.30: the rally pool's events are the planets' - test_rally has its tile)
     local run = K.startCup('ace', key == 'derven' and 'galactic' or key, 'car', K.data.picks, K.data.mods, { r, r })
     run.race = 2
     S.result = { ev = K.nextRace(), run = run, pos = 3 }
@@ -178,7 +178,7 @@ for key, pool in pairs(cfg.Pools) do
     T.check(it.title == 'NEXT RACE' and (it.desc == r.title or it.desc == r.base), 'NEXT RACE names ' .. r.title .. ' (' .. tostring(it.desc) .. ')')
     pooled = pooled + 1
     K.data.run = nil
-  end
+  end end
 end
 T.check(pooled == 86, 'every pool race on the NEXT RACE tile (' .. pooled .. ')')
 

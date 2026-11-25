@@ -20,7 +20,7 @@
 -- them), the Galactic Cup 4 from 4 planets. (The code and the save keep the word "class" for a league.)
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.29.9'
+local VERSION = '0.30.0'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -154,8 +154,9 @@ end
 -- title race
 local function cupsInOrder()
   local out = {}
-  for _, c in ipairs(K.cups()) do if not c.final then out[#out + 1] = c end end
+  for _, c in ipairs(K.cups()) do if not c.final and not c.rally then out[#out + 1] = c end end
   for _, c in ipairs(K.cups()) do if c.final then out[#out + 1] = c end end
+  for _, c in ipairs(K.cups()) do if c.rally then out[#out + 1] = c end end -- (v0.30: the Rally Cup, drawn last on the cups page)
   return out
 end
 -- v0.23: a racer's face (config Portraits, by racer key), nil when the game has none we know of
@@ -305,6 +306,12 @@ local function cupInfo(cup, head)
       local p = K.planetOf(fin[1].path)
       lines[#lines + 1] = 'Then ' .. table.concat(t, ' or ') .. (p and (' at ' .. p.name) or '')
     end
+  elseif cup.rally then
+    -- v0.30
+    local R = cfg.Rally or {}
+    lines = { ('%d point-to-point stages in tour order, %d cars; the standings by total time. The night and weather are drawn when you start and kept secret.'):format(
+      #K.bases(cup), tonumber(R.Grid) or 4) }
+    for _, l in ipairs(chunks(K.bases(cup), 4)) do lines[#lines + 1] = l end
   else
     lines = chunks(K.bases(cup), 4)
   end
@@ -315,7 +322,7 @@ end
 SCREENS.cups = function()
   local cls = K.league(S.class) or K.leagues()[1]
   local items = {}
-  for _, cup in ipairs(cupsInOrder()) do
+  local function cupTile(cup)
     local open, why, short = PR.cupOpen(K.data, cls.key, cup.key)
     if not open then
       items[#items + 1] = { title = cup.name, art = ART.cup(cup, myVehicle().key) or cup.art, span = (cup.final and cfg.CupsRows) and 2 or nil, corner = lockCorner(), disabled = true,
@@ -333,10 +340,13 @@ SCREENS.cups = function()
         act = function() return toStart('cup', cls.key, cup.key) end }
     end
   end
+  for _, cup in ipairs(cupsInOrder()) do if not cup.rally then cupTile(cup) end end
   local tt = titleTile(cls)
   if tt then items[#items + 1] = tt end
   local bt = bossTile(cls)
   if bt then items[#items + 1] = bt end
+  -- v0.30: the Rally Cup after the title race and the boss (the second row)
+  for _, cup in ipairs(cupsInOrder()) do if cup.rally then cupTile(cup) end end
   -- (v0.20, menu review 6: the vehicle and the how-to are gone; v0.21, owner: the blurb and the levels line too)
   -- (v0.27: the league's brief under its name - what you race with here)
   local lines = {}
@@ -394,7 +404,9 @@ local function startHeader(st)
     -- v0.28.3 (owner): no race list - the game's own track intro (the flyover with the track's name) shows each race;
     -- config StartRaceList = true puts the four drawn races back
     if cfg.StartRaceList == true then
-      for i, r in ipairs(st.draw or {}) do lines[#lines + 1] = { ('%d   %s'):format(i, r.title), 20, U.WHITE } end
+      -- (v0.30: the Rally Cup shows its routes only - the weather is drawn but kept secret)
+      local hide = cup.rally and (cfg.Rally or {}).HideWeather ~= false
+      for i, r in ipairs(st.draw or {}) do lines[#lines + 1] = { ('%d   %s'):format(i, hide and (r.base or r.title) or r.title), 20, U.WHITE } end
     end
     return cup.name, lines
   elseif st.kind == 'title' then
@@ -549,9 +561,11 @@ SCREENS.standings = function()
     -- v0.9: NEXT RACE only (no LATER: cups cannot be resumed; B asks "Leave the cup?" - handle, below)
     local nxt = K.nextRace()
     local run2 = K.run()
-    items[#items + 1] = { title = 'NEXT RACE', art = ART.cup(K.cup(run2.cup), run2.vehicle) or 'T_UI_FE_Tile_Campaign_Hero', badge = ('RACE %d / %d'):format(run2.race, run2.races),
-      -- (the badge says which race; the race's name, without its conditions when they don't fit)
-      desc = nxt.title, act = launchNext }
+    items[#items + 1] = { title = 'NEXT RACE', art = ART.cup(K.cup(run2.cup), run2.vehicle) or 'T_UI_FE_Tile_Campaign_Hero',
+      badge = ('%s %d / %d'):format(run2.timed and 'STAGE' or 'RACE', run2.race, run2.races),
+      -- (the badge says which race; the race's name, without its conditions when they don't fit; v0.30: the Rally Cup
+      -- names the route only - nxt.shown)
+      desc = nxt.shown or nxt.title, act = launchNext }
     local it = items[#items]
     if not U.tileFits(it) then it.desc = nxt.title:match('^(.-)%s*%(') or nxt.title end
   else
@@ -578,7 +592,7 @@ SCREENS.wait = function()
     key = 'wait', title = cup and cup.name or 'GRAND PRIX',
     lines = { { 'Next race loading...', 22 } },
     items = { { title = 'NEXT RACE', art = (cup and run and ART.cup(cup, run.vehicle)) or 'T_UI_FE_Tile_Campaign_Hero',
-      badge = run and ('RACE %d / %d'):format(run.race, run.races) or nil, desc = nxt and nxt.title or nil,
+      badge = run and ('%s %d / %d'):format(run.timed and 'STAGE' or 'RACE', run.race, run.races) or nil, desc = nxt and (nxt.shown or nxt.title) or nil,
       act = function() return nil end } },
   }
 end

@@ -316,6 +316,13 @@ local function prepare(ev, classKey, vehKey, picks, mods, opts)
     if RC.pending() then pcall(RC.restore, 'before launch') end
     local okG, errG = pcall(function() return require('title').gridPrepare(e, ev) end)
     if not okG then log('[title] grid not cut: ' .. tostring(errG)) end
+  elseif type(ev.rivals) == 'table' and #ev.rivals > 0 then
+    -- v0.30: the Rally Cup's small grid: you + the cup's rivals (gp.lua K.startCup), the same way as the title race
+    if RC.pending() then pcall(RC.restore, 'before launch') end
+    local paths = {}
+    for i, k in ipairs(ev.rivals) do paths[i] = RC.path(k) end
+    local okG, errG = pcall(function() return require('title').gridCut(e, ev.path, paths, 'the rally') end)
+    if not okG then log('[rally] grid not cut: ' .. tostring(errG)) end
   end
   local okR, errR = pcall(RC.begin, RC.current().key)
   if not okR then log('[racer] not set: ' .. tostring(errR)) end

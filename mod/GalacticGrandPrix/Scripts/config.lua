@@ -5,14 +5,14 @@ local EV = '/Game/Griffin/Gameplay/Events/Planets/'
 -- 2026-11-10; a sprint is 1 lap). The planet comes from the path's first folder (Planets below, gp.lua planetOf).
 -- v0.11: base = the track without its direction / conditions ('THE WAR FIELDS (REVERSE, SCORCHING)' -> 'THE WAR
 -- FIELDS'; a cup never races one twice), cond = the conditions in the title ('SCORCHING', 'MINES, NIGHT'; nil = none).
-local function race(path, title, kind, laps)
+local function race(path, title, kind, laps, baseOverride)
     local base, inner = title:match('^(.-)%s*%((.*)%)$')
     local cond = {}
     for w in (inner or ''):gmatch('[^,]+') do
         w = w:match('^%s*(.-)%s*$')
         if w ~= 'REVERSE' and w ~= 'FORWARD' then cond[#cond + 1] = w end
     end
-    return { path = EV .. path, title = title, kind = kind, laps = laps, base = base or title,
+    return { path = EV .. path, title = title, kind = kind, laps = laps, base = baseOverride or base or title,
         cond = #cond > 0 and table.concat(cond, ', ') or nil }
 end
 
@@ -144,7 +144,7 @@ return {
     -- special: RecordSeconds = a finished race within this many seconds of your record at the league ("0.4 S OFF YOUR
     -- RECORD"); TrophyPoints = a cup missing the next trophy colour up by this many points or fewer ("1 POINT FROM
     -- GOLD"). false = off.
-    Near = { RecordSeconds = 1.0, TrophyPoints = 3 },
+    Near = { RecordSeconds = 1.0, TrophyPoints = 3, TrophySeconds = 5.0 },
 
     -- (v0.21: the rival per class is gone - owner, 2026-11-11.)
 
@@ -292,12 +292,37 @@ return {
         derven = {
             race('Whippet/KNOCKOUT/EVT_WHP_LOOP_A_FWD_RACE', 'THE GALACTIC GAUNTLET', 'Circuit', 2),
         },
+        -- v0.30: the Rally Cup's stages, in tour order (one stage per base; the forward Bool River Run gets its own
+        -- base so both directions run). Every event here is also in its planet's pool: records are per event path.
+        rally = {
+            race('Mastiff/P2P_A/EVT_MAS_P2P_FWD', "THE GIANTS' GRAVEYARD", 'Sprint', 1),
+            race('Dalmatian/P2P/EVT_DAL_P2P_FWD', 'GEOTHERMAL TOUR', 'Sprint', 1),
+            race('Dalmatian/P2P/EVT_DAL_P2P_FWD_Night', 'GEOTHERMAL TOUR (NIGHT)', 'Sprint', 1),
+            race('Dalmatian/P2P/EVT_DAL_P2P_FWD_Overcast_Wet', 'GEOTHERMAL TOUR (WET)', 'Sprint', 1),
+            race('Spaniel/Loop_B/EVT_SPA_Loop_B_P2P', 'RHODOCHROSITE RUN', 'Sprint', 1),
+            race('Spaniel/Loop_B/EVT_SPA_Loop_B_P2P_MINES', 'RHODOCHROSITE RUN (MINES)', 'Sprint', 1),
+            race('Husky/P2P/EVT_HSK_P2P_REV', 'BOOL RIVER RUN', 'Sprint', 1),
+            race('Husky/P2P/EVT_HSK_P2P_FWD_Overcast', 'BOOL RIVER RUN (FORWARD, OVERCAST)', 'Sprint', 1, 'BOOL RIVER RUN (FORWARD)'),
+            race('Corgi/P2P/EVT_COR_P2P_FWD', 'MOUNTAIN TO SEA', 'Sprint', 1),
+            race('Corgi/P2P/EVT_COR_P2P_FWD_Night', 'MOUNTAIN TO SEA (NIGHT)', 'Sprint', 1),
+            race('Corgi/P2P/EVT_COR_P2P_FWD_Overcast_Snow', 'MOUNTAIN TO SEA (SNOW)', 'Sprint', 1),
+            race('Corgi/P2P/EVT_COR_P2P_REV', 'DAI BENDU ASCENSION', 'Sprint', 1),
+            race('Corgi/P2P/EVT_COR_P2P_REV_Night', 'DAI BENDU ASCENSION (NIGHT)', 'Sprint', 1),
+            race('Corgi/P2P/EVT_COR_P2P_REV_Overcast_Snow', 'DAI BENDU ASCENSION (SNOW)', 'Sprint', 1),
+        },
     },
 
     -- Cups of 4 races (full 12-car grids). key is used in the save: never change it. pool = the Pools key a planet cup
     -- draws its races from (v0.26). The Galactic Cup (final = true) draws one race from each of `planets` different
     -- pools of `from`; `last` = a pool whose race always closes it (the finals at Derven Acos, as before v0.26; nil =
     -- every race drawn alike). art = the fallback picture (art.lua A.cup draws the planet's poster).
+    -- v0.30 (owner 2026-11-24): the RALLY CUP - every point-to-point road, one stage per route and direction, in tour
+    -- order (the rally pool's order); the night / weather variant of each drawn when the cup starts and kept from you
+    -- until the stage loads (Rally.HideWeather); the last stage always at night (finale = a word of its event path);
+    -- a four-car grid (Rally.Grid: you + 3 rivals drawn from the racers at the start, the same three all cup); the
+    -- standings by TOTAL TIME over the stages (cup.lua timed), a DNF = the slowest finisher + Rally.DnfPenaltyS.
+    -- rally = true keeps it out of the planet-cup count (progression, the champion) and off the title race's track.
+    Rally = { Grid = 4, DnfPenaltyS = 30, GapGuessS = 2, HideWeather = true },
     Cups = {
         { key = 'jakku', name = 'JAKKU CUP', art = 'T_UI_FE_Tile_01', pool = 'jakku' },
         { key = 'lantaana', name = 'LANTAANA CUP', art = 'T_UI_FE_Tile_02', pool = 'lantaana' },
@@ -306,6 +331,7 @@ return {
         { key = 'sentinel', name = 'SENTINEL CUP', art = 'T_UI_FE_Tile_01', pool = 'sentinel' },
         { key = 'galactic', name = 'GALACTIC CUP', art = 'T_UI_FE_Tile_05', final = true, planets = 4,
           from = { 'jakku', 'lantaana', 'ando', 'crait', 'sentinel', 'derven' }, last = 'derven' },
+        { key = 'rally', name = 'RALLY CUP', art = 'T_UI_FE_Tile_A', rally = true, pool = 'rally', finale = 'Night' },
     },
     -- the races a planet cup draws
     CupRaces = 4,

@@ -42,7 +42,8 @@ function A.planet(planet, kind, vehicleKey)
 end
 
 -- the cups (v0.11: the five planet cups and the Galactic Cup): the planet's poster, your vehicle's version
-local PLANET = { jakku = 'Mas', lantaana = 'Dal', ando = 'Cor', crait = 'Spa', sentinel = 'Hus', galactic = 'Whp' }
+local PLANET = { jakku = 'Mas', lantaana = 'Dal', ando = 'Cor', crait = 'Spa', sentinel = 'Hus', galactic = 'Whp',
+  rally = 'Cor' } -- (v0.30: the Rally Cup ends on Ando Prime)
 function A.cup(cup, vehicleKey)
   if not cup then return nil end
   if cup.artPath then return cup.artPath end

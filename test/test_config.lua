@@ -66,12 +66,12 @@ check(cfg.Title.Default.riffraff == 'Veteran' and cfg.Title.Default.challenger =
 check(K.cup(cfg.Title.DefaultCup) ~= nil and cfg.Title.DefaultCup == 'jakku', 'the title track before any cup: a Jakku draw')
 
 -- cups: five planet cups, each drawing from its pool, then the Galactic Cup
-check(#cfg.Cups == 6, '6 cups (' .. #cfg.Cups .. ')')
-check(keys(cfg.Cups) == 'jakku,lantaana,ando,crait,sentinel,galactic', 'cup order: the five planets, then Galactic (' .. keys(cfg.Cups) .. ')')
+check(#cfg.Cups == 7, '7 cups (' .. #cfg.Cups .. ')')
+check(keys(cfg.Cups) == 'jakku,lantaana,ando,crait,sentinel,galactic,rally', 'cup order: the five planets, then Galactic, then the Rally Cup (v0.30) (' .. keys(cfg.Cups) .. ')')
 local flagsOk = true
 for i, cup in ipairs(cfg.Cups) do
   flagsOk = flagsOk and (cup.final == true) == (i == 6) and cup.races == nil and not (cup.bonus or cup.remix or cup.conditions or cup.planet)
-    and (cup.final or (cup.pool == cup.key and #K.pool(cup.pool) > 0))
+    and (cup.final or (cup.pool == cup.key and #K.pool(cup.pool) > 0)) and (cup.rally == true) == (i == 7)
 end
 check(flagsOk, 'only the Galactic Cup is final; every planet cup has its pool, no fixed race lists')
 local gal = K.cup('galactic')
@@ -90,10 +90,12 @@ for key, pool in pairs(cfg.Pools) do
     sprintsOk = sprintsOk and ((r.kind == 'Sprint') == (r.laps == 1))
     local p = K.planetOf(r.path)
     planetsOk = planetsOk and p ~= nil
-    samePlanet = samePlanet and p ~= nil and p.key == key
-    baseOk = baseOk and type(r.base) == 'string' and #r.base > 0 and not r.base:find('(', 1, true) and r.title:sub(1, #r.base) == r.base
-    if seen[r.path] then uniq = false end
-    seen[r.path] = true
+    if key ~= 'rally' then -- (v0.30: the rally pool spans the planets and reuses their events; checked below)
+      samePlanet = samePlanet and p ~= nil and p.key == key
+      baseOk = baseOk and type(r.base) == 'string' and #r.base > 0 and not r.base:find('(', 1, true) and r.title:sub(1, #r.base) == r.base
+      if seen[r.path] then uniq = false end
+      seen[r.path] = true
+    end
   end
 end
 check(lapsOk, 'every race has a lap count (1-8) and a known kind')
@@ -106,10 +108,26 @@ local sz = ('%d,%d,%d,%d,%d,%d'):format(sizes.jakku, sizes.lantaana, sizes.ando,
 check(sz == '13,22,24,13,13,1', 'pool sizes: Jakku 13, Lantaana 22, Ando 24, Crait 13, Sentinel 13, Derven 1 (' .. sz .. ')')
 -- the base tracks per planet (docs/tracks-by-planet.md: 32 base tracks, Derven's arenas left out)
 local nb = 0
-for _, cup in ipairs(cfg.Cups) do if not cup.final then nb = nb + #K.bases(cup) end end
+for _, cup in ipairs(cfg.Cups) do if not cup.final and not cup.rally then nb = nb + #K.bases(cup) end end
 check(nb + #K.pool('derven') == 32 and #K.bases('jakku') == 5 and #K.bases('lantaana') == 7 and #K.bases('ando') == 7 and #K.bases('crait') == 5
   and #K.bases('sentinel') == 7, 'base tracks: Jakku 5, Lantaana 7, Ando 7, Crait 5, Sentinel 7, Derven 1 = 32 (' .. nb .. ' + 1)')
 check(table.concat(K.bases('jakku'), ',') == "THE WAR FIELDS,THE GIANTS' GRAVEYARD,DEBRIS DUNES,FALLEN EMPIRE,SCRAP SPIRAL", 'bases: Jakku in pool order')
+-- v0.30: the Rally Cup's pool: the 14 point-to-point events (sprints, 1 lap), every one also in its planet's pool, 7
+-- bases in tour order (Jakku, Lantaana, Crait, Sentinel I x2, Ando Prime x2), Rally settings
+local rp, rallyOk, rallyIn = K.pool('rally'), true, true
+for _, r in ipairs(rp) do
+  rallyOk = rallyOk and r.kind == 'Sprint' and r.laps == 1 and r.path:find('P2P', 1, true) ~= nil
+  local p = K.planetOf(r.path)
+  local found = false
+  for _, o in ipairs(p and K.pool(p.key) or {}) do if o.path == r.path then found = true end end
+  rallyIn = rallyIn and found
+end
+check(#rp == 14 and rallyOk, 'the rally pool: 14 one-lap point-to-point sprints (' .. #rp .. ')')
+check(rallyIn, 'every rally event is in its planet\'s pool too')
+check(table.concat(K.bases('rally'), ',') == "THE GIANTS' GRAVEYARD,GEOTHERMAL TOUR,RHODOCHROSITE RUN,BOOL RIVER RUN,BOOL RIVER RUN (FORWARD),MOUNTAIN TO SEA,DAI BENDU ASCENSION",
+  'rally bases: 7 stages in tour order, the forward Bool River Run its own (' .. table.concat(K.bases('rally'), ',') .. ')')
+check(K.cup('rally').finale == 'Night' and cfg.Rally.Grid == 4 and cfg.Rally.DnfPenaltyS == 30 and cfg.Rally.HideWeather == true and cfg.Near.TrophySeconds == 5,
+  'the Rally Cup: a night finale, 4 cars, 30 s for a DNF, the weather hidden, near misses within 5 s')
 -- every race lasts the same laps as its layout's other variants, except the two raced before v0.26 with the events
 -- dump's own counts (Fallen Empire scorching 4, Dhunkri River Circuit wet 5)
 local lapsBy, odd = {}, {}

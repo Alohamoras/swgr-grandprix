@@ -235,10 +235,27 @@ local function drawFrom(pool, n, rnd)
   end
   return out
 end
+-- v0.30: the Rally Cup's draw: every base of its pool, in pool order (the tour), a random variant each; the last
+-- stage's variant is one whose event path has cup.finale in it ('Night') when there is one
+local function drawRally(cup, rnd)
+  local groups = byBase(K.pool(cup.pool or cup.key))
+  local out = {}
+  for i, g in ipairs(groups) do
+    local from = g.races
+    if i == #groups and cup.finale then
+      local fin = {}
+      for _, r in ipairs(g.races) do if r.path:lower():find(tostring(cup.finale):lower(), 1, true) then fin[#fin + 1] = r end end
+      if #fin > 0 then from = fin end
+    end
+    out[i] = copyRace(from[rnd(#from)])
+  end
+  return out
+end
 function K.draw(cup, rnd)
   rnd = rnd or K.random
   if type(cup) ~= 'table' then cup = K.cup(cup) end
   if not cup then return {} end
+  if cup.rally then return drawRally(cup, rnd) end
   local n = tonumber(cfg.CupRaces) or 4
   if not cup.final then return drawFrom(K.pool(cup.pool or cup.key), n, rnd) end
   local from = {}
@@ -296,12 +313,39 @@ function K.drop(where)
   return true
 end
 -- list = the cup's drawn races (K.draw; v0.26: picked on the start screen, raced exactly as shown); nil = a fresh draw
+-- v0.30: the Rally Cup's rivals: n racer keys drawn from config Racers (racer.lua's list), never your own pick or a
+-- locked racer, the same ones for every stage of the cup
+function K.pickRivals(n, rnd)
+  rnd = rnd or K.random
+  local ok, RC = pcall(require, 'racer')
+  if not ok then return {} end
+  local mine = RC.current().key
+  local pool = {}
+  for _, r in ipairs(RC.list()) do
+    if r.key ~= mine and not RC.locked(r) then pool[#pool + 1] = r.key end
+  end
+  shuffle(pool, rnd)
+  local out = {}
+  for i = 1, math.min(n, #pool) do out[i] = pool[i] end
+  return out
+end
 function K.startCup(leagueKey, cupKey, vehicleKey, picks, mods, list)
   if K.data.run then K.forfeit() end -- (v0.9: a run left over from a race that never loaded; nothing can resume it)
   if type(list) ~= 'table' or #list == 0 then list = K.draw(cupKey) end
   local copy = {}
   for i, r in ipairs(list) do copy[i] = copyRace(r) end
-  K.data.run = CU.new(leagueKey, cupKey, vehicleKey, #copy)
+  local cup = K.cup(cupKey)
+  local opts
+  if cup and cup.rally then
+    local R = cfg.Rally or {}
+    opts = { timed = true, dnfPenalty = R.DnfPenaltyS, gapGuess = R.GapGuessS,
+      rivals = K.pickRivals((tonumber(R.Grid) or 4) - 1) }
+    local okN, RC = pcall(require, 'racer')
+    local names = {}
+    for i, k in ipairs(opts.rivals) do names[i] = okN and RC.displayName(k) or k end
+    log(('[rally] rivals for the cup: %s (a %d-car grid)'):format(table.concat(names, ', '), #opts.rivals + 1))
+  end
+  K.data.run = CU.new(leagueKey, cupKey, vehicleKey, #copy, opts)
   K.data.run.list = copy
   K.data.run.picks = picks
   K.data.run.mods = mods
@@ -339,7 +383,14 @@ function K.nextRace()
   local run = K.data.run
   local r = run and K.runRaces(run)[run.race]
   if not r then return nil end
-  return { path = r.path, title = r.title, kind = r.kind, laps = r.laps, cup = run.cup, race = run.race, class = run.class }
+  local ev = { path = r.path, title = r.title, kind = r.kind, laps = r.laps, base = r.base, cup = run.cup, race = run.race, class = run.class }
+  -- v0.30 (the Rally Cup): the small grid's rivals for race.lua, and the name to show BEFORE the stage (the weather
+  -- kept secret: the route's base name) - chain.lua's NEXT RACE prompt and the via-the-menu line
+  if run.timed then
+    ev.rally, ev.rivals = true, run.rivals
+    ev.shown = ((cfg.Rally or {}).HideWeather ~= false) and r.base or r.title
+  end
+  return ev
 end
 
 function K.best(leagueKey, cupKey) return (K.data.best[leagueKey] or {})[cupKey] end
@@ -381,7 +432,7 @@ function K.golds(leagueKey) return countBest(leagueKey, 1) end
 -- trophies (gold, silver or bronze) at a league -> trophies, cups in all
 function K.trophies(leagueKey) return countBest(leagueKey, 3) end
 -- a planet cup: not the Galactic Cup (final)
-local function planetCup(c) return not c.final end
+local function planetCup(c) return not c.final and not c.rally end
 -- the league champion: the racer (never you) with the most points over the planet cups finished at that league
 -- -> name, points; nil when no planet cup has been finished there. Ties: the first name in alphabetical order.
 function K.champion(leagueKey)
@@ -535,8 +586,8 @@ function K.record(ev, pos, field, extra)
     out.run = run
     if CU.finished(run) then
       local before = PR.openSet(K.data)
-      local rank, pts = CU.yourRank(run)
-      out.cupOver, out.rank, out.pts, out.trophy = true, rank, pts, CU.trophy(rank)
+      local rank, pts, total = CU.yourRank(run)
+      out.cupOver, out.rank, out.pts, out.total, out.trophy = true, rank, pts, total, CU.trophy(rank)
       K.data.best[run.class] = K.data.best[run.class] or {}
       local was = K.data.best[run.class][run.cup]
       if rank and (not was or rank < was) then K.data.best[run.class][run.cup] = rank; out.newBest = true end
@@ -549,7 +600,10 @@ function K.record(ev, pos, field, extra)
       -- v0.21: the league leader for the title race - the best-placed bot of this cup (title.lua); v0.26: with the
       -- first race of this cup run, the title race's track
       local lead
-      for _, r in ipairs(CU.standings(run)) do if r.key ~= CU.YOU then lead = r.key; break end end
+      -- (v0.30: not from the Rally Cup - its small grid is three drawn rivals, and the title race stays on a circuit)
+      if not run.timed then
+        for _, r in ipairs(CU.standings(run)) do if r.key ~= CU.YOU then lead = r.key; break end end
+      end
       if lead then
         local first = K.runRaces(run)[1]
         K.data.leader[run.class] = { name = lead, cup = run.cup, path = first and first.path or nil }
@@ -561,7 +615,8 @@ function K.record(ev, pos, field, extra)
         K.data.perfect[run.class] = K.data.perfect[run.class] or {}
         K.data.perfect[run.class][run.cup] = true
       end
-      log(('cup over: %s %s - you %s with %d points%s%s'):format(K.leagueName(run.class), run.cup, C.ordinal(rank), pts,
+      log(('cup over: %s %s - you %s with %s%s%s'):format(K.leagueName(run.class), run.cup, C.ordinal(rank),
+        run.timed and (K.fmtTime(total) .. ' in all') or (pts .. ' points'),
         out.trophy and (', ' .. out.trophy .. ' trophy') or '', out.perfect and ' - PERFECT CUP' or ''))
       K.data.run = nil
       -- v0.5: what this cup opened (a league, the Galactic Cup, a title race)

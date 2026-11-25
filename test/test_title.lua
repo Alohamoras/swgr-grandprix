@@ -32,7 +32,7 @@ local JAKKU1 = EV .. 'Mastiff/Loop_A/EVT_MAS_LOOP_A_REV_HARD' -- (the tests' Jak
 local CRAIT1 = EV .. 'Spaniel/Loop_A/EVT_SPA_Loop_A_REV_MINES' -- (the tests' Crait draw: race 1)
 M.press('F6'); M.tick(6)
 T.clickTitle('JUNKER'); M.tick(3)
-T.check(T.titles():find('|TITLE RACE$') ~= nil and T.ntiles() == 7, 'the TITLE RACE tile is the last of 7 on the Riff-Raff cups page (' .. T.titles() .. ')')
+T.check(T.titles():find('|TITLE RACE|RALLY CUP$') ~= nil and T.ntiles() == 8, 'the TITLE RACE tile is the 7th of 8 on the Riff-Raff cups page (v0.30: the Rally Cup after it) (' .. T.titles() .. ')')
 local H = rawget(_G, 'GU_TEST_SCREENS')
 local tt
 for _, it in ipairs(H.SCREENS.cups().items) do if it.title == 'TITLE RACE' then tt = it end end
@@ -113,7 +113,7 @@ sv = T.save()
 T.check(sv.titles.riffraff.won == true and sv.titles.riffraff.tries == 2 and sv.titles.riffraff.vs == 'Biddy Blas', 'saved: won on the second try, vs Biddy Blas')
 T.check(grid(CRAIT1) == '12' and W.charsText() == 'Player=DarkEnigma Opp=' .. ORIG_OPP, 'put back again')
 T.clickTitle('CONTINUE'); M.tick(3)
-T.check(T.marks():find('|GOLD$') ~= nil and not T.badges():find('CHAMPION', 1, true), 'v0.24: the title tile shows a gold medal (no CHAMPION word) (' .. T.marks() .. ')')
+T.check(T.marks():find('|GOLD|$') ~= nil and not T.badges():find('CHAMPION', 1, true), 'v0.24: the title tile shows a gold medal (no CHAMPION word) (' .. T.marks() .. ')')
 T.check(not T.titles():find('KESTAR BOOL', 1, true), 'no boss tile at Riff-Raff')
 -- the leader is your own racer: never a mirror match (the league default instead)
 K.data.leader.riffraff = { name = 'Sen Fira', cup = 'jakku', path = CRAIT1 }
@@ -158,18 +158,18 @@ local RC = require('racer')
 T.check(RC.locked('Antagonist'), 'Kestar still locked: the title alone doesn\'t unlock him')
 M.press('F6'); M.tick(6)
 T.clickTitle('CHALLENGER'); M.tick(3)
-T.check(T.ntiles() == 7 and not T.titles():find('KESTAR', 1, true), 'Challenger (its title won too): 7 tiles, no boss')
+T.check(T.ntiles() == 8 and not T.titles():find('KESTAR', 1, true), 'Challenger (its title won too): 8 tiles, no boss')
 M.press('BACKSPACE'); M.tick(5)
 T.clickTitle('ACE'); M.tick(3)
-T.check(T.ntiles() == 8 and T.titles():find('|GALACTIC CUP|TITLE RACE|KESTAR BOOL$') ~= nil, 'Ace: 8 tiles, KESTAR BOOL last (' .. T.titles() .. ')')
+T.check(T.ntiles() == 9 and T.titles():find('|GALACTIC CUP|TITLE RACE|KESTAR BOOL|RALLY CUP$') ~= nil, 'Ace: 9 tiles, KESTAR BOOL then the Rally Cup (' .. T.titles() .. ')')
 local spec = H and rawget(_G, 'GU_TEST_SCREENS').SCREENS.cups()
-T.check(spec.rows and #spec.rows == 2 and spec.rows[1].n == 5 and #spec.items == 8 and spec.center,
-  'v0.23: two rows, centred: the five planets, then the Galactic Cup, the title race and Kestar (no scrolling)')
+T.check(spec.rows and #spec.rows == 2 and spec.rows[1].n == 5 and #spec.items == 9 and spec.center,
+  'v0.23: two rows, centred: the five planets, then the Galactic Cup, the title race, Kestar and (v0.30) the Rally Cup (no scrolling)')
 local U = require('ui')
 local nav = U.rowsNav(spec.rows, spec.items)
-T.check(spec.items[6].span == 2 and nav[1].down == 6 and nav[5].down == 8 and nav[6].up == 2 and nav[8].up == 4 and nav[3].down == 7,
+T.check(spec.items[6].span == 2 and nav[1].down == 6 and nav[5].down == 9 and (nav[6].up == 1 or nav[6].up == 2) and nav[8].up == 4 and nav[3].down == 7 and nav[9].up == 5,
   'v0.23: the Galactic Cup two tiles wide; the D-pad goes to the nearest tile in the next row')
-T.check(nav[1].left == nil and nav[5].right == nil and nav[6].right == 7 and nav[8].down == nil, 'v0.23: edges left to the game')
+T.check(nav[1].left == nil and nav[5].right == nil and nav[6].right == 7 and nav[8].down == nil and nav[9].right == nil, 'v0.23: edges left to the game')
 T.check(spec.items[8].art:find('RacerStyle_Antagonist', 1, true) ~= nil, 'v0.25: Kestar\'s tile keeps the stadium picture (the character art drew broken in game)')
 T.check(T.marks():find('|$') ~= nil and not T.badges():find('BOSS', 1, true), 'v0.24: the boss tile has no badge and no medal yet (' .. T.marks() .. ')')
 mark = T.mark()
@@ -186,7 +186,7 @@ sv = T.save()
 T.check(sv.boss and sv.boss.beaten == true and sv.boss.tries == 1 and not RC.locked('Antagonist'), 'saved: beaten; Kestar unlocked')
 T.check(T.logHas('[menu] titleResult'), 'the result screen')
 T.clickTitle('CONTINUE'); M.tick(3)
-T.check(T.marks():find('|GOLD$') ~= nil, 'v0.24: the boss tile shows a gold medal once he is beaten (' .. T.marks() .. ')')
+T.check(T.marks():find('|GOLD|$') ~= nil, 'v0.24: the boss tile shows a gold medal once he is beaten (v0.30: the Rally Cup after him) (' .. T.marks() .. ')')
 T.finish()
 
 ---------------------------------------------------------------------------------------------------------------------

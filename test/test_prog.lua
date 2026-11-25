@@ -23,6 +23,11 @@ check(not ok and why == 'A trophy in all 5 planet cups at CHALLENGER (0 / 5)', '
 local four = d({ riffraff = { jakku = 1, lantaana = 3, ando = 2, crait = 1, galactic = 1 } })
 ok, why = P.classOpen(four, 'challenger')
 check(not ok and why:find('(4 / 5)', 1, true), 'four planet cups (the Galactic Cup doesn\'t count) -> still locked (' .. why .. ')')
+-- v0.30: the Rally Cup is no planet cup either
+ok, why = P.classOpen(d({ riffraff = { jakku = 1, lantaana = 3, ando = 2, crait = 1, rally = 1 } }), 'challenger')
+check(not ok and why:find('(4 / 5)', 1, true), 'a rally gold counts for no planet-cup unlock (' .. why .. ')')
+ok = P.cupOpen(d({ riffraff = { jakku = 1, lantaana = 3, ando = 2, crait = 1, rally = 1 } }), 'riffraff', 'galactic')
+check(not ok and P.cupOpen(new, 'riffraff', 'rally'), 'the Galactic Cup still locked; the Rally Cup open from the start')
 local bronze = d({ riffraff = five(3) })
 check(P.classOpen(bronze, 'challenger'), 'a trophy (bronze) in all five planet cups at Riff-Raff opens Challenger')
 check(not P.classOpen(bronze, 'ace'), '... but not Ace')

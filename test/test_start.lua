@@ -14,7 +14,7 @@ M.press('F6'); M.tick(6)
 -- HOME
 T.check(T.titles() == 'JUNKER|CHALLENGER|ACE|RESET PROGRESS', 'HOME: the three leagues and RESET, no GARAGE (' .. T.titles() .. ')')
 T.check(S.ui.rows and S.ui.nav ~= nil, 'HOME in rows (the D-pad map made)')
-T.check(T.pips('CHALLENGER') == 'GB----.', 'Challenger: gold, bronze, four faint medals, the title star not won (' .. tostring(T.pips('CHALLENGER')) .. ')')
+T.check(T.pips('CHALLENGER') == 'GB-----.', 'Challenger: gold, bronze, five faint medals, the title star not won (' .. tostring(T.pips('CHALLENGER')) .. ')')
 T.check(T.badges() == '|||', 'no words on the HOME tiles (' .. T.badges() .. ')')
 T.check(T.marks():find('^pips:%S+|pips:%S+|pips:%S+|$') ~= nil, 'v0.27: only the medal pips on the posters, no chevrons (' .. T.marks() .. ')')
 T.check(S.ui.items[1].desc == 'Scrapyard junk with too much engine' and S.ui.items[3].desc == 'The fastest pilots in the galaxy',

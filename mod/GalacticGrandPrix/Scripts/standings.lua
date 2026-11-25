@@ -20,7 +20,27 @@ function SD.shortName(key) return key == CU.YOU and 'YOU' or key end
 -- after a race: ONE screen (owner, 2026-11-10: fewer screens) - the ranking by points, as a table: place, racer,
 -- points this race, total, places moved.
 local GREEN, RED = { 0.45, 0.9, 0.5 }, { 1, 0.5, 0.45 }
+-- v0.30: a timed cup (the Rally Cup): place, racer, this stage's time, the total, the gap to the leader
+local function gapText(g) return (g and g > 0.005) and ('+%.1f'):format(g) or '' end
+local function stageText(r)
+  if not r.raced then return '-' end
+  if r.pen then return 'DNF' end
+  return K.fmtTime(r.gain) .. (r.est and '*' or '')
+end
+function SD.timedTable(run)
+  local rows = {}
+  for _, r in ipairs(CU.table(run)) do
+    rows[#rows + 1] = {
+      cells = { ordinal(r.rank), SD.shortName(r.key), stageText(r), K.fmtTime(r.total), gapText(r.gap) },
+      color = r.you and U.GOLD or U.WHITE, colors = { [5] = (r.gap and r.gap > 0.005) and RED or nil }, highlight = r.you,
+    }
+  end
+  return { size = 20, header = { '', 'RACER', 'THIS STAGE', 'TOTAL', 'GAP' },
+    cols = { { w = 90, align = 'right' }, { w = 460 }, { w = 220, align = 'right' }, { w = 200, align = 'right' }, { w = 160, align = 'right' } },
+    rows = rows }
+end
 function SD.rankingTable(run)
+  if run and run.timed then return SD.timedTable(run) end
   local rows = {}
   for _, r in ipairs(CU.table(run)) do
     local move, mc = '', nil
@@ -49,7 +69,7 @@ function SD.podiumTable(run)
   local rows = {}
   for _, r in ipairs(CU.standings(run)) do
     if r.rank <= 3 or r.key == CU.YOU then
-      rows[#rows + 1] = { cells = { ordinal(r.rank), SD.shortName(r.key), tostring(r.pts) },
+      rows[#rows + 1] = { cells = { ordinal(r.rank), SD.shortName(r.key), run.timed and K.fmtTime(r.time) or tostring(r.pts) },
         color = r.key == CU.YOU and U.GOLD or U.WHITE, highlight = r.key == CU.YOU }
     end
   end
@@ -117,13 +137,14 @@ function SD.cupSpec(r)
   local hero = { icon = idx and ART.medal(idx) or nil, color = medalColor, size = 190, lines = {} }
   hero.lines[#hero.lines + 1] = { r.trophy and (r.trophy .. ' TROPHY') or ('%s PLACE'):format(ordinal(r.rank or 0):upper()), 48,
     medalColor or U.GREY }
-  hero.lines[#hero.lines + 1] = { ('%s   -   %s   -   %d points%s'):format(cup.name, cls.name, r.pts or 0, r.newBest and '   -   NEW BEST' or ''), 22, U.WHITE }
+  hero.lines[#hero.lines + 1] = { ('%s   -   %s   -   %s%s'):format(cup.name, cls.name,
+    (run and run.timed) and (K.fmtTime(r.total) .. ' in all') or ((r.pts or 0) .. ' points'), r.newBest and '   -   NEW BEST' or ''), 22, U.WHITE }
   if r.perfect then hero.lines[#hero.lines + 1] = { 'PERFECT CUP', 30, U.GOLD } end
   local after = {}
   -- v0.22 (quiet pass): no 'Last race' line - only its record / near misses and the cup's near miss, when there are
   -- any; what the cup unlocked, but no goal line (owner: no goal lines)
   local note = raceNotes(r, ev)
-  local nearCup = run and CU.nearTrophy(run, (cfg.Near or {}).TrophyPoints) or nil
+  local nearCup = run and CU.nearTrophy(run, run.timed and (cfg.Near or {}).TrophySeconds or (cfg.Near or {}).TrophyPoints) or nil
   if nearCup then note[#note + 1] = nearCup end
   if #note > 0 then after[#after + 1] = { table.concat(note, '   -   '), 20, U.GOLD } end
   if r.unlocked and #r.unlocked > 0 then after[#after + 1] = { 'UNLOCKED:  ' .. table.concat(r.unlocked, '   -   '), 24, U.GOLD } end
@@ -140,7 +161,7 @@ function SD.spec(r)
   local run = r.run
   local cup = run and K.cup(run.cup) or { name = '?' }
   local lines = {}
-  lines[#lines + 1] = { ('%s   -   %s   -   race %d of %d'):format(cup.name, ev.title, ev.race or 0, run and run.races or 4), 22, U.WHITE }
+  lines[#lines + 1] = { ('%s   -   %s   -   %s %d of %d'):format(cup.name, ev.title, (run and run.timed) and 'stage' or 'race', ev.race or 0, run and run.races or 4), 22, U.WHITE }
   lines[#lines + 1] = { yourLine(r, ev), 18 }
   -- v0.12 (docs/PHILOSOPHY.md points 2 and 4): between races one stakes line from the points left (it names the racer
   -- you chase or lead); then ONE line for the record, the best lap and the near misses together

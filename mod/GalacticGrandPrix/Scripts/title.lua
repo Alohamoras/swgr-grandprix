@@ -147,8 +147,9 @@ end
 
 function T.gridPending() return type(K.data.gridRestore) == 'table' end
 
--- e = the event asset, ev = T.event's table. Returns true when the grid is the two of you.
-function T.gridPrepare(e, ev)
+-- v0.30: the grid cut to you + the racers at `paths` (racer def paths), for the title race (one) and the Rally Cup
+-- (three). e = the event asset, evPath its path, label for the log. Returns true when the grid is cut.
+function T.gridCut(e, evPath, paths, label)
   local RC = require('racer')
   if T.gridPending() then
     log('[title] an earlier grid change was still to be put back - done before this launch')
@@ -158,24 +159,31 @@ function T.gridPrepare(e, ev)
   if not list then log('[title] grid NOT cut: character list not found - a full field'); return false end
   local ents = entries(e)
   if #ents == 0 then log('[title] grid NOT cut: the event has no grid make-up entries - a full field'); return false end
-  local oppPath = RC.path(ev.opponent)
-  if not C.asset(oppPath) then log('[title] grid NOT cut: racer not found ' .. oppPath .. ' - a full field'); return false end
+  for _, p in ipairs(paths) do
+    if not C.asset(p) then log('[title] grid NOT cut: racer not found ' .. p .. ' - a full field'); return false end
+  end
+  local n = #paths + 1
   local orig = RC.opponentPaths(list)
-  K.data.gridRestore = { event = ev.path, entries = ents, opponents = orig, vs = ev.vs }
+  K.data.gridRestore = { event = evPath, entries = ents, opponents = orig, vs = label }
   K.save()
   local want = {}
-  for i = 1, #ents do want[i] = i == 1 and 2 or 0 end
-  if setEntries(e, want) ~= 2 then
+  for i = 1, #ents do want[i] = i == 1 and n or 0 end
+  if setEntries(e, want) ~= n then
     setEntries(e, ents)
     K.data.gridRestore = nil
     K.save()
-    log('[title] grid NOT cut: the grid make-up did not take 2 entrants - a full field')
+    log(('[title] grid NOT cut: the grid make-up did not take %d entrants - a full field'):format(n))
     return false
   end
-  local ok = setOpponents(RC, list, { oppPath })
-  log(('[title] grid cut for the title race: %s make-up %d -> 2 entrants; CharacterList.Opponents %d -> %s only%s'):format(
-    ev.path:match('([^/]+)$'), sum(ents), #orig, ev.opponent, ok and '' or ' - FAILED (read back differs)'))
+  local ok = setOpponents(RC, list, paths)
+  log(('[title] grid cut for %s: %s make-up %d -> %d entrants; CharacterList.Opponents %d -> %s%s%s'):format(label,
+    evPath:match('([^/]+)$'), sum(ents), n, #orig, oppKeys(paths), #paths == 1 and ' only' or '', ok and '' or ' - FAILED (read back differs)'))
   return ok
+end
+-- e = the event asset, ev = T.event's table. Returns true when the grid is the two of you.
+function T.gridPrepare(e, ev)
+  local RC = require('racer')
+  return T.gridCut(e, ev.path, { RC.path(ev.opponent) }, 'the title race')
 end
 
 -- at the main menu (race.lua R.restoreBuild; also after a crash, from the save): the make-up and the list back, once

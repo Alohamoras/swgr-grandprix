@@ -18,7 +18,7 @@ function P.on() return conf().On ~= false end
 local function bestOf(data, classKey, cupKey) return ((data.best or {})[classKey] or {})[cupKey] end
 local function planetCups()
   local out = {}
-  for _, c in ipairs(cfg.Cups or {}) do if not c.final then out[#out + 1] = c end end
+  for _, c in ipairs(cfg.Cups or {}) do if not c.final and not c.rally then out[#out + 1] = c end end
   return out
 end
 local function cupByKey(key) for _, c in ipairs(cfg.Cups or {}) do if c.key == key then return c end end return nil end

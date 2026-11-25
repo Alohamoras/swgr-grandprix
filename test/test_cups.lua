@@ -27,10 +27,10 @@ end
 local H = rawget(_G, 'GU_TEST_SCREENS')
 local function info(i) return tostring(H.S.ui.items[i].info or '') end
 M.press('F6'); M.tick(6)
-local ALL = 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|TITLE RACE'
+local ALL = 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|TITLE RACE|RALLY CUP'
 for _, cls in ipairs({ 'JUNKER', 'CHALLENGER', 'ACE' }) do
   T.clickTitle(cls); M.tick(3)
-  T.check(T.titles() == ALL, cls .. ': the 7 tiles (' .. T.titles() .. ')')
+  T.check(T.titles() == ALL, cls .. ': the 8 tiles (' .. T.titles() .. ')')
   local d = descs()
   local none = true
   for i = 1, 6 do none = none and d[i] == '' end

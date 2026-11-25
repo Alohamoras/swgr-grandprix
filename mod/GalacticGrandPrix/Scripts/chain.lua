@@ -101,8 +101,10 @@ local function v2(v) return v and { X = v.X, Y = v.Y } or nil end
 function CH.prompt(out)
   local nxt, run = K.nextRace(), out and out.run
   if not (nxt and run) then return nil end
-  if hideContinue() then return ('NEXT RACE: race %d of %d, %s.   B: leave the cup.'):format(nxt.race, run.races, nxt.title) end
-  return ('NEXT RACE: race %d of %d, %s.     CONTINUE: the main menu (to leave the cup).'):format(nxt.race, run.races, nxt.title)
+  -- (v0.30: the Rally Cup names the route only - the weather stays a surprise until the stage loads: nxt.shown)
+  local what = run.timed and 'stage' or 'race'
+  if hideContinue() then return ('NEXT %s: %s %d of %d, %s.   B: leave the cup.'):format(what:upper(), what, nxt.race, run.races, nxt.shown or nxt.title) end
+  return ('NEXT %s: %s %d of %d, %s.     CONTINUE: the main menu (to leave the cup).'):format(what:upper(), what, nxt.race, run.races, nxt.shown or nxt.title)
 end
 
 -- the button's label: the game's button keeps it in ButtonLabel and its text block (FreeRace's set_label)
@@ -292,7 +294,7 @@ end
 function CH.setVia()
   local run, nxt = K.run(), K.nextRace()
   if not (run and nxt) then CH.via = nil; return nil end
-  CH.via = { cup = run.cup, class = run.class, race = nxt.race, races = run.races, title = nxt.title, at = C.clock }
+  CH.via = { cup = run.cup, class = run.class, race = nxt.race, races = run.races, title = nxt.shown or nxt.title, at = C.clock }
   return CH.via
 end
 
