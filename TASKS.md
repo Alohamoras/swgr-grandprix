@@ -97,6 +97,12 @@ Owner's plan: keep playing ~a week without crashes, then publish as a beta.
 - [ ] A week of crash-free play, then `tools/package.sh <tag>` and upload as a beta.
 - [x] **FreeRace 1.1c + 1.3 read (2026-11-25)**: `docs/freerace-review-2026-11-25.md`; items 1-6 built as v0.32.x, the rest listed in §1g.
 
+## 1a-rally-ai. The Rally Cup's catch-up (owner 2026-11-25) - v0.34.3, untested in game
+"the enemies need a much stronger catch up factor": config `Rally.AI` on top of the league's profile (`A.merged`): catch-up
+x1.6 after 0.5 s behind. **Open:** the number (1.6 a guess; the owner's next rally's `[gaps]` lines decide); whether the
+15 s start grace should hold the catch-up at the game's value (FreeRace held MaxAiCatchupScale at 0 for 15 s; ours lives on
+the assets, written at launch, so a hold would need a second write at 15 s); a catch-up for the planet cups' back markers.
+
 ## 1a-cupend. The cup result screen's tiles (owner 2026-11-25) - v0.34.2
 "Participation streak and win count seem superfluous, replace those with just the trophy or ending standing of the cup":
 participation tile collapsed, WINS tile = trophy over standing, title line carries the verdict. **Open:** did the owner see

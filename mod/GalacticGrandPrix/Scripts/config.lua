@@ -374,7 +374,14 @@ return {
     -- a four-car grid (Rally.Grid: you + 3 rivals drawn from the racers at the start, the same three all cup); the
     -- standings by TOTAL TIME over the stages (cup.lua timed), a DNF = the slowest finisher + Rally.DnfPenaltyS.
     -- rally = true keeps it out of the planet-cup count (progression, the champion) and off the title race's track.
-    Rally = { Grid = 4, DnfPenaltyS = 30, GapGuessS = 2, HideWeather = true },
+    -- v0.34.3 (owner 2026-11-25: "for the rally cup, the enemies need a much stronger catch up factor"): Rally.AI goes on
+    -- top of the league's AI profile for every stage (ai.lua A.merged; same keys as AI.Profiles[league]). Every league
+    -- profile switches the game's catch-up off (MaxAiCatchupScale 1.0, "no rubber band"), and on the point-to-point
+    -- stages with a 4-car grid the rivals then fell 15-57 s behind over a 1:46 stage (Challenger rally, grandprix.log
+    -- 2026-11-25 16:27-16:30). The game's own catch-up: x1.3 pace after 2 s behind. The rally's: x1.6 after 0.5 s
+    -- behind, and the slowdown when ahead stays off (they don't wait for you either). AI = false: the league's as it is.
+    Rally = { Grid = 4, DnfPenaltyS = 30, GapGuessS = 2, HideWeather = true,
+              AI = { label = 'rally profile', pacing = { MaxAiCatchupScale = 1.6, AiBehindTimeToMaxCatchup = 0.5 } } },
     Cups = {
         { key = 'jakku', name = 'JAKKU CUP', art = 'T_UI_FE_Tile_01', pool = 'jakku' },
         { key = 'lantaana', name = 'LANTAANA CUP', art = 'T_UI_FE_Tile_02', pool = 'lantaana' },

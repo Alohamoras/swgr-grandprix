@@ -57,6 +57,14 @@ T.check(T.logHas("[cup] JUNKER rally drawn: THE GIANTS' GRAVEYARD / GEOTHERMAL T
   'the draw logged in full (the log may know the weather)')
 T.check(T.logHas('[rally] rivals for the cup: Ary Quill, Malis Vazosk, Nik Skandaro (a 4-car grid)', mark), 'three rivals drawn, logged')
 T.check(T.logHas("LAUNCH EVT_MAS_P2P_FWD (THE GIANTS' GRAVEYARD - Sprint) league=riffraff", mark), 'stage 1 launched')
+-- v0.34.3: the rally's AI profile = the league's + Rally.AI (the catch-up back on, strong)
+T.check(T.logHas('[ai] league riffraff (rally profile): AI config (DA_AIConfig)', mark)
+  and T.logHas('DefaultPacingSettings.MaxAiCatchupScale 1.3 -> 1.6', mark) and T.logHas('DefaultPacingSettings.AiBehindTimeToMaxCatchup 2 -> 0.5', mark)
+  and T.logHas('DefaultPacingSettings.MaxAiSlowdownScale 0.75 -> 0.4', mark),
+  'v0.34.3: the rally profile on the AI config - catch-up x1.6 after 0.5 s, the league\'s own slowdown kept')
+T.check(T.logHas('[ai] league riffraff (rally profile): pacing asset (RP_Default)', mark) and T.logHas('PacingSettingsConfig.AiBehindTimeToMaxCatchup 2 -> 0.5', mark),
+  'v0.34.3: the same on the pacing assets')
+T.check(T.logHas('[ai] league riffraff (rally profile): pressure -1.00', mark), 'v0.34.3: the league\'s pressure stays')
 local sv = T.save()
 T.check(sv.run and sv.run.cup == 'rally' and sv.run.races == 7 and #sv.run.list == 7 and sv.run.timed == true
   and table.concat(sv.run.rivals, ',') == 'Protege,Mercenary,QuietStrength' and sv.run.dnfPenalty == 30,

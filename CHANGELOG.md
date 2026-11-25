@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.34.3 (2026-11-25): the Rally Cup's rivals catch up (owner)
+- Owner: "for the rally cup, the enemies need a much stronger catch up factor". Every league profile switches the
+  game's catch-up off (MaxAiCatchupScale 1.0), which on the rally's point-to-point stages with a 4-car grid left the
+  rivals 15-57 s behind over a 1:46 stage (the owner's Challenger rally, grandprix.log 2026-11-25 16:27-16:30). Config
+  `Rally.AI` now goes on top of the league's profile for every rally stage (ai.lua `A.merged`, race.lua at launch):
+  `MaxAiCatchupScale 1.6` (the game's own 1.3) after `AiBehindTimeToMaxCatchup 0.5 s` behind (the game's 2), on
+  DA_AIConfig and both pacing assets, put back at the menu as always. The slowdown when ahead stays as the league has
+  it (off at Challenger / Ace: they don't wait for you either). The log says `[ai] league challenger (rally profile): ...`
+  and the `[aiset] race league=challenger (rally profile)` read-back shows the values. `Rally.AI = false` = the
+  league's profile as it is. Untested in game: the owner's next rally tells - the `[gaps]` lines per stage should
+  shrink from 15-57 s to a few seconds.
+- Tests: test_rally (the profile on the config and the pacing assets, the league's pressure kept), test_ai (A.merged).
+
 ## v0.34.2 (2026-11-25): the cup result screen - the trophy and your standing, the streak tile gone (owner)
 - Owner, after the Ando cup: "the results screen at the end of the cup needs some work. Participation streak and win
   count seem superfluous, replace those with just the trophy or ending standing of the cup". cupend.lua, config

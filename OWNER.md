@@ -68,6 +68,11 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.34.3 Rally Cup catch-up (2026-11-25):** your ask "a much stronger catch up factor" - the rivals now get x1.6 pace
+      when 0.5 s behind (the game's own is x1.3 after 2 s; the leagues run 1.0 = none). Race a rally: do the rivals stay with
+      you on the stages (the `[gaps]` lines in grandprix.log were 15-57 s behind at 16:27-16:30)? Too strong = they sit on your
+      tail whatever you do; then 1.4 (config `Rally.AI.pacing.MaxAiCatchupScale`). Also: should the catch-up reach the planet
+      cups' back markers too, or stay a rally thing?
 - [ ] **v0.34.0 league cars (2026-11-25):** a cup at each league (§1b L4 after L2 / L3 too). Junker: do the engine-10
       straights and stock corners feel like junk that goes too fast, and is it fun or a pinball? Challenger at 7: right
       step up? Ace at 10: too fast (the old 200cc at 9 was "fast and brutal")? Do Sen / Biddy / Lyren still lead at Ace

@@ -319,6 +319,12 @@ local function prepare(ev, classKey, vehKey, picks, mods, opts)
   -- v0.8: the class's AI profile (ai.lua) - the AI config asset now (put back with the build), the rubber band while
   -- the race loads (ai, below)
   local prof = type(opts) == 'table' and type(opts.ai) == 'table' and opts.ai or nil
+  -- v0.34.3 (owner: "the enemies need a much stronger catch up factor" in the Rally Cup): on a rally stage the league's
+  -- profile with config Rally.AI on top (the catch-up back on, strong)
+  if not prof and ev.rally then
+    local ra = (require('config').Rally or {}).AI
+    if type(ra) == 'table' then prof = AI.merged(classKey, ra, ra.label or 'rally profile') end
+  end
   local okI, ai = pcall(function() AI.launch(classKey, prof); return AI.begin(classKey, prof) end)
   if not okI then log('[ai] ' .. tostring(ai)); ai = nil end
   -- v0.8: your pilot into the character list (the save holds what to put back; a failed launch puts it back below)
