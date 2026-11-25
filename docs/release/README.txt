@@ -9,9 +9,12 @@ WHAT'S IN IT
     JUNKER      scrapyard junk with too much engine - grimy cars, one ability, no tune-ups
     CHALLENGER  tuned rigs - two abilities, one tune-up
     ACE         full power - three abilities, two tune-ups
-- Six cups per league: one per planet (Jakku, Lantaana, Ando Prime, Crait, Sentinel I) plus the Galactic Cup. Each
-  cup draws four races at random from that planet's tracks, directions and conditions (night, wet, snow, scorching,
-  mines, storm...), so no two cups are the same.
+- Seven cups per league: one per planet (Jakku, Lantaana, Ando Prime, Crait, Sentinel I), the Galactic Cup, and the
+  RALLY CUP. A planet cup draws four races at random from that planet's tracks, directions and conditions (night,
+  wet, snow, scorching, mines, storm...), so no two cups are the same.
+- The RALLY CUP: every point-to-point road in the game as a seven-stage rally in tour order, four cars, standings by
+  total time. The night and weather of each stage are drawn when you start and kept secret until the stage loads;
+  the finale is Dai Bendu Ascension at night. A stage not finished costs the slowest finisher's time plus 30 s.
 - Points after every race (15, 12, 10, 9 ... 1), standings on the results screen, then straight into the next race.
   Gold, silver and bronze trophies; track records; "near miss" lines when you just missed one.
 - A title race for each league against its points leader, and a final boss once you're the Ace champion.
@@ -33,7 +36,7 @@ INSTALL
 HOW TO PLAY
 - GRAND PRIX tab -> pick a league -> pick a cup -> the start screen (your pilot, vehicle, abilities, tune-ups) -> START.
 - After each race: the finish times, then the standings (A); NEXT RACE starts the next one. B on the standings leaves
-  the cup (points lost - cups can't be paused).
+  the cup (points lost - cups can't be paused). The Rally Cup shows times and gaps instead of points.
 - JUNKER and CHALLENGER are open from the start; ACE opens with a trophy in all five Challenger planet cups.
 - RESET PROGRESS on the GRAND PRIX home page clears your trophies and records (it asks twice).
 
