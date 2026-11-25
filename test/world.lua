@@ -47,6 +47,20 @@ function W.widgetLib()
     p.HasAnyUserFocus = function() return p.__focus == true end
     p.HasUserFocus = function() return p.__focus == true end
     p.HasKeyboardFocus = function() return p.__focus == true end
+    if cname == 'WBP_PostRace_InstantAction_RunEnd_C' then
+      -- v0.32.8: the game's tour-end screen (cupend.lua): its panels as named widgets, the calls recorded by the mock
+      p.WBP_Timeline = M.new('WBP_Timeline', { HB_Planets = M.new('HB_Planets', {}), TourPlanetsToShow = M.tarr({}) }, 'WBP_Timeline_C')
+      p.WBP_MP_Wins = M.new('WBP_MP_Wins', { Txt_Amount = M.new('Txt_Amount', {}, 'FuseTextBlock') }, 'WBP_MP_Wins_C')
+      p.WBP_MP_Participation = M.new('WBP_MP_Participation', { Txt_Amount_1 = M.new('Txt_Amount_1', {}, 'FuseTextBlock'),
+        Txt_WinsAmount = M.new('Txt_WinsAmount', {}, 'FuseTextBlock') }, 'WBP_MP_Participation_C')
+      p.WBP_MP_Progress = M.new('WBP_MP_Progress', { XPAwards = M.tarr({}), Txt_RankThreshold = M.new('Txt_RankThreshold', {}, 'FuseTextBlock') }, 'WBP_MP_Progress_C')
+      p.WBP_Continue = M.new('WBP_Continue', {}, 'WBP_Hero_Btn_C')
+      p.WBP_Screen_Title = M.new('WBP_Screen_Title', { Txt_Title = M.new('Txt_Title', {}, 'FuseTextBlock') }, 'WBP_Screen_Title_C')
+      p.TourPlanetsToShow = M.tarr({})
+      rawset(w, '__name', 'RunEnd_' .. rawget(w, '__addr'))
+      M.add('WBP_PostRace_InstantAction_RunEnd_C', w)
+      W.runEnd = w
+    end
     if cname:find('Common_Btn', 1, true) then
       -- v0.19: a button of CONTINUE's class (chain.lua's NEXT RACE): its own name, registered (C.ref / C.deref)
       rawset(w, '__name', cname .. '_' .. rawget(w, '__addr'))
@@ -137,6 +151,8 @@ end
 -- simulate the player picking a tab (LB / RB / mouse)
 function W.pickTab(id) W.tab.selected = id end
 
+-- the planets as the game names them (config Planets: folder code -> shown name)
+W.PLANETS = { Mastiff = 'Jakku', Dalmatian = 'Lantaana', Corgi = 'Ando Prime', Spaniel = 'Crait', Husky = 'Sentinel I', Whippet = 'Derven Acos' }
 function W.setup()
   M.install()
   W.widgetLib()
@@ -152,6 +168,11 @@ function W.setup()
   rawget(ksl, '__props').IsStandalone = function() return true end
   W.characterList()
   W.aiConfig()
+  -- v0.32.8: the game's planet definitions, by the name they show (cupend.lua finds them with a sweep)
+  M.clear('PlanetDef')
+  for code, name in pairs(W.PLANETS) do
+    M.add('PlanetDef', M.new('DA_Planet_' .. code, { PlayerFacingName = FText(name) }, 'PlanetDef'))
+  end
   W.recipeSetup()
   W.frontEnd()
 end
@@ -432,13 +453,13 @@ end
 function W.stageEvent(st) return st and st.AuthoredEvent and rawget(st.AuthoredEvent, '__name') or '?' end
 -- the race world goes (the reset or the menu): its race state, racers, results screen and our widgets on it
 function W.dropRaceWorld()
-  for _, cls in ipairs({ 'RacingGameState', 'GfnPlayerState', 'WBP_SimpleRaceResultsScreen_C', 'WBP_Common_Btn_C', 'WBP_Simple_RaceResultsPanel_C' }) do
+  for _, cls in ipairs({ 'RacingGameState', 'GfnPlayerState', 'WBP_SimpleRaceResultsScreen_C', 'WBP_Common_Btn_C', 'WBP_Simple_RaceResultsPanel_C', 'WBP_PostRace_InstantAction_RunEnd_C' }) do
     for _, o in ipairs(M.objects[cls] or {}) do M.kill(o) end
     M.clear(cls)
   end
   for _, o in ipairs(W.canvasKids or {}) do M.kill(o) end
   if W.resultsBack then M.kill(W.resultsBack) end
-  W.canvasKids, W.screen, W.chainBtn, W.resultsBack = {}, nil, nil, nil
+  W.canvasKids, W.screen, W.chainBtn, W.resultsBack, W.runEnd = {}, nil, nil, nil, nil
 end
 -- the game's results screen after a race (WBP_SimpleRaceResultsScreen_C, CONTINUE on its canvas Default_Results).
 -- opts.refuse = the canvas takes no children. W.continued counts presses of its CONTINUE.
@@ -460,8 +481,9 @@ function W.results(opts)
     SetVisibility = function(_, v) W.contVis = v end, GetVisibility = function() return W.contVis end,
     -- (v0.27: held invisible and disabled while the game's finish times show)
     SetIsEnabled = function(_, v) W.contEnabled = v end, SetRenderOpacity = function(_, v) W.contOpacity = v end }, 'WBP_Common_Btn_C')
+  W.screenOpacity = 1
   local w = M.new('WBP_SimpleRaceResultsScreen_C_' .. M.nextAddr, { WidgetTree = M.new('WidgetTree', {}), WBP_Common_Btn_Continue = cont,
-    IsInViewport = function() return true end }, 'WBP_SimpleRaceResultsScreen_C')
+    IsInViewport = function() return true end, SetRenderOpacity = function(_, v) W.screenOpacity = v end }, 'WBP_SimpleRaceResultsScreen_C')
   rawget(w, '__props')[require('chain').CONTINUE_EVENT] = function() W.continued = W.continued + 1 end
   M.add('WBP_SimpleRaceResultsScreen_C', w)
   W.screen = w

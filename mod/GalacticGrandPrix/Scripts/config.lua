@@ -117,6 +117,13 @@ return {
             -- v0.27: seconds the game's own results (the finish times) show before the standings panel; 0 = at once
             TimesS = 6 } },
 
+    -- v0.32.8 (cupend.lua; docs/freerace-review-2026-11-25.md §6.1): the CUP RESULT first on the game's own end-of-tour
+    -- screen, over the last race's results - the cup's races on the planet timeline with your places, the WINS and
+    -- finishes tiles, the XP panel carrying your points - then A / Enter / Escape on to the menu (our cup result page
+    -- follows as before). Native = false: straight to the menu as up to v0.32.7. FixupS: how long the timeline's race
+    -- widgets are given their place boxes; CloseS: closed by itself after this long.
+    CupResult = { Native = true, FixupS = 12, CloseS = 120 },
+
     -- Lua garbage: collect a little on every tick (KB of work per step) so it never piles up into one big pause
     -- (v0.3.4, race stutter). GcStep = false to switch off for a comparison.
     GcStep = true,

@@ -25,6 +25,7 @@ local function start(cfg)
   T.reset()
   cfg = cfg or {}
   cfg.Progression = { On = false }
+  cfg.CupResult = cfg.CupResult or { Native = false } -- (v0.32.8: the tour-end screen is test_cupend's; here the old flow)
   T.boot(SAVE, cfg)
   W.cupEvents()
   M.press('F6'); M.tick(6)

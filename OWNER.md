@@ -58,6 +58,16 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.32.6-8 (2026-11-25 evening, your picks 9-11), installed when you say:**
+  - **The cup result screen (10):** after a cup's last race, CUP RESULT now shows the game's own tour-end screen first
+    (planets, your place per race, the points as the XP bar), then A / Enter / Escape takes you on to our cup result
+    page. Built from another mod's notes, never seen in game by us: tell me what it looks like, what's wrong on it, or
+    if it never appears (the log says `[cupend] ...` or `no tour-end screen (why)`). `CupResult.Native = false` in
+    config.lua goes back to the old flow.
+  - **The back of the grid (9):** Ary Quill and Malis Vazosk are no longer set to trail you by design. Do they stay in
+    touch now? The first launch logs the pacing rows the game really has (`[ai] league x: pacing rows on RP_Default`).
+  - **Navigation (11):** nothing should change on any page; if the stick or D-pad ever lands somewhere odd, say which
+    page and which tile.
 - [ ] **v0.32.x (2026-11-25), from the FreeRace read - six chunks, one playtest:**
   - **Galactic Cup, the final (The Galactic Gauntlet):** no floating blue buoys shoving you any more. The log says
     `[hazards] precision buoys: N hidden` (N > 0 confirms they were there).

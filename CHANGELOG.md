@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.32.8 (2026-11-25): the CUP RESULT on the game's own tour-end screen (owner's pick 10 of the FreeRace list)
+- cupend.lua (`docs/freerace-review-2026-11-25.md` §6.1: the FreeRace mod's TOUR summary technique, our own code):
+  after a cup's last race, CUP RESULT first puts the game's PvP tour-end screen (`WBP_PostRace_InstantAction_RunEnd`)
+  over the results, filled with the cup - one planet on the timeline per planet raced (one for a planet cup, five for
+  the Galactic Cup, six for the rally) with a dot per race showing your place (the last race gets the champion crown),
+  the WINS and finishes tiles, the XP panel carrying your POINTS (one award per race: "Race 2: THE WAR FIELDS, 2nd",
+  the bar your total against the cup's maximum), the cup and league as the title. The results screen stays under it,
+  see-through, with our button focused: A (the button again), Enter or Escape close it and leave for the menu, where
+  our cup result page follows as before. Taken from FreeRace's dozen builds: never activate the screen, the timeline's
+  own planet list starts empty, the progress panel sums the awards itself, the place boxes are shown for every race
+  (not only a podium) while the timeline plays in. Closed by itself after 120 s. Config `CupResult` (Native = false:
+  the old flow). **Not yet seen in game**: the first cup end tells. Tests: test_cupend (42 checks).
+- chain.lua `CH.pollFinal`: the summary's flow (the opening press not read twice; the screen gone = leave).
+
 ## v0.32.7 (2026-11-25): the D-pad map from the tiles' boxes (owner's pick 11 of the FreeRace list)
 - ui.lua `U.boxNav` (`docs/freerace-review-2026-11-25.md` §4.2, the FreeRace mod's idea with our own rules): every
   tile gets a box in layout units and the map { left, right, up, down } is worked out from the boxes alone, the same

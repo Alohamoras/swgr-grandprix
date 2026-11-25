@@ -374,21 +374,56 @@ function CH.addFinal(r, w, st)
   log('[chain] last race: CUP RESULT button, focused: ' .. tostring(bwhy) .. (st.contHidden and '; the game\'s CONTINUE hidden' or ''))
 end
 function CH.pollFinal(r, st)
+  local CE = require('cupend')
+  -- v0.32.8: the summary up over the results: its place boxes and texts kept; gone with its screen = leave
+  if st.summary then
+    if not CE.tick() then st.done = true; CH.leave(r); return end
+    if C.clock - st.summaryAt > CE.closeMs() then
+      st.done = true
+      CE.close('its time up')
+      CH.leave(r)
+      return
+    end
+  end
   if not CH.key and not CH.back and C.clock - (st.lastPoll or -1e9) < POLL_MS then return end
   st.lastPoll = C.clock
   local btn = C.deref(st.btn)
-  if not btn then st.done = true; log('[chain] last race: the results screen went - the cup result at the main menu'); return end
+  if not btn then
+    st.done = true
+    CE.close('the results screen went')
+    log('[chain] last race: the results screen went - the cup result at the main menu')
+    return
+  end
   local how = (CH.key and ('key ' .. tostring(conf().Key))) or (CH.back and 'Backspace / Escape') or nil
   CH.key, CH.back = false, false
   if not how and try(function() return btn:GetSelected() end) == true then how = 'the CUP RESULT button' end
+  if how and st.summary and C.clock - st.summaryAt < 1500 then
+    try(function() btn:SetIsSelected(false, false) end)
+    return                                           -- (the press that opened it, read again)
+  end
   if not how then
     if C.clock - (st.panelAt or 0) < FOCUS_MS and try(function() return btn:HasKeyboardFocus() end) ~= true then try(function() btn:SetFocus() end) end
     return
   end
-  st.done = true
   try(function() btn:SetIsSelected(false, false) end)
+  if not st.summary and CE.on() then
+    -- v0.32.8: first the cup on the game's own tour-end screen; the results stay under it, see-through, so our button
+    -- keeps the pad (A presses it again = close and leave)
+    local w, why = CE.show(r.recorded)
+    if w then
+      st.summary, st.summaryAt = true, C.clock
+      local scr = C.deref(r.screenRef)
+      if scr then try(function() scr:SetRenderOpacity(0) end) end
+      log('[chain] CUP RESULT pressed (' .. how .. '): the cup result on the game\'s tour-end screen (A / Enter / Escape: on to the menu)')
+      return
+    end
+    log('[chain] CUP RESULT pressed (' .. how .. '): no tour-end screen (' .. tostring(why) .. ') - the cup result at the main menu')
+  else
+    log('[chain] CUP RESULT pressed (' .. how .. ')' .. (st.summary and ': the summary closes' or ''))
+  end
+  st.done = true
+  CE.close('leaving for the menu')
   try(function() btn:SetIsEnabled(false) end)
-  log('[chain] CUP RESULT pressed (' .. how .. ')')
   CH.leave(r)
 end
 
