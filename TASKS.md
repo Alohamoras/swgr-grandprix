@@ -186,7 +186,7 @@ Speedway, Andobi Edge, Skakoan Gambit, Mineral Loop, Corrosion Hypersphere) are 
 
 ## 1g. FreeRace 1.1c + 1.3 follow-ups (owner 2026-11-25: "build 1 through 6, add the other things to a doc")
 The read: `docs/freerace-review-2026-11-25.md` (what the mod does, what we already had, every idea with the engine names,
-the 1.3 delta in §6). Built as v0.32.x, one tag a chunk; **owner to playtest** (OWNER.md "v0.32"):
+the 1.3 delta in §6). Built as v0.32.x, one tag a chunk; **playtested 2026-11-25 (owner: "feeling pretty great")**; v0.32.6-8 installed, to playtest (OWNER.md):
 - [x] 1. Buoys off on The Galactic Gauntlet (v0.32.0, hazards.lua): the Precision run's buoys hidden in our Galactic
       Cup final. Check: no blue buoys shoving you on the Gauntlet; `[hazards]` lines.
 - [x] 2. AI ability cycling, coverage, cooldowns (v0.32.1, aiuse.lua): closes R7 once the log shows `[aiuse] fired`.
@@ -239,7 +239,7 @@ PNG tiles, the cockpit / mix / deadzone work (a mod of their own if ever wanted)
       3 Boost, 4 Battery, 5 Advanced); which on-screen bar each drives is still a guess by name.
 - [ ] Riff-Raff's brief "Stock engines" now it has parts 2 (e.g. "Hot-rodded junkers")?
 - [x] The pool races never launched (23 by the log): all launched 2026-11-12, all fine (docs/data/launch-check-2026-11-12.txt).
-- [ ] Do the AI fire their abilities, Shields included (R7)? **v0.32.1 answers it in the log**: `[aiuse] fired in this race: ...` after a race (the selection cycles now; the uncovered classes are named).
+- [x] Do the AI fire their abilities, Shields included (R7)? **Answered 2026-11-25 (v0.32.1 in game)**: with the selection cycled every 4 s each bot fired 2-4 kinds a race (Vents, Surges, Repairs, Mines, Shockwaves, Disruptors); Shields only where the game's acid / corroding rules say. Before: slot 0 only.
 
 ## 3. Known gaps (small fixes)
 - [x] A DNF skipped the results panel; the last race kept the game's own CONTINUE. Both fixed in v0.28.1 (in-game

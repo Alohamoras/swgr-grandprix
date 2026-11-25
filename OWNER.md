@@ -58,7 +58,7 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
-- [ ] **v0.32.6-8 (2026-11-25 evening, your picks 9-11), installed when you say:**
+- [ ] **v0.32.6-8 (2026-11-25 evening, your picks 9-11), installed 2026-11-25 18:00 after the playtest:**
   - **The cup result screen (10):** after a cup's last race, CUP RESULT now shows the game's own tour-end screen first
     (planets, your place per race, the points as the XP bar), then A / Enter / Escape takes you on to our cup result
     page. Built from another mod's notes, never seen in game by us: tell me what it looks like, what's wrong on it, or
@@ -68,7 +68,7 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
     touch now? The first launch logs the pacing rows the game really has (`[ai] league x: pacing rows on RP_Default`).
   - **Navigation (11):** nothing should change on any page; if the stick or D-pad ever lands somewhere odd, say which
     page and which tile.
-- [ ] **v0.32.x (2026-11-25), from the FreeRace read - six chunks, one playtest:**
+- [x] **v0.32.x (2026-11-25), from the FreeRace read - six chunks, one playtest.** Owner, two Ace cups on Lantaana: "the bots kit ... seemed to make a big difference, ace in the galactic cup is much more challenging now, it's feeling pretty great. There are still some races where i dominate" (the log: a wet sprint won by 20 s, field spread 146 s - the bots crash on it). Log: every feature ran; the bots fired 2-4 kinds each; shared configs, so the recharge dial did nothing (noted). The thrust dial was OFF (config AI.Thrust = false): the difference is the kits + the start grace. Buoys: no Gauntlet race yet.
   - **Galactic Cup, the final (The Galactic Gauntlet):** no floating blue buoys shoving you any more. The log says
     `[hazards] precision buoys: N hidden` (N > 0 confirms they were there).
   - **The bots' abilities:** they should fire more than one of their four now, and more kinds. After any race the log
