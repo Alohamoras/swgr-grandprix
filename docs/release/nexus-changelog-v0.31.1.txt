@@ -1,0 +1,17 @@
+v0.31.1 - The Rally Cup, pilot faces, any vehicle for any pilot, signature kits
+
+NEW: THE RALLY CUP (a seventh cup on every league's page)
+- Every point-to-point road in the game as a seven-stage rally in tour order: The Giants' Graveyard, Geothermal Tour,
+  Rhodochrosite Run, Bool River Run both ways, Mountain to Sea, and Dai Bendu Ascension at night as the finale.
+- Four cars: you and three rivals drawn when the cup starts, the same three on every stage.
+- Standings by total time, with gaps. A stage not finished costs the slowest finisher's time plus 30 seconds.
+- The night and weather of each stage are drawn at the start and kept secret until the stage loads.
+
+NEW: PILOTS AND VEHICLES (from pull request #1 by MilkManEX - thank you)
+- The garage has a PILOT tile with the racer's face and a VEHICLE tile: race any pilot in a landspeeder, a speeder
+  bike or a skim speeder. A pilot's own vehicle looks as the game built it; the other two wear that rider's scheme.
+- Each pilot starts with their signature four abilities. Change them as before; your saved picks from an earlier
+  version are kept.
+
+Requires UE4SS for Galactic Racer (Open Beta v0.9.4 or later). Offline only. Nothing from the game is shipped in this
+archive: every picture and preset is read from your own installation.

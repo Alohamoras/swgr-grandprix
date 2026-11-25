@@ -180,6 +180,7 @@ Speedway, Andobi Edge, Skakoan Gambit, Mineral Loop, Corrosion Hypersphere) are 
   CharacterDefs via grx); the file import gone; picks kept on an old save; the preset loads by package path; the
   put-back record in the save (`paintRestore`); the title / boss races use the picked vehicle; save fields registered;
   the three tests fixed. **Owner to playtest v0.31.0 together with the rally** (OWNER.md).
+- [x] v0.31.1: the preset loads by class name (the package path left cooked Blueprint classes unloaded); owner saw two schemes in game. Release zip dist/GalacticGrandPrix-v0.31.1.zip built 2026-11-25.
 - [ ] Reply on the PR (owner's account): merged with changes, thanks; the icon files could not be shipped.
 
 ## 2. Waiting on the owner's play (details and tick boxes in OWNER.md "Playtests")
