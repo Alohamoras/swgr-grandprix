@@ -65,8 +65,10 @@ local confs = W.tune(2)
 M.resetSweeps()
 W.race(11); M.tick(60)
 T.check(count('[aiset] race tune league=challenger', mark) == 1, 'one race tune line')
-T.check(line('[aiset] race tune league=challenger', mark):find('AiMaxTimeAheadModifier=1.25 AiMinTimeAheadModifier=0.75', 1, true) ~= nil
-  and line('[aiset] race tune', mark):find('TotalCrashAllowance=3', 1, true) ~= nil, 'race tune read back after the writes')
+-- (v0.32: read back during the start grace - the min lift held at 0, abilities 0 - and says so)
+T.check(line('[aiset] race tune league=challenger', mark):find('(start grace) | AiMaxTimeAheadModifier=1.25 AiMinTimeAheadModifier=0 ', 1, true) ~= nil
+  and line('[aiset] race tune', mark):find('AiAbilityChanceMultiplier=0 ', 1, true) ~= nil
+  and line('[aiset] race tune', mark):find('TotalCrashAllowance=3', 1, true) ~= nil, 'race tune read back after the writes (the start grace\'s values, named)')
 T.check(M.sweepCount('RP_') == 0 and M.sweepCount('DA_AIConfig') == 0, 'no asset lookups during the race')
 T.check(count('[aiset]', mark) == 2, 'two [aiset] lines for the race (assets, tune)')
 W.finish(1); M.tick(25)

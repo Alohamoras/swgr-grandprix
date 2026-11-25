@@ -509,7 +509,7 @@ return {
         --     you when it's ahead, so "fail now, win later" is real.
         --   catchup = multiplier on MaxAiCatchupScale (how much faster the AI goes when behind; 1.3 x 1.15 = 1.5).
         --   errors = multiplier on ForcedErrorChance (the game's 15 %/s near you; 0.5 = half the mistakes).
-        --   perfectStart = the AI's chance of a perfect start, % (the game's 75).
+        --   perfectStart = the AI's chance of a perfect start, % (the game's 75; v0.32: 45 at every league, with the grace).
         --   aggression = { chance = multiplier, cooldown = multiplier } on AggressionConfig.VersusPlayer (50 %, 2 s).
         --   config = { ['Field'] = value, ['Struct.Field'] = value }: any other number on the asset, by path.
         -- v0.18 (AI study 2026-11-11, docs/ai-study-2026-11-11.md): the race reads its pacing from RP_Default, whose
@@ -548,13 +548,19 @@ return {
         -- If the held-race test shows it moves the bots' pace, this replaces Strength's part stacks.
         Thrust = false,
         ThrustAfterS = 15,
+        -- v0.32 (ai.lua A.apply; docs/freerace-review-2026-11-25.md §3.2): the start grace. For the first Seconds after
+        -- the green light the bots fire no abilities (NoAbilities) and the league's lift of their minimum time ahead
+        -- is held at the game's value (HoldMinAhead), then the league's values come in. FreeRace's fix for the whole
+        -- field launching away at the start; with it their perfect-start chance 75 -> 45 % (perfectStart below).
+        -- Grace = false switches it off.
+        Grace = { Seconds = 15, NoAbilities = true, HoldMinAhead = true },
         Profiles = {
-            riffraff = { pressure = -1, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.4 },
+            riffraff = { pressure = -1, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.4 }, perfectStart = 45,
                          config = { SpeedMatchingMaxMatchers = 0 } },
             challenger = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 1.0, AiSlowdownDuringCrash = 1.0 }, errors = 0,
-                           config = { SpeedMatchingMaxMatchers = 0 } },
+                           perfectStart = 45, config = { SpeedMatchingMaxMatchers = 0 } },
             ace = { pressure = 0.5, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 1.0, AiSlowdownDuringCrash = 1.0 }, errors = 0,
-                    config = { SpeedMatchingMaxMatchers = 0 } },
+                    perfectStart = 45, config = { SpeedMatchingMaxMatchers = 0 } },
         },
     },
 

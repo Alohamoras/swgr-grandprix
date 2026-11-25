@@ -405,8 +405,32 @@ end
 
 -- (a sweep every 500 ms: never for a whole race - if the start is never seen, it stops after GIVE_UP_MS anyway)
 local GIVE_UP_MS = 120000
+
+-- v0.32: the start grace (config AI.Grace; docs/freerace-review-2026-11-25.md §3.2, FreeRace's fix for the whole field
+-- launching away at the green light). For the first Grace.Seconds after the start the race tune carries, instead of the
+-- league's values: AiAbilityChanceMultiplier 0 (no bot fires an ability in the first corner; NoAbilities) and the
+-- league's lift of AiMinTimeAheadModifier held at the game's own value (HoldMinAhead; a league below it keeps its own).
+-- The catch-up boost needs no holding: our profiles run MaxAiCatchupScale 1.0 (no boost) at every league. When the grace
+-- is over, one more sweep writes the league's values; the originals for the put-back are recorded once, on the first
+-- write, and the league's values are always worked out from them (never from what we wrote).
+local function graceCfg() local g = aiCfg().Grace; return type(g) == 'table' and g or nil end
+function A.graceMs() local g = graceCfg(); return g and (tonumber(g.Seconds) or 15) * 1000 or 0 end
+local function graceValue(g, f, final, orig)
+  if f == 'AiAbilityChanceMultiplier' and g.NoAbilities ~= false then return 0 end
+  if f == 'AiMinTimeAheadModifier' and g.HoldMinAhead ~= false then return math.min(final, orig) end
+  return final
+end
+
 function A.apply(st, started, sinceStart)
   if not st or st.finished then return end
+  local g = graceCfg()
+  local inGrace = g ~= nil and not (started and (sinceStart or 0) >= A.graceMs())
+  if started and (sinceStart or 0) >= 3000 then
+    -- 3 s after the start every tune object is there: the sweeps stop - with a grace on, until it is over, when one
+    -- more pass writes the league's values on every object seen (and any that came late)
+    if inGrace then return end
+    if g and not st.graceOver then st.graceOver, st.done, st.last = true, {}, -1e9 end
+  end
   if C.clock - st.last < 500 then return end
   st.last = C.clock
   if C.clock - (st.at or C.clock) > GIVE_UP_MS then
@@ -414,6 +438,7 @@ function A.apply(st, started, sinceStart)
     log('[ai] the start of the race was never seen - the tune objects stay as they are (sweeps stopped)')
     return
   end
+  st.origBy = st.origBy or {}
   local n = 0
   for _, tc in ipairs(C.find('GameTuneComponent')) do
     local rtd = try(function() return tc.RaceTuneData end)
@@ -421,22 +446,30 @@ function A.apply(st, started, sinceStart)
     local conf = key and not st.done[key] and try(function() return rtd.Config end)
     if conf then
       st.done[key] = true
-      local rec, was, now = { ref = C.ref(rtd), vals = {} }, {}, {}
+      local rec = st.origBy[key]
+      local first = rec == nil
+      if first then rec = { ref = C.ref(rtd), vals = {} } end
+      local was, now = {}, {}
       for _, f in ipairs(FIELDS) do
         local v = try(function() return conf[f] end)
-        if type(v) == 'number' then
-          rec.vals[f] = v
-          local nv = A.tuneValue(st.class, f, v, st.prof)
+        if first and type(v) == 'number' then rec.vals[f] = v end
+        local orig = rec.vals[f]
+        if type(orig) == 'number' then
+          local final = A.tuneValue(st.class, f, orig, st.prof)
+          local nv = inGrace and graceValue(g, f, final, orig) or final
           try(function() conf[f] = nv end)
-          was[#was + 1] = ('%s=%g'):format(f:gsub('^Ai', ''), v)
+          was[#was + 1] = ('%s=%g'):format(f:gsub('^Ai', ''), orig)
           local back = try(function() return conf[f] end)
           now[#now + 1] = ('%g'):format(type(back) == 'number' and back or -1)
         end
       end
-      if next(rec.vals) ~= nil and rec.ref then st.orig[#st.orig + 1] = rec end
+      if first then
+        st.origBy[key] = rec
+        if next(rec.vals) ~= nil and rec.ref then st.orig[#st.orig + 1] = rec end
+      end
       if st.logged < 1 then
         st.logged = st.logged + 1
-        log(('[ai] %s -> %s'):format(table.concat(was, ' '), table.concat(now, ' ')))
+        log(('[ai] %s -> %s%s'):format(table.concat(was, ' '), table.concat(now, ' '), inGrace and (' (start grace: for %d s)'):format(A.graceMs() // 1000) or ''))
       end
       -- [aiset] (v0.16.1): the shared race tune as read back after the writes, once per race (no extra lookup)
       if not st.tuneRead then
@@ -444,13 +477,16 @@ function A.apply(st, started, sinceStart)
         local parts = {}
         for _, f in ipairs(FIELDS) do parts[#parts + 1] = f .. '=' .. readShow(conf, f) end
         parts[#parts + 1] = 'TotalCrashAllowance=' .. readShow(conf, 'TotalCrashAllowance')
-        log(('[aiset] race tune league=%s%s | %s'):format(tostring(st.class), st.prof and ' study' or '', table.concat(parts, ' ')))
+        log(('[aiset] race tune league=%s%s%s | %s'):format(tostring(st.class), st.prof and ' study' or '', inGrace and ' (start grace)' or '', table.concat(parts, ' ')))
       end
       n = n + 1
     end
   end
-  if n > 0 then log(('[ai] applied to %d tune objects (%d total)'):format(n, #st.orig)) end
-  if started and (sinceStart or 0) >= 3000 then st.finished = true end
+  if n > 0 then
+    if st.graceOver then log(('[ai] start grace over: the league\'s values on %d tune objects'):format(n))
+    else log(('[ai] applied to %d tune objects (%d total)%s'):format(n, #st.orig, inGrace and ' (start grace: no abilities, no pace lift yet)' or '')) end
+  end
+  if started and (sinceStart or 0) >= 3000 and (not g or st.graceOver) then st.finished = true end
 end
 
 function A.restore(st)

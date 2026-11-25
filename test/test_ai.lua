@@ -67,20 +67,30 @@ T.check(T.logHas('[ai] league challenger: AI config (DA_AIConfig) DefaultPacingS
 local confs, rtds = W.tune(3)
 W.race(11); M.tick(5)
 local c = confs[1]
-T.check(math.abs(c.AiMaxTimeAheadModifier - 1.25) < 1e-9 and math.abs(c.AiMinTimeAheadModifier - 0.75) < 1e-9, 'rubber band: +1.25 s / +0.75 s')
-T.check(math.abs(c.AiAbilityChanceMultiplier - 1.25) < 1e-9 and math.abs(c.AiAggressionVPlayerChanceMultiplier - 1.5) < 1e-9
+-- v0.32: the start grace first - no abilities, the min-time-ahead lift held at the game's 0 - for 15 s
+T.check(math.abs(c.AiMaxTimeAheadModifier - 1.25) < 1e-9 and c.AiMinTimeAheadModifier == 0, 'rubber band in the start grace: +1.25 s max, the min lift (0.75) held at 0')
+T.check(c.AiAbilityChanceMultiplier == 0 and math.abs(c.AiAggressionVPlayerChanceMultiplier - 1.5) < 1e-9
   and math.abs(c.AiAggressionVPlayerCooldownMultiplier - 0.875) < 1e-9 and math.abs(c.AiCountdownToSlamPlayerModifier + 0.1) < 1e-9,
-  'abilities 1.25, aggression 1.5, cooldown 0.875, slam -0.1')
+  'start grace: abilities 0; aggression 1.5, cooldown 0.875, slam -0.1 as the league says')
 T.check(c.AiMaxTimeAheadMultiplier == 1 and c.TotalCrashAllowance == 3, 'untouched fields stay (multiplier 1, crash allowance 3)')
 T.check(math.abs(confs[3].AiMaxTimeAheadModifier - 1.25) < 1e-9, 'every tune object changed')
 T.check(T.logHas('[ai] MaxTimeAheadModifier=0 MinTimeAheadModifier=0 MaxTimeAheadMultiplier=1'), 'one before -> after line')
-T.check(T.logHas('[ai] applied to 3 tune objects (3 total)'), 'applied to 3 tune objects')
--- 3 s after the start it stops: a tune object appearing later is left alone, and nothing is swept any more
+T.check(T.logHas('[ai] applied to 3 tune objects (3 total) (start grace: no abilities, no pace lift yet)'), 'applied to 3 tune objects, the grace named')
+-- 3 s after the start the sweeps stop; a tune object appearing later waits for the grace's end
 M.tick(40)
 local late = W.tune(1)[1]
 local mark = T.mark()
 M.tick(10)
-T.check(late.AiMaxTimeAheadModifier == 0 and not T.logHas('[ai] applied', mark), 'done 3 s after the start: a late tune object is left alone')
+T.check(late.AiMaxTimeAheadModifier == 0 and not T.logHas('[ai] applied', mark) and c.AiAbilityChanceMultiplier == 0, 'between 3 s and 15 s: no sweep, the grace holds')
+-- the grace over at 15 s: one more pass, the league's values on every tune object (the late one too)
+M.tick(110)
+T.check(math.abs(c.AiAbilityChanceMultiplier - 1.25) < 1e-9 and math.abs(c.AiMinTimeAheadModifier - 0.75) < 1e-9
+  and math.abs(late.AiAbilityChanceMultiplier - 1.25) < 1e-9 and math.abs(late.AiMaxTimeAheadModifier - 1.25) < 1e-9,
+  'grace over: abilities 1.25 and the min lift 0.75 on every tune object, the late one included')
+T.check(T.logHas('[ai] start grace over: the league\'s values on 4 tune objects', mark), 'the grace\'s end logged')
+local mark2 = T.mark()
+M.tick(20)
+T.check(not T.logHas('[ai]', mark2), 'then nothing more is swept')
 W.finish(2); M.tick(25)
 local t0 = os.time(); while os.time() - t0 < 3 do end
 -- the race world goes: tune object 3 is freed with it (1 and 2 live on, like the shared asset in game)
@@ -89,7 +99,7 @@ local before = M.deadTouches
 W.backToMenu(); M.tick(45)
 T.check(c.AiMaxTimeAheadModifier == 0 and confs[2].AiAbilityChanceMultiplier == 1 and c.AiAggressionVPlayerCooldownMultiplier == 1, 'tune put back at the menu')
 T.check(M.deadTouches == before, 'the freed tune object was not touched (' .. (M.deadTouches - before) .. ')')
-T.check(T.logHas('[ai] put back on 2 tune objects'), 'only the live ones put back')
+T.check(T.logHas('[ai] put back on 3 tune objects'), 'only the live ones put back (1, 2 and the late one; 3 went with the race)')
 T.check(W.ai.DefaultPacingSettings.MaxAiSlowdownScale == 0.75 and W.ai.ForcedErrorChance == 15, 'DA_AIConfig put back at the menu')
 T.check(T.logHas('[ai] AI config put back (main menu): DA_AIConfig DefaultPacingSettings.MaxAiSlowdownScale=0.75 ForcedErrorChance=15'), 'put back logged')
 T.check(next(T.save().aiRestores) == nil, 'nothing left to put back')
@@ -108,8 +118,10 @@ T.check(T.logHas('[ai] league riffraff: pressure -1.00 (RELAXED)', mark), 'Cadet
 confs = W.tune(1)
 W.race(11); M.tick(5)
 c = confs[1]
-T.check(math.abs(c.AiMaxTimeAheadMultiplier - 0.65) < 1e-9 and c.AiMinTimeAheadModifier == -3 and math.abs(c.AiAbilityChanceMultiplier - 0.75) < 1e-9,
-  '50cc rubber band: max x0.65, min -3 s, abilities 0.75')
+T.check(math.abs(c.AiMaxTimeAheadMultiplier - 0.65) < 1e-9 and c.AiMinTimeAheadModifier == -3 and c.AiAbilityChanceMultiplier == 0,
+  '50cc rubber band in the grace: max x0.65, min -3 s (below the game\'s: kept), abilities 0')
+M.tick(160)
+T.check(math.abs(c.AiAbilityChanceMultiplier - 0.75) < 1e-9, '50cc after the grace: abilities 0.75')
 W.finish(1); M.tick(25)
 t0 = os.time(); while os.time() - t0 < 3 do end
 W.backToMenu(); M.tick(45)

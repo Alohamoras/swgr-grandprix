@@ -95,7 +95,7 @@ Owner's plan: keep playing ~a week without crashes, then publish as a beta.
   **2026-11-13 afternoon:** one more hang with the CPU idle (~3%, "not responding" after ~7 min) - a different kind
   from the busy slow starts; 6 other launches that day took 15-18 s. Relaunch fixed it.
 - [ ] A week of crash-free play, then `tools/package.sh <tag>` and upload as a beta.
-- [ ] **FreeRace 1.1c + 1.3 read (2026-11-25)**: `docs/freerace-review-2026-11-25.md` - buoys on The Galactic Gauntlet, AI ability cycling (R7), per-bot thrust tune set (a pace dial to test), start grace, lap count, wreck limit, the game's tour-summary screen as CUP RESULT, box navigation; order in its §6.6. Owner picks.
+- [x] **FreeRace 1.1c + 1.3 read (2026-11-25)**: `docs/freerace-review-2026-11-25.md`; items 1-6 built as v0.32.x, the rest listed in §1g.
 
 ## 1b. League styles (owner 2026-11-12: "different styles of racing"; agreed, not built)
 **docs/league-styles-2026-11-12.md** - each league its own character (the car, the field, the tracks, the kit).
@@ -184,6 +184,51 @@ Speedway, Andobi Edge, Skakoan Gambit, Mineral Loop, Corrosion Hypersphere) are 
 - [x] v0.31.1: the preset loads by class name (the package path left cooked Blueprint classes unloaded); owner saw two schemes in game. Release zip dist/GalacticGrandPrix-v0.31.1.zip built 2026-11-25.
 - [ ] Reply on the PR (owner's account): merged with changes, thanks; the icon files could not be shipped.
 
+## 1g. FreeRace 1.1c + 1.3 follow-ups (owner 2026-11-25: "build 1 through 6, add the other things to a doc")
+The read: `docs/freerace-review-2026-11-25.md` (what the mod does, what we already had, every idea with the engine names,
+the 1.3 delta in §6). Built as v0.32.x, one tag a chunk; **owner to playtest** (OWNER.md "v0.32"):
+- [x] 1. Buoys off on The Galactic Gauntlet (v0.32.0, hazards.lua): the Precision run's buoys hidden in our Galactic
+      Cup final. Check: no blue buoys shoving you on the Gauntlet; `[hazards]` lines.
+- [x] 2. AI ability cycling, coverage, cooldowns (v0.32.1, aiuse.lua): closes R7 once the log shows `[aiuse] fired`.
+- [x] 3. Per-bot thrust dial as a TEST (v0.32.2, tune.lua, thrust.lua): **held-race protocol** - deploy `--dev`,
+      experiment.lua `{ label = 'thrust', botThrustBy = { ['Sen Fira'] = 1.1, ['Lyren Shok'] = 1.0, ['Biddy Blas'] = 0.9 } }`,
+      three races on The Giants' Graveyard with your car held on the line (tap W every 15 s); the `[thrust]` top-speed
+      line and the `[exp] result` finish times say whether the dial moves them (~3 s a level is the parts' effect to
+      beat). If it works: `AI.Thrust` per league replaces `AI.Strength`'s part stacks.
+- [x] 4. Start grace (v0.32.3, ai.lua `AI.Grace`): no bot abilities and no pace lift for 15 s after the green light;
+      perfect starts 75 -> 45 %. Check: the first corner calmer, the field not gone at once.
+- [x] 5. Results screen caught as it is made (v0.32.4, chain.lua): no 300 ms sweeps after your finish; a fallback
+      sweep every 3 s. Check: the standings panel still comes; no stutter while the field comes home.
+- [x] 6. START locked with the game's tiles (v0.32.5): with the game's menu locked for an online queue, our START
+      refuses with a message (`[menu] the game has locked its tiles`).
+
+The rest, in the order recommended (details and engine names in the review doc's §3, §4, §6):
+- [ ] 7. **Lap count** (§3.4): `EventRecipeSubsystem.ActiveRecipe.recipe.EventStages[1].LapCount` after launch - our
+      `laps` is display-only; leagues of different lengths, rally stages forced to one lap, an endurance cup.
+- [ ] 8. **Wreck limit** (§3.5): `RaceEventComponent.VehicleHealth` topped up (the game knocks out on its own count),
+      HUD icons `WBP_HUD_Crashes_C` matched; closes DESIGN §7 ("no crash limit") and a per-league allowance.
+- [ ] 9. **Catch-up for the back of the grid** (§3.7): the `RiffRaff*` / `Losers*` pacing rows renamed to
+      `Challengers*` so the last bots stay in the race (known since 2026-11-11, never built).
+- [ ] 10. **The game's tour-summary screen as CUP RESULT** (§6.1): `WBP_PostRace_InstantAction_RunEnd_C` filled with
+      RunFinishedVM / PlanetStatVM / RunTimelineEntryVM; native end-of-cup screen. Medium-large; owner's call.
+- [ ] 11. **Box-based navigation** (§4.2): tiles get `{ x, y, w, h }`, nearest-in-direction wired into
+      `SetNavigationRuleExplicit`; replaces main.lua's hand-wired nav tables (tests updated).
+- [ ] 12. **Runtime tune sets as a general tool** (§3.6; tune.lua is the start): damage resistance, respawn shield
+      (god mode 3 s after a reset), ramjet on / off, per-racer handicaps.
+- [ ] 13. **RESTART in the pause menu** (§3.8): a row of RESUME's class, `ReturnToMainMenu` + our via-menu relaunch;
+      a classic rally restart.
+- [ ] 14. **Inter-mod flag** (§6.5): `ModRef:SetSharedVariable` so Streamline / Underground stand aside in a cup race.
+- [ ] 15. Takedowns from the bots' `CrashComponent` blame lists (§6.3): a results line / a standings bonus.
+- [ ] 16. Best-lap records beside the race records, a NEW BEST LAP line on the results (§6.5).
+- [ ] 17. Auto-continue on the results after 9 s idle, a countdown in the button, off by default (§6.1).
+- [ ] 18. LT / RT paging through a hidden `WBP_Tab_List_C` (§4.2).
+- [ ] 19. HUD parts hidden by class, a rally HUD without position and map (§4.2).
+- [ ] 20. Settings rows for our config knobs in the game's Settings screen (§4.2).
+- [ ] 21. Autopilot after a reset off (`StopInputSourceOverride_OnServer(10)`) as an owner option (§6.3).
+- [ ] 22. The turning 3D pilot on the PILOT tile (§4.2): flashy, risky, last.
+Not for us (noted in the doc): the hand-made rubber band, opponent armour and quick respawn, the podracer features,
+PNG tiles, the cockpit / mix / deadzone work (a mod of their own if ever wanted).
+
 ## 2. Waiting on the owner's play (details and tick boxes in OWNER.md "Playtests")
 - [ ] v0.27.x: the finish times then STANDINGS (A, or 6 s); Challenger open from the start; Riff-Raff's feel (parts
       2 on three slots); the posters' taglines and the cups page brief; the garage's TUNE-UP / ABILITY captions.
@@ -194,7 +239,7 @@ Speedway, Andobi Edge, Skakoan Gambit, Mineral Loop, Corrosion Hypersphere) are 
       3 Boost, 4 Battery, 5 Advanced); which on-screen bar each drives is still a guess by name.
 - [ ] Riff-Raff's brief "Stock engines" now it has parts 2 (e.g. "Hot-rodded junkers")?
 - [x] The pool races never launched (23 by the log): all launched 2026-11-12, all fine (docs/data/launch-check-2026-11-12.txt).
-- [ ] Do the AI fire their abilities, Shields included (R7)?
+- [ ] Do the AI fire their abilities, Shields included (R7)? **v0.32.1 answers it in the log**: `[aiuse] fired in this race: ...` after a race (the selection cycles now; the uncovered classes are named).
 
 ## 3. Known gaps (small fixes)
 - [x] A DNF skipped the results panel; the last race kept the game's own CONTINUE. Both fixed in v0.28.1 (in-game

@@ -58,6 +58,21 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.32.x (2026-11-25), from the FreeRace read - six chunks, one playtest:**
+  - **Galactic Cup, the final (The Galactic Gauntlet):** no floating blue buoys shoving you any more. The log says
+    `[hazards] precision buoys: N hidden` (N > 0 confirms they were there).
+  - **The bots' abilities:** they should fire more than one of their four now, and more kinds. After any race the log
+    has `[aiuse] fired in this race: Biddy Blas: Vent_Flame 2, Shield 1 | ...` - that line answers R7 ("do they
+    fire their Shields?"). Also `[aiuse] our kits at <league>: ... NOT fired by the AI: ...` lists what the game's AI
+    rules never cover. Mines every 30 s and Disruptors every 15 s at most per bot.
+  - **The start:** for 15 s after the green light no bot fires anything and the Ace pace lift waits; AI perfect starts
+    45 % (was 75). Does the first corner feel fairer? Log: `[ai] ... (start grace: for 15 s)` and `start grace over`.
+  - **The results screen:** the standings panel comes as before, now without a 300 ms sweep behind it; any stutter
+    gone while the rest of the field finishes?
+  - **Nothing to see** for the START lock (it only acts when the game locks its tiles for an online queue).
+  - **The thrust test (when you have 20 minutes, your call):** TASKS.md §1g item 3 - three held races with
+    `--dev` and experiment.lua; the `[thrust]` and `[exp] result` lines tell us if the dial works. If it does, it
+    replaces the part-stack pilot strength.
 - [x] **Streamline Campaign 1.0.0** (2026-11-23, ~4 h played): all features confirmed in the log. Was: a normal campaign session, ideally with one story
       cutscene and one Restart Campaign. Tell me if anything got skipped that you wanted to see.
 - [x] **v0.29, Junker: the crash fix and the rust look.** Owner 2026-11-12: no crash; looks show, dents overboard -> rust + dirt only (v0.29.1). Junker races load again (the crash was pilot strength

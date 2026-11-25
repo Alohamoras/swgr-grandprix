@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.32.3 (2026-11-25): the start grace (owner: the field launching away at the green light)
+- ai.lua, config `AI.Grace` (FreeRace's fix, `docs/freerace-review-2026-11-25.md` §3.2): for the first 15 s after the
+  start the race tune carries `AiAbilityChanceMultiplier` 0 (no bot fires anything in the first corner) and the
+  league's lift of `AiMinTimeAheadModifier` held at the game's value (Ace's +0.75 s waits; a league below the game's
+  keeps its own); then one more sweep writes the league's values on every tune object, late ones included. The
+  originals are recorded once and the league's values always come from them. Our profiles already run no catch-up
+  boost, so nothing to hold there. The AI's perfect-start chance 75 -> 45 % at every league (`perfectStart`). Lines:
+  `[ai] ... (start grace: for 15 s)`, `[ai] start grace over`. `Grace = false` switches it off. Tests: test_ai,
+  test_aiset updated.
+- TASKS.md §1g: the FreeRace follow-ups - the six built, the sixteen to come back to; OWNER.md: the v0.32 playtest.
+
 ## v0.32.2 (2026-11-25): a per-bot thrust dial, as a test (tune.lua, thrust.lua)
 - tune.lua: tune sets made at run time (the FreeRace technique, `docs/freerace-review-2026-11-25.md` §3.6): a
   `UTuneSet` constructed from the Shield condition's class under the racer's tune component, its operations filled in
