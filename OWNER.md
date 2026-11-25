@@ -67,7 +67,13 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
-- [ ] **BikeDrift v0.1.0 (2026-11-25, new mod, repo ~/Projects/swgr-bikedrift) - installed 2026-11-25 18:31, loads at the next game start:**
+- [ ] **BikeSkinSpike v0.1.0 (2026-11-25, new project ~/Projects/swgr-bikeskin: a bike's look on a landspeeder) -
+      installed, loads at the next game start:** in an offline race **on a landspeeder**, after the countdown press
+      **F7** (a display bike rides on your car, your car's look hidden; **F11** undoes it): is there a bike, where does it
+      sit, is your pilot floating? Then another race, **F6** (the bike preset put straight on your car, stays for the
+      race): bike, mess, nothing, or crash? Tell Claude; the log has the details.
+- [x] **BikeDrift v0.2.0 (2026-11-25):** "better, for what it is I think it's neat" - parked as is, still installed
+      (off: `Mods/BikeDrift/enabled.txt` -> `disabled.txt`). Was: **BikeDrift v0.1.0 (2026-11-25, new mod, repo ~/Projects/swgr-bikedrift) - installed 2026-11-25 18:31, loads at the next game start:**
       Race any bike event and corner hard with X (the energy
       brake): it should slide out and keep its speed instead of skidding and jolting. Tell me: too loose / too slow /
       too grippy, and whether the slide runs out mid-corner on long bends. All bikes slide, the bots' too. Values with the
