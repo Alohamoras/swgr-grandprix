@@ -24,7 +24,7 @@ T.check(S.ui.nav[1].down == 4 and S.ui.nav[4].up ~= nil, 'down from JUNKER reach
 -- the cups page -> the start screen
 T.clickTitle('CHALLENGER'); M.tick(3)
 local CP = H.SCREENS.cups()
-T.check(CP.title == 'CHALLENGER' and CP.lines[1][1] == 'Two abilities. One tune-up.', 'v0.27: the league\'s brief under its name on the cups page (' .. tostring(CP.lines[1][1]) .. ')')
+T.check(CP.title == 'CHALLENGER' and CP.lines[1][1] ~= 'Two abilities. One tune-up.', 'v0.36.1: no brief under the league\'s name on the cups page - HOME says it (' .. tostring(CP.lines[1][1]) .. ')')
 local mark = T.mark()
 local calls = #M.calls
 T.clickTitle('JAKKU CUP'); M.tick(5)

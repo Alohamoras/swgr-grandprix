@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.36.1 (2026-11-25): the league's rules on HOME, no track names on the cups page (owner, two asks of the evening)
+- Owner: "drop the names of the planet tracks for the cup's selection screen". Config `CupTracks = false`: a planet cup's
+  info line is its planet's own line alone ("Jakku. Starship wrecks boil under the scorching heat of this desert world."),
+  the Rally Cup its one sentence; the circuit lists (five names, four to a line; the rally's seven stages) are gone.
+  `CupTracks = true` brings them back.
+- Owner: "below each of the difficulties there should be an explanation of what that league mechanics are (i.e. 7 points
+  in each part, two tune ups, etc). It should be written in the game voice ... it doesn't need to be shown on the next
+  page". Config `Leagues[].rules`, the focused poster's info line on HOME (it was empty since v0.22):
+  JUNKER "Afterburner and ramjet wound to ten on a scrapyard chassis. Cornering, resilience and drift stock, the battery
+  barely holding. One ability, no tune-ups." / CHALLENGER "Every part at seven, and every rig on the grid the same. Two
+  abilities, one tune-up." / ACE "Every part at ten, every credit spent. Three abilities, two tune-ups, and the field
+  fires everything it carries." The tagline under the name stays. The league's brief ("Two abilities. One tune-up.") no
+  longer heads the cups page (config `CupsBrief = true` puts it back).
+- Tests: test_cups, test_menu20, test_rally, test_start updated; 51 files pass.
+
 ## v0.36.0 (2026-11-25): the game's typefaces on our text (docs/layout-grammar-2026-11-25.md §5 step 1; owner)
 - The layout grammar doc (measured against the game's own CAMPAIGN page): layout units are a 3840 x 2160 slate; the
   game's pages are a left column x 120 - 2205 that stops at the yellow speeder, ours are centred and 750 - 1135 units

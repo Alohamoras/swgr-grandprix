@@ -274,8 +274,10 @@ SCREENS.home = function()
       pips[#pips + 1] = won and { ART.STAR, ART.medalColor(1) } or { ART.STAR, ART.GREY, 0.35 }
       items[#items + 1] = { title = c.name:upper(), art = ART.league(c.key), pips = pips, classKey = c.key,
         desc = c.tagline,
-        -- (v0.21, owner: less clutter - no blurb, no counts the tile already shows)
-        info = padInfo('', 1), -- (v0.22: no parts / abilities line)
+        -- (v0.21, owner: less clutter - no blurb, no counts the tile already shows; v0.22: no parts / abilities line)
+        -- v0.36.1 (owner: "below each of the difficulties there should be an explanation of what that league mechanics
+        -- are"): the league's rules line (config Leagues[].rules) as the focused poster's info line
+        info = padInfo(c.rules or '', 1),
         act = function() S.class = c.key; K.data.class = c.key; K.save(); return go('cups') end }
     end
   end
@@ -310,8 +312,8 @@ SCREENS.home = function()
     rows = cfg.HomeRows, center = cfg.HomeRows ~= nil }
 end
 
--- the focused cup's info (v0.26, random cups: no fixed race list): what opens a locked cup, then the planet's track
--- names (its pool's base tracks), a few to a line; the Galactic Cup: the planets it draws from, then its finals
+-- the focused cup's info (v0.26, random cups: no fixed race list): what opens a locked cup, then the planet's own line
+-- (v0.36.1: its track names only with config CupTracks); the Galactic Cup: the planets it draws from, then its finals
 local function chunks(list, per)
   local out = {}
   for i = 1, #list, per do out[#out + 1] = table.concat(list, '   -   ', i, math.min(#list, i + per - 1)) end
@@ -337,13 +339,14 @@ local function cupInfo(cup, head)
     local R = cfg.Rally or {}
     lines = { ('%s stages, %s racers, the clock decides. Weather and nightfall are unknown until you arrive.'):format(
       PR.numWord and PR.numWord(#K.bases(cup)) or tostring(#K.bases(cup)), (PR.numWord and PR.numWord(tonumber(R.Grid) or 4) or tostring(R.Grid or 4)):lower()) }
-    for _, l in ipairs(chunks(K.bases(cup), 4)) do lines[#lines + 1] = l end
+    if cfg.CupTracks then for _, l in ipairs(chunks(K.bases(cup), 4)) do lines[#lines + 1] = l end end
   else
     local first = K.pool(cup.key)[1]
     local p = first and K.planetOf(first.path)
     lines = {}
     if planetLine(p) then lines[#lines + 1] = planetLine(p) end
-    for _, l in ipairs(chunks(K.bases(cup), 4)) do lines[#lines + 1] = l end
+    -- v0.36.1 (owner: "drop the names of the planet tracks"): the circuits only with config CupTracks
+    if cfg.CupTracks then for _, l in ipairs(chunks(K.bases(cup), 4)) do lines[#lines + 1] = l end end
   end
   for _, l in ipairs(lines) do out[#out + 1] = l end
   return table.concat(out, '\n')
@@ -388,9 +391,10 @@ SCREENS.cups = function()
   -- v0.30: the Rally Cup after the title race and the boss (the second row)
   for _, cup in ipairs(cupsInOrder()) do if cup.rally then cupTile(cup) end end
   -- (v0.20, menu review 6: the vehicle and the how-to are gone; v0.21, owner: the blurb and the levels line too)
-  -- (v0.27: the league's brief under its name - what you race with here)
+  -- (v0.27: the league's brief under its name - what you race with here; v0.36.1, owner: HOME says it now - only with
+  -- config CupsBrief)
   local lines = {}
-  if cls.brief then lines[#lines + 1] = { cls.brief, 22, U.WHITE } end
+  if cls.brief and cfg.CupsBrief then lines[#lines + 1] = { cls.brief, 22, U.WHITE } end
   lines[#lines + 1] = msgLine()
   return { key = 'cups', title = cls.name:upper(), lines = lines,
     items = items, info = true, layout = (not cfg.CupsRows) and cfg.CupsLayout or nil, rows = cfg.CupsRows,

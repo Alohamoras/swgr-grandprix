@@ -44,6 +44,14 @@ return {
     -- v0.34.1 (owner, after seeing it in game: "didn't really turn out like I wanted them to"): off. The code stays
     -- (main.lua ball, art.lua A.ball, ui.lua's left glyph); 0.86 brings it back.
     CupPlanets = false,
+    -- v0.36.1 (owner 2026-11-25: "drop the names of the planet tracks for the cup's selection screen"): the cups page's
+    -- info line names no tracks - a planet cup shows its planet's line only, the rally its one sentence. true = the
+    -- circuit names back (a planet cup's five, four to a line; the rally's seven stages).
+    CupTracks = false,
+    -- v0.36.1 (owner: the league's mechanics belong on HOME, "it doesn't need to be shown on the next page"): the league's
+    -- brief ("Two abilities. One tune-up.") no longer heads the cups page; its `rules` line is HOME's info line for the
+    -- focused league instead. true = the brief back under the league's name on the cups page.
+    CupsBrief = false,
     -- v0.24: HOME in rows: the leagues as tall posters (a medal per cup on each), RESET small below; the garage
     -- (the start screen) at this tile size, START this tall. v0.26: three leagues, wider (760)
     HomeRows = { { w = 760, h = 560, n = 3 }, { w = 600, h = 200 } },
@@ -183,15 +191,22 @@ return {
         -- stock - too much engine on a scrapyard chassis. Challenger 7 everywhere (was 5; owner to confirm). Ace 10
         -- everywhere ("for ace let's set everything to 10") - the money league. Every bot races a copy of your car
         -- (KNOWLEDGE §5), so this is the whole field's car at each league.
+        -- v0.36.1 (owner 2026-11-25: "below each of the difficulties there should be an explanation of what that league
+        -- mechanics are ... in the game voice"): `rules` - the focused poster's info line on HOME, the parts, abilities and
+        -- tune-ups as the paddock announcer says them (docs/menu-text-review-2026-11-25.md §1). The stat bars' names:
+        -- CORNERING, AFTERBURNER, RESILIENCE, RAMJET, BATTERY, DRIFT.
         { key = 'riffraff', name = 'JUNKER', parts = { [1] = 10, [3] = 10, [4] = 2 }, mods = 0, abilities = 1, open = true,
           tagline = 'Scrapyard junk with too much engine',
-          brief = 'One ability. No tune-ups.' },
+          brief = 'One ability. No tune-ups.',
+          rules = 'Afterburner and ramjet wound to ten on a scrapyard chassis. Cornering, resilience and drift stock, the battery barely holding. One ability, no tune-ups.' },
         { key = 'challenger', name = 'CHALLENGER', parts = 7, mods = 1, abilities = 2, open = true,
           tagline = 'Proper rigs, and pilots out to make a name',
-          brief = 'Two abilities. One tune-up.' },
+          brief = 'Two abilities. One tune-up.',
+          rules = 'Every part at seven, and every rig on the grid the same. Two abilities, one tune-up.' },
         { key = 'ace', name = 'ACE', parts = 10, mods = 2, abilities = 3,
           tagline = 'Every credit on the rig. The galaxy\'s finest',
-          brief = 'Three abilities. Two tune-ups.' },
+          brief = 'Three abilities. Two tune-ups.',
+          rules = 'Every part at ten, every credit spent. Three abilities, two tune-ups, and the field fires everything it carries.' },
     },
 
     -- Points by place in each race (1st first); a racer who doesn't finish scores 0

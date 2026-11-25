@@ -47,7 +47,7 @@ T.clickTitle('JUNKER'); M.tick(3)
 T.check(T.titles():find('|RALLY CUP$') ~= nil, 'the RALLY CUP tile on the cups page (' .. T.titles() .. ')')
 local info
 for _, it in ipairs(H.SCREENS.cups().items) do if it.title == 'RALLY CUP' then info = tostring(it.info) end end
-T.check(info:find('Seven stages, four racers, the clock decides. Weather and nightfall are unknown until you arrive.', 1, true) ~= nil and info:find('DAI BENDU ASCENSION', 1, true) ~= nil,
+T.check(info:find('Seven stages, four racers, the clock decides. Weather and nightfall are unknown until you arrive.', 1, true) ~= nil and info:find('DAI BENDU ASCENSION', 1, true) == nil,
   'its info: the stage count, the grid, the time standings, the routes (' .. info:gsub('\n', ' / ') .. ')')
 
 -- 3. the start: the rivals drawn (the tests' rnd: the first three racers but you), the grid cut to 4, stage 1 launched

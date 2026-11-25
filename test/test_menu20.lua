@@ -131,7 +131,9 @@ local infos = {}
 for _, it in ipairs(home.items) do infos[#infos + 1] = tostring(it.info) end
 T.check(not table.concat(infos, '|'):find('division', 1, true) and not table.concat(infos, '|'):find('League proper', 1, true),
   'v0.21: no class blurbs in HOME\'s info lines')
-T.check(not home.items[1].info:find('%a'), 'v0.22: an open league has no info line (' .. home.items[1].info .. ')')
+-- (v0.36.1, owner: the league's mechanics in the focused poster's info line)
+T.check(home.items[1].info:find('Afterburner and ramjet wound to ten on a scrapyard chassis. Cornering, resilience and drift stock, the battery barely holding. One ability, no tune-ups.', 1, true) ~= nil,
+  'v0.36.1: an open league\'s info line says its rules (' .. home.items[1].info .. ')')
 local measures = {}
 for _, it in ipairs(home.items) do
   if it.classKey and not it.disabled then
@@ -154,8 +156,9 @@ T.check(SD.sprint(sprint), 'a sprint in the Jakku pool')
 K.data.records['riffraff'] = { [sprint.path] = { time = 61, lap = 61 } }
 cups = SC.cups()
 local info = cups.items[1].info
-T.check(info and info:find("THE GIANTS' GRAVEYARD", 1, true) and not info:find('1:01.00', 1, true) and not info:find('lap', 1, true),
-  'the cups page: the planet\'s tracks, no records (' .. tostring(info) .. ')')
+-- (v0.36.1, owner: no track names on the cups page - the planet's line alone)
+T.check(info and info:find("Jakku. Starship wrecks", 1, true) and not info:find("THE GIANTS' GRAVEYARD", 1, true) and not info:find('1:01.00', 1, true) and not info:find('lap', 1, true),
+  'the cups page: the planet\'s line, no track names, no records (' .. tostring(info) .. ')')
 K.data.records = {}
 T.finish()
 
