@@ -173,7 +173,93 @@ local function restores()
   K.data.aiRestores = type(K.data.aiRestores) == 'table' and K.data.aiRestores or {}
   return K.data.aiRestores
 end
-function A.pending() return K.data ~= nil and next(restores()) ~= nil end
+function A.pending() return K.data ~= nil and (next(restores()) ~= nil or next(A.rowRestores()) ~= nil) end
+
+---------------------------------------------------------------------------------------------------------------------
+-- v0.32.6: the back of the grid (config AI.BackRows; docs/freerace-review-2026-11-25.md §3.7, from the FreeRace mod's
+-- notes and our 2026-11-11 research). Each pacing asset's PacingConfigs[] holds a window per tier: AIMaxTimeAhead /
+-- AIMinTimeAhead, curve-table rows named by the tier (Ace..., Elite..., Challengers..., RiffRaff..., Losers...). The
+-- RiffRaff and Losers rows are set to TRAIL you, so the bots on them are out of the race by design and no catch-up ever
+-- reaches them. With BackRows[league] = 'Challengers' (or 'Elite') those rows are renamed to that tier's at launch, so
+-- every opponent stays in the fight; the names go into the save first (aiRowRestores) and back at the menu. The rows
+-- seen are logged once per launch (the first launch tells us the real names).
+local TRAILING = { 'RiffRaff', 'Losers' }
+local ROW_FIELDS = { 'AIMaxTimeAhead', 'AIMinTimeAhead' }
+function A.rowRestores()
+  K.data.aiRowRestores = type(K.data.aiRowRestores) == 'table' and K.data.aiRowRestores or {}
+  return K.data.aiRowRestores
+end
+local function rowOf(h)
+  local r = try(function() return h.RowName:ToString() end)
+  if type(r) ~= 'string' then r = try(function() return h.RowName end) end   -- (a plain string: the test harness)
+  return type(r) == 'string' and r or nil
+end
+-- at launch (with A.launch's assets): the trailing rows renamed; returns the number of rows changed
+function A.launchRows(classKey, objs)
+  local want = (type(aiCfg().BackRows) == 'table') and aiCfg().BackRows[tostring(classKey)] or nil
+  if type(want) ~= 'string' or want == '' then return 0 end
+  local n = 0
+  for _, path in ipairs(A.PACING_ASSETS) do
+    local o = objs[path]
+    local arr = o and try(function() return o.PacingConfigs end)
+    local cnt = arr and try(function() return arr:GetArrayNum() end) or 0
+    if type(cnt) ~= 'number' then cnt = 0 end
+    local seen, order, changed = {}, {}, {}
+    for i = 1, cnt do
+      for _, fld in ipairs(ROW_FIELDS) do
+        local h = try(function() return arr[i][fld] end)
+        local row = h and rowOf(h)
+        if row then
+          if not seen[row] then seen[row] = true; order[#order + 1] = row end
+          for _, t in ipairs(TRAILING) do
+            if row:sub(1, #t) == t then
+              local rest = A.rowRestores()
+              local mine = rest[path] or {}
+              local key = ('PacingConfigs.%d.%s'):format(i, fld)
+              if mine[key] == nil then mine[key] = row; rest[path] = mine; K.save() end
+              local nv = want .. row:sub(#t + 1)
+              if pcall(function() h.RowName = FName(nv) end) then n = n + 1; changed[#changed + 1] = row .. ' -> ' .. nv end
+            end
+          end
+        end
+      end
+    end
+    if o then
+      log(('[ai] league %s: pacing rows on %s: %s%s'):format(tostring(classKey), path:match('([^/]+)$'),
+        #order > 0 and table.concat(order, ' ') or (cnt > 0 and (cnt .. ' windows, rows unreadable') or 'none'),
+        #changed > 0 and ('; back of the grid -> ' .. table.concat(changed, ', ')) or ''))
+    end
+  end
+  return n
+end
+-- at the menu (A.restoreConfig): every renamed row back; returns the number of assets put back
+function A.restoreRows(why)
+  if K.data == nil then return 0 end
+  local rest = A.rowRestores()
+  local done = 0
+  for path, fields in pairs(rest) do
+    local o = C.asset(path)
+    local arr = alive(o) and try(function() return o.PacingConfigs end)
+    if arr then
+      local parts, bad = {}, 0
+      local keys = {}
+      for k in pairs(fields) do keys[#keys + 1] = k end
+      table.sort(keys)
+      for _, k in ipairs(keys) do
+        local i, fld = k:match('^PacingConfigs%.(%d+)%.(%a+)$')
+        local h = i and try(function() return arr[tonumber(i)][fld] end)
+        if h and pcall(function() h.RowName = FName(fields[k]) end) then parts[#parts + 1] = fields[k]
+        else bad = bad + 1 end
+      end
+      log(('[ai] pacing rows put back (%s): %s %s%s'):format(why or '', path:match('([^/]+)$'), table.concat(parts, ' '), bad > 0 and (' - ' .. bad .. ' FAILED') or ''))
+    else
+      log('[ai] restore: pacing asset not found ' .. path .. ' (its rows are dropped)')
+    end
+    rest[path] = nil
+    done = done + 1
+  end
+  return done
+end
 
 -- v0.16.1: the two pacing assets (URacePacingConfig) hold a second copy of the pacing scales in their
 -- PacingSettingsConfig (docs/ai-tuning-research-2026-11-11.md (a)). Which copy the race reads isn't known yet, so
@@ -266,6 +352,9 @@ function A.launch(classKey, prof)
       end
     end
   end
+  -- v0.32.6: the back of the grid's pacing rows
+  local okR, nR = pcall(A.launchRows, classKey, objs)
+  if not okR then log('[ai] pacing rows: ' .. tostring(nR)) else n = n + (nR or 0) end
   local exp = A.experiment()
   if exp then
     log(('[exp] experiment "%s" for this race'):format(tostring(exp.label or '?')))
@@ -368,7 +457,9 @@ end
 function A.restoreConfig(why)
   if K.data == nil then return 0 end
   local rest = restores()
-  local done = 0
+  local okR, nR = pcall(A.restoreRows, why)
+  if not okR then log('[ai] pacing rows restore error: ' .. tostring(nR)) end
+  local done = okR and (nR or 0) or 0
   for path, fields in pairs(rest) do
     local obj = C.asset(path)
     if alive(obj) then

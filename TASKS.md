@@ -207,8 +207,8 @@ The rest, in the order recommended (details and engine names in the review doc's
       `laps` is display-only; leagues of different lengths, rally stages forced to one lap, an endurance cup.
 - [ ] 8. **Wreck limit** (§3.5): `RaceEventComponent.VehicleHealth` topped up (the game knocks out on its own count),
       HUD icons `WBP_HUD_Crashes_C` matched; closes DESIGN §7 ("no crash limit") and a per-league allowance.
-- [ ] 9. **Catch-up for the back of the grid** (§3.7): the `RiffRaff*` / `Losers*` pacing rows renamed to
-      `Challengers*` so the last bots stay in the race (known since 2026-11-11, never built).
+- [x] 9. **Catch-up for the back of the grid** (§3.7): v0.32.6, `AI.BackRows` - the `RiffRaff*` / `Losers*` pacing rows
+      renamed to the league's tier at launch, put back at the menu. Owner to playtest: do Ary and Malis stay in touch?
 - [ ] 10. **The game's tour-summary screen as CUP RESULT** (§6.1): `WBP_PostRace_InstantAction_RunEnd_C` filled with
       RunFinishedVM / PlanetStatVM / RunTimelineEntryVM; native end-of-cup screen. Medium-large; owner's call.
 - [ ] 11. **Box-based navigation** (§4.2): tiles get `{ x, y, w, h }`, nearest-in-direction wired into

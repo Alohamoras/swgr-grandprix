@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.32.6 (2026-11-25): the back of the grid stays in the race (owner's pick 9 of the FreeRace list)
+- ai.lua `A.launchRows`, config `AI.BackRows` (`docs/freerace-review-2026-11-25.md` §3.7): the pacing assets' tier
+  windows (`PacingConfigs[].AIMaxTimeAhead / AIMinTimeAhead`, curve-table rows named by tier) set the RiffRaff and
+  Losers bots to trail you, out of the race by design. At launch those rows are renamed to the league's tier
+  (Challengers at Junker and Challenger, Elite at Ace), on both pacing assets, the names into the save first
+  (`aiRowRestores`) and back at the menu, at a failed launch, or at the next boot after a crash. The rows the game
+  really has are logged at the first launch (`[ai] league x: pacing rows on RP_Default: ...`). `BackRows[league] =
+  false` keeps the game's own. Test: test_pacingrows.
+
 ## v0.32.5 (2026-11-25): START refuses while the game's tiles are locked (an online queue)
 - race.lua / main.lua (FreeRace's 2026-11-08 lesson, `docs/freerace-review-2026-11-25.md` §6.5): while you are queued
   for an online match the game locks every `WBP_FE_TileCommon_Btn` - ours are that class. Before any launch (START,

@@ -555,6 +555,12 @@ return {
         -- field launching away at the start; with it their perfect-start chance 75 -> 45 % (perfectStart below).
         -- Grace = false switches it off.
         Grace = { Seconds = 15, NoAbilities = true, HoldMinAhead = true },
+        -- v0.32.6 (ai.lua A.launchRows; docs/freerace-review-2026-11-25.md §3.7): the back of the grid. The pacing assets'
+        -- tier windows (PacingConfigs: Ace, Elite, Challengers, RiffRaff, Losers rows) set the RiffRaff and Losers bots
+        -- to TRAIL you, out of the race by design. Per league, the tier those two take instead: 'Challengers' keeps the
+        -- whole field in the fight, 'Elite' at Ace (FreeRace's two hardest levels). false / missing = the game's own.
+        -- The names go into the save first and back at the menu; the first launch logs the rows the game really has.
+        BackRows = { riffraff = 'Challengers', challenger = 'Challengers', ace = 'Elite' },
         Profiles = {
             riffraff = { pressure = -1, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.4 }, perfectStart = 45,
                          config = { SpeedMatchingMaxMatchers = 0 } },

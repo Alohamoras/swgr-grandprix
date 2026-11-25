@@ -61,6 +61,8 @@ local function fill(d)
   d.paintRestore = type(d.paintRestore) == 'table' and d.paintRestore or nil
   -- v0.32: the AI ability configs' class lists to put back (aiuse.lua), by config path
   d.aiCoverRestores = type(d.aiCoverRestores) == 'table' and d.aiCoverRestores or {}
+  -- v0.32.6: the pacing assets' row names to put back (ai.lua A.launchRows), by asset path
+  d.aiRowRestores = type(d.aiRowRestores) == 'table' and d.aiRowRestores or {}
   return d
 end
 
@@ -84,7 +86,7 @@ end
 -- is copied to save.backup-reset-<date>.lua first. Returns the backup's name. (main.lua asks twice.) v0.26: the same
 -- list is what an old save keeps at its clean start (K.cleanStart).
 K.KEEP_ON_RESET = { 'version', 'racer', 'picks', 'mods', 'restores', 'abilityRestores', 'modRestores', 'aiRestores',
-  'racerRestore', 'titleRestore', 'gridRestore', 'aiCoverRestores', 'paintRestore' }
+  'racerRestore', 'titleRestore', 'gridRestore', 'aiCoverRestores', 'aiRowRestores', 'paintRestore' }
 local function keepGarage(was)
   local d = {}
   for _, k in ipairs(K.KEEP_ON_RESET) do d[k] = was[k] end
