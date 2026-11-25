@@ -102,6 +102,14 @@ Owner's plan: keep playing ~a week without crashes, then publish as a beta.
 - [x] Junker: renamed, afterburner and ramjet +2 (v0.28.3).
 - [ ] Junker = banger racing: more aggressive bots (`AI.Profiles.riffraff.aggression`).
 - [ ] Ace = weather and night: the draw leans to condition variants (gp.lua `K.draw`, a per-league lean).
+**2026-11-25 (owner): the car per league decided** - the plan in the doc's "2026-11-25" section. One tag per chunk:
+- [ ] L1. **Parts** (config only): Junker `{ [1] = 10, [3] = 10, [4] = 2 }`, Challenger `7`, Ace `10`; `AI.Strength.ace` shifted
+      to `{ elite = 0, contender = -1, weak = -3 }` (no room above 10); briefs / taglines. Tests; the `[builds]` lines
+      show each tier's levels. **Owner to confirm Challenger 7** (OWNER.md).
+- [ ] L2. **Ace clean field:** `AI.Profiles.ace` aggression (VersusPlayer and VersusAI) down; check the `[gaps]` spread.
+- [ ] L3. **Wreck limit per league** (= §1g item 8): `Leagues[].wrecks`, Junker 5, the others the game's 3; the mod tops
+      `VehicleHealth` up and grows the HUD pips (`WBP_HUD_Crashes_C`).
+- [ ] L4. **Owner playtest:** a cup at each league. Junker fun or a pinball? Ace too fast at 10? Do the Elite still lead at Ace?
 
 ## 1c. Looks (owner 2026-11-12; not started)
 - **Rust for Junker** (owner: research and build all three, then look in game) - docs/custom-vehicle-models-2026-11-12.md
@@ -279,8 +287,8 @@ before an Ace cup; each is worth heat; each cup keeps the best heat you won gold
 - [ ] **H1. Rules and save** (heat.lua, config `Heat`, gp.lua fill): `run.heat`, `heatPicks`, `heatBest`; the modifiers as
       overrides merged over the league / AI profile at launch only; the `[heat]` log line; tests (merge, stacking, best on
       gold only, old save, Rally / title untouched, put back at the menu).
-- [ ] **H2. First modifiers, all on today's dials:** Faster field I-III, Detuned I-II, Bare garage, Weak kit, No mercy at
-      the start, Grudge, Armed field (doc §3 rows 1-4, 6-8). Held race first: does Detuned drop the bots with you?
+- [ ] **H2. First modifiers, all on today's dials:** Faster field I-III, Budget cap I-II, Bare garage, Weak kit, No mercy at
+      the start, Grudge, Armed field (doc §3 rows 1-4, 6-8). Held race first: does Budget cap drop the bots with you?
 - [ ] **H3. Screens:** the HEAT tile and panel on the start screen, the badge on the Ace cup tiles, `HEAT n` on the
       standings header, the CUP RESULT line / NEW HEAT BEST.
 - [ ] **H4. Small builds:** Unarmed (the `noOffence` idea, §4), Podium or bust (cup.lua).

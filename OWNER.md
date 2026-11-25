@@ -4,9 +4,13 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
+- [ ] **League cars (2026-11-25, plan in docs/league-styles-2026-11-12.md "2026-11-25"):** (1) Challenger at 7 on every
+      part - confirm (was 5)? (2) Junker wreck limit 5 (the game's is 3) - or more? (3) Ace bots: keep their full ability
+      kits, or defensive / utility only for a cleaner field? (4) OK to shift Ace pilot strength down (Elite at your 10,
+      contenders 9, weak 7), since nothing goes above 10?
 - [ ] **HEAT for Ace (2026-11-25, plan in docs/heat-2026-11-25.md):** (1) the name - HEAT, or something Star Wars-y
       (BOUNTY, WAGER, HOT RUN)? (2) opens at your first Ace gold (Claude's pick) or after the Ace title? (3) the first
-      set (Claude's pick: Faster field, Detuned, Bare garage, Weak kit, No mercy at the start, Grudge, Armed field - all on
+      set (Claude's pick: Faster field, Budget cap, Bare garage, Weak kit, No mercy at the start, Grudge, Armed field - all on
       dials we already have)? (4) only a gold records the heat (Claude's pick), or any trophy? (5) any modifier you'd
       cut or add?
 - [ ] **Mechanic shop mod (2026-11-24):** "highest level parts" - level 10 outright (one visit = a maxed slot), or the biggest
