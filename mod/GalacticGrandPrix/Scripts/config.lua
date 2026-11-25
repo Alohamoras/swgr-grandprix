@@ -47,7 +47,20 @@ return {
     -- v0.23: racers' faces on the title race and final boss tiles, by racer key. v0.25 (seen in game 2026-11-11): the
     -- game's large character pictures (Content/Characters/*_Fallback) draw broken through the tile's picture (a white
     -- tile with scraps), so none are listed; the stadium picture stays. Format: { RacerKey = '/Game/...texture' }.
-    Portraits = {},
+    -- v0.31: each racer's face = the 256 px MainIcon texture of their CharacterDef in the game data (DA_Racer_<key>
+    -- .MainIcon; read with the vehicle-model repo's grx tool, 2026-11-24). Drawn on the garage's pilot tile, the title
+    -- race tile and Kestar's tile (main.lua portrait). Nothing is shipped: the paths are the game's. (The big
+    -- *_Fallback previews drew broken on a tile in v0.25; these are the small UI icons.)
+    Portraits = (function()
+        local CH = '/Game/Griffin/UI/Library/Textures/Content/Characters/'
+        return {
+            DarkEnigma = CH .. 'T_UI_PlayerChar_4', QuietStrength = CH .. 'T_UI_PlayerChar_1', Veteran = CH .. 'T_UI_PlayerChar_2',
+            Nomad = CH .. 'T_UI_PlayerChar_3', InnerHonour = CH .. 'T_UI_PlayerChar_5', ElegantProfessional = CH .. 'T_UI_PlayerChar_6',
+            Protege = CH .. 'T_UI_RivalChar_Yara', Mercenary = CH .. 'T_UI_RivalChar_Mercenary', Ghost = CH .. 'T_UI_RivalChar_Ghost',
+            Thrall = CH .. 'T_UI_RivalChar_Sen', Rager = CH .. 'T_UI_RivalChar_Ziff', Star = CH .. 'T_UI_RivalChar_Lyren',
+            Antagonist = CH .. 'T_UI_Antagonist', Mentor = '/Game/Griffin/UI/Library/Textures/Content/Favors/T_UI_Favor_Mentor_A',
+        }
+    end)(),
     -- Key that selects the GRAND PRIX tab at the main menu (Backspace / B = back)
     MenuKey = 'F6',
     -- v0.17 (TASKS.md 11): at the first main menu after the game starts, open the GRAND PRIX tab by itself (HOME).

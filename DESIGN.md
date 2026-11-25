@@ -101,6 +101,14 @@ standings by total time with a 30 s penalty for a DNF. Open at every league from
 picks no title-race leader. Config `Rally`, `Pools.rally`, `Cups[7]`; cup.lua `timed`; title.lua `gridCut`.
 Not built (TASKS 1e): a mines finale, a Group B fixed spec, a power-stage bonus.
 
+## 3c. Pilots, faces, vehicles and kits (v0.31, PR #1 by MilkManEX, reworked 2026-11-25)
+The garage has a PILOT tile (the racer's face on the left: the 256 px `MainIcon` texture each CharacterDef names in
+the game data, config `Portraits`; nothing shipped) and a VEHICLE tile. A pilot's own category launches as the game
+built it; the other two launch the shared base build wearing that rider's scheme (paint.lua: a preset recipe class
+written into `RacerDef.PreferredCustomisationForVehicleArchetype` before launch, recorded in the save, taken off at
+the menu). Choosing a pilot starts your four abilities as that pilot's signature kit; edits stay until the pilot
+changes; a save from before keeps its four. The title race and the boss race use the picked vehicle too.
+
 ## 4. Leagues (v0.26; were the speed classes)
 The recon behind this: your parts make your vehicle much faster (5 levels on every part: a race went from 152 s to
 124 s, top speed 448 → 576 kph); AI pace comes from the rubber band (`DA_RaceTuneConfig`), which follows you; the AI's

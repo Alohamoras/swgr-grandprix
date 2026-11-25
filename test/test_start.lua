@@ -47,7 +47,7 @@ for _, it in ipairs(its) do
   if it.tag then tags[#tags + 1] = it.tag[1] end
   if it.kind == 'tuneup' and it.disabled then t2 = it end
 end
-T.check(table.concat(tags, ',') == 'TUNE-UP,TUNE-UP,ABILITY,ABILITY,ABILITY,ABILITY', 'v0.27.4: a TUNE-UP / ABILITY caption on each slot (' .. table.concat(tags, ',') .. ')')
+T.check(table.concat(tags, ',') == 'PILOT,VEHICLE,TUNE-UP,TUNE-UP,ABILITY,ABILITY,ABILITY,ABILITY', 'v0.27.4 (v0.31: PILOT and VEHICLE first): a caption on each slot (' .. table.concat(tags, ',') .. ')')
 T.check(t2 and t2.title == 'TUNE-UP 2' and t2.corner and t2.corner[1][1] == ART.LOCK and t2.info == 'Tune-up 2 opens at ACE.',
   'v0.27.4: at Challenger the second tune-up slot greyed with a lock, says it opens at Ace')
 T.check(T.marks():find('LOCK', 1, true) ~= nil, 'the lock drawn on the tile (' .. T.marks() .. ')')

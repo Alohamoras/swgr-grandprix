@@ -54,6 +54,11 @@ local function fill(d)
   d.titleTrack = type(d.titleTrack) == 'table' and d.titleTrack or {}
   -- v0.21: the final boss (title.lua): boss = { beaten = true, tries = n, at = 'YYYY-MM-DD' } or nil (not raced)
   d.boss = type(d.boss) == 'table' and d.boss or nil
+  -- v0.31 (PR #1): the vehicle picked in the garage (a config Vehicles key; nil = the pilot's own), the pilot whose
+  -- signature kit the picks started from, the alternate-vehicle scheme to take off a racer (paint.lua)
+  d.vehicle = type(d.vehicle) == 'string' and d.vehicle or nil
+  d.picksRacer = type(d.picksRacer) == 'string' and d.picksRacer or nil
+  d.paintRestore = type(d.paintRestore) == 'table' and d.paintRestore or nil
   return d
 end
 

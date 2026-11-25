@@ -17,7 +17,7 @@ WHAT'S IN IT
 - A title race for each league against its points leader, and a final boss once you're the Ace champion.
 - Rivals that stay rivals: the elite pilots (Sen Fira, Biddy Blas, Lyren Shok) race stronger cars and are usually
   the ones to beat. No catch-up for the AI at Challenger and Ace - a lead you build is yours.
-- Pick your pilot (you race their vehicle and look), your four abilities and your tune-ups on the cup's start screen.
+- Pick your pilot, then a vehicle (landspeeder, speeder bike, or skim speeder). A new pilot starts on their own vehicle. The other two get that rider's scheme (ace, enforcer, raider, vintage, or robotic, in paint, rust, or steel). The pilot tile shows that racer's face (the game's own portrait). Your four abilities start as that pilot's signature kit, and you can change them, along with your tune-ups, on the cup's start screen.
 - Its own save file: your campaign is never touched.
 
 REQUIREMENTS
@@ -31,7 +31,7 @@ INSTALL
 3. Start the game. The GRAND PRIX tab appears on the main menu (or press F6).
 
 HOW TO PLAY
-- GRAND PRIX tab -> pick a league -> pick a cup -> the start screen (your pilot, abilities, tune-ups) -> START.
+- GRAND PRIX tab -> pick a league -> pick a cup -> the start screen (your pilot, vehicle, abilities, tune-ups) -> START.
 - After each race: the finish times, then the standings (A); NEXT RACE starts the next one. B on the standings leaves
   the cup (points lost - cups can't be paused).
 - JUNKER and CHALLENGER are open from the start; ACE opens with a trophy in all five Challenger planet cups.

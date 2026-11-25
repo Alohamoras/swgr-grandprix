@@ -1,7 +1,7 @@
 # Galactic Grand Prix (STAR WARS Galactic Racer, UE4SS Lua mod)
 
 Kart-racer-style cups for STAR WARS Galactic Racer as a GRAND PRIX tab on the main menu: three leagues (JUNKER /
-CHALLENGER / ACE), random cups of four races per planet plus the Galactic Cup and (v0.30) the Rally Cup - seven point-to-point stages, four cars, total time -, points and trophies, title races, pilot
+CHALLENGER / ACE), random cups of four races per planet plus the Galactic Cup and (v0.30) the Rally Cup - seven point-to-point stages, four cars, total time -, (v0.31) any vehicle for any pilot with that pilot's paint, pilot faces and signature kits, points and trophies, title races, pilot
 strength, four abilities and tune-ups. Offline only. Players' readme: docs/release/README.txt.
 
 Where things are: DESIGN.md (the design), TASKS.md (open work; history in docs/TASKS-done.md), OWNER.md (questions and

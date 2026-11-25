@@ -52,16 +52,17 @@ for _ in pairs(seen) do count = count + 1 end
 T.check(not kestar and count == 13, 'cycling forward: 13 racers, never Kestar (' .. count .. ')')
 for _ = 1, 30 do if RC.cycle(-1).key == 'Antagonist' then kestar = true end end
 T.check(not kestar, 'nor backward')
--- the garage: no VEHICLE tile; the RACER tile names the vehicle type and how to unlock Kestar
+-- the garage: a VEHICLE tile beside the pilot; the RACER tile names the pilot and how to unlock Kestar
 while RC.current().key ~= 'Rager' do RC.cycle(1) end
 local items = SC.garage().items
-local racer
+local racer, veh
 for _, it in ipairs(items) do
-  T.check(it.kind ~= 'vehicle', 'no VEHICLE tile (' .. tostring(it.title) .. ')')
   if it.kind == 'racer' then racer = it end
+  if it.kind == 'vehicle' then veh = it end
 end
-T.check(racer and racer.title == 'BIDDY BLAS' and racer.desc == 'Speeder bike', 'the RACER tile: Biddy Blas, Speeder bike')
-T.check(racer and racer.info:find('^Biddy Blas %- speeder bike:  Hot%-headed') ~= nil, 'its info: "Biddy Blas - speeder bike: <bio>" (' .. tostring(racer and racer.info) .. ')')
+T.check(racer and racer.title == 'BIDDY BLAS', 'the RACER tile: Biddy Blas')
+T.check(veh and veh.title == 'SPEEDER BIKE', 'the VEHICLE tile: his speeder bike (' .. tostring(veh and veh.title) .. ')')
+T.check(racer and racer.info:find('^Biddy Blas:  Hot%-headed') ~= nil, 'its info: "Biddy Blas: <bio>" (' .. tostring(racer and racer.info) .. ')')
 T.check(racer and racer.info:find('Kestar Bool is locked. To unlock: beat Kestar Bool after the ACE title.', 1, true) ~= nil, 'and how to unlock Kestar')
 -- HOME's GARAGE tile: the racer and the vehicle type
 local garage
@@ -77,7 +78,8 @@ K.data.boss = { beaten = true, tries = 1 }
 for _ = 1, 14 do if RC.cycle(1).key == 'Antagonist' then kestar = true; break end end
 T.check(kestar and RC.current().key == 'Antagonist' and RC.vehicle().key == 'car', 'boss beaten: Kestar in the cycle, a landspeeder')
 for _, it in ipairs(SC.garage().items) do
-  if it.kind == 'racer' then T.check(not it.info:find('locked', 1, true) and it.desc == 'Landspeeder', 'no lock line any more (' .. it.info .. ')') end
+  if it.kind == 'racer' then T.check(not it.info:find('locked', 1, true), 'no lock line any more (' .. it.info .. ')') end
+  if it.kind == 'vehicle' then T.check(it.title == 'LANDSPEEDER', 'Kestar\'s vehicle tile is the landspeeder (' .. tostring(it.title) .. ')') end
 end
 
 -- 5. as Sebulba at Challenger: the skimmer build at parts 5, the others untouched, put back at the menu; the game's byte

@@ -20,7 +20,7 @@
 -- them), the Galactic Cup 4 from 4 planets. (The code and the save keep the word "class" for a league.)
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.30.0'
+local VERSION = '0.31.0'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -79,9 +79,24 @@ local CU = require('cup')
 local AB = require('abil')
 local PR = require('prog')
 local MS = require('modsel')
+local RC -- (racer.lua, loaded below; picksFor reads it once the file has finished loading)
 
--- your four picks, made valid for a class's level (and kept in the save)
+-- your four picks, made valid for a class's level (and kept in the save).
+-- A pilot you have not built a kit for yet gets that pilot's signature four (the kit their bot races with).
+-- Edits stay until the pilot changes.
 local function picksFor(classKey)
+  local who = RC and RC.current and (RC.current() or {}).key
+  if who and K.data.picksRacer ~= who then
+    -- v0.31: a save from before the signature kits (no picksRacer yet) keeps its four - they become this pilot's;
+    -- only a CHANGE of pilot starts the signature kit (PR #1 reset every player's picks on the upgrade)
+    if K.data.picksRacer == nil and type(K.data.picks) == 'table' then
+      log(('[racer] your saved abilities kept as %s\'s kit (v0.31)'):format(who))
+    else
+      K.data.picks = AB.racerPicks(who)
+    end
+    K.data.picksRacer = who
+    K.save()
+  end
   local p = AB.normalize(K.data.picks, AB.levelFor(classKey))
   K.data.picks = p
   return p
@@ -127,7 +142,7 @@ local SCREENS = {}
 --   after races 1-3 offer NEXT RACE only; B there asks "Leave the cup?" (YES forfeits and goes HOME). No CONTINUE /
 --   QUIT CUP tiles, no IN PROGRESS cup tile, no LATER. HOME never shows with a cup alive (K.drop).
 
-local RC = (function() local ok, m = pcall(require, 'racer'); return ok and m or nil end)()
+RC = (function() local ok, m = pcall(require, 'racer'); return ok and m or nil end)()
 local TI = require('title')
 -- the info text always takes the same number of lines on a screen, so the grid doesn't jump as the focus moves
 -- (cups: 5; HOME: 1)
@@ -139,8 +154,11 @@ end
 -- v0.14 (TASKS.md A7): a tile shows a short name and at most a short second line (ui.lua U.FIT, test_tiletext); the
 -- long text (effects, bios, blurbs, what opens a lock) is in the focused tile's info line
 local function racerName() return RC and RC.displayName and RC.displayName() or nil end
--- v0.15: the vehicle is your racer's (config Racers[].vehicle); no vehicle pick
-local function myVehicle() return (RC and RC.vehicle) and RC.vehicle() or K.vehicle('car') end
+-- the category this race launches with: your pick, or the current pilot's own when you have not picked
+local function myVehicle()
+  if RC and RC.chosenVehicle then return RC.chosenVehicle() end
+  return (RC and RC.vehicle) and RC.vehicle() or K.vehicle('car')
+end
 -- the league picked last (the garage's ability level and tune-up slots), the first league before any pick
 local function curLeague() return K.data.class or (K.leagues()[1] or {}).key end
 local function levelNow() return AB.levelFor(curLeague()) end
@@ -159,8 +177,14 @@ local function cupsInOrder()
   for _, c in ipairs(K.cups()) do if c.rally then out[#out + 1] = c end end -- (v0.30: the Rally Cup, drawn last on the cups page)
   return out
 end
--- v0.23: a racer's face (config Portraits, by racer key), nil when the game has none we know of
-local function portrait(key) return key and (cfg.Portraits or {})[key] or nil end
+-- v0.23: a racer's face from config Portraits (a game texture path; v0.31: the 256 px MainIcon of each racer's
+-- CharacterDef, read from the game data - nothing shipped). nil when unset.
+local function portrait(key)
+  if not key then return nil end
+  local p = (cfg.Portraits or {})[key]
+  if type(p) == 'string' and p ~= '' then return p end
+  return nil
+end
 -- v0.24 (owner: pictures, not words on tiles): a locked tile's lock, a perfect cup's star (ui.lua U.decorate)
 local function lockCorner() return { { ART.LOCK, ART.LOCK_COLOR } } end
 -- a race to start from the garage (v0.24: the garage is the start screen of every cup, title race and boss race):
@@ -200,7 +224,9 @@ local function titleTile(cls)
   local laps = tonumber(ev.laps)
   -- (v0.24: a gold medal once won, no CHAMPION badge)
   local won = st and st.won
-  return { title = 'TITLE RACE', art = portrait(ev.opponent) or ART.SHOWDOWN, desc = 'vs ' .. vs,
+  local face = portrait(ev.opponent)
+  return { title = 'TITLE RACE', art = ART.SHOWDOWN, desc = 'vs ' .. vs,
+    glyph = face and { face, { 1, 1, 1 }, side = 'left' } or nil, -- (v0.31: the opponent's face on the left)
     icon = won and ART.medal(1) or nil, iconColor = won and ART.medalColor(1) or nil,
     info = padInfo(('1 v 1 against %s on %s%s: win and you are the %s champion.'):format(vs, ev.title,
       laps and (laps == 1 and ', a sprint' or (', %d laps'):format(laps)) or '', cls.name)),
@@ -210,7 +236,9 @@ end
 local function bossTile(cls)
   if not (TI.bossOn() and cls.key == TI.bossClass() and TI.bossOpen(K.data)) then return nil end
   local beaten = TI.bossBeaten(K.data)
-  return { title = 'KESTAR BOOL', art = portrait('Antagonist') or ART.SHOWDOWN, desc = 'Final boss',
+  local face = portrait('Antagonist')
+  return { title = 'KESTAR BOOL', art = ART.SHOWDOWN, desc = 'Final boss',
+    glyph = face and { face, { 1, 1, 1 }, side = 'left' } or nil,
     icon = beaten and ART.medal(1) or nil, iconColor = beaten and ART.medalColor(1) or nil,
     info = padInfo(beaten and 'You beat Kestar Bool: he races for you now (the garage). Run it again any time.'
       or 'The final boss: 1 v 1 against Kestar Bool in the stadium, 6 laps. Beat him to race as him.'),
@@ -420,24 +448,47 @@ SCREENS.garage = function()
   local picks = picksFor(curLeague())
   local st = S.start
   local items = {}
-  -- v0.15 (TASKS.md A6): no VEHICLE tile - the racer decides the vehicle; the RACER tile names it. A locked racer
-  -- (Kestar Bool until he is beaten after the Ace title) is skipped by Select and named in the info line with how to unlock him.
+  -- A locked racer (Kestar Bool until he is beaten after the Ace title) is skipped by Select and named in the
+  -- info line with how to unlock him. Selecting a pilot sets the vehicle back to theirs and the four abilities
+  -- back to that pilot's signature kit; both can be changed afterwards (PR #1, v0.31). The pilot tile carries the
+  -- racer's face: config Portraits, the game's own MainIcon texture.
   if RC and RC.current then
     local r = RC.current() or {}
-    local vtext = RC.vehicleText and RC.vehicleText() or '?'
     local locks = {}
     for _, o in ipairs(RC.list()) do
       if RC.locked and RC.locked(o) then locks[#locks + 1] = ('  %s is locked. %s.'):format(o.name, RC.unlockText(o)) end
     end
+    local face = portrait(r.key)
     items[#items + 1] = { title = (r.name or 'RACER'):upper(), span = 2, kind = 'racer',
-      art = portrait(r.key) or ((r.key == 'Antagonist') and ART.SHOWDOWN or 'T_UI_FE_Tile_01'),
-      desc = vtext, info = ('%s - %s:  %s.'):format(r.name or '?', vtext:lower(), r.line or '') .. table.concat(locks),
+      art = (r.key == 'Antagonist') and ART.SHOWDOWN or 'T_UI_FE_Tile_01',
+      glyph = face and { face, { 1, 1, 1 }, side = 'left' } or nil,
+      tag = { 'PILOT', { 0.62, 0.85, 1 } },
+      info = ('%s:  %s.'):format(r.name or '?', r.line or '') .. table.concat(locks),
       act = function()
+        local prev = (RC.current() or {}).key
         local n = RC.cycle(1)
-        S.message = n and ('Racing as %s (%s)'):format(n.name, RC.vehicleText(n.key):lower()) or nil
+        if n and n.key ~= prev then
+          K.data.vehicle = n.vehicle
+          K.data.picks = AB.normalize(AB.racerPicks(n.key), levelNow())
+          K.data.picksRacer = n.key
+          K.save()
+          S.message = ('Racing as %s. %s. Signature abilities.'):format(n.name, RC.vehicleText(n.key))
+        end
         return true
       end }
   end
+  if RC and RC.cycleVehicle then
+    local veh = myVehicle()
+    items[#items + 1] = { title = (veh.name or 'VEHICLE'):upper(), span = 2, kind = 'vehicle',
+      art = ART.vehicle(veh.key), tag = { 'VEHICLE', U.GOLD },
+      info = 'Landspeeder, speeder bike, or skim speeder. A new pilot starts on their own. The other two wear that rider\'s scheme.',
+      act = function()
+        local v = RC.cycleVehicle(1)
+        S.message = v and ((v.name or 'Vehicle') .. ' selected') or nil
+        return true
+      end }
+  end
+  local choices = #items
   local list = modsFor()
   local slots, fromClass = 0, {}
   for _, c in ipairs(K.leagues()) do
@@ -482,11 +533,12 @@ SCREENS.garage = function()
   end
   local title, sub = startHeader(st)
   if not st then
-    -- the garage on its own (config StartScreen = false: the GARAGE tile on HOME): the v0.23 page - racer, the four
+    -- the garage on its own (config StartScreen = false: the GARAGE tile on HOME): pilot, vehicle, the four
     -- abilities, the tune-ups, one grid
-    local out = { items[1] }
+    local out = {}
+    for i = 1, choices do out[#out + 1] = items[i] end
     for _, a in ipairs(abil) do out[#out + 1] = a end
-    for k = 2, #items do out[#out + 1] = items[k] end
+    for k = choices + 1, #items do out[#out + 1] = items[k] end
     return { key = 'garage', title = 'GARAGE', lines = { msgLine() }, items = out, info = true }
   end
   for _, a in ipairs(abil) do items[#items + 1] = a end
@@ -499,8 +551,12 @@ SCREENS.garage = function()
     focus = #items
   end
   local G = cfg.GarageRows or { w = 470, h = 300, startH = 170 }
-  local rows = { { w = G.w, h = G.h, n = row1 }, { w = G.w, h = G.h, n = 4 } }
-  if st then rows[3] = { w = G.w, h = G.startH or 170 } end
+  local tunes = row1 - choices
+  local rows = {}
+  if choices > 0 then rows[#rows + 1] = { w = G.w, h = G.h, n = choices } end
+  if tunes > 0 then rows[#rows + 1] = { w = G.w, h = G.h, n = tunes } end
+  rows[#rows + 1] = { w = G.w, h = G.h, n = 4 }
+  if st then rows[#rows + 1] = { w = G.w, h = G.startH or 170 } end
   local lines = {}
   for _, l in ipairs(sub or {}) do lines[#lines + 1] = l end
   lines[#lines + 1] = msgLine()

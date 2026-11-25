@@ -1,4 +1,4 @@
--- v0.15: the racer decides the vehicle. Shade races the landspeeder; the garage has no VEHICLE tile; a bike racer
+-- v0.15: Shade races the landspeeder; the garage has a VEHICLE tile beside the pilot; a bike racer
 -- picked on the RACER tile races the bike. Ace sets every part on the racer's build and puts it back. (An old save's
 -- vehicle pick: gone with the v0.26 clean start, test_convert.) Quitting a race from the game's
 -- pause menu is a DNF and the cup goes on; leaving the cup (B on the standings, YES) forfeits it (v0.9: cups cannot be
@@ -28,8 +28,11 @@ T.clickTitle('YES'); M.tick(3)
 T.check(T.save().run == nil and T.logHas('[menu] home'), 'the Jakku cup left')
 T.clickTitle('GARAGE'); M.tick(3)
 T.check(T.logHas('[menu] garage'), 'GARAGE opens the garage')
-T.check(T.titles():find('^SHADE|') ~= nil and not T.titles():find('LANDSPEEDER', 1, true), 'no VEHICLE tile: the racer first (' .. T.titles() .. ')')
-T.check(rawget(_G, 'GU_TEST_SCREENS').S.ui.items[1].kind == 'racer' and not T.badges():find('VEHICLE', 1, true), 'no VEHICLE tile: the racer first')
+T.check(T.titles():find('^SHADE|') ~= nil and T.titles():find('LANDSPEEDER', 1, true) ~= nil, 'the racer first, then their vehicle (' .. T.titles() .. ')')
+local gitems = rawget(_G, 'GU_TEST_SCREENS').S.ui.items
+local hasVeh = false
+for _, it in ipairs(gitems) do if it.kind == 'vehicle' then hasVeh = true end end
+T.check(gitems[1].kind == 'racer' and hasVeh, 'the racer first, with a vehicle tile')
 T.clickTitle('SHADE'); M.tick(3)
 T.clickTitle('ARY QUILL'); M.tick(3)
 T.check(T.save().racer == 'Mercenary' and T.titles():find('^MALIS VAZOSK|') ~= nil, 'Select twice on the racer: Malis Vazosk (a bike racer)')

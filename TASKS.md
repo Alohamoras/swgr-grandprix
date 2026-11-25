@@ -175,8 +175,12 @@ Speedway, Andobi Edge, Skakoan Gambit, Mineral Loop, Corrosion Hypersphere) are 
   texture can be GC'd; the vehicle tile is ignored by the title / boss races (launchTo uses the pilot's own vehicle);
   `K.data.vehicle` / `picksRacer` not in gp.lua fill(); `P.tick` is dead code. Not seen in game by us.
 - Merge: one trivial conflict (CHANGELOG); merged onto v0.30.0 it compiles, the rally tests pass, the same 3 fail.
-- Recommendation: not as-is. Take presets + vehicle tile + signature kits after the fixes above and a playtest; the
-  icons only with non-game art. Publish the rally (v0.30) on its own first.
+- **Merged as v0.31.0 (2026-11-25, owner: "pull in the PR with all the fixes", portraits "point at the in game
+  character art")**: the PNGs dropped; config Portraits = each racer's `MainIcon` texture in the paks (from the
+  CharacterDefs via grx); the file import gone; picks kept on an old save; the preset loads by package path; the
+  put-back record in the save (`paintRestore`); the title / boss races use the picked vehicle; save fields registered;
+  the three tests fixed. **Owner to playtest v0.31.0 together with the rally** (OWNER.md).
+- [ ] Reply on the PR (owner's account): merged with changes, thanks; the icon files could not be shipped.
 
 ## 2. Waiting on the owner's play (details and tick boxes in OWNER.md "Playtests")
 - [ ] v0.27.x: the finish times then STANDINGS (A, or 6 s); Challenger open from the start; Riff-Raff's feel (parts

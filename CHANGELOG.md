@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.31.0 (2026-11-25): pilot faces, any vehicle for any pilot, signature kits (PR #1 by MilkManEX, reworked)
+From [PR #1](https://github.com/Alohamoras/swgr-grandprix/pull/1) (MilkManEX, 2026-11-24): thank you. Merged with
+these changes:
+- **Pilot faces from the game, nothing shipped.** The PR bundled 14 PNG portraits extracted from the game and imported
+  them at runtime (`ImportFileAsTexture2D`, the texture held across ticks). Those are the game's own 256 px
+  `MainIcon` textures (every racer's CharacterDef names one), so config `Portraits` now points at them in the paks:
+  the garage's pilot tile, the title race tile and Kestar's tile draw the face on the left (ui.lua `glyph.side`).
+- **A VEHICLE tile in the garage** (PR): a new pilot starts on their own category; the other two launch the shared
+  base build wearing that rider's preset (paint.lua: a model, faction swatch and finish per rider and body, written
+  into the racer's `PreferredCustomisationForVehicleArchetype` before the race, taken off at the menu). Changes: the
+  preset class loads by its package path (the PR's full-name LoadAsset found nothing not already in memory); the
+  put-back record is in the save first (`paintRestore`), so a crash mid-race is put right at the next boot; the title
+  race and the boss race use the picked vehicle too (they raced the pilot's own).
+- **Signature kits** (PR): choosing a pilot starts your four abilities as that pilot's kit (the four their bot races
+  with); edits stay until the pilot changes. Change: an existing save keeps its four (they become the current
+  pilot's) - the PR reset every player's picks on the first launch after the upgrade.
+- Save fields `vehicle`, `picksRacer`, `paintRestore` registered; the PR's dead `P.tick` dropped; its three failing
+  tests pass (one was the picks reset, two were expectations).
+
 ## v0.30.0 (2026-11-24): the RALLY CUP (owner: "a rally cup, all the tracks that are point to point")
 - A seventh cup on every league's cups page (after the title race and Kestar): **seven point-to-point stages**, one
   per route and direction, in tour order - The Giants' Graveyard (Jakku), Geothermal Tour (Lantaana), Rhodochrosite
@@ -16,7 +35,6 @@
 - The Rally Cup counts for no planet-cup unlock (Challenger, Ace, the Galactic Cup) and sets no title-race leader.
 - Also: tools/recon/TrackTry (a LaunchCustomRace launcher for TrackDefs with no event; the hidden Jakku track is Star
   Destroyer Speedway, a 5-lap short circuit, nothing special).
-
 ## v0.29.9 (2026-11-13): AI test - your level on your own race copy (test-only)
 - `experiment.lua` (DevTools only): `yourCopy = true` puts the shared launch build at the bots' level
   (`botStacksAbs`) and your `yourLevels` onto your own race copy at load. Round B2 showed the bots still ~15 s slower

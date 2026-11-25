@@ -435,7 +435,9 @@ end
 --   it.icon / it.iconColor  the medal, top right (U.MEDAL_PX)
 --   it.corner = { {tex, color}, ... }  more small icons beside it, top right (the lock, the perfect-cup star)
 --   it.pips = { {tex, color, alpha}, ... }  a row of small icons top left, where the badge was (a league's medals)
---   it.glyph = {tex, color, px}  one big icon, top middle (an ability's or a tune-up's icon)
+--   it.glyph = {tex, color, px, side = 'left'}  one big icon, top middle (an ability's or a tune-up's icon).
+--     side = 'left' (v0.31, PR #1): flush to the left edge, as tall as the tile (a pilot's portrait, the game's own
+--     256 px MainIcon texture); the tile's title shifts right of it
 U.PIP_PX, U.CORNER_PX = 66, 72
 function U.hasDecor(it) return (it.icon or it.corner or it.pips or it.glyph or it.tag) and true or false end
 local function picture(make, tex, color, px, alpha)
@@ -477,10 +479,20 @@ local function place(ov, w, h, v, pad)
   local sl = w and try(function() return ov:AddChildToOverlay(w) end)
   if sl then try(function() sl:SetHorizontalAlignment(h); sl:SetVerticalAlignment(v); sl:SetPadding(pad) end) end
 end
-function U.decorate(make, ov, it)
+function U.decorate(make, ov, it, tileH, tile)
   if it.glyph and it.glyph[1] then
-    local tex = texture(it.glyph[1])
-    place(ov, tex and picture(make, tex, it.glyph[2], it.glyph[3] or 150, it.glyph[4]), 2, 1, { Left = 0, Top = 34, Right = 0, Bottom = 0 })
+    local g = it.glyph
+    local px, ha, va = g[3] or 150, 2, 1
+    local pad = { Left = 0, Top = 34, Right = 0, Bottom = 0 }
+    local tex = texture(g[1])
+    if g.side == 'left' then
+      px, ha, va = tileH or U.TILE_H, 1, 2
+      pad = { Left = 0, Top = 0, Right = 0, Bottom = 0 }
+      local title = tex and alive(tile) and try(function() return tile.Txt_Label_Title end)
+      -- a little over the portrait, so a long name (Goli & 02-R0) stays inside the button
+      if alive(title) then try(function() title:SetRenderTranslation({ X = math.max(0, px - 72), Y = 0 }) end) end
+    end
+    place(ov, tex and picture(make, tex, g[2], px, g[4]), ha, va, pad)
   end
   local corner = {}
   -- (v0.26: an entry may carry its own size, c.px - the leagues' speed chevrons)
@@ -537,7 +549,7 @@ function U.buildRows(spec, box, make, lib, pc)
           end
           if alive(ov) then
             try(function() ov:AddChildToOverlay(cell) end)
-            U.decorate(make, ov, it)
+            U.decorate(make, ov, it, h, t)
             cell = ov
           end
           local sl = try(function() return hb:AddChildToHorizontalBox(cell) end)
