@@ -204,4 +204,5 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Unreal Editor 5.7.4 needs your Epic login** (Claude can't download it): either download the Linux zip while signed
   in at https://www.unrealengine.com/linux, or link your GitHub account to Epic (Epic account → Apps and Accounts →
   GitHub, then accept the EpicGames org email invite) so Claude can build it from source.
-- [ ] **Rally cup extras** (2026-11-24, TASKS 1e list 1-7): which of stage-time standings, a 4-car field, tour order with a night finale, hidden weather, a mines finale, Group B spec, power stage?
+- [x] **Rally cup extras** (2026-11-24): owner picked 1-4 (time standings, 4 cars, tour order + night finale, hidden weather) - built in v0.30.0.
+- [ ] **Playtest the RALLY CUP (v0.30.0, installed 2026-11-24; restart the game first, not Ctrl+F4):** the tile sits after the title race (and Kestar at Ace); does the 4-car grid load and race (3 named rivals, logged `[rally] rivals`); do all four get times on the standings (a `*` marks a made-up one); is the weather really hidden until the stage loads; does the route list on the start screen read well; does the make-up / Opponents put-back log at the menu (`[title] grid put back`). Note the race-1 line `[title] grid cut for the rally`.
