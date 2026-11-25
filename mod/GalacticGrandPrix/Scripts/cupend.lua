@@ -42,9 +42,27 @@ function CE.closeMs() return (tonumber(conf().CloseS) or 120) * 1000 end
 -- just says how I did overall in the cup (gold / silver medal etc.)" than the wins-in-a-row and races-in-a-row tiles):
 -- the WINS tile carries the trophy - one medal in the trophy's colour, "GOLD TROPHY" over "1ST" - and the
 -- participation tile your points and podiums. Config CupResult.Tiles = 'streaks' keeps the game's own meaning.
+-- v0.34.2 (owner, after the Ando cup 2026-11-25: "Participation streak and win count seem superfluous, replace those
+-- with just the trophy or ending standing of the cup"): Tiles = 'trophy' (the default) - the participation tile is
+-- collapsed and its UpdateParticipation never called; the WINS tile is the trophy (the medal in its colour, "GOLD
+-- TROPHY" over your standing "1ST"); the screen's title line says the trophy and the standing too ("ANDO CUP  -  JUNKER
+-- -  GOLD TROPHY, 1ST"), in case the tile's texts are bound to the game's numbers (a read-back line in the log,
+-- `[cupend] tiles read back`, says what the texts hold a while after our writes). 'result' = v0.32.9's two tiles.
 local MEDAL = { GOLD = { R = 1.0, G = 0.78, B = 0.2, A = 1 }, SILVER = { R = 0.8, G = 0.8, B = 0.85, A = 1 }, BRONZE = { R = 0.8, G = 0.5, B = 0.25, A = 1 } }
-local function resultTiles() return conf().Tiles ~= 'streaks' end
+local function tilesMode() local t = conf().Tiles; return (t == 'streaks' or t == 'result') and t or 'trophy' end
+local function resultTiles() return tilesMode() ~= 'streaks' end
 local function trophyName(sm) return type(sm.trophy) == 'string' and sm.trophy:upper() or nil end
+local function standing(sm) return sm.rank and C.ordinal(sm.rank):upper() or '-' end
+-- the trophy and the standing as one line ("GOLD TROPHY, 1ST" / "NO TROPHY, 5TH")
+local function verdict(sm) return ((trophyName(sm) and (trophyName(sm) .. ' TROPHY')) or 'NO TROPHY') .. ', ' .. standing(sm) end
+-- what a text block shows now (read-only; '-' = no such block, '?' = unreadable)
+local function textOf(o, field)
+  local t = alive(o) and try(function() return o[field] end)
+  if not alive(t) then return '-' end
+  local ft = try(function() return t:GetText() end)
+  local s = ft and try(function() return ft:ToString() end)
+  return type(s) == 'string' and s or '?'
+end
 
 ---------------------------------------------------------------------------------------------------------------------
 -- the cup as numbers: { races = { { title, planet (config entry), place (nil = DNF), pts, path } }, wins, top3, dnfs,
@@ -214,7 +232,14 @@ local function panels(w, d, sm)
       call('UpdateWins', function() wins:UpdateWins(sm.wins) end)
     end
   end
-  if part then call('UpdateParticipation', function() part:UpdateParticipation(#sm.races - sm.dnfs, sm.streak) end) end
+  if part then
+    if tilesMode() == 'trophy' then
+      -- v0.34.2: the participation tile goes (the owner: superfluous); its function never called
+      ok[#ok + 1] = 'Participation hidden' .. (try(function() part:SetVisibility(VIS_COLLAPSED); return true end) == true and '' or ' (failed)')
+    else
+      call('UpdateParticipation', function() part:UpdateParticipation(#sm.races - sm.dnfs, sm.streak) end)
+    end
+  end
   if prog then
     if d.xp then set(prog, 'PVPXPVM', d.xp) end
     set(prog, 'StartRank', 1); set(prog, 'CurrentRank', 1); set(prog, 'NextRank', 2); set(prog, 'StartXP', 0)
@@ -227,6 +252,7 @@ local function panels(w, d, sm)
   local title = sub('WBP_Screen_Title')
   if title then
     local text = ('%s  -  %s'):format(sm.name, sm.league)
+    if tilesMode() == 'trophy' then text = text .. '  -  ' .. verdict(sm) end
     if sm.finale and sm.finale.won then text = text .. '  -  CHAMPION' end
     local done = false
     for _, f in ipairs({ 'Txt_Title', 'Txt_Label', 'Txt_Header' }) do
@@ -239,13 +265,27 @@ local function panels(w, d, sm)
 end
 
 -- the numbers into the texts the panels' own set-up may not show (a moment after the panels, then again later)
-local function direct(w, sm)
+local function direct(w, sm, readBack)
   local function put(holder, field, s)
     local o = try(function() return w[holder] end)
     local t = alive(o) and try(function() return o[field] end)
     if alive(t) then try(function() t:SetText(FText(s)) end) end
   end
-  if resultTiles() then
+  if readBack then
+    -- v0.34.2: what the texts hold now, before this pass writes them again - bound texts would show the game's numbers
+    local wins, part = try(function() return w.WBP_MP_Wins end), try(function() return w.WBP_MP_Participation end)
+    log(('[cupend] tiles read back (%s): Wins label=%s amount=%s | Participation vis=%s races=%s streak=%s'):format(tilesMode(),
+      textOf(wins, 'Txt_Label'), textOf(wins, 'Txt_Amount'), tostring(alive(part) and try(function() return part:GetVisibility() end) or '-'),
+      textOf(part, 'Txt_Amount_1'), textOf(part, 'Txt_WinsAmount')))
+  end
+  if tilesMode() == 'trophy' then
+    -- the WINS tile: the trophy over your standing; the participation tile kept collapsed (the game's set-up may show it)
+    local t = trophyName(sm)
+    put('WBP_MP_Wins', 'Txt_Label', t and (t .. ' TROPHY') or 'NO TROPHY')
+    put('WBP_MP_Wins', 'Txt_Amount', standing(sm))
+    local part = try(function() return w.WBP_MP_Participation end)
+    if alive(part) then try(function() part:SetVisibility(VIS_COLLAPSED) end) end
+  elseif resultTiles() then
     -- the WINS tile: the trophy and your place; the participation tile: points and podiums
     local t = trophyName(sm)
     put('WBP_MP_Wins', 'Txt_Label', t and (t .. ' TROPHY') or 'NO TROPHY')
@@ -347,9 +387,9 @@ function CE.tick()
     local n = places(st)
     if n > 0 and not st.placesSaid then st.placesSaid = true; log(('[cupend] timeline race widgets: %d, place boxes shown'):format(n)) end
   end
-  if (st.direct == 0 and age > 1000) or (st.direct == 1 and age > 2500) or (st.direct == 2 and age > 8000) then
+  if (st.direct == 0 and age > 1000) or (st.direct == 1 and age > 2500) or (st.direct == 2 and age > 8000) or (st.direct == 3 and age > 20000) then
     st.direct = st.direct + 1
-    direct(w, st.sm)
+    direct(w, st.sm, st.direct == 4)      -- (the last pass reads the texts back first: did ours stick?)
     if st.direct == 2 then
       local pics = planetPictures(w)
       if pics then log('[cupend] the timeline\'s planet widgets: ' .. pics) end

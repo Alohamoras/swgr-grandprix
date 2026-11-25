@@ -97,6 +97,12 @@ Owner's plan: keep playing ~a week without crashes, then publish as a beta.
 - [ ] A week of crash-free play, then `tools/package.sh <tag>` and upload as a beta.
 - [x] **FreeRace 1.1c + 1.3 read (2026-11-25)**: `docs/freerace-review-2026-11-25.md`; items 1-6 built as v0.32.x, the rest listed in §1g.
 
+## 1a-cupend. The cup result screen's tiles (owner 2026-11-25) - v0.34.2
+"Participation streak and win count seem superfluous, replace those with just the trophy or ending standing of the cup":
+participation tile collapsed, WINS tile = trophy over standing, title line carries the verdict. **Open:** did the owner see
+v0.32.9's texts (POINTS / PODIUMS) at the 16:22 Ando cup, or the game's WINS / streak numbers? If the game's, the tile texts
+are bound and `SetText` loses - the v0.34.2 `[cupend] tiles read back` line (20 s in) tells; then draw our own text over the tile.
+
 ## 1a-planets. The planets on the cup tiles (v0.33.0) - reverted v0.34.1
 Owner 2026-11-25 (seen in game): "didn't really turn out like I wanted them to" -> `CupPlanets = false`. Code kept behind the
 switch. Open, if ever wanted again: what look was wanted (smaller? a corner badge? the planet instead of the poster?).

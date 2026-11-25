@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.34.2 (2026-11-25): the cup result screen - the trophy and your standing, the streak tile gone (owner)
+- Owner, after the Ando cup: "the results screen at the end of the cup needs some work. Participation streak and win
+  count seem superfluous, replace those with just the trophy or ending standing of the cup". cupend.lua, config
+  `CupResult.Tiles = 'trophy'`: the participation tile (races in a row / best streak) is collapsed and its function
+  never called; the WINS tile is the trophy - the medal in its colour, "GOLD TROPHY" over your standing "1ST" ("NO
+  TROPHY" over "5TH") - and the screen's title line says it too ("ANDO CUP  -  JUNKER  -  GOLD TROPHY, 1ST"), so the
+  verdict shows even if the tile's texts turn out to be bound to the game's own numbers. A fourth text pass at 20 s
+  reads the tiles back first and logs what they hold (`[cupend] tiles read back`): if the owner still sees "WINS" and
+  a streak there, that line says why. `Tiles = 'result'` is v0.32.9's layout, `'streaks'` the game's.
+- Tests: test_cupend updated (the participation tile hidden, the title line, no POINTS / PODIUMS tile).
+
 ## v0.34.1 (2026-11-25): the planets off the cup tiles (owner)
 - Owner, after seeing v0.33.0's planet pictures on the cup tiles in game: "didn't really turn out like I wanted them
   to, go ahead and revert that change". Config `CupPlanets = false`: the cup tiles are as they were before v0.33.0

@@ -81,8 +81,11 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
     dot only if you won. Known from before: he is a weak boss without the game's catch-up (OWNER "Kestar is a weak
     final boss") - say if the finale feels too easy and I'll give him a profile of his own.
 - [ ] **v0.32.6-8 (2026-11-25 evening, your picks 9-11), installed 2026-11-25 18:00 after the playtest:**
-  - **The cup result screen (10):** seen 2026-11-25 (Sentinel gold): "I love the layout of the screen and the recap". v0.32.9 puts
-    the trophy / place / points / podiums on the two tiles and skips our old page after it - check both.
+  - **The cup result screen (10):** seen 2026-11-25 (Sentinel gold): "I love the layout of the screen and the recap"; after the
+    Ando cup: "Participation streak and win count seem superfluous" -> **v0.34.2:** the streak tile is gone, the WINS tile is the
+    trophy over your standing, the title line says "GOLD TROPHY, 1ST" too. Check: does the tile now read GOLD TROPHY / 1ST, or
+    still WINS and a number? If the latter, the game's text bindings win - the log's `[cupend] tiles read back` line says so, and
+    the title line still carries the verdict; next step then would be our own text over the tile.
     (Was:) after a cup's last race, CUP RESULT now shows the game's own tour-end screen first
     (planets, your place per race, the points as the XP bar), then A / Enter / Escape takes you on to our cup result
     page. Built from another mod's notes, never seen in game by us: tell me what it looks like, what's wrong on it, or

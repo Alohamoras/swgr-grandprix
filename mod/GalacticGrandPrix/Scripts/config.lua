@@ -131,7 +131,10 @@ return {
     -- Tiles (v0.32.9, owner): 'result' = the WINS tile shows the trophy and your place, the other one points and podiums;
     -- 'streaks' = the game's own wins-in-a-row / races meaning.
     -- MenuPage (v0.32.9, owner): false = after the tour-end screen the menu opens on the cups page, not our old result page.
-    CupResult = { Native = true, FixupS = 12, CloseS = 120, Tiles = 'result', MenuPage = false },
+    -- Tiles (cupend.lua): 'trophy' (v0.34.2, owner: the streak and win-count tiles are superfluous) = the WINS tile is the
+    -- trophy over your standing, the participation tile hidden; 'result' = v0.32.9's trophy + points / podiums tiles;
+    -- 'streaks' = the game's own wins and streaks.
+    CupResult = { Native = true, FixupS = 12, CloseS = 120, Tiles = 'trophy', MenuPage = false },
 
     -- Lua garbage: collect a little on every tick (KB of work per step) so it never piles up into one big pause
     -- (v0.3.4, race stutter). GcStep = false to switch off for a comparison.
