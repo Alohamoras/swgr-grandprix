@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.32.0 (2026-11-25): the Precision buoys off The Galactic Gauntlet
+- hazards.lua: the Precision run's floating buoys (`PrecisionRunBuoy`) sit in the route layer of The Galactic Gauntlet
+  and load in every race there, shoving or crashing a car that passes close at speed (the FreeRace mod's finding,
+  `docs/freerace-review-2026-11-25.md` §3.3). Our Galactic Cup's final runs that track. In a race on an event named
+  by config `Hazards.BuoyEvents` (`EVT_WHP_`) every buoy is hidden, its collision and ticking off: a sweep every 3 s
+  for the first 45 s of the race world (the layer can stream in late), then every 10 s for the rest of the race (the
+  game shows them again after a rewind); buoys made later are told by `NotifyOnNewObject` and hidden from their path
+  half a second on. Never destroyed (the rewind tracks them); nothing to put back (level actors). Lines `[hazards]`,
+  one with the RESULT. `Hazards.Buoys = false` turns it off. Test: test_hazards.
+- (The FreeRace 1.1c and 1.3 read, with the rest of the list to come back to: `docs/freerace-review-2026-11-25.md`.)
+
 ## v0.31.1 (2026-11-25): the rider's scheme actually loads (fix)
 - The v0.31.0 playtest (owner: "playtest was good" - the faces, the tiles, the kept picks) logged
   `[paint] ... preset not loaded` for every alternate vehicle: `LoadAsset` by package path does not load a cooked

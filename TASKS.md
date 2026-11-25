@@ -95,6 +95,7 @@ Owner's plan: keep playing ~a week without crashes, then publish as a beta.
   **2026-11-13 afternoon:** one more hang with the CPU idle (~3%, "not responding" after ~7 min) - a different kind
   from the busy slow starts; 6 other launches that day took 15-18 s. Relaunch fixed it.
 - [ ] A week of crash-free play, then `tools/package.sh <tag>` and upload as a beta.
+- [ ] **FreeRace 1.1c + 1.3 read (2026-11-25)**: `docs/freerace-review-2026-11-25.md` - buoys on The Galactic Gauntlet, AI ability cycling (R7), per-bot thrust tune set (a pace dial to test), start grace, lap count, wreck limit, the game's tour-summary screen as CUP RESULT, box navigation; order in its §6.6. Owner picks.
 
 ## 1b. League styles (owner 2026-11-12: "different styles of racing"; agreed, not built)
 **docs/league-styles-2026-11-12.md** - each league its own character (the car, the field, the tracks, the kit).

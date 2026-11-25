@@ -9,6 +9,7 @@ local RC = require('racer')
 local AI = require('ai')
 local LK = require('looks')
 local PT = require('paint')
+local HZ = require('hazards')
 local try, alive, addr, log = C.try, C.alive, C.addr, C.log
 
 local R = { run = nil }
@@ -348,6 +349,8 @@ local function startRun(ev, classKey, p, skip, extra)
   -- v0.29: the league's looks (looks.lua: Junker's rust, dirt and damage), applied while the race loads
   local look = LK.forLeague(classKey)
   if look then R.run.looks = { look = look } end
+  -- v0.32: the Precision buoys off on the tracks that carry them (hazards.lua)
+  if HZ.wants(ev) then R.run.hz = HZ.begin(ev) end
   R.menuSeen = false
   R.menuGone()
   local ok3, lo = pcall(LO.begin, classKey, p.modNames, p.yourKeys)
@@ -635,6 +638,7 @@ local function recordRace(r)
   end)
   local okP, line = pcall(perfLine, r)
   log('PERF ' .. r.ev.title .. ': ' .. (okP and line or ('(error: ' .. tostring(line) .. ')')))
+  if r.hz then pcall(function() log(HZ.summary(r.hz)) end) end
   return out
 end
 -- (chain.lua's view of this file)
@@ -653,7 +657,7 @@ function R.watch()
         log(('race world loaded, standalone=%s'):format(tostring(standalone)))
         if standalone ~= true then
           log('NOT an offline race - Grand Prix stops here, build put back')
-          R.restoreBuild('not offline'); pcall(AI.restore, r.ai); R.run = nil; return { failed = 'not offline' }
+          R.restoreBuild('not offline'); pcall(AI.restore, r.ai); R.run = nil; HZ.stop(); return { failed = 'not offline' }
         end
         r.gs, r.phase, r.racingAt = addr(gs), 'racing', C.clock
         -- (v0.8: the race state's path + address, read again on the 2 s read below for the start of the race)
@@ -667,7 +671,7 @@ function R.watch()
     end
     if C.clock - r.at > 120000 then
       log('no race world after 120 s - giving up')
-      R.restoreBuild('timeout'); pcall(AI.restore, r.ai); R.run = nil
+      R.restoreBuild('timeout'); pcall(AI.restore, r.ai); R.run = nil; HZ.stop()
       return { failed = 'timeout' }
     end
     return nil
@@ -685,6 +689,10 @@ function R.watch()
   if r.looks and not r.looks.done2 then
     local okL, errL = pcall(LK.tick, r)
     if not okL then log('[looks] stopped: ' .. tostring(errL)); r.looks = nil end
+  end
+  if r.hz then
+    local okH, errH = pcall(HZ.tick, r.hz, r.racingAt)
+    if not okH then log('[hazards] stopped: ' .. tostring(errH)); r.hz = nil end
   end
   -- AI driving spike / launch checks (test-only): experiment.lua's quitAfterS - once the field is read, N s after the
   -- launch the race goes back to the main menu the game's own way (RacingGameMode:RequestReturnToMenus): a DNF
@@ -733,7 +741,7 @@ function R.watch()
   R.restoreBuild('main menu')
   pcall(AI.restore, r.ai)
   -- (v0.3.5: the race is marked over BEFORE anything that could fail)
-  R.run = nil
+  R.run = nil; HZ.stop()
   if r.recordTried then
     -- v0.19: recorded on the results screen already (chain.lua): that result, not a second one
     if r.chain and not r.chain.done then pcall(require('chain').goneBeforeNext, r, 'the results went to the main menu') end

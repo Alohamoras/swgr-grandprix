@@ -19,6 +19,12 @@ end
 return {
     -- v0.29.3 (release pass): the test switches (experiment.lua, logbuilds.txt in the mod folder - AI and race-type
     -- research) only work with DevTools = true. Off for players; `./deploy.sh <tag> --dev` turns it on.
+    -- v0.32: track hazards taken out of our races (hazards.lua). Buoys: the Precision run's floating markers load in
+    -- every race on The Galactic Gauntlet (our Galactic Cup final) and shove or crash a car passing close - hidden,
+    -- collision off, on the events whose path holds one of BuoyEvents ({} = every race). Sweeps every ScanS for
+    -- ScanUntilS after the race world came, then every RecheckS (the game can show them again after a rewind).
+    Hazards = { Buoys = true, BuoyEvents = { 'EVT_WHP_' }, ScanS = 3, ScanUntilS = 45, RecheckS = 10 },
+
     DevTools = false,
 
     -- The tab on the game's main menu, next to the game's own tabs
