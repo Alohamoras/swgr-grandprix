@@ -246,6 +246,25 @@ PNG tiles, the cockpit / mix / deadzone work (a mod of their own if ever wanted)
       check: OWNER.md).
 
 ## 4. Discussions (owner's call; talk before building)
+- [ ] **A podracing cup (owner 2026-11-25: "many tracks are probably too small and tight")**. What we know
+      (KNOWLEDGE.md §3-4, docs/tracks-by-planet.md, the FreeRace read): podracer = archetype 1 ("Plane"), tag
+      `Vehicle.Special.Plane`; the game has pod-made tracks only on Beagle / Outer Rim (Mos Espa Speedway + variants),
+      Lantaana (Holdfast's Folly), Ando (Mawhonic Speedway) and one each on Crait, Jakku and Derven - ~6-9 tracks, so
+      one cup of 4 from a pool, not a cup per planet; the car tracks are too tight (FreeRace: pods on them "wrecked on
+      almost every corner", 1000 kph into walls; its author bolted on armour, quick respawns and a hand-made rubber
+      band to cope - not our way). The pod field is its own cast: 7 pod pilots (`DA_PlaneRacer_*`, Sebulba's era) with
+      one pod each, unique per race (8-pod grid), and Shade / Kestar can borrow pods (`PreferredVehicleType` 1 +
+      `PRE_Plane_MythP3` / Northropi) - so our 14 car racers, their kits, pilot strength and the title race don't carry
+      over; it is a different game inside the game. Launch: our events are campaign `EVT_*`; the pod races are
+      `Events/Plane_Memory` / `Plane_PresentDay` events or bare `TRAK_*` via `LaunchCustomRace` (TrackTry proved that),
+      build `VBD_MP_PlaneTour` or `VBD_000_1Mastiff_Plane` (never launched by us: a recon first). Abilities for pods:
+      Disruptor, Shockwave, mines (no Vent / Surge). Pacing: unknown for pods under our AI profiles; the start surge is
+      worse for pods (FreeRace gave them their own 10 s grace).
+      **Shape that could work**: one PODRACING CUP tile on the cups page (any league, or a single fixed difficulty),
+      pool = the pod-made tracks, 4 races, you in a pod (Shade's MythP3 by default; a pod pick in the garage later),
+      the 7 pod pilots as the field, points as usual, no title race link. Needs a recon session (launch one pod
+      race from our flow, read the field, the finish, the results screen) before any design is firm - half a day,
+      then the cup itself is mostly config. Owner's call on whether the small cast is worth it.
 - [ ] **A mode without offensive abilities (owner 2026-11-25)**: "a nice break for the constant combat of regular
       gameplay", possibly as an extension of the Rally Cup (a clean rally). Needs a lot of pacing testing. Levers we
       already have: the start grace's mechanism for the whole race (`AiAbilityChanceMultiplier` 0 on the race tune =
