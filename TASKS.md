@@ -187,8 +187,10 @@ Speedway, Andobi Edge, Skakoan Gambit, Mineral Loop, Corrosion Hypersphere) are 
 ## 1g. FreeRace 1.1c + 1.3 follow-ups (owner 2026-11-25: "build 1 through 6, add the other things to a doc")
 The read: `docs/freerace-review-2026-11-25.md` (what the mod does, what we already had, every idea with the engine names,
 the 1.3 delta in §6). Built as v0.32.x, one tag a chunk; **playtested 2026-11-25 (owner: "feeling pretty great")**; v0.32.6-8 installed, to playtest (OWNER.md):
-- [x] 1. Buoys off on The Galactic Gauntlet (v0.32.0, hazards.lua): the Precision run's buoys hidden in our Galactic
-      Cup final. Check: no blue buoys shoving you on the Gauntlet; `[hazards]` lines.
+- [x] 1. Buoys off on The Galactic Gauntlet (v0.32.0, hazards.lua). **In game 2026-11-25: `no Precision buoys on this track
+      (16 sweeps)`** - our Gauntlet race is the knockout's event (`EVT_WHP_LOOP_A_FWD_RACE`) with its own data layers;
+      FreeRace's buoys came with `LaunchCustomRace` on the bare TrackDef. Harmless (16 sweeps in 45 s on that one track);
+      could be switched off (`Hazards.Buoys = false`) or kept for TrackTry-style launches.
 - [x] 2. AI ability cycling, coverage, cooldowns (v0.32.1, aiuse.lua): closes R7 once the log shows `[aiuse] fired`.
 - [x] 3. Per-bot thrust dial as a TEST (v0.32.2, tune.lua, thrust.lua): **held-race protocol** - deploy `--dev`,
       experiment.lua `{ label = 'thrust', botThrustBy = { ['Sen Fira'] = 1.1, ['Lyren Shok'] = 1.0, ['Biddy Blas'] = 0.9 } }`,
