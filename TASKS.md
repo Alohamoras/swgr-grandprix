@@ -160,6 +160,24 @@ Speedway, Andobi Edge, Skakoan Gambit, Mineral Loop, Corrosion Hypersphere) are 
       the 4-car grid loads, the stage times read for all four, the put-back at the menu, the tile layout (row 2 now
       Galactic + title + Kestar + Rally). Extras 5-7 (mines finale, Group B spec, power stage) not built.
 
+## 1f. PR #1 (MilkManEX, 2026-11-24: pilot icons, alternate-vehicle presets, signature loadouts) - reviewed 2026-11-24
+- **Blocker:** `mod/GalacticGrandPrix/icons/*.png` are the game's own racer portraits (14 x 256 px renders) committed to
+  the public repo and packaged into the Nexus zip (package.sh): breaks the house rule (never commit / publish game
+  assets). The game ships no portrait texture to point at instead (nearest: `T_UI_Flipbook_<Racer>_Holo` sprite sheets).
+- The PR's own suite fails 3 of 40 files (test_abilities, test_oldpicks, test_start). test_oldpicks is a real regression:
+  `picksFor` resets the saved picks to the pilot's signature kit whenever `picksRacer` differs - on an existing save that
+  is every player's first launch after the upgrade. The other two are test expectations not updated (VEHICLE tile shifts
+  the garage indexes; PILOT / VEHICLE captions).
+- Code: paint.lua writes a preset class into `RacerDef.PreferredCustomisationForVehicleArchetype` (a plain enum -> class
+  map: fine, no soft pointers) but its restore record is memory only (not save-first) and `loadPreset` passes the full
+  object name to LoadAsset (core.lua v0.29.4: LoadAsset wants the package path) so a preset not already in memory won't
+  load; ui.lua `importFile` holds the imported texture UObject across ticks (house rule; v0.9.2 crash) and a transient
+  texture can be GC'd; the vehicle tile is ignored by the title / boss races (launchTo uses the pilot's own vehicle);
+  `K.data.vehicle` / `picksRacer` not in gp.lua fill(); `P.tick` is dead code. Not seen in game by us.
+- Merge: one trivial conflict (CHANGELOG); merged onto v0.30.0 it compiles, the rally tests pass, the same 3 fail.
+- Recommendation: not as-is. Take presets + vehicle tile + signature kits after the fixes above and a playtest; the
+  icons only with non-game art. Publish the rally (v0.30) on its own first.
+
 ## 2. Waiting on the owner's play (details and tick boxes in OWNER.md "Playtests")
 - [ ] v0.27.x: the finish times then STANDINGS (A, or 6 s); Challenger open from the start; Riff-Raff's feel (parts
       2 on three slots); the posters' taglines and the cups page brief; the garage's TUNE-UP / ABILITY captions.
