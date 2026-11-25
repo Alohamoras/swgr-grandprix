@@ -39,7 +39,7 @@ local cfg = require('config')
 local K = require('gp')
 local try, alive, log = C.try, C.alive, C.log
 
-local CH = { key = false, back = false }
+local CH = { key = false, back = false, enter = false }
 CH.RESULTS = 'WBP_SimpleRaceResultsScreen_C'
 -- the results screen's own CONTINUE click (FreeRace's retry.lua presses CONTINUE the same way)
 CH.CONTINUE_EVENT = 'BndEvt__WBP_SimpleRaceResultsScreen_WBP_Common_Btn_K2Node_ComponentBoundEvent_1_CommonButtonBaseClicked__DelegateSignature'
@@ -370,7 +370,10 @@ function CH.addFinal(r, w, st)
   end
   setLabel(btn, 'CUP RESULT')
   st.btn, st.contHidden, st.final, st.panelAt = C.ref(btn), contHidden == true, true, C.clock
-  CH.key, CH.back = false, false
+  -- v0.32.10: the Back screen too, so the pad's B can close the tour-end screen (read only while it is up)
+  local tree = try(function() return w.WidgetTree end)
+  if st.contHidden and alive(tree) then st.back = addBackScreen(host, tree) end
+  CH.key, CH.back, CH.enter = false, false, false
   log('[chain] last race: CUP RESULT button, focused: ' .. tostring(bwhy) .. (st.contHidden and '; the game\'s CONTINUE hidden' or ''))
 end
 function CH.pollFinal(r, st)
@@ -385,17 +388,25 @@ function CH.pollFinal(r, st)
       return
     end
   end
-  if not CH.key and not CH.back and C.clock - (st.lastPoll or -1e9) < POLL_MS then return end
+  if not CH.key and not CH.back and not CH.enter and C.clock - (st.lastPoll or -1e9) < POLL_MS then return end
   st.lastPoll = C.clock
   local btn = C.deref(st.btn)
+  -- v0.32.10 (the first one in game closed by its 120 s timer, not by the owner): while the summary is up our button is
+  -- kept focused so the pad's A reaches it, Enter / Space (CH.enter, main.lua) and the pad's B (the Back screen) close
+  -- it too
+  if st.summary and btn and C.clock - st.summaryAt >= 1500 then
+    if try(function() return btn:HasKeyboardFocus() end) ~= true then try(function() btn:SetFocus() end) end
+    local backHow = CH.readBack(st)
+    if backHow then CH.back = true end
+  end
   if not btn then
     st.done = true
     CE.close('the results screen went')
     log('[chain] last race: the results screen went - the cup result at the main menu')
     return
   end
-  local how = (CH.key and ('key ' .. tostring(conf().Key))) or (CH.back and 'Backspace / Escape') or nil
-  CH.key, CH.back = false, false
+  local how = (CH.key and ('key ' .. tostring(conf().Key))) or (CH.back and 'Backspace / Escape / B') or (CH.enter and st.summary and 'Enter / Space') or nil
+  CH.key, CH.back, CH.enter = false, false, false
   if not how and try(function() return btn:GetSelected() end) == true then how = 'the CUP RESULT button' end
   if how and st.summary and C.clock - st.summaryAt < 1500 then
     try(function() btn:SetIsSelected(false, false) end)

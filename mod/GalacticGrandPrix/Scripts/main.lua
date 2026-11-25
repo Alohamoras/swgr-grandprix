@@ -20,7 +20,7 @@
 -- them), the Galactic Cup 4 from 4 planets. (The code and the save keep the word "class" for a league.)
 -- Design: DESIGN.md  Plan: TASKS.md  Save: save.lua  Log: grandprix.log
 
-local VERSION = '0.32.9'
+local VERSION = '0.32.10'
 
 local here = (debug.getinfo(1, 'S').source or ''):gsub('^@', '')
 local scripts = here:match('^(.*)[/\\][^/\\]+$') or '.'
@@ -1055,6 +1055,15 @@ for _, kn in ipairs({ 'BACKSPACE', 'ESCAPE' }) do
   if k then
     local CHm = require('chain')
     local ok, err = pcall(RegisterKeyBind, k, function() CHm.back = true end)
+    if not ok then log('bind failed ' .. kn .. ': ' .. tostring(err)) end
+  end
+end
+-- v0.32.10: Enter / Space close the cup result's tour-end screen (chain.lua reads the flag only while it is up)
+for _, kn in ipairs({ 'RETURN', 'SPACE' }) do
+  local k = Key and Key[kn]
+  if k then
+    local CHm = require('chain')
+    local ok, err = pcall(RegisterKeyBind, k, function() CHm.enter = true end)
     if not ok then log('bind failed ' .. kn .. ': ' .. tostring(err)) end
   end
 end

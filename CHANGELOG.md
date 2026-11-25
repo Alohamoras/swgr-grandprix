@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.32.10 (2026-11-25): the cup result screen closes on A, Enter, Space, B or Escape (fix)
+- The first one in game closed by its 120 s timer, not by the owner: with the summary over the results our CUP RESULT
+  button lost the focus, so the pad's A reached nothing, and Enter was never bound. Now, while the summary is up, the
+  button is kept focused (A presses it), Enter / Space set a flag chain.lua reads only then, and the pad's B works
+  through a Back screen the last race's results now get too (Backspace / Escape as before). Tests: test_cupend (58).
+
 ## v0.32.9 (2026-11-25): the cup result screen says how you did (owner, after the first one in game)
 - Owner: "I love the layout of the screen and the recap of the cup, however I'm not sure how useful the wins in a row
   and races in a row stats are ... I'd rather have something more prominent that just says how I did overall in the
