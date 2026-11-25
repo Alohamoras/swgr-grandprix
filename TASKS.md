@@ -97,11 +97,14 @@ Owner's plan: keep playing ~a week without crashes, then publish as a beta.
 - [ ] A week of crash-free play, then `tools/package.sh <tag>` and upload as a beta.
 - [x] **FreeRace 1.1c + 1.3 read (2026-11-25)**: `docs/freerace-review-2026-11-25.md`; items 1-6 built as v0.32.x, the rest listed in §1g.
 
-## 1a-menus. Menu text and layout review (owner 2026-11-25) - recommendations written, nothing built
+## 1a-menus. Menu text and layout review (owner 2026-11-25) - pass 1 built v0.35.0, pass 2 open
 **docs/menu-text-review-2026-11-25.md**: the voice (§1), every screen's text with replacements (§2), four layout changes
-(§3), the build plan (§4: pass 1 the words, config and format strings only, test_tiletext guards the tile budget; pass 2 the
-layout, one item a version). Waiting on the owner's answers (OWNER.md: the voice, the two taglines, the planet lines, one
-version or screen by screen).
+(§3), the build plan (§4). Owner: "use your recommendations, do one version, go".
+- [x] Pass 1, the words (v0.35.0): every §2 line, plus §3.2 (a locked tune-up tile titled by its league). Owner to read
+      them in game: HOME, a cups page, a START screen, one results panel (OWNER.md).
+- [ ] Pass 2, the layout, one item a version, each seen in game: §3.1 the results prompt as two text blocks (next race left,
+      the B hint right); §3.3 RESET PROGRESS smaller and off the D-pad path; §3.4 the cups page header centred over the tiles;
+      §3.5 check the cup result's award lines fit without the game's ellipsis.
 
 ## 1a-rally-ai. The Rally Cup's catch-up (owner 2026-11-25) - v0.34.3, untested in game
 "the enemies need a much stronger catch up factor": config `Rally.AI` on top of the league's profile (`A.merged`): catch-up

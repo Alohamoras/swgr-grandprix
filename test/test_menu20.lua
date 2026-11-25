@@ -54,11 +54,11 @@ T.check(spec.hero.lines[1][1] == 'GOLD TROPHY' and spec.hero.lines[1][2] >= 44, 
 T.check(hasText(spec.hero.lines, 'PERFECT CUP'), 'PERFECT CUP as a badge (' .. joined(spec.hero.lines) .. ')')
 T.check(spec.table and #spec.table.rows == 3 and spec.table.rows[1].cells[2] == 'YOU' and spec.table.rows[1].cells[1] == '1st',
   'the final top 3 only (' .. (spec.table and #spec.table.rows or 0) .. ' rows)')
-T.check(hasText(spec.after, 'UNLOCKED:  GALACTIC CUP at JUNKER'), 'what\'s next: what it unlocked (' .. joined(spec.after) .. ')')
+T.check(hasText(spec.after, 'THE GALACTIC CUP AT JUNKER OPENS'), 'what\'s next: what it unlocked (' .. joined(spec.after) .. ')')
 T.check(not findText(spec.after, 'Next:'), 'one what\'s-next line only')
 T.check(not findText(spec.after, 'Last race') and findText(spec.after, 'NEW RECORD') ~= nil, 'v0.22: no Last race line, its record kept (' .. joined(spec.after) .. ')')
 local cont = spec.items[1]
-T.check(cont.title == 'CONTINUE' and cont.desc == 'Back to the cups' and S.focusMem.cups == 5,
+T.check(cont.title == 'CONTINUE' and cont.desc == nil and S.focusMem.cups == 5,
   'v0.21: CONTINUE lands on the cup just raced, the Sentinel Cup (' .. tostring(cont.desc) .. ', ' .. tostring(S.focusMem.cups) .. ')')
 T.check(cont.icon == ART.medal(1) and cont.iconColor == ART.medalColor(1), 'CONTINUE carries the gold medal')
 
@@ -71,7 +71,7 @@ T.check(out.trophy == 'SILVER' and spec.hero.icon == ART.medal(2) and spec.hero.
 T.check(not hasText(spec.hero.lines, 'PERFECT CUP'), 'no PERFECT CUP badge when not')
 T.check(#spec.table.rows == 3 and spec.table.rows[2].cells[2] == 'YOU', 'you 2nd in the top 3 (' .. spec.table.rows[2].cells[2] .. ')')
 T.check(not findText(spec.after, 'Next:'), 'v0.22 (owner: no goal lines): no Next: line (' .. joined(spec.after) .. ')')
-T.check(spec.items[1].desc == 'Back to the cups' and S.focusMem.cups == 3, 'v0.21: CONTINUE lands on the Ando Cup, the cup just raced')
+T.check(spec.items[1].desc == nil and S.focusMem.cups == 3, 'v0.21: CONTINUE lands on the Ando Cup, the cup just raced')
 -- v0.21: no rival - the winner's row plain, no call-out; the leader saved for the title race
 T.check(spec.table.rows[1].cells[2] == 'Biddy Blas' and spec.table.rows[1].color == require('ui').WHITE, 'v0.21: no RIVAL tag or colour')
 T.check(not findText(spec.after, 'RIVAL'), 'v0.21: no rival call-out on the cup result')
@@ -99,7 +99,7 @@ S.result = { cupOver = true, run = run, ev = { title = 'X', race = 4, laps = 2 }
 spec = SC.standings()
 T.check(PR.nextUnlock(K.data, 'riffraff') == nil, 'nothing left to unlock at Riff-Raff')
 T.check(findText(spec.after, '1 POINT FROM GOLD') ~= nil and not findText(spec.after, 'Next:'), 'what\'s next: the near miss (' .. joined(spec.after) .. ')')
-T.check(spec.items[1].desc == 'Back to the cups' and S.focusMem.cups == 1, 'v0.21: every other cup golden: CONTINUE still lands on the cup just raced (Jakku)')
+T.check(spec.items[1].desc == nil and S.focusMem.cups == 1, 'v0.21: every other cup golden: CONTINUE still lands on the cup just raced (Jakku)')
 
 -- e) the standings page (and the results panel: the same SD.spec): v0.21 no rival marks
 run.race, run.history = 2, { run.history[4] }
@@ -140,7 +140,7 @@ for _, it in ipairs(home.items) do
     measures[#measures + 1] = tostring(it.badge) .. '/' .. tostring(it.desc) .. '/' .. table.concat(p)
   end
 end
-T.check(table.concat(measures, ' ; ') == 'nil/Scrapyard junk with too much engine/mmmm---- ; nil/Balanced rigs and pilots out to make a name/--------', 'v0.24 HOME: no badge (v0.27: the tagline), a medal pip per cup (4 trophies at Riff-Raff; Challenger open, none; Ace locked) and the title star (' .. table.concat(measures, ' ; ') .. ')')
+T.check(table.concat(measures, ' ; ') == 'nil/Scrapyard junk with too much engine/mmmm---- ; nil/Proper rigs, and pilots out to make a name/--------', 'v0.24 HOME: no badge (v0.27: the tagline), a medal pip per cup (4 trophies at Riff-Raff; Challenger open, none; Ace locked) and the title star (' .. table.concat(measures, ' ; ') .. ')')
 K.data.best = {}
 T.check(not findText(SC.home().lines, 'Next:'), 'v0.21: a fresh save: no Next: line either')
 S.class = 'riffraff'

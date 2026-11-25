@@ -47,7 +47,7 @@ racer bios, the ability blurbs ("Blast nearby racers away"), the tune-up names. 
 |---|---|---|---|
 | JUNKER tagline | Scrapyard junk with too much engine | **keep** | The owner's line; it is the voice. |
 | CHALLENGER tagline | Balanced rigs and pilots out to make a name | **Proper rigs, and pilots out to make a name** | "Balanced" is a design word (a stat bar), not something a pilot says. |
-| ACE tagline | Money, maxed out, and a clean field | **Every credit on the rig. The best pilots in the galaxy** | The list of three reads machine-made. "Clean field" is our AI term; the player will feel it. |
+| ACE tagline | Money, maxed out, and a clean field | **Every credit on the rig. The galaxy's finest** | The list of three reads machine-made. "Clean field" is our AI term; the player will feel it. |
 | A locked league (desc) | To open: 5 trophies at JUNKER | **Five JUNKER trophies open it** | No label. The count in words. |
 | A locked league (info and press) | To open: A trophy in all 5 planet cups at JUNKER (3 / 5) / "ACE is locked. To open it: ..." | **A trophy in every JUNKER planet cup opens it. 3 of 5 so far.** The press message goes (the info line already says it). | One sentence, the progress as a second. |
 | RESET PROGRESS, question 1 | Reset all progress? Every trophy, record and title is cleared. | **Wipe the record books? Every trophy, lap record and title goes.** | In the setting. |
@@ -165,7 +165,13 @@ Most of the 2026-11-11 review's proposal B is built (rows, posters, faces, medal
 - **Not in scope:** the HUD and the game's own screens (Race FINISHED, the tour-end panel's labels, CONTINUE), the
   racer bios and planet lines (the game's), the stakes and near-miss lines (already in voice).
 
-## 5. Questions for the owner (also in OWNER.md)
+## Built
+- **v0.35.0 (2026-11-25): pass 1, the words.** Owner: "use your recommendations, do one version, go". Every §2 row and
+  §3.2 (the locked tune-up tile titled by its league). The Ace tagline was trimmed to "Every credit on the rig. The
+  galaxy's finest" to fit the poster's two lines and the 48-character cap. Pass 2 (§3.1, 3.3, 3.4, 3.5) one item a version, after the
+  owner's read.
+
+## 5. Questions for the owner (also in OWNER.md) - answered 2026-11-25: the announcer, Claude's taglines, the planet lines, one version
 
 1. The voice: the paddock announcer (terse, third person, in-universe nouns) as described in §1 - or something
    drier, closer to the game's own menu (which hardly says anything)?

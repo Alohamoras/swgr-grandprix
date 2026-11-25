@@ -46,7 +46,7 @@ local H = rawget(_G, 'GU_TEST_SCREENS')
 local tt
 for _, it in ipairs(H.SCREENS.cups().items) do if it.title == 'TITLE RACE' then tt = it end end
 T.check(tt and tt.desc == 'vs Griff Halloran' and tt.badge == nil, 'the tile names the default opponent: vs Griff Halloran (' .. tostring(tt and tt.desc) .. ')')
-T.check(tt and tt.info:find('1 v 1 against Griff Halloran on THE WAR FIELDS (REVERSE, SCORCHING), 2 laps', 1, true) ~= nil, 'its info: the track and laps (' .. tostring(tt and tt.info) .. ')')
+T.check(tt and tt.info:find('Griff Halloran, one on one, on THE WAR FIELDS (REVERSE, SCORCHING), 2 laps', 1, true) ~= nil, 'its info: the track and laps (' .. tostring(tt and tt.info) .. ')')
 T.check(T.save().titleTrack.riffraff == JAKKU1 and T.logCount('the title race track is THE WAR FIELDS (REVERSE, SCORCHING) (a random JAKKU CUP draw, kept)') == 1,
   'v0.26: the default track drawn once from Jakku and saved (titleTrack), logged once')
 require('gp').random = function(n) return 1 end -- (another draw would differ: the saved track must not)

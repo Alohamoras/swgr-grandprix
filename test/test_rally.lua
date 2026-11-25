@@ -47,7 +47,7 @@ T.clickTitle('JUNKER'); M.tick(3)
 T.check(T.titles():find('|RALLY CUP$') ~= nil, 'the RALLY CUP tile on the cups page (' .. T.titles() .. ')')
 local info
 for _, it in ipairs(H.SCREENS.cups().items) do if it.title == 'RALLY CUP' then info = tostring(it.info) end end
-T.check(info:find('7 point%-to%-point stages in tour order, 4 cars; the standings by total time') ~= nil and info:find('DAI BENDU ASCENSION', 1, true) ~= nil,
+T.check(info:find('Seven stages, four racers, the clock decides. Weather and nightfall are unknown until you arrive.', 1, true) ~= nil and info:find('DAI BENDU ASCENSION', 1, true) ~= nil,
   'its info: the stage count, the grid, the time standings, the routes (' .. info:gsub('\n', ' / ') .. ')')
 
 -- 3. the start: the rivals drawn (the tests' rnd: the first three racers but you), the grid cut to 4, stage 1 launched
@@ -90,7 +90,7 @@ T.check(grid(STAGE1) == '12' and W.charsText() == 'Player=DarkEnigma Opp=' .. OR
 -- the standings screen: stage 1 of 7, the time table, the gap stakes line
 local spec = SD.spec(S.result)
 local function joined(lines) local t = {}; for _, l in ipairs(lines or {}) do t[#t + 1] = tostring(l[1]) end; return table.concat(t, ' | ') end
-T.check(joined(spec.lines):find("RALLY CUP   -   THE GIANTS' GRAVEYARD   -   stage 1 of 7", 1, true) ~= nil, 'the header counts stages (' .. joined(spec.lines) .. ')')
+T.check(joined(spec.lines):find("RALLY CUP   -   THE GIANTS' GRAVEYARD   -   STAGE 1 OF 7", 1, true) ~= nil, 'the header counts stages (' .. joined(spec.lines) .. ')')
 T.check(joined(spec.lines):find('1.5 S BEHIND BIDDY BLAS, 6 STAGES LEFT', 1, true) ~= nil, 'the stakes line in seconds (' .. joined(spec.lines) .. ')')
 local tb = spec.table
 local function row(i) return table.concat(tb.rows[i].cells, '/') end
@@ -101,7 +101,7 @@ T.check(row(1) == '1st/Biddy Blas/1:38.50/1:38.50/' and row(2) == '2nd/YOU/1:40.
 local nxt = K.nextRace()
 T.check(nxt.shown == 'GEOTHERMAL TOUR' and nxt.title == 'GEOTHERMAL TOUR (WET)' and nxt.rally == true and #nxt.rivals == 3,
   'the next stage: shown as GEOTHERMAL TOUR, really the wet one, the rivals along (' .. tostring(nxt.shown) .. ')')
-T.check(CH.prompt(S.result) == 'NEXT STAGE: stage 2 of 7, GEOTHERMAL TOUR.   B: leave the cup.', 'the results prompt keeps the weather secret (' .. tostring(CH.prompt(S.result)) .. ')')
+T.check(CH.prompt(S.result) == 'NEXT   GEOTHERMAL TOUR          B   LEAVE THE CUP', 'the results prompt keeps the weather secret (' .. tostring(CH.prompt(S.result)) .. ')')
 local tile
 for _, it in ipairs(S.ui and S.ui.items or {}) do if it.title == 'NEXT RACE' then tile = it end end
 T.check(tile and not tostring(tile.desc):find('WET', 1, true), 'the NEXT RACE tile too (' .. tostring(tile and tile.desc) .. ')')

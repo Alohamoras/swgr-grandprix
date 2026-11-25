@@ -153,7 +153,8 @@ return {
     -- the four cc classes. Every part of your vehicle at `parts`; abilities = the level of everyone's abilities (yours
     -- and the AI's); mods = how many tune-up slots are open. v0.27 (owner: the v0.26 speed chevrons read as
     -- progress): tagline = the line on the focused HOME poster (who races here, in the galaxy's words); brief = what
-    -- you get, under the league's name on its cups page. key is used in the save (best / records / titles / leader / the cup
+    -- you get, under the league's name on its cups page. v0.35.0 (owner, docs/menu-text-review-2026-11-25.md): the
+    -- brief is the league's rules only (the tagline said what the rig is); the taglines in the paddock announcer's voice. key is used in the save (best / records / titles / leader / the cup
     -- run's `class` field, which holds a league key): never change it. The AI profile per league: AI.Profiles below.
     -- parts: one level for every slot, or a table by slot (EVehiclePartSlot: 0 Cornering, 1 Acceleration, 2 Resilience,
     -- 3 Boost, 4 AbilityUsage, 5 Advanced; the stat bars in the same order read CORNERING, AFTERBURNER, RESILIENCE,
@@ -172,13 +173,13 @@ return {
         -- (KNOWLEDGE §5), so this is the whole field's car at each league.
         { key = 'riffraff', name = 'JUNKER', parts = { [1] = 10, [3] = 10, [4] = 2 }, mods = 0, abilities = 1, open = true,
           tagline = 'Scrapyard junk with too much engine',
-          brief = 'Hot-rodded junk   -   one ability   -   no tune-ups' },
+          brief = 'One ability. No tune-ups.' },
         { key = 'challenger', name = 'CHALLENGER', parts = 7, mods = 1, abilities = 2, open = true,
-          tagline = 'Balanced rigs and pilots out to make a name',
-          brief = 'Balanced engines   -   two abilities   -   one tune-up' },
+          tagline = 'Proper rigs, and pilots out to make a name',
+          brief = 'Two abilities. One tune-up.' },
         { key = 'ace', name = 'ACE', parts = 10, mods = 2, abilities = 3,
-          tagline = 'Money, maxed out, and a clean field',
-          brief = 'Maxed-out engines   -   three abilities   -   two tune-ups' },
+          tagline = 'Every credit on the rig. The galaxy\'s finest',
+          brief = 'Three abilities. Two tune-ups.' },
     },
 
     -- Points by place in each race (1st first); a racer who doesn't finish scores 0
@@ -501,7 +502,7 @@ return {
     -- compares it once per racer at launch and logs a mismatch). Shade drives the base landspeeder (owner). unlockBoss
     -- (v0.21) = locked until you beat the final boss (Boss above: Kestar Bool himself); until then the garage skips him.
     Racers = {
-        { key = 'DarkEnigma',          name = 'Shade',          vehicle = 'car',     line = 'The campaign\'s racer' },
+        { key = 'DarkEnigma',          name = 'Shade',          vehicle = 'car',     line = 'No family name, no sponsor, just the rig' },
         { key = 'Protege',             name = 'Ary Quill',      vehicle = 'car',     line = 'Audacious heir to the Quill racing legacy' },
         { key = 'Mercenary',           name = 'Malis Vazosk',   vehicle = 'bike',    line = 'Racing and mercenary work are one and the same' },
         { key = 'QuietStrength',       name = 'Nik Skandaro',   vehicle = 'car',     line = 'The Bools\' former enforcer, racing for solace' },
@@ -623,25 +624,25 @@ return {
     TuneUps = {
         { key = 'heat_shield', name = 'HEAT SHIELD', group = 'Status protection', line = 'Immune to Burning and Frozen',
           mods = { 'Conditions_BurningProtection', 'Conditions_FreezeProtection' } },
-        { key = 'armour', name = 'ARMOUR', group = 'Shields, surges & slipstream', line = 'Immune to Disrupted; Shielded for the first 10 s',
+        { key = 'armour', name = 'ARMOUR', group = 'Shields, surges & slipstream', line = 'Immune to Disrupted. Shielded for the first 10 s',
           mods = { 'Conditions_DisruptedProtection', 'Shielded_GainOnRaceStart' } },
-        { key = 'ice_cold', name = 'ICE COLD', group = 'Cooling & heat', line = 'Cooled while airborne; Cooled blocks Corroded',
+        { key = 'ice_cold', name = 'ICE COLD', group = 'Cooling & heat', line = 'Cooled while airborne. Cooled blocks Corroded',
           mods = { 'Cooled_GainWhileAirborne', 'Cooled_CorrodeProtection' } },
-        { key = 'redliner', name = 'REDLINER', group = 'Ramjet', line = 'Ramjet cools while active; Cooled 20 s when Redlining',
+        { key = 'redliner', name = 'REDLINER', group = 'Ramjet', line = 'Ramjet cools while active. Cooled 20 s when Redlining',
           mods = { 'Ramjet_TempCanDropWhileBoosting', 'Ramjet_CooledWhenCritical' } },
-        { key = 'ramjet_rider', name = 'RAMJET RIDER', group = 'Ramjet', line = 'No Ramjet heat in the air; 90% resets, no blow-up',
+        { key = 'ramjet_rider', name = 'RAMJET RIDER', group = 'Ramjet', line = 'No Ramjet heat in the air. 90% resets, no blow-up',
           mods = { 'Ramjet_NoHeatWhileAirborne', 'Ramjet_CriticalResetChance' } },
-        { key = 'afterburner', name = 'AFTERBURNER', group = 'Afterburner', line = 'No fuel used in the air; a full tank on landing',
+        { key = 'afterburner', name = 'AFTERBURNER', group = 'Afterburner', line = 'No fuel used in the air. a full tank on landing',
           mods = { 'Afterburner_BetterWhileAirborne', 'Afterburner_RefillOnLanding' } },
         { key = 'brawler', name = 'BRAWLER', group = 'Takedowns', line = 'Takedowns ready the Ramjet and give 4 Energy',
           mods = { 'Takedown_ResetHeat', 'Energy_GainOnTakedown' } },
         { key = 'survivor', name = 'SURVIVOR', group = 'Crashes & recovery', line = 'After a crash: Shielded and Surging for 30 s',
           mods = { 'Crash_ReturnWithShield', 'Crash_ReturnWithSurge' } },
-        { key = 'slipstreamer', name = 'SLIPSTREAMER', group = 'Shields, surges & slipstream', line = 'Slipstreaming cools you; 5 s of it starts a Surge',
+        { key = 'slipstreamer', name = 'SLIPSTREAMER', group = 'Shields, surges & slipstream', line = 'Slipstreaming cools you. 5 s of it starts a Surge',
           mods = { 'Slipstream_gainSurging', 'Cooled_GainWhileSlipstream' } },
         { key = 'firebug', name = 'FIREBUG', group = 'Cooling & heat', line = 'Burning makes 90% less heat and Overcharges you',
           mods = { 'Burning_GainOvercharged', 'Conditions_DecreaseBurningPotency' } },
-        { key = 'engineer', name = 'ENGINEER', group = 'Crashes & recovery', line = 'Malfunctions end 200% sooner; a perfect fix restores a Crash',
+        { key = 'engineer', name = 'ENGINEER', group = 'Crashes & recovery', line = 'Malfunctions end 200% sooner. a perfect fix restores a Crash',
           mods = { 'SysMalf_ShorterMalfunction', 'CritMalf_PerfectRecoversCrash' } },
         { key = 'tenacious', name = 'TENACIOUS', group = 'Status protection', line = 'Corroded crashes you 200% slower and never chokes you',
           mods = { 'Conditions_CorrodeResistance', 'Corrode_NoLongerChokes' } },

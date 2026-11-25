@@ -187,11 +187,11 @@ local function fill(w, sm)
     if r.finale then
       -- v0.33: the finale's line: won - the champion; lost - who kept the title
       local fin = sm.finale or {}
-      what = r.place == 1 and ('won - %s CHAMPION'):format(tostring(fin.league or sm.league):upper())
-        or ((r.place and 'lost' or 'DNF') .. ' - ' .. tostring(fin.vs or 'Kestar Bool') .. ' keeps the title')
-      awards[#awards + 1] = { XP = 0, Tag = { TagName = FName('None') }, Reason = FText(('Finale: %s 1 v 1, %s'):format(r.title, what)) }
+      -- (v0.35.0: no "Finale:" / "Race 2:" labels - the timeline shows the order)
+      what = r.place == 1 and ('%s CHAMPION'):format(tostring(fin.league or sm.league):upper()) or 'HE KEEPS THE TITLE'
+      awards[#awards + 1] = { XP = 0, Tag = { TagName = FName('None') }, Reason = FText(('%s, ONE ON ONE   -   %s'):format(tostring(fin.vs or 'Kestar Bool'):upper(), what)) }
     else
-      awards[#awards + 1] = { XP = r.pts, Tag = { TagName = FName('None') }, Reason = FText(('%s %d: %s, %s'):format(sm.timed and 'Stage' or 'Race', i, r.title, what)) }
+      awards[#awards + 1] = { XP = r.pts, Tag = { TagName = FName('None') }, Reason = FText(('%s, %s'):format(r.title, what)) }
     end
   end
   local xp = new('PvpXPResultsVM', w)

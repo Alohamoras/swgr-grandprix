@@ -32,7 +32,7 @@ T.check(ball(1) == PLANETS .. 'Mas' and ball(2) == PLANETS .. 'Dal' and ball(3) 
   'the planet cups carry their planet\'s round picture (' .. ball(1) .. ')')
 T.check(ball(6) == PLANETS .. 'Whp' and ball(7) == PLANETS .. 'Cor', 'the Galactic Cup Derven Acos, the Rally Cup Ando Prime')
 T.check(items[1].glyph.side == 'left' and items[1].glyph.scale == cfg.CupPlanets and cfg.CupPlanets == 0.86, 'on the left, at the config\'s share of the tile height')
-T.check(items[6].info:find('A trophy adds the finale: Kestar Bool, 1 v 1 in the stadium, for the league title', 1, true) ~= nil, 'the Galactic Cup\'s info says the finale')
+T.check(items[6].info:find('Finish on the podium and Kestar Bool waits in the stadium. One race for the title.', 1, true) ~= nil, 'the Galactic Cup\'s info says the finale')
 cfg.CupPlanets = false
 T.check(H.SCREENS.cups().items[1].glyph == nil, 'CupPlanets = false: no planet')
 T.check(T.pips('JUNKER') == nil, '(not on this page)')
@@ -70,7 +70,7 @@ T.check(it.desc == 'KESTAR BOOL  -  1 v 1' and tostring(it.art):find('Antagonist
 local lines = {}
 for _, l in ipairs(H.SCREENS.standings().lines or {}) do lines[#lines + 1] = type(l) == 'table' and tostring(l[1]) or tostring(l) end
 local text = table.concat(lines, ' / ')
-T.check(text:find('race 4 of 5', 1, true) ~= nil and text:find('BRONZE TROPHY SECURED   -   NEXT: KESTAR BOOL, 1 v 1 FOR THE JUNKER TITLE', 1, true) ~= nil,
+T.check(text:find('RACE 4 OF 5', 1, true) ~= nil and text:find('BRONZE TROPHY SECURED. KESTAR BOOL NEXT, ONE RACE FOR THE JUNKER TITLE', 1, true) ~= nil,
   'the standings say the trophy is secured and the finale is next (' .. text .. ')')
 T.check(CU.stakes(sv.run, cfg.Points) == nil, 'no stakes line: the finale scores no points')
 mark = T.mark()
@@ -111,7 +111,7 @@ M.press('BACKSPACE'); M.tick(3)
 
 ---------------------------------------------------------------------------------------------------------------------
 -- 4. Ace: gold, the finale won: the Ace champion, Kestar unlocked as a racer; the cup result says so
-T.check(RC.locked('Antagonist') and RC.unlockText({ unlockBoss = true }) == 'To unlock: beat Kestar Bool in the ACE Galactic Cup finale', 'Kestar locked, the unlock text names the finale (' .. tostring(RC.unlockText({ unlockBoss = true })) .. ')')
+T.check(RC.locked('Antagonist') and RC.unlockText({ unlockBoss = true }) == 'Kestar Bool races only for himself until you beat him in the ACE Galactic Cup finale.', 'Kestar locked, the unlock text names the finale (' .. tostring(RC.unlockText({ unlockBoss = true })) .. ')')
 T.clickTitle('ACE'); M.tick(3)
 mark = T.mark()
 T.clickTitle('GALACTIC CUP')
@@ -129,7 +129,7 @@ spec = H.SCREENS.standings()
 hero = {}
 for _, l in ipairs(spec.hero and spec.hero.lines or {}) do hero[#hero + 1] = tostring(l[1]) end
 text = table.concat(hero, ' / ')
-T.check(text:find('GOLD TROPHY', 1, true) ~= nil and text:find('ACE CHAMPION', 1, true) ~= nil and text:find('UNLOCKED:  KESTAR BOOL races for you now', 1, true) ~= nil,
+T.check(text:find('GOLD TROPHY', 1, true) ~= nil and text:find('ACE CHAMPION', 1, true) ~= nil and text:find('KESTAR BOOL RACES IN YOUR COLOURS NOW', 1, true) ~= nil,
   'the cup result: gold, ACE CHAMPION, Kestar unlocked (' .. text .. ')')
 -- the native cup result's summary (cupend.lua): five races, the finale without points, the maximum 60, its award line
 local CE = require('cupend')

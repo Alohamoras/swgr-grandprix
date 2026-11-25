@@ -16,16 +16,16 @@ check(P.classOpen(new, 'riffraff') and P.classOpen(new, 'challenger') and not P.
 cfg.Leagues[2].open = nil
 check(P.classOpen(new, 'riffraff'), 'a new save: Riff-Raff open')
 local ok, why, short = P.classOpen(new, 'challenger')
-check(not ok and why == 'A trophy in all 5 planet cups at JUNKER (0 / 5)', 'Challenger locked, says what opens it (' .. tostring(why) .. ')')
-check(short == '5 trophies at JUNKER', 'the short form for the tile (' .. tostring(short) .. ')')
+check(not ok and why == 'A trophy in every JUNKER planet cup opens it. 0 of 5 so far.', 'Challenger locked, says what opens it (' .. tostring(why) .. ')')
+check(short == 'Five JUNKER trophies open it', 'the short form for the tile (' .. tostring(short) .. ')')
 ok, why = P.classOpen(new, 'ace')
-check(not ok and why == 'A trophy in all 5 planet cups at CHALLENGER (0 / 5)', 'Ace locked: opens from Challenger (' .. tostring(why) .. ')')
+check(not ok and why == 'A trophy in every CHALLENGER planet cup opens it. 0 of 5 so far.', 'Ace locked: opens from Challenger (' .. tostring(why) .. ')')
 local four = d({ riffraff = { jakku = 1, lantaana = 3, ando = 2, crait = 1, galactic = 1 } })
 ok, why = P.classOpen(four, 'challenger')
-check(not ok and why:find('(4 / 5)', 1, true), 'four planet cups (the Galactic Cup doesn\'t count) -> still locked (' .. why .. ')')
+check(not ok and why:find('4 of 5 so far', 1, true), 'four planet cups (the Galactic Cup doesn\'t count) -> still locked (' .. why .. ')')
 -- v0.30: the Rally Cup is no planet cup either
 ok, why = P.classOpen(d({ riffraff = { jakku = 1, lantaana = 3, ando = 2, crait = 1, rally = 1 } }), 'challenger')
-check(not ok and why:find('(4 / 5)', 1, true), 'a rally gold counts for no planet-cup unlock (' .. why .. ')')
+check(not ok and why:find('4 of 5 so far', 1, true), 'a rally gold counts for no planet-cup unlock (' .. why .. ')')
 ok = P.cupOpen(d({ riffraff = { jakku = 1, lantaana = 3, ando = 2, crait = 1, rally = 1 } }), 'riffraff', 'galactic')
 check(not ok and P.cupOpen(new, 'riffraff', 'rally'), 'the Galactic Cup still locked; the Rally Cup open from the start')
 local bronze = d({ riffraff = five(3) })
@@ -35,24 +35,24 @@ check(P.classOpen(d({ riffraff = five(3), challenger = five(2) }), 'ace'), 'a tr
 check(not P.classOpen(d({ riffraff = five(4) }), 'challenger'), '4th place is no trophy')
 cfg.Progression.Unlock = 'gold'
 ok, why = P.classOpen(bronze, 'challenger')
-check(not ok and why:find('^Gold in all 5'), 'Unlock = gold: bronzes are not enough (' .. why .. ')')
+check(not ok and why:find('^Gold in every'), 'Unlock = gold: bronzes are not enough (' .. why .. ')')
 check(P.classOpen(d({ riffraff = five(1) }), 'challenger'), 'Unlock = gold: five golds open it')
 cfg.Progression.Unlock = 'trophy'
 
 -- the Galactic Cup (v0.11): a trophy (any colour) in all five planet cups at that league
 ok, why = P.cupOpen(new, 'riffraff', 'galactic')
-check(not ok and why == 'A trophy in all 5 planet cups at JUNKER (0 / 5)', 'Galactic at Riff-Raff locked, says what opens it (' .. tostring(why) .. ')')
+check(not ok and why == 'A trophy in every JUNKER planet cup opens it. 0 of 5 so far.', 'Galactic at Riff-Raff locked, says what opens it (' .. tostring(why) .. ')')
 check(P.cupOpen(new, 'riffraff', 'jakku') and P.cupOpen(new, 'riffraff', 'sentinel'), 'planet cups open')
 ok, why = P.cupOpen(four, 'riffraff', 'galactic')
 check(ok, 'kept: the Galactic Cup already raced at Riff-Raff')
 ok, why = P.cupOpen(d({ riffraff = { jakku = 1, lantaana = 3, ando = 2, crait = 1 } }), 'riffraff', 'galactic')
-check(not ok and why:find('(4 / 5)', 1, true), 'four trophies: still locked (' .. tostring(why) .. ')')
+check(not ok and why:find('4 of 5 so far', 1, true), 'four trophies: still locked (' .. tostring(why) .. ')')
 check(P.cupOpen(bronze, 'riffraff', 'galactic'), 'five bronzes open the Galactic Cup at that league')
 check(not P.cupOpen(bronze, 'challenger', 'galactic'), '... only at that league')
 check(not P.cupOpen(d({ riffraff = five(4) }), 'riffraff', 'galactic'), '4th places are no trophies')
 cfg.Progression.Unlock = 'gold'
 ok, why = P.cupOpen(bronze, 'riffraff', 'galactic')
-check(not ok and why == 'Gold in all 5 planet cups at JUNKER (0 / 5)', 'Unlock = gold: bronzes leave it locked (' .. tostring(why) .. ')')
+check(not ok and why == 'Gold in every JUNKER planet cup opens it. 0 of 5 so far.', 'Unlock = gold: bronzes leave it locked (' .. tostring(why) .. ')')
 check(P.cupOpen(d({ riffraff = five(1) }), 'riffraff', 'galactic'), 'Unlock = gold: five golds open it')
 cfg.Progression.Unlock = 'trophy'
 ok, why = P.cupOpen(new, 'ace', 'jakku')
@@ -94,7 +94,7 @@ cfg.Progression.On = true
 do
   local t5 = { jakku = 3, lantaana = 1, ando = 2, crait = 3, sentinel = 1 }
   local ok, why = P.titleOpen(d(), 'riffraff')
-  check(not ok and why == 'A trophy in the GALACTIC CUP at JUNKER', 'title race: locked on a new save, says what opens it (' .. tostring(why) .. ')')
+  check(not ok and why == 'A trophy in the GALACTIC CUP at JUNKER opens it.', 'title race: locked on a new save, says what opens it (' .. tostring(why) .. ')')
   check(not P.titleOpen(d({ riffraff = t5 }), 'riffraff'), 'title race: five planet trophies are not enough')
   local g = { jakku = 3, lantaana = 1, ando = 2, crait = 3, sentinel = 1, galactic = 3 }
   check(P.titleOpen(d({ riffraff = g }), 'riffraff'), 'title race: a Galactic Cup bronze opens it')
@@ -103,7 +103,7 @@ do
   check(not P.titleOpen(d({ riffraff = g4 }), 'riffraff'), 'a 4th place in the Galactic Cup is no trophy')
   cfg.Progression.Unlock = 'gold'
   ok, why = P.titleOpen(d({ riffraff = g }), 'riffraff')
-  check(not ok and why == 'Gold in the GALACTIC CUP at JUNKER', 'Unlock = gold: the Galactic Cup gold (' .. tostring(why) .. ')')
+  check(not ok and why == 'Gold in the GALACTIC CUP at JUNKER opens it.', 'Unlock = gold: the Galactic Cup gold (' .. tostring(why) .. ')')
   cfg.Progression.Unlock = 'trophy'
   ok, why = P.titleOpen(d({ riffraff = { jakku = 1 } }), 'challenger')
   check(not ok and why:find('JUNKER', 1, true), 'a locked league: its own lock is the reason (' .. tostring(why) .. ')')
@@ -127,6 +127,6 @@ end
 -- the nearest unlock (v0.20): league names, no cc
 do
   local nu = P.nextUnlock(d({ riffraff = { jakku = 1, lantaana = 1, ando = 1 } }), 'riffraff')
-  check(nu and nu.text == '2 more trophies at JUNKER open the GALACTIC CUP and CHALLENGER', 'nextUnlock: ' .. tostring(nu and nu.text))
+  check(nu and nu.text == 'Two more trophies at JUNKER open the GALACTIC CUP and CHALLENGER', 'nextUnlock: ' .. tostring(nu and nu.text))
 end
 if failed then os.exit(1) end

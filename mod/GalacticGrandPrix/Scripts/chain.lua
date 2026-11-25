@@ -121,9 +121,11 @@ function CH.prompt(out)
   local nxt, run = K.nextRace(), out and out.run
   if not (nxt and run) then return nil end
   -- (v0.30: the Rally Cup names the route only - the weather stays a surprise until the stage loads: nxt.shown)
-  local what = run.timed and 'stage' or 'race'
-  if hideContinue() then return ('NEXT %s: %s %d of %d, %s.   B: leave the cup.'):format(what:upper(), what, nxt.race, run.races, nxt.shown or nxt.title) end
-  return ('NEXT %s: %s %d of %d, %s.     CONTINUE: the main menu (to leave the cup).'):format(what:upper(), what, nxt.race, run.races, nxt.shown or nxt.title)
+  -- v0.35.0 (docs/menu-text-review-2026-11-25.md): the next race's name (the weather as part of it, not an aside; the
+  -- NEXT RACE badge says which race), then the control hint as a hint
+  local name = tostring(nxt.shown or nxt.title):gsub('%s*%((.-)%)$', ', %1')
+  if hideContinue() then return ('NEXT   %s          B   LEAVE THE CUP'):format(name) end
+  return ('NEXT   %s          CONTINUE   LEAVE THE CUP'):format(name)
 end
 
 -- the button's label: the game's button keeps it in ButtonLabel and its text block (FreeRace's set_label)

@@ -1,5 +1,40 @@
 # Changelog
 
+## v0.35.0 (2026-11-25): the menus' words - the paddock announcer's voice (owner; docs/menu-text-review-2026-11-25.md pass 1)
+- Owner: "any text we do put on the screen should have the feel of star wars ... explain enough about the choices so
+  the player understands what they are choosing, but not put extra information that they might not need" - then
+  "use your recommendations, do one version". Every line we write is now in one voice (the review's §1: third person,
+  present tense, the setting's nouns, no label-colon-explanation, no parentheses, no control hints as sentences, no
+  talk of the software), and the tiles, badges and icons are not repeated in words.
+- HOME: Challenger "Proper rigs, and pilots out to make a name", Ace "Every credit on the rig. The galaxy's best
+  pilots"; a locked league's tile says "Five JUNKER trophies open it", its info line "A trophy in every JUNKER planet
+  cup opens it. 3 of 5 so far." (no press message). RESET: "Wipe the record books? Every trophy, lap record and title
+  goes." / "There is no way back. Wipe them?" / "A clean slate."
+- CUPS: the brief is the league's rules only ("One ability. No tune-ups."); every planet cup's info opens with the
+  planet's own line (the game's, config Planets.line: "Jakku. Starship wrecks boil under the scorching heat of this
+  desert world.") then its circuits; the Galactic Cup "Derven Acos. Home of the Galactic League, where racers face the
+  ultimate challenge. / Three planets, then Derven Acos. / Finish on the podium and Kestar Bool waits in the stadium.
+  One race for the title."; the Rally Cup "Seven stages, four racers, the clock decides. Weather and nightfall are
+  unknown until you arrive." then the routes.
+- START: "Shade. No family name, no sponsor, just the rig." (was "The campaign's racer"); the pilot, ability and
+  tune-up info lines are "Name. What it does." (no colon); the vehicle line "Landspeeder, speeder bike or skim speeder,
+  in the pilot's colours."; a tune-up slot this league does not have is titled by the league that opens it (ACE under
+  the TUNE-UP caption, review §3.2) with "Opens at ACE."; an empty slot "Nothing fitted."; the tune-up lines with a
+  semicolon are two sentences; no "picked" / "fitted" / "selected" messages (the tile changed), "Slot emptied" only;
+  a new pilot's message "Biddy Blas. Speeder bike, signature kit."; Kestar's lock "Kestar Bool races only for himself
+  until you beat him in the ACE Galactic Cup finale."
+- After a race: the headline in caps ("JAKKU CUP   -   SCRAP SPIRAL   -   RACE 1 OF 4"); "NEW RECORD  1:33.08, was
+  1:37.16"; the prompt "NEXT   FALLEN EMPIRE, SCORCHING          B   LEAVE THE CUP" (the weather part of the name;
+  no "race 2 of 4" - the badge says it); the finale next "BRONZE TROPHY SECURED. KESTAR BOOL NEXT, ONE RACE FOR THE
+  JUNKER TITLE"; "Leave the cup? The points and the trophy go with it."; CONTINUE without "Back to the cups".
+- The cup result's award lines "THE WAR FIELDS, 2nd" (no "Race 2:"), the finale "KESTAR BOOL, ONE ON ONE   -   ACE
+  CHAMPION" / "HE KEEPS THE TITLE". Unlocks: "CHALLENGER OPENS" / "CHALLENGER AND THE GALACTIC CUP AT JUNKER OPEN"
+  (no "UNLOCKED:"); "KESTAR BOOL RACES IN YOUR COLOURS NOW". The title / boss pages (off since v0.33) reworded too.
+  Offline: "The Grand Prix runs offline. Leave your party or the queue, then come back."
+- Not in this version (pass 2, one item a version, each seen in game): the results prompt as two text blocks, the
+  RESET tile smaller, the cups page header centred (review §3.1, 3.3, 3.4).
+- Tests: 19 files updated to the new lines; test_tiletext (the tile text budget) passes on every tile.
+
 ## v0.34.3 (2026-11-25): the Rally Cup's rivals catch up (owner)
 - Owner: "for the rally cup, the enemies need a much stronger catch up factor". Every league profile switches the
   game's catch-up off (MaxAiCatchupScale 1.0), which on the rally's point-to-point stages with a 4-car grid left the

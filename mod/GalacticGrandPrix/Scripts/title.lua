@@ -300,8 +300,9 @@ end
 -- the cups page's line about it
 function T.finaleText()
   local gate = bconf().Gate or 'trophy'
-  local lead = gate == 'always' and 'Then' or (gate == 'gold' and 'Gold adds' or 'A trophy adds')
-  return ('%s the finale: %s, 1 v 1 in the stadium, for the league title'):format(lead, T.bossName())
+  -- v0.35.0 (docs/menu-text-review-2026-11-25.md): in the announcer's voice
+  local lead = gate == 'always' and 'Then' or (gate == 'gold' and 'Take gold and' or 'Finish on the podium and')
+  return ('%s %s waits in the stadium. One race for the title.'):format(lead, T.bossName())
 end
 -- the finale's rows into the run's history (no points, nothing in the points table: the standings stay as the points
 -- races left them - cup.lua skips finale rows for the tie rule). pos = your finishing position (nil = DNF)

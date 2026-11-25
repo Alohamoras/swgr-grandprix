@@ -4,12 +4,9 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
-- [ ] **Menu text and layout review (2026-11-25, docs/menu-text-review-2026-11-25.md):** your ask "any text we do put on the
-      screen should have the feel of star wars ... explain enough ... but not extra". (1) The voice: a paddock announcer at
-      the Galactic League (terse, third person, in-universe nouns) - or drier, like the game's own menus? (2) The two
-      taglines that change: CHALLENGER "Proper rigs, and pilots out to make a name", ACE "Every credit on the rig. The best
-      pilots in the galaxy" - or your own lines? (3) The planet's own line above each cup's circuits ("Jakku. Starship wrecks
-      boil under the scorching heat of this desert world.")? (4) Build pass 1 (the words) as one version, or screen by screen?
+- [x] **Menu text and layout review (2026-11-25, docs/menu-text-review-2026-11-25.md):** answered "use your recommendations,
+      do one version, go" - the announcer's voice, Claude's taglines, the planet lines, one version: **v0.35.0** (the words).
+      Pass 2 (the layout: the results prompt split, RESET smaller, the cups header) one item a version, after your read.
 - [ ] **League cars (2026-11-25, plan in docs/league-styles-2026-11-12.md "2026-11-25"; L1 built as v0.34.0, installed):**
       (1) Challenger at 7 on every part - confirm (was 5)? (2) Junker wreck limit 5 (the game's is 3) - or more? (3) Ace
       bots: keep their full ability kits, or defensive / utility only for a cleaner field? (4) Ace pilot strength is
@@ -74,6 +71,11 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.35.0 the menus' words (2026-11-25):** read them where they live - HOME (the taglines, a locked league), a cups page
+      (the brief, a cup's planet line and circuits, the Galactic Cup and Rally Cup lines), a START screen (the pilot, vehicle,
+      ability and tune-up info lines; a locked tune-up tile now titled ACE), one results panel (the caps headline, the
+      "NEXT   ...          B   LEAVE THE CUP" prompt). Anything that reads flat or wrong: say which line, and the voice it
+      should have. The two taglines are the ones to argue with most.
 - [ ] **v0.34.3 Rally Cup catch-up (2026-11-25):** your ask "a much stronger catch up factor" - the rivals now get x1.6 pace
       when 0.5 s behind (the game's own is x1.3 after 2 s; the leagues run 1.0 = none). Race a rally: do the rivals stay with
       you on the stages (the `[gaps]` lines in grandprix.log were 15-57 s behind at 16:27-16:30)? Too strong = they sit on your

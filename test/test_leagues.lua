@@ -102,9 +102,9 @@ H = rawget(_G, 'GU_TEST_SCREENS')
 M.press('F6'); M.tick(6)
 T.check(T.locks() == '||LOCKED||', 'v0.27.2 (owner): a new save: Riff-Raff and Challenger open, Ace locked (' .. T.marks() .. ')')
 local items = H.SCREENS.home().items
-T.check(items[2].desc == 'Balanced rigs and pilots out to make a name' and items[3].desc == 'To open: 5 trophies at CHALLENGER',
+T.check(items[2].desc == 'Proper rigs, and pilots out to make a name' and items[3].desc == 'Five CHALLENGER trophies open it',
   'Challenger shows its tagline; the Ace lock says what opens it (' .. tostring(items[2].desc) .. ' / ' .. tostring(items[3].desc) .. ')')
-T.check(items[3].info:find('A trophy in all 5 planet cups at CHALLENGER (0 / 5)', 1, true) ~= nil, 'the full why in the info line')
+T.check(items[3].info:find('A trophy in every CHALLENGER planet cup opens it. 0 of 5 so far.', 1, true) ~= nil, 'the full why in the info line')
 T.clickTitle('ACE'); M.tick(3)
 T.check(H.S.screen == 'home', 'a locked league can\'t be entered')
 T.clickTitle('CHALLENGER'); M.tick(3)
@@ -150,8 +150,8 @@ W.backToMenu(); M.tick(45)
 T.check(T.logHas('TITLE RACE ACE: WON', mark) and T.logHas('unlocked: KESTAR BOOL (the final boss) on the ACE cups page', mark), 'the Ace title won: Kestar unlocked, logged')
 local hl = {}
 for _, l in ipairs(H.SCREENS.titleResult().lines) do hl[#hl + 1] = tostring(l[1]) end
-T.check(hl[1] == 'ACE CHAMPION' and hl[2] == 'UNLOCKED:  KESTAR BOOL, the final boss', 'the title result: ACE CHAMPION, Kestar unlocked (' .. table.concat(hl, ' | ') .. ')')
+T.check(hl[1] == 'ACE CHAMPION' and hl[2] == 'KESTAR BOOL WAITS IN THE STADIUM', 'the title result: ACE CHAMPION, Kestar unlocked (' .. table.concat(hl, ' | ') .. ')')
 T.clickTitle('CONTINUE'); M.tick(3)
 T.check(T.ntiles() == 9 and T.titles():find('|TITLE RACE|KESTAR BOOL|RALLY CUP$') ~= nil, 'the Ace cups page: KESTAR BOOL, then the Rally Cup (' .. T.titles() .. ')')
-T.check(RC.unlockText('Antagonist') == 'To unlock: beat Kestar Bool after the ACE title', 'his lock names the Ace title')
+T.check(RC.unlockText('Antagonist') == 'Kestar Bool races only for himself until you beat him after the ACE title.', 'his lock names the Ace title')
 T.finish()

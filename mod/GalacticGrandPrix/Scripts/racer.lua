@@ -60,9 +60,9 @@ function RC.unlockText(r)
   local c = K.league(TI.bossClass())
   if TI.finaleOn and TI.finaleOn() then
     -- v0.33: he is the Galactic Cup's finale
-    return ('To unlock: beat %s in the %s Galactic Cup finale'):format(TI.bossName(), c and c.name or TI.bossClass())
+    return ('%s races only for himself until you beat him in the %s Galactic Cup finale.'):format(TI.bossName(), c and c.name or TI.bossClass())
   end
-  return ('To unlock: beat %s after the %s title'):format(TI.bossName(), c and c.name or TI.bossClass())
+  return ('%s races only for himself until you beat him after the %s title.'):format(TI.bossName(), c and c.name or TI.bossClass())
 end
 -- the pick; a locked pick (an old save, or a lock come back) is Shade, saved and logged
 function RC.current()

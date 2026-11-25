@@ -77,7 +77,7 @@ T.check(e1 and e1.FinishPosition == 2 and e1.Activity == 2 and e4.FinishPosition
 local xp = p.XPVM and rawget(p.XPVM, '__props')
 local awards = xp and xp.XPAwards
 local na = type(awards) == 'table' and (awards.GetArrayNum and awards:GetArrayNum() or #awards) or -1
-T.check(na == 4 and awards[1].XP == 12 and awards[2].XP == 15 and rawget(awards[1].Reason, '__props').__text:find('Race 1: ', 1, true) ~= nil
+T.check(na == 4 and awards[1].XP == 12 and awards[2].XP == 15 and rawget(awards[1].Reason, '__props').__text:find('Race 1', 1, true) == nil
   and rawget(awards[1].Reason, '__props').__text:find(', 2nd', 1, true) ~= nil, 'A: the XP awards are your points per race (12, 15, 15, 10) with the race and place')
 T.check(xp.TotalXPEarned == 52 and xp.NextRankXPThreshold == 60, 'A: the total 52 points against the cup\'s maximum 60')
 T.check(M.called('RefreshPlanets') == 1 and M.called('TriggerTimelineAnimation') == 1 and M.called('UpdateWins') == 1 and M.called('UpdateParticipation') == 0

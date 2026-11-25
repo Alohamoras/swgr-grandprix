@@ -42,7 +42,11 @@ end
 
 -- v0.14: the short form of what opens a locked thing, for its tile ('5 trophies at RIFF-RAFF'; the full why goes in the
 -- screen's info line)
-local function shortCount(gold, of, name) return ('%d %s at %s'):format(of, gold and 'golds' or 'trophies', name) end
+-- v0.35.0 (docs/menu-text-review-2026-11-25.md): a sentence - 'Five JUNKER trophies open it' / 'A Galactic Cup trophy opens it'
+local WORDS = { 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine' }
+local function numWord(n) return WORDS[n] or tostring(n) end
+P.numWord = numWord
+local function shortCount(gold, of, name) return ('%s %s %s open it'):format(numWord(of), name, gold and 'golds' or 'trophies') end
 local function titleCase(s) return (tostring(s):lower():gsub("(%a)([%w']*)", function(a, b) return a:upper() .. b end)) end
 
 -- is a class open? -> open, why (the text for a locked tile's info: what opens it), short (the same for the tile)
@@ -61,7 +65,7 @@ function P.classOpen(data, classKey)
   local gold = conf().Unlock == 'gold'
   local n, of = count(data, prev.key, gold and 1 or 3)
   if n >= of then return true end
-  return false, ('%s in all %d planet cups at %s (%d / %d)'):format(gold and 'Gold' or 'A trophy', of, prev.name, n, of),
+  return false, ('%s in every %s planet cup opens it. %d of %d so far.'):format(gold and 'Gold' or 'A trophy', prev.name, n, of),
     shortCount(gold, of, prev.name)
 end
 
@@ -76,7 +80,7 @@ function P.cupOpen(data, classKey, cupKey)
   local gold = conf().Unlock == 'gold'
   local n, of = count(data, classKey, gold and 1 or 3)
   if n >= of then return true end
-  return false, ('%s in all %d planet cups at %s (%d / %d)'):format(gold and 'Gold' or 'A trophy', of, className(classKey), n, of),
+  return false, ('%s in every %s planet cup opens it. %d of %d so far.'):format(gold and 'Gold' or 'A trophy', className(classKey), n, of),
     shortCount(gold, of, className(classKey))
 end
 
@@ -100,8 +104,8 @@ function P.titleOpen(data, classKey)
   local gold = conf().Unlock == 'gold'
   local b = bestOf(data, classKey, fin.key)
   if b and b <= (gold and 1 or 3) then return true end
-  return false, ('%s in the %s at %s'):format(gold and 'Gold' or 'A trophy', fin.name, className(classKey)),
-    ('%s %s'):format(titleCase(fin.name), gold and 'gold' or 'trophy')
+  return false, ('%s in the %s at %s opens it.'):format(gold and 'Gold' or 'A trophy', fin.name, className(classKey)),
+    ('%s %s %s opens it'):format(gold and 'Gold in the' or 'A', titleCase(fin.name), gold and '' or 'trophy'):gsub('%s+', ' ')
 end
 
 -- everything open, as a set of names ('CHALLENGER', 'GALACTIC CUP at RIFF-RAFF', 'TITLE RACE at RIFF-RAFF') - compared before /
@@ -173,9 +177,9 @@ function P.nextUnlock(data, classKey)
       end
       local text
       if missing then
-        text = ('a %s in the %s at %s opens the %s'):format(word, titleCase(missing), cname, joinNames(opens))
+        text = ('A %s in the %s at %s opens the %s'):format(word, titleCase(missing), cname, joinNames(opens))
       else
-        text = ('%d more %s at %s open the %s'):format(need, gold and 'golds' or 'trophies', cname, joinNames(opens))
+        text = ('%s more %s at %s open the %s'):format(numWord(need), gold and 'golds' or 'trophies', cname, joinNames(opens))
       end
       cands[#cands + 1] = { need = need, opens = opens, cup = missing, class = classKey, text = text }
     end
@@ -183,7 +187,7 @@ function P.nextUnlock(data, classKey)
   -- the title race: a trophy in the Galactic Cup (once that cup is open)
   if titleOn() and fin and P.cupOpen(data, classKey, fin.key) and not P.titleOpen(data, classKey) then
     cands[#cands + 1] = { need = 1, opens = { 'TITLE RACE' }, cup = fin.name, class = classKey,
-      text = ('a %s in the %s at %s opens the TITLE RACE'):format(word, titleCase(fin.name), cname) }
+      text = ('A %s in the %s at %s opens the TITLE RACE'):format(word, titleCase(fin.name), cname) }
   end
   table.sort(cands, function(a, b) return a.need < b.need end)
   return cands[1]
