@@ -32,6 +32,8 @@ local function nameIndex()
   return names
 end
 function L.resetNames() names = nil end
+-- a racer's config key (DA_Racer_<key>) from the name the game shows, or nil (v0.32: thrust.lua)
+function L.racerKey(name) return nameIndex()[name or ''] end
 
 -- the four class paths a racer brings at a class (the _AI versions where the game has them), and their config key
 function L.kitFor(racerName, classKey)

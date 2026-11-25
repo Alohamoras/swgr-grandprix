@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.32.1 (2026-11-25): the bots use their kits (aiuse.lua)
+- loadout.lua hands every bot four abilities at load, but (FreeRace's finding, `docs/freerace-review-2026-11-25.md`
+  §3.1, §6.2; the owner's open question R7) a bot only fires its SELECTED ability, and only one the AI's ability
+  configs list. So, read inside race.lua's 2 s sweep of the player states (no extra lookups, nothing kept):
+  - every 4 s each bot's `SelectedAbilityIx` moves on to the next ability (config `Abilities.AICycleS`);
+  - once a race the kit classes of the league are checked against `RaceAIComponentConfig.AbilityConfigCollection`:
+    a class no config lists joins its family's config for the race (`AICover`; the lists go into the save first,
+    `aiCoverRestores`, and back at the menu - or at the next boot after a crash); a family with no config at all is
+    reported as never fired;
+  - a bot's own `AbilityConfig` copy gets a recharge by class-name part (`AICooldowns`: mines 30 s, Disruptors 15 s;
+    a shared config is left alone);
+  - uses are counted from the ability states (Ready -> Active / WarmingUp): one `[aiuse] fired so far` line a minute
+    (up to 5) and one with the RESULT.
+  `Abilities.AIUse = false` switches all of it off. Tests: test_aiuse.
+
 ## v0.32.0 (2026-11-25): the Precision buoys off The Galactic Gauntlet
 - hazards.lua: the Precision run's floating buoys (`PrecisionRunBuoy`) sit in the route layer of The Galactic Gauntlet
   and load in every race there, shoving or crashing a car that passes close at speed (the FreeRace mod's finding,

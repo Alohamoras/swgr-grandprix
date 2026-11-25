@@ -10,6 +10,7 @@ local AI = require('ai')
 local LK = require('looks')
 local PT = require('paint')
 local HZ = require('hazards')
+local AU = require('aiuse')
 local try, alive, addr, log = C.try, C.alive, C.addr, C.log
 
 local R = { run = nil }
@@ -79,7 +80,7 @@ local function writeLevels(build, want)
   end
 end
 
-function R.pendingRestore() return next(K.data.restores) ~= nil or next(K.data.abilityRestores) ~= nil or RC.pending() or AI.pending() or require('title').pending() end
+function R.pendingRestore() return next(K.data.restores) ~= nil or next(K.data.abilityRestores) ~= nil or RC.pending() or AI.pending() or AU.pending() or require('title').pending() end
 
 -- ability slots (v0.3): a class object -> its path ('' = empty)
 local function slotPath(c)
@@ -201,6 +202,9 @@ function R.restoreBuild(why)
   -- v0.8: the AI config asset (ai.lua), its originals in K.data.aiRestores
   local okA, nA = pcall(AI.restoreConfig, why)
   if not okA then log('[ai] restore error: ' .. tostring(nA)) elseif nA > 0 then done[#done + 1] = AI.CONFIG end
+  -- v0.32: the AI's ability configs (aiuse.lua), their lists in K.data.aiCoverRestores
+  local okU, nU = pcall(AU.restoreCover, why)
+  if not okU then log('[aiuse] restore error: ' .. tostring(nU)) elseif nU > 0 then done[#done + 1] = 'aiCover' end
   if #done > 0 then K.save() end
   -- v0.8: the boss event gets its story cinematics back (title.lua)
   local okT, errT = pcall(function() return require('title').restore(why) end)
@@ -351,6 +355,9 @@ local function startRun(ev, classKey, p, skip, extra)
   if look then R.run.looks = { look = look } end
   -- v0.32: the Precision buoys off on the tracks that carry them (hazards.lua)
   if HZ.wants(ev) then R.run.hz = HZ.begin(ev) end
+  -- v0.32: the bots' kits put to use (aiuse.lua): the selection cycled, the configs covered, the uses counted
+  local okU, au = pcall(AU.begin, classKey)
+  if okU then R.run.au = au else log('[aiuse] ' .. tostring(au)) end
   R.menuSeen = false
   R.menuGone()
   local ok3, lo = pcall(LO.begin, classKey, p.modNames, p.yourKeys)
@@ -465,6 +472,11 @@ local function readField(r)
       if f.finished and not f.time then
         local t = try(function() return tonumber(rec.EventFinishTime) end)
         if t and t > 0 then f.time = t end
+      end
+      if not you and r.au and r.startedAt then
+        -- v0.32: the bot's kit in use (aiuse.lua), read in this same sweep
+        local okB, errB = pcall(AU.onBot, r.au, ps, name)
+        if not okB then log('[aiuse] stopped: ' .. tostring(errB)); r.au = nil end
       end
       if you then
         local pawn = try(function() return ps.PawnPrivate end)
@@ -639,6 +651,7 @@ local function recordRace(r)
   local okP, line = pcall(perfLine, r)
   log('PERF ' .. r.ev.title .. ': ' .. (okP and line or ('(error: ' .. tostring(line) .. ')')))
   if r.hz then pcall(function() log(HZ.summary(r.hz)) end) end
+  if r.au then pcall(function() log(AU.summary(r.au)) end) end
   return out
 end
 -- (chain.lua's view of this file)
@@ -707,16 +720,15 @@ function R.watch()
     if not okC then log('[chain] stopped: ' .. tostring(errC) .. ' - the standings at the main menu'); r.chainOff = true end
   end
   local due = C.clock - (r.lastRead or -1e9) >= 2000
+  if due and not r.startedAt and not R.menuSeen then
+    -- the start of the race: the race state looked up again on the 2 s read only (one lookup, a few times a race)
+    -- (v0.32: whatever the AI setting - the start matters to the bots' kits and the start grace too)
+    local gs = C.deref(r.gsRef)
+    if gs and try(function() return gs.bIsRaceStarted end) == true then r.startedAt = C.clock end
+  end
   -- v0.8: the AI rubber band, until 3 s after the start (its own sweep of the tune objects, at most every 500 ms,
   -- then it stops itself; nothing more is swept once it's done)
-  if r.ai and not r.ai.finished then
-    if due and not r.startedAt and not R.menuSeen then
-      -- the start of the race: the race state looked up again on the 2 s read only (one lookup, a few times a race)
-      local gs = C.deref(r.gsRef)
-      if gs and try(function() return gs.bIsRaceStarted end) == true then r.startedAt = C.clock end
-    end
-    R.applyAI(r)
-  end
+  if r.ai and not r.ai.finished then R.applyAI(r) end
   if not (R.menuSeen or due or r.gone) then return nil end
   local n = 0
   if not R.menuSeen and due then
@@ -724,6 +736,12 @@ function R.watch()
     n = readField(r)
     if n > 0 then
       if not r.fieldLogged then r.fieldLogged = true; log(('field: %d racers'):format(n)) end
+      -- v0.32: the AI's ability configs checked against the kits once the race has started; the uses reported
+      if r.au and r.startedAt then
+        local okC, errC = pcall(AU.cover, r.au, r.ev.class)
+        if not okC then log('[aiuse] coverage check failed: ' .. tostring(errC)) end
+        pcall(AU.report, r.au)
+      end
       -- v0.8: the race is under way with its own copy of your pilot: the character list goes back (once, in this
       -- read; a sweep for the list, nothing kept)
       if RC.pending() and C.clock - (r.racingAt or r.at) >= RC.SETTLE_MS then

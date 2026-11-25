@@ -430,6 +430,16 @@ return {
             Mentor              = { name = 'Sebulba',        offensive = 'shockwave.vectored', defensive = 'shield.impact',  utility = 'surge.overtake', wildcard = 'mine.double' },
         },
         -- anyone else gets the default four
+        -- v0.32 (aiuse.lua; docs/freerace-review-2026-11-25.md §3.1, §6.2): the kits put to use. A bot only fires its
+        -- SELECTED ability, so every AICycleS the selection moves on to the next one; a class no AI ability config
+        -- lists is never fired, so a kit class missing from the configs joins its family's config for the race (AICover;
+        -- the lists go back at the menu); AICooldowns = the recharge in seconds by class-name part, on a bot's own
+        -- config copy (the game's: Mine abilities 7.5 s - too many mines; Disruptors every 7.5 s). AIUse = false: the
+        -- bots are left to the game.
+        AIUse = true,
+        AICycleS = 4,
+        AICover = true,
+        AICooldowns = { Mine = 30, Disruptor = 15 },
     },
 
     -- Vehicles (v0.15: the racer you pick decides which one, Racers[].vehicle). arch = the game's vehicle archetype
