@@ -173,9 +173,11 @@ end
 -- title race
 local function cupsInOrder()
   local out = {}
-  for _, c in ipairs(K.cups()) do if not c.final and not c.rally then out[#out + 1] = c end end
+  for _, c in ipairs(K.cups()) do if not c.final and not c.rally and not c.pods then out[#out + 1] = c end end
   for _, c in ipairs(K.cups()) do if c.final then out[#out + 1] = c end end
   for _, c in ipairs(K.cups()) do if c.rally then out[#out + 1] = c end end -- (v0.30: the Rally Cup, drawn last on the cups page)
+  -- (v0.40: the PODRACER CUP after it; config Pods.On = false hides it)
+  for _, c in ipairs(K.cups()) do if c.pods and (cfg.Pods or {}).On ~= false then out[#out + 1] = c end end
   return out
 end
 -- v0.23: a racer's face from config Portraits (a game texture path; v0.31: the 256 px MainIcon of each racer's
@@ -367,6 +369,10 @@ local function cupInfo(cup, head)
     if planetLine(p) then lines[#lines + 1] = planetLine(p) end
     lines[#lines + 1] = ('%s planets, then %s.'):format(PR.numWord and PR.numWord(n) or tostring(n), p and p.name or 'the finals')
     if TI.finaleOn() then lines[#lines + 1] = TI.finaleText() end -- (v0.33: Kestar's 1 v 1 with a trophy)
+  elseif cup.pods then
+    -- v0.40 (worded to the §1j rules)
+    local n = tonumber(cfg.CupRaces) or 4
+    lines = { ('%d races on the podracing tracks of Mos Espa, Mawhonic and Holdfast\'s Folly, against Sebulba, the other pod racers and Kestar Bool. You race in your pilot\'s podracer, or Shade\'s if your pilot has none.'):format(n) }
   elseif cup.rally then
     -- v0.30
     local R = cfg.Rally or {}
@@ -421,13 +427,13 @@ SCREENS.cups = function()
         act = function() return toStart('cup', cls.key, cup.key) end }
     end
   end
-  for _, cup in ipairs(cupsInOrder()) do if not cup.rally then cupTile(cup) end end
+  for _, cup in ipairs(cupsInOrder()) do if not cup.rally and not cup.pods then cupTile(cup) end end
   local tt = titleTile(cls)
   if tt then items[#items + 1] = tt end
   local bt = bossTile(cls)
   if bt then items[#items + 1] = bt end
   -- v0.30: the Rally Cup after the title race and the boss (the second row)
-  for _, cup in ipairs(cupsInOrder()) do if cup.rally then cupTile(cup) end end
+  for _, cup in ipairs(cupsInOrder()) do if cup.rally or cup.pods then cupTile(cup) end end
   -- (v0.20, menu review 6: the vehicle and the how-to are gone; v0.21, owner: the blurb and the levels line too)
   -- (v0.27: the league's brief under its name - what you race with here; v0.36.1, owner: HOME says it now - only with
   -- config CupsBrief)
@@ -531,7 +537,16 @@ SCREENS.garage = function()
         return true
       end }
   end
-  if RC and RC.cycleVehicle then
+  local podCup = S.start and S.start.cup and (K.cup(S.start.cup) or {}).pods
+  if podCup then
+    -- v0.40 (TASKS §1h P6): the PODRACER CUP races pods whatever is picked here: the tile says so (no cycling)
+    local P = require('pods')
+    local who = RC and RC.get and RC.get(P.racerKey(RC.current().key))
+    items[#items + 1] = { title = 'PODRACER', span = 2, kind = 'vehicle',
+      art = '/Game/Griffin/UI/Library/Textures/Content/Arcade/T_UI_Arcade_Bgl_Plane_Tile', tag = { 'VEHICLE', U.GOLD },
+      info = ('This cup is raced in podracers. You race as %s in their own podracer.'):format(who and who.name or 'Shade'),
+      act = function() return true end }
+  elseif RC and RC.cycleVehicle then
     local veh = myVehicle()
     items[#items + 1] = { title = (veh.name or 'VEHICLE'):upper(), span = 2, kind = 'vehicle',
       art = ART.vehicle(veh.key), tag = { 'VEHICLE', U.GOLD },

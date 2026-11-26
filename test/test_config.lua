@@ -66,8 +66,8 @@ check(cfg.Title.Default.riffraff == 'Veteran' and cfg.Title.Default.challenger =
 check(K.cup(cfg.Title.DefaultCup) ~= nil and cfg.Title.DefaultCup == 'jakku', 'the title track before any cup: a Jakku draw')
 
 -- cups: five planet cups, each drawing from its pool, then the Galactic Cup
-check(#cfg.Cups == 7, '7 cups (' .. #cfg.Cups .. ')')
-check(keys(cfg.Cups) == 'jakku,lantaana,ando,crait,sentinel,galactic,rally', 'cup order: the five planets, then Galactic, then the Rally Cup (v0.30) (' .. keys(cfg.Cups) .. ')')
+check(#cfg.Cups == 8, '8 cups (v0.40: + the PODRACER CUP) (' .. #cfg.Cups .. ')')
+check(keys(cfg.Cups) == 'jakku,lantaana,ando,crait,sentinel,galactic,rally,pods', 'cup order: the five planets, then Galactic, the Rally Cup (v0.30), the Podracing Cup (v0.40) (' .. keys(cfg.Cups) .. ')')
 local flagsOk = true
 for i, cup in ipairs(cfg.Cups) do
   flagsOk = flagsOk and (cup.final == true) == (i == 6) and cup.races == nil and not (cup.bonus or cup.remix or cup.conditions or cup.planet)
@@ -90,7 +90,7 @@ for key, pool in pairs(cfg.Pools) do
     sprintsOk = sprintsOk and ((r.kind == 'Sprint') == (r.laps == 1))
     local p = K.planetOf(r.path)
     planetsOk = planetsOk and p ~= nil
-    if key ~= 'rally' then -- (v0.30: the rally pool spans the planets and reuses their events; checked below)
+    if key ~= 'rally' and key ~= 'pods' then -- (v0.30: the rally pool spans the planets and reuses their events; v0.40: the pods pool, below)
       samePlanet = samePlanet and p ~= nil and p.key == key
       baseOk = baseOk and type(r.base) == 'string' and #r.base > 0 and not r.base:find('(', 1, true) and r.title:sub(1, #r.base) == r.base
       if seen[r.path] then uniq = false end
@@ -108,9 +108,18 @@ local sz = ('%d,%d,%d,%d,%d,%d'):format(sizes.jakku, sizes.lantaana, sizes.ando,
 check(sz == '13,22,24,13,13,1', 'pool sizes: Jakku 13, Lantaana 22, Ando 24, Crait 13, Sentinel 13, Derven 1 (' .. sz .. ')')
 -- the base tracks per planet (docs/tracks-by-planet.md: 32 base tracks, Derven's arenas left out)
 local nb = 0
-for _, cup in ipairs(cfg.Cups) do if not cup.final and not cup.rally then nb = nb + #K.bases(cup) end end
+for _, cup in ipairs(cfg.Cups) do if not cup.final and not cup.rally and not cup.pods then nb = nb + #K.bases(cup) end end
 check(nb + #K.pool('derven') == 32 and #K.bases('jakku') == 5 and #K.bases('lantaana') == 7 and #K.bases('ando') == 7 and #K.bases('crait') == 5
   and #K.bases('sentinel') == 7, 'base tracks: Jakku 5, Lantaana 7, Ando 7, Crait 5, Sentinel 7, Derven 1 = 32 (' .. nb .. ' + 1)')
+-- v0.40: the pods pool - 10 pod races (5 layouts x dry / weather), all on the pod tracks, each with a condition tag
+local podOk, podSeen = #cfg.Pools.pods == 10, {}
+for _, r in ipairs(cfg.Pools.pods) do
+  podOk = podOk and r.pod == true and r.laps == 3 and r.path:find('/Plane_Memory/TRAK_', 1, true) ~= nil
+    and type(r.condTag) == 'string' and r.condTag:find('^TrackCondition%.') ~= nil and not r.condTag:find('MEM', 1, true)
+    and K.planetOf(r.path) ~= nil and not podSeen[r.path .. r.condTag]
+  podSeen[r.path .. r.condTag] = true
+end
+check(podOk and #K.bases('pods') == 5, 'the pods pool: 10 races on 5 layouts, a plain condition each, no flashback looks (' .. #K.bases('pods') .. ' bases)')
 check(table.concat(K.bases('jakku'), ',') == "THE WAR FIELDS,THE GIANTS' GRAVEYARD,DEBRIS DUNES,FALLEN EMPIRE,SCRAP SPIRAL", 'bases: Jakku in pool order')
 -- v0.30: the Rally Cup's pool: the 14 point-to-point events (sprints, 1 lap), every one also in its planet's pool, 7
 -- bases in tour order (Jakku, Lantaana, Crait, Sentinel I x2, Ando Prime x2), Rally settings

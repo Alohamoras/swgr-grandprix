@@ -203,7 +203,7 @@ end
 local function byBase(pool)
   local out, at = {}, {}
   for _, r in ipairs(pool) do
-    local b = r.base or r.title
+    local b = r.group or r.base or r.title -- (v0.40: group = the pods' reversed layouts, tracks of their own)
     if not at[b] then at[b] = #out + 1; out[#out + 1] = { base = b, races = {} } end
     local g = out[at[b]]
     g.races[#g.races + 1] = r
@@ -226,7 +226,7 @@ end
 -- base, cond }.
 K.random = function(n) return math.random(n) end
 local function copyRace(r)
-  return { path = r.path, title = r.title, kind = r.kind, laps = r.laps, base = r.base, cond = r.cond }
+  return { path = r.path, title = r.title, kind = r.kind, laps = r.laps, base = r.base, cond = r.cond, condTag = r.condTag, pod = r.pod }
 end
 local function shuffle(list, rnd)
   for i = #list, 2, -1 do
@@ -289,8 +289,11 @@ end
 
 -- the planet of an event (config Planets, by the codename folder in Events/Planets/<codename>/...) -> { key, name,
 -- line } or nil
+local POD_PLANET = { BGL = 'Beagle', COR = 'Corgi', DAL = 'Dalmatian' }
 function K.planetOf(path)
   local code = type(path) == 'string' and path:match('/Planets/([^/]+)/')
+  -- (v0.40: the pod tracks live in Events/Plane_Memory: the planet from the codename in the track's name)
+  if not code and type(path) == 'string' then code = POD_PLANET[path:match('/TRAK_(%u%u%u)_PLANE') or ''] end
   return code and (cfg.Planets or {})[code] or nil
 end
 
@@ -356,6 +359,7 @@ function K.startCup(leagueKey, cupKey, vehicleKey, picks, mods, list)
   end
   K.data.run = CU.new(leagueKey, cupKey, vehicleKey, #copy, opts)
   K.data.run.list = copy
+  if cup and cup.pods then K.data.run.pods = true end -- (v0.40: the PODRACER CUP - pods.lua)
   K.data.run.picks = picks
   K.data.run.mods = mods
   K.save()
@@ -395,6 +399,8 @@ function K.nextRace()
   local ev = { path = r.path, title = r.title, kind = r.kind, laps = r.laps, base = r.base, cup = run.cup, race = run.race, class = run.class }
   -- v0.33: the Galactic Cup's finale (Kestar's Showdown: race.lua takes its story cinematics off)
   if r.boss then ev.boss, ev.finale = true, true end
+  -- v0.40: a pod race (the bare pod track and its condition tag: race.lua / pods.lua)
+  if r.pod or run.pods then ev.pod, ev.condTag = true, r.condTag end
   -- v0.30 (the Rally Cup): the small grid's rivals for race.lua, and the name to show BEFORE the stage (the weather
   -- kept secret: the route's base name) - chain.lua's NEXT RACE prompt and the via-the-menu line
   if run.timed then
@@ -443,7 +449,7 @@ function K.golds(leagueKey) return countBest(leagueKey, 1) end
 -- trophies (gold, silver or bronze) at a league -> trophies, cups in all
 function K.trophies(leagueKey) return countBest(leagueKey, 3) end
 -- a planet cup: not the Galactic Cup (final)
-local function planetCup(c) return not c.final and not c.rally end
+local function planetCup(c) return not c.final and not c.rally and not c.pods end
 -- the league champion: the racer (never you) with the most points over the planet cups finished at that league
 -- -> name, points; nil when no planet cup has been finished there. Ties: the first name in alphabetical order.
 function K.champion(leagueKey)
@@ -652,7 +658,7 @@ function K.record(ev, pos, field, extra)
       -- first race of this cup run, the title race's track
       local lead
       -- (v0.30: not from the Rally Cup - its small grid is three drawn rivals, and the title race stays on a circuit)
-      if not run.timed then
+      if not run.timed and not run.pods then -- (v0.40: nor from the pods)
         for _, r in ipairs(CU.standings(run)) do if r.key ~= CU.YOU then lead = r.key; break end end
       end
       if lead then

@@ -41,7 +41,7 @@ local JAKKU1 = EV .. 'Mastiff/Loop_A/EVT_MAS_LOOP_A_REV_HARD' -- (the tests' Jak
 local CRAIT1 = EV .. 'Spaniel/Loop_A/EVT_SPA_Loop_A_REV_MINES' -- (the tests' Crait draw: race 1)
 M.press('F6'); M.tick(6)
 T.clickTitle('JUNKER'); M.tick(3)
-T.check(T.titles():find('|TITLE RACE|RALLY CUP$') ~= nil and T.ntiles() == 8, 'the TITLE RACE tile is the 7th of 8 on the Riff-Raff cups page (v0.30: the Rally Cup after it) (' .. T.titles() .. ')')
+T.check(T.titles():find('|TITLE RACE|RALLY CUP|PODRACER CUP$') ~= nil and T.ntiles() == 9, 'the TITLE RACE tile is the 7th of 9 on the Riff-Raff cups page (v0.30: the Rally Cup after it) (' .. T.titles() .. ')')
 local H = rawget(_G, 'GU_TEST_SCREENS')
 local tt
 for _, it in ipairs(H.SCREENS.cups().items) do if it.title == 'TITLE RACE' then tt = it end end
@@ -122,7 +122,7 @@ sv = T.save()
 T.check(sv.titles.riffraff.won == true and sv.titles.riffraff.tries == 2 and sv.titles.riffraff.vs == 'Biddy Blas', 'saved: won on the second try, vs Biddy Blas')
 T.check(grid(CRAIT1) == '12' and W.charsText() == 'Player=DarkEnigma Opp=' .. ORIG_OPP, 'put back again')
 T.clickTitle('CONTINUE'); M.tick(3)
-T.check(T.marks():find('|GOLD|$') ~= nil and not T.badges():find('CHAMPION', 1, true), 'v0.24: the title tile shows a gold medal (no CHAMPION word) (' .. T.marks() .. ')')
+T.check(T.marks():find('|GOLD||$') ~= nil and not T.badges():find('CHAMPION', 1, true), 'v0.24: the title tile shows a gold medal (no CHAMPION word) (' .. T.marks() .. ')')
 T.check(not T.titles():find('KESTAR BOOL', 1, true), 'no boss tile at Riff-Raff')
 -- the leader is your own racer: never a mirror match (the league default instead)
 K.data.leader.riffraff = { name = 'Sen Fira', cup = 'jakku', path = CRAIT1 }
@@ -165,6 +165,7 @@ T.boot({ version = 3, races = 30, cups = 7, class = 'ace', best = { ace = all, c
 W.cupEvents()
 local RC = require('racer')
 T.check(RC.locked('Antagonist'), 'Kestar still locked: the title alone doesn\'t unlock him')
+require('config').Pods.On = false -- (v0.40: this block checks the v0.23 two-row layout with the title race and Kestar; no pods tile)
 M.press('F6'); M.tick(6)
 T.clickTitle('CHALLENGER'); M.tick(3)
 T.check(T.ntiles() == 8 and not T.titles():find('KESTAR', 1, true), 'Challenger (its title won too): 8 tiles, no boss')

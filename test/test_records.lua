@@ -124,7 +124,7 @@ T.check(K.champion('ace') == nil, 'no planet cup finished at Ace: no champion')
 -- counts for the league tile
 local g, of = K.golds('riffraff')
 local tr = K.trophies('riffraff')
-T.check(g == 2 and of == #K.cups() and of == 7, 'golds: 2 of 7 cups (5 planets + Galactic + Rally) (' .. g .. ' / ' .. of .. ')')
+T.check(g == 2 and of == #K.cups() and of == 8, 'golds: 2 of 8 cups (5 planets + Galactic + Rally + Podracer, v0.40) (' .. g .. ' / ' .. of .. ')')
 T.check(tr == 2, 'trophies: 2')
 K.data.best['riffraff'].jakku = 3
 T.check(K.golds('riffraff') == 2 and K.trophies('riffraff') == 3, 'a bronze counts as a trophy, not a gold')

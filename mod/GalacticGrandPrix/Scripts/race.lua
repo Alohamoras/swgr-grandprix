@@ -13,6 +13,7 @@ local HZ = require('hazards')
 local AU = require('aiuse')
 local TH = require('thrust')
 local LS = require('lapshow')
+local PODS = require('pods')
 local try, alive, addr, log = C.try, C.alive, C.addr, C.log
 
 local R = { run = nil, menuLocked = nil }
@@ -87,7 +88,7 @@ local function writeLevels(build, want)
   end
 end
 
-function R.pendingRestore() return next(K.data.restores) ~= nil or next(K.data.abilityRestores) ~= nil or RC.pending() or AI.pending() or AU.pending() or require('title').pending() end
+function R.pendingRestore() return next(K.data.restores) ~= nil or next(K.data.abilityRestores) ~= nil or RC.pending() or AI.pending() or AU.pending() or require('title').pending() or PODS.pending() end
 
 -- ability slots (v0.3): a class object -> its path ('' = empty)
 local function slotPath(c)
@@ -219,6 +220,9 @@ function R.restoreBuild(why)
   -- v0.21: the title race's two-car grid back (the event's make-up, CharacterList.Opponents), before the racer
   local okG, errG = pcall(function() return require('title').gridRestore(why) end)
   if not okG then log('[title] grid put back failed: ' .. tostring(errG)) end
+  -- v0.40: a pod race's track cinematics and the pilots' vehicles back (pods.lua)
+  local okP, errP = pcall(PODS.restore, why)
+  if not okP then log('[pods] put back failed: ' .. tostring(errP)) end
   -- the alternate-vehicle scheme off the racer (paint.lua), then the pilot back
   local okS, errS = pcall(PT.restore, why)
   if not okS then log('[paint] put back failed: ' .. tostring(errS)) end
@@ -275,8 +279,30 @@ end
 -- assets (AI.launch: the same values again, read back in [aiset]) and the rubber-band state for this race (AI.begin), the
 -- title race's cinematics, your racer into the character list (RC.begin). Returns a table for the launch, or nil + a
 -- message for the player.
+-- v0.40 (TASKS §1h; pods.lua): a pod race - the bare pod track, the game's pod build as it is, the league's AI
+-- profile, the field and your pod (pods.lua), your pilot into the character list
+local function preparePod(ev, classKey, e)
+  local P = (require('config').Pods or {})
+  local veh = { key = 'pod', name = 'podracer', arch = 1, build = P.Build }
+  local tag = C.tag(try(function() return e.VehicleTypeTag end))
+  if tag and not tag:find('^Vehicle%.Special') then return nil, ('%s is not a podracer track (%s)'):format(ev.title, tostring(tag)) end
+  local arch = archetype(1)
+  local build = P.Build and C.asset(P.Build)
+  if not (alive(arch) and build) then log('pod archetype or build not found: ' .. tostring(P.Build)); return nil, 'The podracer was not found' end
+  local okI, ai = pcall(function() AI.launch(classKey, nil); return AI.begin(classKey, nil) end)
+  if not okI then log('[ai] ' .. tostring(ai)); ai = nil end
+  if RC.pending() then pcall(RC.restore, 'before launch') end
+  local you = PODS.racerKey(RC.current().key)
+  local gmv, why = PODS.prepare(e, you)
+  if not gmv then log('[pods] ' .. tostring(why)); pcall(PODS.restore, 'not launched'); return nil, 'The pod race could not be set up' end
+  local okR, errR = pcall(RC.begin, you)
+  if not okR then log('[racer] not set: ' .. tostring(errR)) end
+  return { e = e, veh = veh, tag = tag, arch = arch, build = build, ai = ai, modNames = {}, pod = true, gmv = gmv }
+end
+
 local function prepare(ev, classKey, vehKey, picks, mods, opts)
   local e = C.asset(ev.path)
+  if e and ev.pod then return preparePod(ev, classKey, e) end
   if not e then log('event not found: ' .. ev.path); return nil, 'Event not found: ' .. ev.path:match('([^/]+)$') end
   -- v0.15: the vehicle is the racer's (main.lua passes RC.vehicle(); a cup passes the one it started with)
   -- (v0.31: no key - the title race, the boss - races the vehicle picked in the garage, like a cup: RC.chosenVehicle)
@@ -364,12 +390,14 @@ local function startRun(ev, classKey, p, skip, extra)
   R.run = { ev = ev, at = C.clock, skip = skip, phase = 'loading', top = 0, field = {}, ticks = 0, ai = p.ai }
   for k, v in pairs(extra or {}) do R.run[k] = v end
   -- v0.29: the league's looks (looks.lua: Junker's rust, dirt and damage), applied while the race loads
-  local look = LK.forLeague(classKey)
+  local look = not ev.pod and LK.forLeague(classKey) -- (v0.40: no league looks on a pod)
   if look then R.run.looks = { look = look } end
   -- v0.32: the Precision buoys off on the tracks that carry them (hazards.lua)
   if HZ.wants(ev) then R.run.hz = HZ.begin(ev) end
   -- v0.32: the bots' kits put to use (aiuse.lua): the selection cycled, the configs covered, the uses counted
-  local okU, au = pcall(AU.begin, classKey)
+  -- (v0.40: not in a pod race - the pods keep the game's own kits)
+  local okU, au = true, nil
+  if not ev.pod then okU, au = pcall(AU.begin, classKey) end
   if okU then R.run.au = au else log('[aiuse] ' .. tostring(au)) end
   -- v0.39: TIME TO BEAT through the countdown (lapshow.lua, config TimeToBeat)
   local okL, ls = pcall(LS.start, ev)
@@ -379,10 +407,12 @@ local function startRun(ev, classKey, p, skip, extra)
     R.run.ll = { rec = rec and tonumber(rec.lap) or nil }
   end
   -- v0.32: the bots' thrust dial (thrust.lua; off unless config AI.Thrust or an experiment asks)
-  local okT, th = pcall(TH.begin, classKey)
+  local okT, th = true, nil
+  if not ev.pod then okT, th = pcall(TH.begin, classKey) end
   if okT then R.run.th = th else log('[thrust] ' .. tostring(th)) end
   R.menuSeen = false
   R.menuGone()
+  if ev.pod then log('[pods] the pods race with the game\'s own builds and kits (no loadout)'); return end
   local ok3, lo = pcall(LO.begin, classKey, p.modNames, p.yourKeys)
   if ok3 then R.run.lo = lo else log('[loadout] ' .. tostring(lo)) end
 end
@@ -430,7 +460,14 @@ function R.launch(ev, classKey, vehKey, picks, mods, opts)
     else log('[exp] modeFrom: could not borrow the mode of ' .. exp.modeFrom) end
   end
   local skip = worldKeys()
-  local ok, err = try(function() fe:LaunchQuickRace(p.arch, p.e, p.build); return true end)
+  local ok, err
+  if p.pod then
+    -- v0.40: a pod track has no event: the front end's custom race (docs/podracing-recon-2026-11-25.md)
+    local cond = ev.condTag or 'TrackCondition.Afternoon.Dry'
+    ok, err = try(function() fe:LaunchCustomRace(p.arch, p.gmv, p.e, { TagName = FName(cond) }, p.build, nil); return true end)
+  else
+    ok, err = try(function() fe:LaunchQuickRace(p.arch, p.e, p.build); return true end)
+  end
   if not ok then
     log('launch failed: ' .. tostring(err))
     R.restoreBuild('launch failed')

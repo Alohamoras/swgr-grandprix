@@ -184,7 +184,7 @@ for key, pool in pairs(cfg.Pools) do
     K.data.run = nil
   end end
 end
-T.check(pooled == 86, 'every pool race on the NEXT RACE tile (' .. pooled .. ')')
+T.check(pooled == 96, 'every pool race on the NEXT RACE tile (v0.40: + the 10 pod races) (' .. pooled .. ')')
 
 -- 6. the title result, the confirms, the offline page
 for _, won in ipairs({ true, false }) do

@@ -37,7 +37,7 @@ T.check(nGame == 178, 'the list holds the 178 planet events (' .. nGame .. ')')
 local EV = '/Game/Griffin/Gameplay/Events/Planets/'
 local notReal, inPool, n = {}, {}, 0
 for key, pool in pairs(cfg.Pools) do
-  for _, r in ipairs(pool) do
+  for _, r in ipairs(key == 'pods' and {} or pool) do -- (v0.40: the pods are tracks, not events: test_pods / test_config)
     if key ~= 'rally' then n = n + 1 end -- (v0.30: the rally pool reuses the planets' events)
     local rel = r.path:sub(#EV + 1)
     if r.path:sub(1, #EV) ~= EV or not game[rel:lower()] then notReal[#notReal + 1] = r.path end
@@ -63,7 +63,7 @@ T.check(n == 86, 'the pools hold 86 races (' .. n .. ')')
 local function poolSet(key) local s = {}; for _, r in ipairs(K.pool(key)) do s[r.path] = r end; return s end
 local bad, seenVariants, seenFirst = {}, {}, {}
 for _, cup in ipairs(K.cups()) do
-  if not cup.final and not cup.rally then
+  if not cup.final and not cup.rally and not cup.pods then
     local set = poolSet(cup.pool)
     for seed = 1, 300 do
       local d = K.draw(cup, lcg(seed))
@@ -83,7 +83,7 @@ end
 T.check(#bad == 0, 'planet cups: 4 races from the pool, never the same base track twice (300 draws each) (' .. table.concat(bad, '; ') .. ')')
 local nv, np = 0, 0
 for _ in pairs(seenVariants) do nv = nv + 1 end
-for key, pool in pairs(cfg.Pools) do if key ~= 'derven' and key ~= 'rally' then np = np + #pool end end
+for key, pool in pairs(cfg.Pools) do if key ~= 'derven' and key ~= 'rally' and key ~= 'pods' then np = np + #pool end end
 T.check(nv == np, 'every variant of every planet pool came up in the draws (' .. nv .. ' of ' .. np .. ')')
 T.check(seenFirst['jakkuSCRAP SPIRAL'] and seenFirst['jakkuTHE WAR FIELDS'], 'any base track can open a cup (the order is drawn too)')
 -- the default draw (math.random) is valid as well

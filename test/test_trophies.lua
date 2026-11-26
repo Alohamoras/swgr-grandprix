@@ -23,7 +23,7 @@ T.check(T.locks() == '||||' and T.pips('JUNKER'):gsub('-', ''):len() == 4 and T.
 T.clickTitle('JUNKER'); M.tick(3)
 local b = T.medals()
 T.check(b:find('^GOLD|SILVER|') ~= nil and not T.badges():find('TROPHY', 1, true), 'cups at Riff-Raff: Jakku gold, Lantaana silver, as medals only (v0.22: no medal words) (' .. b .. ')')
-T.check(b:find('|BRONZE|', 1, true) ~= nil and T.titles():find('|GALACTIC CUP|RALLY CUP$') ~= nil, 'Galactic Cup bronze, the sixth tile (' .. b .. ')')
+T.check(b:find('|BRONZE|', 1, true) ~= nil and T.titles():find('|GALACTIC CUP|RALLY CUP|PODRACER CUP$') ~= nil, 'Galactic Cup bronze, the sixth tile (' .. b .. ')')
 M.press('BACKSPACE'); M.tick(3)
 T.clickTitle('ACE'); M.tick(3)
 b = T.medals()

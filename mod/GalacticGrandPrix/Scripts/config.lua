@@ -5,6 +5,20 @@ local EV = '/Game/Griffin/Gameplay/Events/Planets/'
 -- 2026-11-10; a sprint is 1 lap). The planet comes from the path's first folder (Planets below, gp.lua planetOf).
 -- v0.11: base = the track without its direction / conditions ('THE WAR FIELDS (REVERSE, SCORCHING)' -> 'THE WAR
 -- FIELDS'; a cup never races one twice), cond = the conditions in the title ('SCORCHING', 'MINES, NIGHT'; nil = none).
+local POD = '/Game/Griffin/Gameplay/Events/Plane_Memory/'
+-- v0.40: a pod race - a bare pod track (TrackDef) with the game's condition tag to launch it under
+local function pod(trak, title, condTag, group)
+    local base, inner = title:match('^(.-)%s*%((.*)%)$')
+    local cond = {}
+    for w in (inner or ''):gmatch('[^,]+') do
+        w = w:match('^%s*(.-)%s*$')
+        if w ~= 'REVERSE' then cond[#cond + 1] = w end
+    end
+    -- (group: the draw's track - the reversed layouts are tracks of their own; base stays the name shown when a title
+    -- is cut to fit, as for the car races)
+    return { path = POD .. trak, title = title, kind = 'Circuit', laps = 3, base = base or title, group = group,
+        cond = #cond > 0 and table.concat(cond, ', ') or nil, condTag = condTag, pod = true }
+end
 local function race(path, title, kind, laps, baseOverride)
     local base, inner = title:match('^(.-)%s*%((.*)%)$')
     local cond = {}
@@ -257,6 +271,17 @@ return {
     -- or 'hud' (the text put into the game's HUD canvas). Size = the font size, Y = how far down the screen (share of
     -- its height), Color = { R, G, B } linear. Stands aside while FreeRace / Theater hide the HUD. On = false = off.
     -- LapLine = each lap's time as you cross the line, +/- your lap record, NEW BEST LAP (4 s; off until the owner says).
+    -- v0.40.0 (TASKS §1h P2-P3; docs/podracing-recon-2026-11-25.md): the pod races (pods.lua). Build = the pod
+    -- build launched (the game's own, nothing written to it); Mode = the game mode (its grid make-up set to Grid for
+    -- the race, put back at the menu); Field = the racers (CharacterList.Opponents); Owners = the car racers with a
+    -- podracer of their own (you race as yours if they have one, else Fallback). On = false: no PODRACER CUP tile.
+    Pods = { On = true, Grid = 8,
+        Build = '/Game/Griffin/Gameplay/Campaign/Builds/PlaneMemories/VBD_MP_PlaneTour',
+        Mode = '/Game/Griffin/Gameplay/Campaign/GameModes/GMV_Race',
+        Field = { 'DA_PlaneRacer_Nesodon', 'DA_PlaneRacer_Cabbage', 'DA_PlaneRacer_Celery', 'DA_PlaneRacer_Garlic',
+                  'DA_PlaneRacer_Onion', 'DA_PlaneRacer_Pepper', 'DA_Racer_Antagonist' },
+        Owners = { DarkEnigma = true, Antagonist = true, Ghost = true, Nomad = true, Mentor = true },
+        Fallback = 'DarkEnigma' },
     TimeToBeat = { On = true, Route = 'viewport', Size = 44, Y = 0.38, Color = { 1, 1, 1 }, LapLine = false },
 
     -- (v0.21: the rival per class is gone - owner, 2026-11-11.)
@@ -295,6 +320,9 @@ return {
         Corgi     = { key = 'ando',     name = 'Ando Prime',  line = 'Jagged cliffs dot the freezing tundra of this ice world' },
         Spaniel   = { key = 'crait',    name = 'Crait',       line = 'A salt world of vast plains and crystalline caverns' },
         Husky     = { key = 'sentinel', name = 'Sentinel I',  line = 'Rivers of acid make this planet hostile to life itself' },
+        -- v0.40: the pod tracks' planets (by the codename in the track's name, gp.lua K.planetOf); the name is the
+        -- planet's as the cup result's timeline shows it (Beagle unconfirmed)
+        Beagle    = { key = 'outerrim', name = 'Outer Rim',   line = 'The desert world where podracing began' },
         Whippet   = { key = 'derven',   name = 'Derven Acos', line = 'Home of the Galactic League, where racers face the ultimate challenge' },
     },
 
@@ -431,6 +459,22 @@ return {
             race('Corgi/P2P/EVT_COR_P2P_REV_Night', 'DAI BENDU ASCENSION (NIGHT)', 'Sprint', 1),
             race('Corgi/P2P/EVT_COR_P2P_REV_Overcast_Snow', 'DAI BENDU ASCENSION (SNOW)', 'Sprint', 1),
         },
+        -- v0.40.0 (TASKS §1h; docs/podracing-recon-2026-11-25.md): the PODRACER CUP's tracks - the game's pod-made
+        -- circuits, launched bare (TrackDefs, not events: pods.lua / race.lua). Five layouts, each its own base (a cup
+        -- draws 4), with a dry and a weather variant (condTag = the game's TrackCondition; the .MEM flashback looks left
+        -- out). Mos Espa reversed is left out (still a blockout; FreeRace: it never finishes loading).
+        pods = {
+            pod('TRAK_BGL_PLANE_FWD', 'MOS ESPA SPEEDWAY', 'TrackCondition.Afternoon.Dry'),
+            pod('TRAK_BGL_PLANE_FWD', 'MOS ESPA SPEEDWAY (SUNSET)', 'TrackCondition.Sunset'),
+            pod('TRAK_COR_PLANE_FWD', 'MAWHONIC SPEEDWAY', 'TrackCondition.Afternoon.Dry'),
+            pod('TRAK_COR_PLANE_FWD', 'MAWHONIC SPEEDWAY (SNOW)', 'TrackCondition.Overcast.Snow'),
+            pod('TRAK_COR_PLANE_REV', 'MAWHONIC SPEEDWAY (REVERSE)', 'TrackCondition.Afternoon.Dry', 'MAWHONIC SPEEDWAY (REVERSE)'),
+            pod('TRAK_COR_PLANE_REV', 'MAWHONIC SPEEDWAY (REVERSE, SNOW)', 'TrackCondition.Overcast.Snow', 'MAWHONIC SPEEDWAY (REVERSE)'),
+            pod('TRAK_DAL_PLANE_FWD', "HOLDFAST'S FOLLY", 'TrackCondition.Afternoon.Dry'),
+            pod('TRAK_DAL_PLANE_FWD', "HOLDFAST'S FOLLY (WET)", 'TrackCondition.Overcast.Wet'),
+            pod('TRAK_DAL_PLANE_REV', "HOLDFAST'S FOLLY (REVERSE)", 'TrackCondition.Afternoon.Dry', "HOLDFAST'S FOLLY (REVERSE)"),
+            pod('TRAK_DAL_PLANE_REV', "HOLDFAST'S FOLLY (REVERSE, WET)", 'TrackCondition.Overcast.Wet', "HOLDFAST'S FOLLY (REVERSE)"),
+        },
     },
 
     -- Cups of 4 races (full 12-car grids). key is used in the save: never change it. pool = the Pools key a planet cup
@@ -460,6 +504,11 @@ return {
         { key = 'galactic', name = 'GALACTIC CUP', art = 'T_UI_FE_Tile_05', final = true, planets = 4,
           from = { 'jakku', 'lantaana', 'ando', 'crait', 'sentinel', 'derven' }, last = 'derven' },
         { key = 'rally', name = 'RALLY CUP', art = 'T_UI_FE_Tile_A', rally = true, pool = 'rally', finale = 'Night' },
+        -- v0.40.0 (TASKS §1h): the PODRACER CUP - 4 of the pod tracks, you in your pilot's podracer (Shade's when yours
+        -- has none) against the 6 pod racers and Kestar Bool, points as usual; not a planet cup (no Galactic Cup unlock,
+        -- no league champion). Config Pods.
+        { key = 'pods', name = 'PODRACER CUP', artPath = '/Game/Griffin/UI/Library/Textures/Content/Arcade/T_UI_Arcade_Bgl_Plane_Tile',
+          pods = true, pool = 'pods' },
     },
     -- the races a planet cup draws
     CupRaces = 4,
