@@ -72,10 +72,10 @@ local function textBlock(outer, s)
 end
 
 -- a canvas child placed at the top centre (TimeToBeat.Y = the share of the screen height down)
-local function place(canvas, w)
+local function place(canvas, w, yAt)
   local slot = try(function() return canvas:AddChildToCanvas(w) end)
   if not alive(slot) then return false end
-  local y = tonumber((conf() or {}).Y) or 0.3
+  local y = yAt or tonumber((conf() or {}).Y) or 0.38
   try(function() slot:SetAnchors({ Minimum = { X = 0.5, Y = y }, Maximum = { X = 0.5, Y = y } }) end)
   try(function() slot:SetAlignment({ X = 0.5, Y = 0.5 }) end)
   try(function() slot:SetAutoSize(true) end)
@@ -83,7 +83,7 @@ local function place(canvas, w)
   return true
 end
 
-local function showViewport(job)
+local function showViewport(job, text, yAt)
   local pc, lib = C.localPC(), C.lib('WidgetBlueprintLibrary', 'UMG')
   local uw = try(StaticFindObject, '/Script/UMG.UserWidget')
   local w = (alive(pc) and alive(lib) and alive(uw)) and try(function() return lib:Create(pc, uw, pc) end)
@@ -95,14 +95,13 @@ local function showViewport(job)
   end
   if not alive(tree) then return false, 'no widget tree' end
   local canvas = make('/Script/UMG.CanvasPanel', tree)
-  local t = textBlock(tree, job.text)
+  local t = textBlock(tree, text or job.text)
   if not (alive(canvas) and alive(t)) then return false, 'no canvas / text' end
   try(function() tree.RootWidget = canvas end)
-  if not place(canvas, t) then return false, 'not placed' end
+  if not place(canvas, t, yAt) then return false, 'not placed' end
   try(function() w:SetVisibility(4) end)          -- HitTestInvisible: never takes input
   try(function() w:AddToViewport(50) end)
-  job.ref = C.ref(w)
-  return true
+  return true, C.ref(w)
 end
 
 local function showHud(job, cd)
@@ -162,7 +161,12 @@ function LS.tick(r)
   if job.ref or not (counting or vis) then return end
   local route = (conf() or {}).Route or 'viewport'
   local ok, why = false, nil
-  if route == 'hud' then ok, why = showHud(job, cd) else ok, why = showViewport(job) end
+  if route == 'hud' then ok, why = showHud(job, cd)
+  else
+    local ref
+    ok, why = showViewport(job)
+    if ok then ref, why = why, nil; job.ref = ref end
+  end
   job.tries = (job.tries or 0) + 1
   if ok then
     job.shown, job.route = C.clock, route
@@ -173,11 +177,46 @@ function LS.tick(r)
   end
 end
 
+-- v0.39.0, config TimeToBeat.LapLine (off until the owner says - OWNER.md): as each lap is crossed, that lap's time
+-- and +/- against your lap record ("LAP 2   0:48.92   +0.35"), "NEW BEST LAP  0:48.57" when it beats it, for
+-- LAP_MS. Called from race.lua's 2 s read of your racer (so up to 2 s late); one widget at a time; nothing kept but
+-- its C.ref, dropped by LS.lapTick.
+local LAP_MS = 4000
+function LS.lapOn() local t = conf(); return t ~= nil and t.On ~= false and t.LapLine == true end
+function LS.lapText(n, t, rec)
+  if not (t and t > 0) then return nil end
+  if rec and rec > 0 and t < rec then return ('NEW BEST LAP  %s'):format(K.fmtTime(t)), true end
+  local s = ('LAP %d   %s'):format(n, K.fmtTime(t))
+  if rec and rec > 0 then s = s .. ('   %+.2f'):format(t - rec) end
+  return s, false
+end
+-- r.ll = { rec = the lap record at the start } (made by race.lua with the race job)
+function LS.lap(r, n, t)
+  local ll = r.ll
+  if not ll or hudHidden() then return end
+  local s, best = LS.lapText(n, t, ll.rec)
+  if not s then return end
+  if best then ll.rec = t end
+  if ll.ref then local w = C.deref(ll.ref); if w then try(function() w:RemoveFromParent() end) end; ll.ref = nil end
+  local ok, ref = showViewport({}, s, 0.24)
+  if ok then ll.ref, ll.at = ref, C.clock; log(('[lapshow] lap line: %s'):format(s))
+  else log('[lapshow] lap line failed: ' .. tostring(ref)) end
+end
+function LS.lapTick(r)
+  local ll = r.ll
+  if not (ll and ll.ref) or C.clock - (ll.at or 0) < LAP_MS then return end
+  local w = C.deref(ll.ref)
+  if w then try(function() w:RemoveFromParent() end) end
+  ll.ref = nil
+end
+
 -- the race went away before the start (quit, crash): drop what we drew
 function LS.stop(r)
   local job = r and r.ls
   if job and job.ref then hide(job, 'race over') end
   if job then job.done = true end
+  local ll = r and r.ll
+  if ll and ll.ref then local w = C.deref(ll.ref); if w then try(function() w:RemoveFromParent() end) end; ll.ref = nil end
 end
 
 return LS

@@ -29,4 +29,11 @@ T.check(job.done, 'the green light ends the job')
 cfg.TimeToBeat.On = false
 T.check(LS.start(ev) == nil, 'TimeToBeat.On = false: off')
 cfg.TimeToBeat.On = true
+-- the lap line (off by default)
+T.check(not LS.lapOn() and cfg.TimeToBeat.LapLine == false, 'the lap line is off by default')
+T.check(LS.lapText(2, 48.92, 48.57) == 'LAP 2   ' .. K.fmtTime(48.92) .. '   +0.35', 'a slower lap: +0.35 (' .. tostring(LS.lapText(2, 48.92, 48.57)) .. ')')
+local s, best = LS.lapText(3, 48.1, 48.57)
+T.check(s == 'NEW BEST LAP  ' .. K.fmtTime(48.1) and best, 'a faster lap: NEW BEST LAP')
+T.check(LS.lapText(1, 50, nil) == 'LAP 1   ' .. K.fmtTime(50), 'no record: the time alone')
+T.check(LS.lapText(1, 0, 40) == nil, 'no time: nothing')
 T.finish()

@@ -374,6 +374,10 @@ local function startRun(ev, classKey, p, skip, extra)
   -- v0.39: TIME TO BEAT through the countdown (lapshow.lua, config TimeToBeat)
   local okL, ls = pcall(LS.start, ev)
   if okL then R.run.ls = ls else log('[lapshow] ' .. tostring(ls)) end
+  if LS.lapOn() and not ev.boss and not ev.titleRace and (tonumber(ev.laps) or 2) > 1 then
+    local rec = ((K.data.records or {})[classKey] or {})[ev.path]
+    R.run.ll = { rec = rec and tonumber(rec.lap) or nil }
+  end
   -- v0.32: the bots' thrust dial (thrust.lua; off unless config AI.Thrust or an experiment asks)
   local okT, th = pcall(TH.begin, classKey)
   if okT then R.run.th = th else log('[thrust] ' .. tostring(th)) end
@@ -511,6 +515,11 @@ local function readField(r)
         local lap = try(function() return tonumber(rec.BestLapTime) end)
         if lap and lap > 0 and (not r.lap or lap < r.lap) then r.lap = lap end
         local lapNo = try(function() return tonumber(rec.CurrentLapNumber) end)
+        -- v0.39: the lap just crossed, on screen (lapshow.lua, config TimeToBeat.LapLine; numbers from this component)
+        if r.ll and lapNo and r.lapNo and lapNo > r.lapNo and r.lapNo >= 1 then
+          local prev = try(function() return tonumber(rec.PreviousLapTime) end)
+          pcall(LS.lap, r, r.lapNo, prev)
+        end
         if lapNo then r.lapNo = lapNo end
         if f.finished and not r.finished then
           r.finished, r.pos = true, f.pos
@@ -727,6 +736,7 @@ function R.watch()
     local okS, errS = pcall(LS.tick, r)
     if not okS then log('[lapshow] stopped: ' .. tostring(errS)); r.ls = nil end
   end
+  if r.ll and r.ll.ref then pcall(LS.lapTick, r) end
   R.perf(r)
   if r.looks and not r.looks.done2 then
     local okL, errL = pcall(LK.tick, r)

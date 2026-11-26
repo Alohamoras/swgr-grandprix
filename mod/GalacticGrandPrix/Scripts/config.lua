@@ -256,7 +256,8 @@ return {
     -- the countdown runs, gone at the green light (lapshow.lua). Route = 'viewport' (a widget of our own over the HUD)
     -- or 'hud' (the text put into the game's HUD canvas). Size = the font size, Y = how far down the screen (share of
     -- its height), Color = { R, G, B } linear. Stands aside while FreeRace / Theater hide the HUD. On = false = off.
-    TimeToBeat = { On = true, Route = 'viewport', Size = 44, Y = 0.3, Color = { 1, 1, 1 } },
+    -- LapLine = each lap's time as you cross the line, +/- your lap record, NEW BEST LAP (4 s; off until the owner says).
+    TimeToBeat = { On = true, Route = 'viewport', Size = 44, Y = 0.38, Color = { 1, 1, 1 }, LapLine = false },
 
     -- (v0.21: the rival per class is gone - owner, 2026-11-11.)
 
