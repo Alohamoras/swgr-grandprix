@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.40.0 (2026-11-26): the PODRACER CUP (TASKS §1h P2-P3, P6; recon P1 in docs/podracing-recon-2026-11-25.md)
+- Owner: "i like your ideas, draft up some tasks" (the pods cup, §4). A PODRACER CUP tile after the Rally Cup at every
+  league: 4 races drawn from the game's pod-made circuits - Mos Espa Speedway, Mawhonic Speedway (and reversed), Holdfast's
+  Folly (and reversed) - each in a dry or a weather variant (sunset at Mos Espa, snow at Mawhonic, wet at Holdfast's
+  Folly). You race your pilot's own podracer (Shade's MythP3, Kestar's Northropi, Goli / Fola's Hexing, Sebulba's
+  Nesodon), or Shade's when your pilot has none, against the 6 pod racers - Sebulba, Dud Bolt, Gasgano, Teemto Pagalies,
+  Ben Quadinaros, Ody Mandrell - and Kestar Bool in his pod: an 8-pod grid. Points as usual; it is not a planet cup (no
+  Galactic Cup unlock, no league champion).
+- How (pods.lua, race.lua): the bare pod track through the front end's `LaunchCustomRace` with the game mode GMV_Race,
+  its grid make-up 5 -> 8 and `CharacterList.Opponents` = the pod field (title.lua's grid cut), the car racers in the
+  field given the pod for the race (`PreferredVehicleType` 1), the track's cinematic chains off. Everything is written
+  into the save before it changes (`podRestore`, `gridRestore`) and put back when the main menu returns, or at the next
+  start after a crash.
+- Left as the game has it on purpose (v1): the pod build `VBD_MP_PlaneTour` (no league parts, abilities or tune-ups
+  written), the pods' own kits (no loadout / ability cycling / thrust), no league looks or paint. The league's AI
+  profile and the start grace apply as in every race.
+- The start screen's VEHICLE tile reads PODRACER for this cup, with who you race as.
+- Open (OWNER.md): pacing (P8 - the autopilot won 3 of 4 recon races by 2-10 s); whether the pods should get league
+  parts / your abilities; the cup result's planet names for the pod tracks (Outer Rim unconfirmed).
+- Config `Pods = { On, Grid, Build, Mode, Field, Owners, Fallback }`, `Pools.pods`, the cup `pods`.
+- The tile is PODRACER CUP (PODRACING CUP is 13 characters, over the 12-a-line tile budget).
+- Seen in game 2026-11-26: race 1 (Mawhonic Speedway reversed - a layout the recon hadn't tried) 8 pods, 2nd by 0.75 s,
+  field spread 12.5 s, the standings panel and NEXT RACE as for cars; race 2 (Mawhonic snow) launched through the chain's
+  via-the-menu route; the game killed mid-race (TestAutopilot did not arm on the second pod race - a test-tool limit)
+  and at the next start everything was put back (`[pods] put back (left over from an earlier race): 6 cinematic chains,
+  2 pilots' vehicles`; the grid make-up 5, the 11 opponents).
+- Tests: test_pods (26 checks); the tests that counted 7 cups or the pools' events follow the new cup and pool (54 files).
+
 ## v0.39.0 (2026-11-25): TIME TO BEAT through the countdown - our first text in a race (TASKS §1g-16)
 - Owner: "at the start of the race you are shown a 'time to beat'". While the countdown runs, "TIME TO BEAT  0:49.81"
   (your lap record on this track at this league) - or "NO LAP SET" - in the game's display font, white with a shadow,

@@ -4,6 +4,11 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
+- [ ] **The PODRACER CUP's open calls (2026-11-26):** (1) the name - PODRACER CUP (PODRACING CUP is one letter too
+      long for a tile), OK? (2) the pods race with the game's own pod build and kits: should the league's parts levels
+      and your abilities / tune-ups apply to your pod (and the start screen's ability tiles then mean something), or
+      hide those tiles for this cup? (3) should a podracer gold count toward the league's progress (it shows a medal pip
+      on HOME like the Rally Cup now) - Claude's pick: yes, as the rally.
 - [ ] **Merge to main (2026-11-25):** this session could not move `main` (it works in the `heat-plan` worktree). Everything
       is on branch `worktree-heat-plan` (pushed), a fast-forward of main: in ~/Projects/swgr-grandprix run
       `git merge --ff-only worktree-heat-plan` (and `git push`). KNOWLEDGE.md edits in ~/Projects/swgr-underground are
@@ -89,6 +94,13 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.40.0, the PODRACER CUP (2026-11-26, installed) - P8, the pacing, is yours:** a new tile after the Rally Cup at
+      every league: 4 races on the pod tracks (Mos Espa, Mawhonic and Holdfast's Folly, forward and reversed, dry or
+      weather), you in your pilot's podracer (Shade's MythP3 unless you race as Kestar, Goli, Fola or Sebulba) against
+      the 6 pod racers and Kestar Bool: 8 pods. Seen working (a race through to the standings and the next race; a crash
+      put right at the next start). Race two cups and tell me: too easy / too hard (the autopilot was 2nd by 0.75 s, the
+      field within 12.5 s), do the pods rocket off the line, any track that breaks (the reversed Holdfast's Folly is the
+      game's least finished). The `[gaps]` lines in grandprix.log will help me tune it.
 - [ ] **v0.39.0, TIME TO BEAT (2026-11-25, installed):** while the countdown runs, "TIME TO BEAT 0:49.81" (your lap record
       on this track at this league) or "NO LAP SET", middle of the screen, gone at the green light. Seen working in 3
       races. Too big, too low, wrong colour? (`TimeToBeat.Size` / `Y` / `Color` in config.lua). The per-lap line is built

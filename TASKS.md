@@ -302,10 +302,10 @@ The rest, in the order recommended (details and engine names in the review doc's
 Not for us (noted in the doc): the hand-made rubber band, opponent armour and quick respawn, the podracer features,
 PNG tiles, the cockpit / mix / deadzone work (a mod of their own if ever wanted).
 
-## 1h. Podracing cup (owner 2026-11-25: "i like your ideas, draft up some tasks") - not started
+## 1h. Podracing cup (owner 2026-11-25: "i like your ideas, draft up some tasks") - v0.40.0 built (P1-P3, P6), pacing is the owner's
 Shape agreed in §4: one PODRACING CUP tile, four races from the pod-made tracks, you in a pod, the seven pod pilots
 as the field, points as usual, no title-race link. One tag per chunk; nothing touches the car cups.
-- [ ] **P1. Recon (owner away, test save, ~half a day).** A `tools/recon/PodTry` mod on TrackTry's pattern: launch one
+- [x] **P1. Recon** (2026-11-25, docs/podracing-recon-2026-11-25.md: LaunchCustomRace on the bare pod tracks, GMV_Race's grid make-up at 8, you in your pilot's pod). A `tools/recon/PodTry` mod on TrackTry's pattern: launch one
       pod race from the main menu with archetype 1 and build `VBD_MP_PlaneTour` (fallbacks `VBD_000_1Mastiff_Plane`,
       `VBD_Plane_Base`) on Mos Espa Speedway; log the TrackDefs tagged `Vehicle.Special.Plane` (every planet; name,
       laps, p2p, conditions), the pod events under `Events/Plane_Memory` / `Plane_PresentDay` and whether
@@ -314,12 +314,12 @@ as the field, points as usual, no title-race link. One tag per chunk; nothing to
       (CharacterList.Player's pod), the finish (`EventFinishTime`, positions) and the results screen class. Expect
       a car racer as player to need `PreferredVehicleType = 1` + a pod preset (FreeRace's `lend_pods`). Write
       `docs/podracing-recon-<date>.md` and the KNOWLEDGE rows.
-- [ ] **P2. The pool and the cup (config).** `Pools.pods` = the pod tracks found in P1 (title, laps, variants; Mos
+- [x] **P2. The pool and the cup (config).** (v0.40.0: `Pools.pods` 10 races on 5 layouts, the cup `pods` = PODRACER CUP, config `Pods`; the pod vehicle lives in `Pods.Build`, not `Vehicles`, so the garage's cycle never offers it) `Pools.pods` = the pod tracks found in P1 (title, laps, variants; Mos
       Espa reversed left out - FreeRace: it never finishes loading); `Cups` + `{ key = 'pods', name = 'PODRACING CUP',
       pods = true, pool = 'pods' }`; `Vehicles` + a pod entry `{ key = 'pod', arch = 1, build = <P1's>, name = ... }`;
       art (`art.lua`: a pod planet / the game's podracing tile textures). `K.draw` draws 4 from the pool as the rally
       does; `prog.lua` keeps it out of the planet cups and the champion count (like `rally`).
-- [ ] **P3. The launch.** race.lua `prepare`: a `pods` cup forces the pod vehicle (the garage's pick is for cars) and the
+- [x] **P3. The launch.** (v0.40.0: pods.lua + race.lua preparePod / LaunchCustomRace; v1 leaves the pod build, kits, looks and paint as the game has them - the open part below) race.lua `prepare`: a `pods` cup forces the pod vehicle (the garage's pick is for cars) and the
       pod launch path from P1; `R.fits` knows `Vehicle.Special.Plane`; the part levels / abilities / mods on the pod
       build the way the car builds get them (or none: pods have Disruptor / Shockwave / mines only - AB.classPaths
       filtered to those families, `_AI` variants for the bots); the character list: the player as a pod racer
@@ -332,14 +332,17 @@ as the field, points as usual, no title-race link. One tag per chunk; nothing to
 - [ ] **P5. Standings, results, the cup end.** cup.lua needs nothing (points by place); standings.lua names (pod pilots'
       `CharacterName` come through `PlayerNamePrivate` like the others - check in P1); cupend.lua: the pod planets'
       PlanetDefs (Outer Rim = Beagle) and the champion crown; the Rally-style `shown` titles if variants are hidden.
-- [ ] **P6. The garage.** A POD tile when the pods cup is picked (or the pod pick inside the VEHICLE tile's cycle:
+- [x] **P6. The garage.** (v0.40.0: the VEHICLE tile reads PODRACER with who you race as; the ability / tune-up tiles still show but are not applied to pods - hide them for this cup next) A POD tile when the pods cup is picked (or the pod pick inside the VEHICLE tile's cycle:
       racer.lua `RC.cycleVehicle` gains 'pod'); the pod's picture; the start screen header "PODRACING CUP - 4 races on
       the pod tracks".
-- [ ] **P7. Tests + docs.** test_pods.lua (draw, launch build / archetype, the field of seven, points, cup end), the mock
+- [~] **P7. Tests + docs.** (v0.40.0: test_pods; DESIGN.md §3d, README / release texts still to write) test_pods.lua (draw, launch build / archetype, the field of seven, points, cup end), the mock
       world's pod pilots and tracks; DESIGN.md §3d; README / release texts; OWNER.md playtest list (pacing above all:
       the `[gaps]` lines over a cup, then the pod profile tuned).
 - [ ] **P8. Pacing pass (owner's races).** Two cups, read the gaps; tune the pod profile and grace; decide whether the
       pod pilots get a strength tier.
+Open after v0.40.0: P4 (the pods' kits and an AI profile of their own; a 10 s grace), P5 (the cup result's planet names for
+the pod tracks: "Outer Rim" is a guess - see the `[cupend] ... no PlanetDef for` log line), the league's parts / your abilities on the
+pod or not (owner), TestAutopilot does not arm on a second pod race in a row ("your car has no Autopilot ability").
 Follow-ups once this stands: the "clean" no-offence cup (§4) could reuse P3's family filter for the player's picks.
 
 ## 1i. HEAT: optional handicaps for Ace cups (owner 2026-11-25: "the heat options sound brutal and fun, write up that work") - not started
