@@ -112,6 +112,8 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.43.1 (2026-11-26, installed 14:37):** at the end of a PODRACER cup the result screen should now draw Mos
+      Espa's planet (the game calls it Tatooine) instead of a blank one.
 - [ ] **v0.43.0, PODRACING PRO with abilities (2026-11-26, installed 13:07; checked in a test race - abilities on your pod, 22 kit uses by the pods):** at PRO your four abilities show on the start screen and
       ride on your pod, and every pod racer carries a kit and fires it. Check: do your abilities show on the HUD and
       fire from your button? Does the boost button ever give a ramjet on a pod (the autopilot never managed one in
