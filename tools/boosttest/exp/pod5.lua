@@ -1,0 +1,1 @@
+return { label = 'pod 5: planet check (PLA_Beagle) + RamjetInstalled set true on every pod', podRecon = true, planetCheck = true, boostRecon = true, ramjetInstalled = true, event = 'MOS ESPA SPEEDWAY' }

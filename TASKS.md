@@ -326,11 +326,11 @@ as the field, points as usual, no title-race link. One tag per chunk; nothing to
       filtered to those families, `_AI` variants for the bots); the character list: the player as a pod racer
       (`racer.lua`: your pick's pod if it has one - Shade's MythP3, Kestar's Northropi - else the game's default pod
       pilot) and `Opponents` = the seven pod pilots, one pod each, cut to the grid size (title.lua's `gridCut`).
-- [ ] **P4. The field and the AI.** loadout.lua: kits for the pod pilots (config `Abilities.PodRacers`, families
+- [x] **P4. The field and the AI.** (v0.43.0 as PL4: kits + aiuse at PRO; the pace profile per step stays PL6's) loadout.lua: kits for the pod pilots (config `Abilities.PodRacers`, families
       bolt / shockwave / mine); ai.lua: a pod profile (pressure, pacing) - start from Challenger's, and a 10 s grace
       (FreeRace found pods rocket off the line); aiuse / thrust unchanged. Pilot strength: none at first (a different
       cast); `AI.BackRows` as the league's.
-- [ ] **P5. Standings, results, the cup end.** cup.lua needs nothing (points by place); standings.lua names (pod pilots'
+- [x] **P5. Standings, results, the cup end.** (v0.43.1: the Outer Rim planet def loaded by codename, PLA_Beagle - the owner's pod cup drew it blank) cup.lua needs nothing (points by place); standings.lua names (pod pilots'
       `CharacterName` come through `PlayerNamePrivate` like the others - check in P1); cupend.lua: the pod planets'
       PlanetDefs (Outer Rim = Beagle) and the champion crown; the Rally-style `shown` titles if variants are hidden.
 - [x] **P6. The garage.** (v0.40.0: the VEHICLE tile reads PODRACER with who you race as; the ability / tune-up tiles still show but are not applied to pods - hide them for this cup next) A POD tile when the pods cup is picked (or the pod pick inside the VEHICLE tile's cycle:
@@ -339,14 +339,13 @@ as the field, points as usual, no title-race link. One tag per chunk; nothing to
 - [~] **P7. Tests + docs.** (v0.40.0: test_pods; DESIGN.md §3d, README / release texts still to write) test_pods.lua (draw, launch build / archetype, the field of seven, points, cup end), the mock
       world's pod pilots and tracks; DESIGN.md §3d; README / release texts; OWNER.md playtest list (pacing above all:
       the `[gaps]` lines over a cup, then the pod profile tuned).
-- [ ] **P8. Pacing pass (owner's races).** Two cups, read the gaps; tune the pod profile and grace; decide whether the
+- [ ] **P8. Pacing pass (owner's races)** (= PL6 now: per step). Two cups, read the gaps; tune the pod profile and grace; decide whether the
       pod pilots get a strength tier.
-Open after v0.40.0: P4 (the pods' kits and an AI profile of their own; a 10 s grace), P5 (the cup result's planet names for
-the pod tracks: "Outer Rim" is a guess - see the `[cupend] ... no PlanetDef for` log line), the league's parts / your abilities on the
-pod or not (owner), TestAutopilot does not arm on a second pod race in a row ("your car has no Autopilot ability").
+Open after v0.43: the pacing (PL6), pod parts at PRO (owner, OWNER.md), TestAutopilot does not arm on a second pod race
+in a row ("your car has no Autopilot ability") - a test-tool limit.
 Follow-ups once this stands: the "clean" no-offence cup (§4) could reuse P3's family filter for the player's picks.
 
-### 1h-L. PODRACING as a league of its own (owner 2026-11-26) - PL1 + PL2 built v0.41.0 (not yet seen in game); PL0 recon waits for the game
+### 1h-L. PODRACING as a league of its own (owner 2026-11-26) - PL0-PL4 done (v0.41-v0.43, seen in game); PL5 docs, PL6 pacing open
 Owner after racing v0.40.0: "The podracing cup is fun ... is the pod racer the same speed and tracks for each cup? does it
 make more sense to just have podracing league with one cup? also there's no ramjet or abilities, which does feel good for
 learning, but would be nice to turn up the difficulty if we wanted to." Answer: today's cup IS the same at every league (the
@@ -398,7 +397,7 @@ the thrust dial / shorter grace if PRO turns out too easy); both open from the s
 - [x] **PL4. The field's kits and pace** (v0.43.0: kits + aiuse at PRO; the pace profile per step is PL6's) (P4 folded in): config `Abilities.PodRacers` (a kit per pod pilot, `_AI` variants),
       loadout.lua / aiuse.lua run for pod races at Pro / Champion; an AI profile per step (`Pods.Steps[step].ai`: pressure,
       pacing, aggression, grace 10 / 10 / 5 s), Champion's thrust dial (thrust.lua) on the pod pilots.
-- [ ] **PL5. Tests + docs.** test_pods: the league on HOME, the step tile, the per-step records, abilities written / put back
+- [x] **PL5. Tests + docs.** (test_pods 52 checks; DESIGN §3d; README, release README and Nexus text 2026-11-26) test_pods: the league on HOME, the step tile, the per-step records, abilities written / put back
       per step; DESIGN.md §3d; README / release text; OWNER.md playtest (one cup per step; the `[gaps]` lines).
 - [ ] **PL6. Pacing (owner's races).** Learner should be winnable while learning; Champion a fight. Tune each step's profile.
 
@@ -498,7 +497,7 @@ and docs/freerace-review-2026-11-25.md:
 - [x] Do the AI fire their abilities, Shields included (R7)? **Answered 2026-11-25 (v0.32.1 in game)**: with the selection cycled every 4 s each bot fired 2-4 kinds a race (Vents, Surges, Repairs, Mines, Shockwaves, Disruptors); Shields only where the game's acid / corroding rules say. Before: slot 0 only.
 
 ## 3. Known gaps (small fixes)
-- [ ] **Say what the stars mean (owner 2026-11-25: "the star for each league...what does that mean? it's not obvious
+- [x] **Say what the stars mean (v0.37.0: the info lines, the crown for a perfect cup) (owner 2026-11-25: "the star for each league...what does that mean? it's not obvious
       to the player").** One icon (`ART.STAR`), two meanings, neither said anywhere: on a HOME league tile the last
       pip is the league TITLE (gold = you beat Kestar Bool in the Galactic Cup's finale, `titles[league]`; faint grey =
       not yet; main.lua ~274), and on a cup tile the corner star is a PERFECT CUP (won every race; main.lua ~382).
@@ -529,7 +528,7 @@ and docs/freerace-review-2026-11-25.md:
       frame while the throttle axis reads 0 (and the player isn't braking); or an input modifier object on the brake
       mapping. Questions: does writing the brake input fight the game's own input every frame (a 1 ms loop, as FreeRace's
       HUD frame)? Only your car (bots have no input). Offline only. A tiny mod, its own repo.
-- [ ] **A podracing cup (owner 2026-11-25: "many tracks are probably too small and tight")**. What we know
+- [x] **A podracing cup (owner 2026-11-25: "many tracks are probably too small and tight")** - built: §1h, §1h-L (v0.40-v0.43). What we know
       (KNOWLEDGE.md §3-4, docs/tracks-by-planet.md, the FreeRace read): podracer = archetype 1 ("Plane"), tag
       `Vehicle.Special.Plane`; the game has pod-made tracks only on Beagle / Outer Rim (Mos Espa Speedway + variants),
       Lantaana (Holdfast's Folly), Ando (Mawhonic Speedway) and one each on Crait, Jakku and Derven - ~6-9 tracks, so

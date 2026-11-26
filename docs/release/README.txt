@@ -15,6 +15,12 @@ WHAT'S IN IT
 - The RALLY CUP: every point-to-point road in the game as a seven-stage rally in tour order, four cars, standings by
   total time. The night and weather of each stage are drawn when you start and kept secret until the stage loads;
   the finale is Dai Bendu Ascension at night. A stage not finished costs the slowest finisher's time plus 30 s.
+- PODRACING, a league of its own (the fourth poster): the PODRACER CUP, four races drawn from the pod tracks of Mos
+  Espa, Mawhonic and Holdfast's Folly, against Sebulba, the other pod racers and Kestar Bool. Pick LEARNER or PRO:
+    LEARNER     the game's own podracers, no abilities on the grid - the pace to learn the tracks
+    PRO         your four abilities on your pod, and every pod racer carries a kit of their own
+  You fly your pilot's own podracer: Shade, Goli, Fola, Sebulba, or Kestar once you've beaten him. Each level keeps
+  its own trophy and lap records.
 - Points after every race (15, 12, 10, 9 ... 1), standings on the results screen, then straight into the next race.
   Gold, silver and bronze trophies; track records; "near miss" lines when you just missed one.
 - Take a trophy in the Galactic Cup and Kestar Bool waits as its finale: a 1 v 1 in the stadium for the league title.
