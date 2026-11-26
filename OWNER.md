@@ -79,11 +79,14 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
       the sand? Too loud, too brown? Name the shade you want and it is one line (`Ink`, `Ink2` in config.lua).
 - [x] **v0.36.3, HOME:** the sand strip - owner 2026-11-25: it covered one line, the grey stayed on the other menus; a burnt
       orange ink instead (v0.36.4). The CHOOSE A LEAGUE heading stays.
-- [ ] **v0.36.2, the cup result's bottom half (2026-11-25, installed while the game ran - restart first):** the rank-up bar,
-      the XP numbers and the race-by-race award lines are gone; under the timeline two tiles only: GOLD TROPHY over 1ST, and
-      POINTS over "102 OF 105". Does the screen hold together without the panel (a hole where it was, the tiles off-centre)?
-      If you miss "who did I beat", the next step is the final top 3 with points written over that space. `CupResult.Progress
-      = true` brings the old panel back.
+- [ ] **v0.36.5, the cup result's bottom half again (2026-11-25 ~22:50, installed while the game ran - restart first):**
+      your Jakku cup screenshot: "60 OF 60" wrapped into three big lines under PARTICIPATION STREAK, the other tile still
+      WIN COUNT, the title RESULTS. Now one tile only under the timeline, centred, headed CUP RESULT: 1ST, GOLD TROPHY, the
+      medal. The points tile is gone with its heading and backer; the title is the cup and the league ("JAKKU CUP  -
+      CHALLENGER"). Check: is the tile centred in its row at its normal width (or stretched across, or still at the left)?
+      Does the heading read CUP RESULT (with its Aurebesh line)? Does the title take? Not seen in game (built from the
+      header dumps while you played); the log's `[cupend] tile holders` and `panels:` lines say what was found. If you'd
+      rather see the final top 3 there after all, say so. `CupResult.Tiles = 'result'` brings the two tiles back.
 - [ ] **v0.36.1, HOME and the cups page (2026-11-25):** focus each league on HOME: the rules line under the posters -
       JUNKER "Afterburner and ramjet wound to ten on a scrapyard chassis. Cornering, resilience and drift stock, the battery
       barely holding. One ability, no tune-ups." / CHALLENGER "Every part at seven, and every rig on the grid the same. Two

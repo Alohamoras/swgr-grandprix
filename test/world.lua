@@ -55,8 +55,22 @@ function W.widgetLib()
         Txt_WinsAmount = M.new('Txt_WinsAmount', {}, 'FuseTextBlock'), Txt_WinRaces = M.new('Txt_WinRaces', {}, 'FuseTextBlock'),
         Txt_Races = M.new('Txt_Races', {}, 'FuseTextBlock') }, 'WBP_MP_Participation_C')
       p.WBP_MP_Progress = M.new('WBP_MP_Progress', { XPAwards = M.tarr({}), Txt_RankThreshold = M.new('Txt_RankThreshold', {}, 'FuseTextBlock') }, 'WBP_MP_Progress_C')
+      -- v0.36.5: each tile in the game's section holder (a heading sub-label, a slot in the row's horizontal box)
+      local row = M.new('HB_Row', {}, 'FuseHorizontalBox')
+      local function holder(tile, name)
+        local lab = M.new('WBP_SectionSubLabel', { Txt_Label = M.new('Txt_Label', {}, 'FuseTextBlock') }, 'WBP_SectionSubLabel_C')
+        local h = M.new(name, { WBP_SectionSubLabel = lab, Slot = M.new('slot', {}, 'HorizontalBoxSlot'), GetParent = function() return row end }, 'WBP_Panel_Presentation_SectionHolder_C')
+        local hp = rawget(h, '__props'); hp.__vis = 4
+        hp.GetVisibility = function() return hp.__vis end
+        hp.SetVisibility = function(_, v) hp.__vis = v end
+        local ns = M.new('NS_PanelContent', { GetParent = function() return h end }, 'FuseNamedSlot')
+        rawget(tile, '__props').GetParent = function() return ns end
+        return h
+      end
+      p.__winsHolder = holder(p.WBP_MP_Wins, 'Holder_Wins')
+      p.__partHolder = holder(p.WBP_MP_Participation, 'Holder_Participation')
       p.WBP_Continue = M.new('WBP_Continue', {}, 'WBP_Hero_Btn_C')
-      p.WBP_Screen_Title = M.new('WBP_Screen_Title', { Txt_Title = M.new('Txt_Title', {}, 'FuseTextBlock') }, 'WBP_Screen_Title_C')
+      p.WBP_Screen_Title = M.new('WBP_Screen_Title', { Txt_ScreenTitle = M.new('Txt_ScreenTitle', {}, 'FuseTextBlock') }, 'WBP_Screen_Title_C')
       p.TourPlanetsToShow = M.tarr({})
       rawset(w, '__name', 'RunEnd_' .. rawget(w, '__addr'))
       M.add('WBP_PostRace_InstantAction_RunEnd_C', w)

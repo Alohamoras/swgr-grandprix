@@ -22,6 +22,14 @@
 -- make much sense"): the bottom half was the game's PvP rank-up panel wearing our numbers - a bar from "1st" to "GOLD",
 -- the points as XP, the races as XP awards ticking in. Config CupResult.Progress = false (the default) collapses that
 -- panel; the two tiles say the result instead: GOLD TROPHY over 1ST, POINTS over 102 OF 105. Progress = true: the panel.
+-- v0.36.5 (owner 2026-11-25, seen on a Jakku cup: "the bottom half needs to be reworked, it still doesn't make much
+-- sense ... think about what should actually be on this screen, less is more"): the points tile wrapped "60 OF 60" into
+-- three big lines under the game's PARTICIPATION STREAK heading, the other tile still said WIN COUNT, the title still
+-- said RESULTS (our text names were not the title widget's). Now the bottom half is the verdict alone: one tile, centred
+-- in its row, headed CUP RESULT - your standing, the trophy and the medal. The points tile goes with its whole section
+-- holder (heading, backer); the title is the cup and the league through the widget's own SetScreenTitleText. The
+-- tiles sit in the game's section holders (a heading with its Aurebesh line and a backer) in a row under the timeline;
+-- a tile's holder is its nearest ancestor of that class, found by GetParent at the moment of use.
 -- Config CupResult.Native = false: the old flow (CUP RESULT goes straight to our cup result page at the menu, which
 -- still follows either way).
 local C = require('core')
@@ -41,7 +49,6 @@ local VIS_COLLAPSED, VIS_SELF_HIT_INVISIBLE = 1, 4
 local function conf() return type(cfg.CupResult) == 'table' and cfg.CupResult or {} end
 function CE.on() return conf().Native ~= false end
 local function progressOn() return conf().Progress == true end   -- (v0.36.2: the XP rank-up panel only when asked)
-local function pointsText(sm) return ('%d OF %d'):format(sm.total, sm.max) end
 local function fixupMs() return (tonumber(conf().FixupS) or 12) * 1000 end
 function CE.closeMs() return (tonumber(conf().CloseS) or 120) * 1000 end
 -- v0.32.9 (owner, after the first one in game: "I love the layout ... I'd rather have something more prominent that
@@ -59,6 +66,20 @@ local function tilesMode() local t = conf().Tiles; return (t == 'streaks' or t =
 local function resultTiles() return tilesMode() ~= 'streaks' end
 local function trophyName(sm) return type(sm.trophy) == 'string' and sm.trophy:upper() or nil end
 local function standing(sm) return sm.rank and C.ordinal(sm.rank):upper() or '-' end
+local HOLDER = 'WBP_Panel_Presentation_SectionHolder_C'
+-- a tile's section holder (nil when none is found within a few parents); the chain of classes for the log
+local function holderOf(tile)
+  local o, chain = tile, {}
+  for _ = 1, 6 do
+    o = alive(o) and try(function() return o:GetParent() end) or nil
+    if not alive(o) then break end
+    chain[#chain + 1] = C.clsname(o)
+    if C.clsname(o) == HOLDER then return o, table.concat(chain, ' < ') end
+  end
+  return nil, table.concat(chain, ' < ')
+end
+local function collapse(o) return alive(o) and try(function() o:SetVisibility(VIS_COLLAPSED); return true end) == true end
+local function visOf(o) return tostring(alive(o) and try(function() return o:GetVisibility() end) or '-') end
 -- the trophy and the standing as one line ("GOLD TROPHY, 1ST" / "NO TROPHY, 5TH")
 local function verdict(sm) return ((trophyName(sm) and (trophyName(sm) .. ' TROPHY')) or 'NO TROPHY') .. ', ' .. standing(sm) end
 -- what a text block shows now (read-only; '-' = no such block, '?' = unreadable)
@@ -238,14 +259,29 @@ local function panels(w, d, sm)
       call('UpdateWins', function() wins:UpdateWins(sm.wins) end)
     end
   end
-  if part then
-    if tilesMode() == 'trophy' then
-      -- v0.34.2: the participation tile's own function never called (the owner: streaks superfluous); v0.36.2: the tile
-      -- stays, as the POINTS tile (its texts written by direct(); its second pair of texts collapsed there)
-      ok[#ok + 1] = 'Participation = POINTS'
-    else
-      call('UpdateParticipation', function() part:UpdateParticipation(#sm.races - sm.dnfs, sm.streak) end)
+  if tilesMode() == 'trophy' then
+    -- v0.36.5: the verdict alone under the timeline - the trophy tile, headed CUP RESULT, centred in its row; the
+    -- points tile gone with its holder (v0.34.2 hid the tile and left its heading and backer; v0.36.2 made it POINTS)
+    local ph, pchain = nil, ''
+    if part then ph, pchain = holderOf(part) end
+    if part then ok[#ok + 1] = 'points tile gone' .. (collapse(ph or part) and (ph and '' or ' (the tile only)') or ' (failed)') end
+    local wh, wchain = nil, ''
+    if wins then wh, wchain = holderOf(wins) end
+    if wh then
+      local lab = try(function() return wh.WBP_SectionSubLabel end)
+      local said = alive(lab) and (try(function() lab:SetLabel(FText('CUP RESULT')); return true end) == true
+        or try(function() lab.Txt_Label:SetText(FText('CUP RESULT')); return true end) == true)
+      ok[#ok + 1] = 'heading CUP RESULT' .. (said and '' or ' (failed)')
+      -- the holder's slot in the row: fill the row, the tile centred in it at its own width (EHorizontalAlignment Center = 2)
+      local sl = try(function() return wh.Slot end)
+      local centred = alive(sl) and try(function() sl:SetSize({ SizeRule = 1, Value = 1 }); sl:SetHorizontalAlignment(2); return true end) == true
+      ok[#ok + 1] = 'centred' .. (centred and '' or (' (failed on ' .. (alive(sl) and C.clsname(sl) or 'no slot') .. ')'))
+    elseif wins then
+      ok[#ok + 1] = 'no holder for the trophy tile (' .. wchain .. ')'
     end
+    log(('[cupend] tile holders: trophy < %s | points < %s'):format(wchain ~= '' and wchain or '-', pchain ~= '' and pchain or '-'))
+  elseif part then
+    call('UpdateParticipation', function() part:UpdateParticipation(#sm.races - sm.dnfs, sm.streak) end)
   end
   if prog and not progressOn() then
     -- v0.36.2: the PvP rank-up panel (a bar from "1st" to "GOLD", the points as XP) makes no sense for a cup: collapsed
@@ -258,18 +294,20 @@ local function panels(w, d, sm)
     setList(prog, 'XPAwards', d.awards)
     call('BeginProgressAnimationFromXPAwards', function() prog:BeginProgressAnimationFromXPAwards() end)
   end
-  -- the screen's title: the cup and the league (the title widget's text block, whichever name it has)
+  -- the screen's title: the cup and the league, through the title widget's own function (v0.36.5; the earlier text
+  -- names were not this widget's, so the screen kept saying RESULTS). The verdict is the tile's; 'result' / 'streaks'
+  -- tiles keep it in the title (v0.34.2).
   local title = sub('WBP_Screen_Title')
   if title then
     local text = ('%s  -  %s'):format(sm.name, sm.league)
-    if tilesMode() == 'trophy' then text = text .. '  -  ' .. verdict(sm) end
+    if tilesMode() ~= 'trophy' then text = text .. '  -  ' .. verdict(sm) end
     if sm.finale and sm.finale.won then text = text .. '  -  CHAMPION' end
-    local done = false
-    for _, f in ipairs({ 'Txt_Title', 'Txt_Label', 'Txt_Header' }) do
-      local t = try(function() return title[f] end)
-      if alive(t) and pcall(function() t:SetText(FText(text)) end) then done = true; break end
+    local done = try(function() title:SetScreenTitleText(FText(text)); return true end) == true
+    if not done then
+      local t = try(function() return title.Txt_ScreenTitle end)
+      done = alive(t) and try(function() t:SetText(FText(text)); return true end) == true
     end
-    if not done then try(function() title:SetText(FText(text)) end) end
+    ok[#ok + 1] = 'title' .. (done and '' or ' (failed)')
   end
   log('[cupend] panels: ' .. table.concat(ok, ', '))
 end
@@ -285,26 +323,17 @@ local function direct(w, sm, readBack)
     -- v0.34.2: what the texts hold now, before this pass writes them again - bound texts would show the game's numbers
     local wins, part = try(function() return w.WBP_MP_Wins end), try(function() return w.WBP_MP_Participation end)
     local prog = try(function() return w.WBP_MP_Progress end)
-    log(('[cupend] tiles read back (%s): Wins label=%s amount=%s | Participation vis=%s label=%s amount=%s races=%s streak=%s | Progress vis=%s'):format(tilesMode(),
-      textOf(wins, 'Txt_Label'), textOf(wins, 'Txt_Amount'), tostring(alive(part) and try(function() return part:GetVisibility() end) or '-'),
-      textOf(part, 'Txt_WinRaces'), textOf(part, 'Txt_WinsAmount'), textOf(part, 'Txt_Amount_1'), textOf(part, 'Txt_WinsAmount'),
-      tostring(alive(prog) and try(function() return prog:GetVisibility() end) or '-')))
+    local ph, wh = alive(part) and holderOf(part) or nil, alive(wins) and holderOf(wins) or nil
+    local lab = alive(wh) and try(function() return wh.WBP_SectionSubLabel end) or nil
+    log(('[cupend] tiles read back (%s): Wins heading=%s label=%s amount=%s holder vis=%s | Participation vis=%s holder vis=%s label=%s amount=%s | Progress vis=%s'):format(tilesMode(),
+      textOf(lab, 'Txt_Label'), textOf(wins, 'Txt_Label'), textOf(wins, 'Txt_Amount'), visOf(wh),
+      visOf(part), visOf(ph), textOf(part, 'Txt_WinRaces'), textOf(part, 'Txt_WinsAmount'), visOf(prog)))
   end
   if tilesMode() == 'trophy' then
-    -- the WINS tile: the trophy over your standing; v0.36.2: the participation tile is the POINTS tile - its first pair of
-    -- texts POINTS over "102 OF 105", its second pair (the game's races / streak) collapsed
+    -- v0.36.5: the one tile - the trophy over your standing; nothing written on the points tile (it is collapsed)
     local t = trophyName(sm)
     put('WBP_MP_Wins', 'Txt_Label', t and (t .. ' TROPHY') or 'NO TROPHY')
     put('WBP_MP_Wins', 'Txt_Amount', standing(sm))
-    put('WBP_MP_Participation', 'Txt_WinRaces', 'POINTS')
-    put('WBP_MP_Participation', 'Txt_WinsAmount', pointsText(sm))
-    local part = try(function() return w.WBP_MP_Participation end)
-    if alive(part) then
-      for _, f in ipairs({ 'Txt_Races', 'Txt_Amount_1' }) do
-        local o = try(function() return part[f] end)
-        if alive(o) then try(function() o:SetVisibility(VIS_COLLAPSED) end) end
-      end
-    end
   elseif resultTiles() then
     -- the WINS tile: the trophy and your place; the participation tile: points and podiums
     local t = trophyName(sm)

@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.36.5 (2026-11-25): the cup result's bottom half - the verdict alone (owner)
+- Owner, on a screenshot of a Jakku cup's result: "the bottom half of the screen needs to be reworked. It still doesn't
+  make much sense. Think about what should actually be on this screen, generally less is more." What the screenshot showed:
+  the v0.36.2 POINTS tile wrapped "60 OF 60" into three big lines under the game's own PARTICIPATION STREAK heading,
+  spilling onto CONTINUE; the trophy tile was still headed WIN COUNT; the title still said RESULTS.
+- cupend.lua, `Tiles = 'trophy'` (the default): under the timeline one tile only - headed CUP RESULT, centred in its row:
+  your standing (1ST), the trophy (GOLD TROPHY), the medal. The points tile is collapsed with its whole section holder
+  (heading, backer), not just its texts. The title is the cup and the league ("JAKKU CUP  -  CHALLENGER"; CHAMPION added
+  after a won finale), set through the title widget's own `SetScreenTitleText` - the v0.34.2 text names were not this
+  widget's, which is why the screen kept saying RESULTS. The verdict is no longer in the title ('result' / 'streaks'
+  tiles keep it there).
+- How: each tile sits in a `WBP_Panel_Presentation_SectionHolder_C` (its heading is a `WBP_SectionSubLabel` with
+  `SetLabel`); the holder is found by `GetParent` at the moment of use, its slot in the row set to Fill + Center. Nothing
+  kept between ticks. The log's `[cupend] tile holders:` line says the parent chains found, `panels:` which step took
+  (`points tile gone`, `heading CUP RESULT`, `centred`, `title`), and the read-back line the heading and the holders'
+  visibility.
+- Not seen in game (built from the header dumps while the game ran): the centring is the one guess - if the holder's row
+  is not a horizontal box the slot calls fail and the log says so. `CupResult.Tiles = 'result'` brings the two tiles back.
+- Tests: test_cupend A checks the holder collapsed, SetLabel CUP RESULT, the slot Fill + Center, SetScreenTitleText; the
+  fake tour-end screen gained the holders and the row. 50 files pass.
+
 ## v0.36.4 (2026-11-25): burnt orange ink on every pale page, the sand strip off (owner)
 - Owner: "you put the white background across some of the text but many of the menus still have the grey that blends
   with the background, just change the text color to a burnt orange that fits the color scheme". The v0.22 dark greys

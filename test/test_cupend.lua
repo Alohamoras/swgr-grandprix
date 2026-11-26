@@ -53,6 +53,7 @@ end
 start()
 local mark = toLastResults()
 T.check(W.runEnd == nil, 'A: nothing up before the button')
+local tFrom = #M.calls + 1
 W.pressNext(); M.tick(3)
 T.check(W.runEnd ~= nil and T.logHas('[chain] CUP RESULT pressed (the CUP RESULT button): the cup result on the game\'s tour-end screen', mark),
   'A: CUP RESULT puts the game\'s tour-end screen up')
@@ -84,11 +85,19 @@ T.check(M.called('RefreshPlanets') == 1 and M.called('TriggerTimelineAnimation')
   and M.called('BeginProgressAnimationFromXPAwards') == 0, 'A: the panels filled through their own functions; v0.34.2: UpdateParticipation never called; v0.36.2: the progress panel never started')
 local uw = M.lastCall('UpdateWins')
 T.check(uw.args[1] == 1, 'A: UpdateWins(1) = one medal (the silver)')
--- v0.36.2: the progress panel collapsed, the participation tile kept as the POINTS tile
+-- v0.36.2: the progress panel collapsed; v0.36.5: the points tile gone with its holder, the trophy tile headed CUP RESULT
+-- and centred in its row, the title through the title widget's own function
 T.check(rawget(p.WBP_MP_Progress, '__props').__vis == 1 or (function()
   for _, c in ipairs(M.calls) do if c.name == 'SetVisibility' and c.args[1] == 1 then return true end end end)(), 'A: v0.36.2: the progress panel collapsed')
-T.check(rawget(p.WBP_MP_Participation, '__props').__vis ~= 1, 'A: v0.36.2: the participation tile not collapsed (it is the POINTS tile)')
-T.check(T.logHas('Participation = POINTS, Progress hidden', mark), 'A: the panels line says POINTS tile, progress hidden')
+T.check(rawget(p.__partHolder, '__props').__vis == 1 and rawget(p.__winsHolder, '__props').__vis == 4, 'A: v0.36.5: the points tile\'s holder collapsed, the trophy tile\'s not')
+local lab = M.lastCall('SetLabel')
+T.check(lab and rawget(lab.args[1], '__props').__text == 'CUP RESULT', 'A: v0.36.5: the trophy tile\'s heading set to CUP RESULT through SetLabel')
+local ha, sz = M.lastCall('SetHorizontalAlignment'), M.lastCall('SetSize')
+T.check(ha and ha.args[1] == 2 and sz and sz.args[1].SizeRule == 1, 'A: v0.36.5: the trophy tile\'s holder fills its row, centred')
+local tt = M.lastCall('SetScreenTitleText')
+T.check(tt and rawget(tt.args[1], '__props').__text == 'JAKKU CUP  -  CHALLENGER', 'A: v0.36.5: the title through SetScreenTitleText, the cup and the league (no verdict)')
+T.check(T.logHas('UpdateWins, points tile gone, heading CUP RESULT, centred, Progress hidden, title', mark), 'A: the panels line')
+T.check(T.logHas('[cupend] tile holders: trophy < FuseNamedSlot < WBP_Panel_Presentation_SectionHolder_C | points < FuseNamedSlot < WBP_Panel_Presentation_SectionHolder_C', mark), 'A: the holder chains logged')
 T.check(rawget(p.WBP_MP_Wins, '__props').MedalColour ~= nil and rawget(p.WBP_MP_Wins, '__props').MedalColour.R == 0.8, 'A: the medal in the silver colour')
 T.check(T.logHas('[cupend] view models: 1 planets (1 shown), 4 races, 4 awards = 52 points of 60', mark), 'A: the view models logged')
 T.check(T.logHas('[cupend] the cup result on the game\'s tour-end screen: JAKKU CUP, CHALLENGER - 2nd, 52 points, 2 wins, 0 DNF', mark), 'A: the summary line')
@@ -97,11 +106,10 @@ M.tick(12)
 T.check(W.runEnd ~= nil and W.continued == 0, 'A: still up 1.2 s on (the opening press not read twice)')
 local wins = rawget(p.WBP_MP_Wins, '__props')
 T.check(rawget(wins.Txt_Amount, '__props').__text == nil or true, '(texts)')
-local setTexts = W.textsSince(1)
-T.check(setTexts:find('52 OF 60', 1, true) ~= nil and setTexts:find('JAKKU CUP  -  CHALLENGER', 1, true) ~= nil, 'A: the points text and the title written (' .. (setTexts:find('52 OF 60', 1, true) and 'points ok' or 'no points') .. ')')
-T.check(setTexts:find('SILVER TROPHY\n2ND\nPOINTS\n52 OF 60', 1, true) ~= nil and setTexts:find('PODIUMS', 1, true) == nil and setTexts:find('52 / 60', 1, true) == nil,
-  'A: v0.36.2 tiles - SILVER TROPHY over 2ND, POINTS over 52 OF 60; no PODIUMS, no progress panel texts (' .. setTexts:gsub('\n', ' | ') .. ')')
-T.check(setTexts:find('JAKKU CUP  -  CHALLENGER  -  SILVER TROPHY, 2ND', 1, true) ~= nil, 'A: v0.34.2: the title line says the trophy and the standing')
+local setTexts = W.textsSince(tFrom)   -- (v0.36.5: the texts since the summary went up)
+T.check(setTexts:find('SILVER TROPHY\n2ND', 1, true) ~= nil and setTexts:find('POINTS', 1, true) == nil and setTexts:find('52 OF 60', 1, true) == nil
+  and setTexts:find('PODIUMS', 1, true) == nil and setTexts:find('JAKKU CUP', 1, true) == nil,
+  'A: v0.36.5 texts - SILVER TROPHY over 2ND only; no POINTS, no title through SetText (' .. setTexts:gsub('\n', ' | ') .. ')')
 -- A again: closes, leaves for the menu
 M.tick(10)
 W.pressNext(); M.tick(3)

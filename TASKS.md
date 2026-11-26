@@ -127,9 +127,14 @@ verdict. The 18:01 read-back (Rally Cup, Junker) settled the open question: `Set
 amount=1ST), the tile texts are not bound.
 v0.36.2 (owner: "the bottom half doesn't really make much sense"): the bottom half was the game's PvP rank-up panel - a bar
 from "1st" to "GOLD", the points as XP, the races as XP awards. `CupResult.Progress = false` collapses it; the second tile
-is POINTS over "102 OF 105". **Open (owner's look):** the two tiles alone under the timeline - enough, or does the space
-want the final top 3 with points (our own text over the screen; needs a canvas on the tour-end widget, one recon)? The
-old `[cupend] tiles read back` line now says the POINTS texts and `Progress vis=1` (collapsed).
+is POINTS over "102 OF 105".
+v0.36.5 (owner's Jakku screenshot 22:37: "the bottom half needs to be reworked, it still doesn't make much sense ... less is
+more"): "60 OF 60" wrapped into three big lines, the game's headings PARTICIPATION STREAK / WIN COUNT stayed, the title
+stayed RESULTS (our text names were wrong; the widget has `SetScreenTitleText`). Now one tile: the trophy tile's section
+holder (`WBP_Panel_Presentation_SectionHolder_C`, found by GetParent) headed CUP RESULT through its `WBP_SectionSubLabel:
+SetLabel`, its row slot Fill + Center; the points tile's holder collapsed. **Open (owner's look):** did the centring take
+(the log's `[cupend] tile holders` line says the parent chain and `panels:` which step failed)? The final top 3 only if the
+owner asks for it.
 
 ## 1a-planets. The planets on the cup tiles (v0.33.0) - reverted v0.34.1
 Owner 2026-11-25 (seen in game): "didn't really turn out like I wanted them to" -> `CupPlanets = false`. Code kept behind the
