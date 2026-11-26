@@ -67,6 +67,11 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
+- [ ] **StreamlineCampaign 1.0.2 (2026-11-26, installed, not released - branch `prologue-every-race`):** 1.0.1 skipped
+      only the first prologue race; you then sat through another. 1.0.2 skips every prologue race and never a real
+      campaign race. Restart the game; next time the prologue comes up it should go straight to the paddock each time.
+      If it's right, I merge it and build the zip for Nexus (your upload). Old 1.0.1 scripts backed up in
+      `~/.local/share/swgr-mod-backups/`.
 - [ ] **BikeSkin v0.4.0 (2026-11-26) + StreamlineCampaign 1.0.1 switched on - restart the game.** The drifter bike is
       now your landspeeder's **Marlin** kit, shown in CUSTOMIZE as **"Drifter Bike (prototype)"**: pick it, race the
       landspeeder (also in the campaign) = the bike; any other look (your Beluga) = a normal landspeeder. Check: the
