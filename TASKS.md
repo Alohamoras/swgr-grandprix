@@ -457,6 +457,29 @@ clear. This pass is about being clear.
       limits - the info lines are padded to 1-2 lines, `padInfo`).
 - [ ] Add the rules to KNOWLEDGE.md / AUTOMATION.md as the house style for all the Galactic Racer mods' text.
 
+## 1k. Boosting should feel fast: the field speeds up when you boost (owner 2026-11-26) - not started
+Owner: "explore why the racers in front of you speed up so quickly when you ramjet and afterburner, this is the most
+annoying part of the game, it should feel faster to boost and the field just adapts automatically without boosting."
+A recon first (owner away, test save), then a fix the owner picks. Leads, from docs/ai-tuning-research-2026-11-11.md
+and docs/freerace-review-2026-11-25.md:
+- **The time window (the likeliest):** each bot paces against you (`URaceAIComponent.mPawnToPaceAgainst`) inside a
+  window ahead of / behind you (`AIMinTimeAhead` / `AIMaxTimeAhead` curve rows per tier, moved by `DA_RaceTuneConfig`
+  Modifier / Multiplier). A boost shrinks the gap, a bot drops under its minimum time ahead and speeds up to get back
+  into the window. Our league profiles LIFT that minimum (`AiMinTimeAheadModifier`, held at the game's value only in
+  the start grace) - we may be making it worse. Our catch-up is already off (`MaxAiCatchupScale` 1.0), but the window
+  can still pull a bot ahead (or that is the catch-up path the scale doesn't reach - check).
+- **Speed matching:** a zone around you (`URaceAISpeedMatchingComponent`; config `SpeedMatchingMaxMatchers`, which our
+  profiles already set to 0) and a per-driving-style `EnableSpeedMatchingZone` (FreeRace turns it off through each
+  `RaceAIComponent.DrivingStyle`) - is the style switch still on for our bots?
+- **The bots' own boosts:** do they fire afterburner / ramjet in answer to yours (driving style `MinTimeBetweenBoosts`,
+  the boost rules)? The 2026-11-12 spike found boost-rule changes did nothing to pace - but did not look at timing.
+- **Measure, don't guess:** a held race (TestAutopilot), log every 0.5 s the bot directly ahead's speed and gap to you,
+  and mark when you boost (your pawn's boost / ramjet state); then the same with (a) `AiMinTimeAheadModifier` at the
+  game's value all race, (b) `EnableSpeedMatchingZone` off on every bot's style, (c) the window rows widened. The fix
+  that makes the gap close on a boost without making the field slow everywhere else wins. Pods too (PL0's races).
+- Watch-out: "the field adapts" is the game's rubber band by design; take too much out and the leaders run away
+  (the v0.16 study: with all help off, the bots were as fast as or faster than the autopilot). Per league if needed.
+
 ## 2. Waiting on the owner's play (details and tick boxes in OWNER.md "Playtests")
 - [ ] v0.27.x: the finish times then STANDINGS (A, or 6 s); Challenger open from the start; Riff-Raff's feel (parts
       2 on three slots); the posters' taglines and the cups page brief; the garage's TUNE-UP / ABILITY captions.
