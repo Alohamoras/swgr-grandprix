@@ -349,7 +349,7 @@ return {
         Husky     = { key = 'sentinel', name = 'Sentinel I',  line = 'Rivers of acid make this planet hostile to life itself' },
         -- v0.40: the pod tracks' planets (by the codename in the track's name, gp.lua K.planetOf); the name is the
         -- planet's as the cup result's timeline shows it (Beagle unconfirmed)
-        Beagle    = { key = 'outerrim', name = 'Outer Rim',   line = 'The desert world where podracing began' },
+        Beagle    = { key = 'outerrim', name = 'Tatooine',    line = 'The desert world where podracing began' },
         Whippet   = { key = 'derven',   name = 'Derven Acos', line = 'Home of the Galactic League, where racers face the ultimate challenge' },
     },
 

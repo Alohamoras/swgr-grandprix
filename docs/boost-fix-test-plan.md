@@ -43,7 +43,11 @@ decides.
 
 ## Tests to run
 
-### 1. Settle the confound from the data we already have (desk, no game)
+> **2026-11-26 round 2 done (docs/boost-recon-2026-11-26.md "Round 2"):** test 1's base rate says the reply is real
+> (9/12 vs 4/20); test 2's forcing didn't work (Server_ChangeState(4) needs a charged ramjet); B (speed matching off)
+> doesn't stop it. **Next: test 3 (the owner's race with lever A).**
+
+### 1. Settle the confound from the data we already have (desk, no game) - DONE, see above
 Extend `tools/boostan.py` with a **base rate**: in rows where you are NOT boosting, how often does the racer ahead go
 into ramjet in any 3 s window? If that is also ~100% on those straights, the "reply" is the track. If it's well below,
 the reply is real. Data: `docs/data/boostrecon-2026-11-26.csv`.

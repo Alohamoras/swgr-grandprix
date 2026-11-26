@@ -129,8 +129,8 @@ T.check(ok, 'the draw: 4 pod races on 4 different layouts, each with a condition
 local n, of = 0, 0
 for _, c in ipairs(cfg.Cups) do if not c.final and not c.rally and not c.pods then of = of + 1 end end
 T.check(of == 5 and select(2, K.golds('riffraff')) >= 5, 'five planet cups, the pods not among them')
-T.check(K.planetOf(cfg.Pools.pods[1].path).name == 'Outer Rim' and K.planetOf(cfg.Pools.pods[3].path).name == 'Ando Prime',
-  'the pod tracks\' planets: Mos Espa = Outer Rim, Mawhonic = Ando Prime')
+T.check(K.planetOf(cfg.Pools.pods[1].path).name == 'Tatooine' and K.planetOf(cfg.Pools.pods[3].path).name == 'Ando Prime',
+  'the pod tracks\' planets: Mos Espa = Tatooine (the game's name, PLA_Beagle), Mawhonic = Ando Prime')
 
 -- 4. the launch: start the cup, race 1 through LaunchCustomRace
 K.startCup('podspro', 'pods', 'car', nil, nil, d)
@@ -202,10 +202,10 @@ T.check(P.racerKey('Antagonist') == 'DarkEnigma', 'Kestar not beaten: Shade')
 -- v0.43.1 (P5): the cup result loads a planet's def by its codename when none is in memory (the owner's PODRACER cup:
 -- "no PlanetDef for Outer Rim", Mos Espa drawn blank)
 local PLA = '/Game/Griffin/Gameplay/Config/Planets/PLA_Beagle'
-M.assets[PLA .. '.PLA_Beagle'] = M.new(PLA .. '.PLA_Beagle', { PlayerFacingName = FText('Outer Rim') }, 'PlanetDef')
+M.assets[PLA .. '.PLA_Beagle'] = M.new(PLA .. '.PLA_Beagle', { PlayerFacingName = FText('Tatooine') }, 'PlanetDef')
 local CE = require('cupend')
 local bd = CE.defByCode(K.planetOf(cfg.Pools.pods[1].path))
-T.check(bd and rawget(bd, '__name'):find('PLA_Beagle', 1, true) and T.logHas('PlanetDef PLA_Beagle loaded (the game calls it "Outer Rim")'),
+T.check(bd and rawget(bd, '__name'):find('PLA_Beagle', 1, true) and T.logHas('PlanetDef PLA_Beagle loaded (the game calls it "Tatooine")'),
   'the cup result: Mos Espa\'s planet def loaded by its codename (PLA_Beagle)')
 
 -- 7. v0.41: the v0.40 results at the car leagues move to LEARNER (best finish, fastest time / lap per track), once

@@ -4,10 +4,13 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
-- [ ] **Boosting and the field (TASKS §1k, 2026-11-26 recon, docs/boost-recon-2026-11-26.md):** the racer ahead of
-      you does go into ramjet within ~3 s of yours, but the autopilot can't tell a reply from "everyone boosts on this
-      straight". Pick: A. bots ramjet less readily (a driving-style dial, only bots feel it), B. speed matching off,
-      or C. you race once with each (I'd set up the dev build) and choose by feel. Nothing built yet.
+- [ ] **A ramjet for pods? (2026-11-26):** every pod comes with `RamjetInstalled = false` (cars: true) - that's why pods
+      have no ramjet. I could switch it on for your pod (and the field's) at PRO; it may or may not work from your boost
+      button (setting it mid-race didn't make the autopilot ramjet). Want me to try it as an option you test?
+- [ ] **Boosting and the field (TASKS §1k, docs/boost-recon-2026-11-26.md):** round 2 says the reply is real - the
+      racer ahead goes into ramjet within 3 s of yours 75% of the time, against 20% when you aren't ramjetting.
+      Speed matching off doesn't stop it. The remaining lever (bots ramjet less readily) only shows when YOU drive:
+      ~15 min, 3 races on The War Fields (docs/boost-fix-test-plan.md test 3). Say when and I'll set it up.
 - [ ] **Pod parts (2026-11-26 recon):** pod parts work - all six at 10 made the same pilot 17.8 s faster on Mos Espa
       (top speed 995 -> 1400 kph), and the whole field got faster with them. Want a faster PRO (parts up), or keep the
       game's own pod build at both steps?

@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.43.1 (2026-11-26): the pod cup's planet on the cup result (TASKS §1h P5)
+- The owner's PODRACER cup result drew Mos Espa's planet blank ("no PlanetDef for Outer Rim"): nothing in a pod race
+  loads that planet's definition, and the result only searched the loaded ones. cupend.lua now loads a missing one by
+  its codename (`/Game/Griffin/Gameplay/Config/Planets/PLA_<code>`). Seen in game: PLA_Beagle loads.
+- The game calls that planet **Tatooine** (not our guessed "Outer Rim"): config `Planets.Beagle.name`.
+- Dev tools only (DevTools + experiment.lua): the boost recon's forced ramjet and RamjetInstalled switch, the pod
+  recon's planet check; tools/boostan.py's base rate. docs/boost-recon-2026-11-26.md "Round 2".
+- Tests: test_pods 52 checks.
+
 ## v0.43.0 (2026-11-26): PODRACING PRO with abilities (TASKS §1h-L PL0, PL3, PL4)
 - Owner: "i thought the pro podracing was supposed to add abilities and ramjet, it's not in there" - chose the recon
   first. The recon (owner away, test save; docs/podracing-recon-2026-11-25.md "PL0"): the pod build has no ability

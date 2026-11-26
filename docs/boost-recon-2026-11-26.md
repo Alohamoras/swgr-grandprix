@@ -35,6 +35,35 @@ the track fixed to THE WAR FIELDS (2 laps); one race per variant, a fresh game e
    1:50-1:58 against ~1:51-2:08 in b0'). A human player doesn't drive with that asset, so for you b3 would change only
    the bots.
 
+## Round 2 (2026-11-26 afternoon): the base rate, forced ramjets, speed matching off
+
+`tools/boostan.py` now also prints a **base rate**: in 3 s windows where you are NOT ramjetting and the racer ahead
+(within 250 m) isn't either, how often does it go into ramjet anyway? Four more races (`tools/boosttest/exp/f0, f2,
+f0b, f2b`: bots +5 parts, your ramjet "forced" every 8-12 s; f2 / f2b with the speed matching zone off). Data appended
+to `docs/data/boostrecon-2026-11-26.csv`.
+
+| | Racer ahead went into ramjet within 3 s of yours (when not already in one) | ...in a quiet 3 s window (base rate) |
+|---|---|---|
+| Round 1 (b0, b0', b1, b2) | 5 of 5 | 0 of 7 |
+| Round 2, baseline (f0, f0b) | 1 of 3 | 2 of 7 |
+| Round 2, speed matching off (f2, f2b) | 3 of 4 | 2 of 6 |
+| **All** | **9 of 12 (75%)** | **4 of 20 (20%)** |
+
+- **The reply looks real:** 75% right after your ramjet against 20% otherwise. Still small numbers, but the gap is large.
+- **Speed matching off doesn't stop it** (3 of 4) - lever B is out.
+- **Forcing your ramjet doesn't work:** `VehicleBoostComponent:Server_ChangeState(4)` did nothing while your ramjet
+  wasn't charged (state stayed 2/2/0, ramjet "not ready"); it only "took" when you were already in ramjet (15 of 25).
+  So test 2 couldn't make ramjets at odd places. A charged-ramjet path (`URamjet` state 1 first, or the
+  `FVehicleBoostRequests_SetRamjetReady` request) is untested.
+- **So the next step is lever A in the owner's hands** (docs/boost-fix-test-plan.md test 3): the bots' boost threshold
+  `MinRacePacingFactorForBoost` (0.99) up to 1.3, which an autopilot can't test.
+
+## Pods and the ramjet (same session)
+
+`VehicleBoostComponent.RamjetInstalled` is **false on all 8 pods** (true on every car). Setting it true 18 s into a pod
+race didn't make any pod ramjet (the boost state stayed 2) - it may need setting while the race loads, and whether
+your boost button then works needs the owner's hands.
+
 ## Candidates (owner's pick; nothing built - "only if one variant is clearly right")
 
 - **A. Bots ramjet less readily:** `MinRacePacingFactorForBoost` up on the three driving styles (b3's lever, a smaller
