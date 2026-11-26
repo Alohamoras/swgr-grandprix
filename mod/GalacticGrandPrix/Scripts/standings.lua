@@ -93,16 +93,39 @@ end
 -- your line: 'You: 2nd in this race   -   1:45.07  (best lap 0:48.12)   -   0.4 s behind Biddy Blas' (no best lap
 -- on a sprint)
 -- v0.22 (quiet pass): '2nd   -   1:45.07   -   0.4 s behind Biddy Blas' - no 'You:', no best lap (a new one is a note)
+-- v0.38.0 (owner 2026-11-25: "at the end of the track a 'best lap' time"; TASKS §1g-16): the best lap back beside the
+-- race time, config LapTimes (false = the v0.22 line); never on a sprint (one lap: the best lap is the race)
+local function lapsOn(ev) return cfg.LapTimes ~= false and not sprint(ev) end
+SD.lapsOn = lapsOn
 local function yourLine(r, ev, head)
   local you = (head or '%s'):format(r.pos and ordinal(r.pos) or 'Did not finish')
   if r.time and K.fmtTime then you = you .. ('   -   %s'):format(K.fmtTime(r.time)) end
+  if r.lap and K.fmtTime and lapsOn(ev) then you = you .. ('   -   best lap %s'):format(K.fmtTime(r.lap)) end
   local m = SD.margin(r.gaps)
   if m then you = you .. '   -   ' .. m end
   return you
 end
 -- the record / best lap / near-record notes of a race -> list, big
+-- v0.38.0 (config LapTimes): the lap record shares the row - NEW BEST LAP after NEW RECORD too, and its near miss
+-- ("0.4 S OFF YOUR LAP RECORD", K.nearLap) when the lap wasn't beaten
+local function lapNote(r, ev)
+  if not (K.fmtTime and lapsOn(ev)) then return nil end
+  if r.newLap and r.lap then return ('NEW BEST LAP  %s'):format(K.fmtTime(r.lap)) end
+  return K.nearLap and K.nearLap(r) or nil
+end
 local function raceNotes(r, ev)
   local note, big = {}, false
+  if cfg.LapTimes ~= false then
+    if r.newRecord and K.fmtTime then
+      note[#note + 1] = ('NEW RECORD  %s%s'):format(K.fmtTime(r.time), r.oldTime and (', was %s'):format(K.fmtTime(r.oldTime)) or ''); big = true
+    else
+      local near = K.nearRecord and K.nearRecord(r)
+      if near then note[#note + 1] = near; big = true end
+    end
+    local ln = lapNote(r, ev)
+    if ln then note[#note + 1] = ln end
+    return note, big
+  end
   if r.newRecord and K.fmtTime then
     note[#note + 1] = ('NEW RECORD  %s%s'):format(K.fmtTime(r.time), r.oldTime and (', was %s'):format(K.fmtTime(r.oldTime)) or ''); big = true
   else

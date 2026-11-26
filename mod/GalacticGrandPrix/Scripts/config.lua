@@ -240,7 +240,13 @@ return {
     -- special: RecordSeconds = a finished race within this many seconds of your record at the league ("0.4 S OFF YOUR
     -- RECORD"); TrophyPoints = a cup missing the next trophy colour up by this many points or fewer ("1 POINT FROM
     -- GOLD"). false = off.
-    Near = { RecordSeconds = 1.0, TrophyPoints = 3, TrophySeconds = 5.0 },
+    -- v0.38.0: LapSeconds = your best lap within this many seconds of your lap record ("0.4 S OFF YOUR LAP RECORD").
+    Near = { RecordSeconds = 1.0, TrophyPoints = 3, TrophySeconds = 5.0, LapSeconds = 0.5 },
+    -- v0.38.0 (owner 2026-11-25: "at the end of the track a 'best lap' time"; TASKS §1g-16): your best lap beside your
+    -- race time on the standings, NEW BEST LAP on a lap record (after NEW RECORD too) and the lap's near miss on the
+    -- same row (records[league][track].lap). Never on a sprint. false = the v0.37 panel (a new best lap only as a note,
+    -- and only without a new race record).
+    LapTimes = true,
 
     -- (v0.21: the rival per class is gone - owner, 2026-11-11.)
 

@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.38.0 (2026-11-25): best laps on the standings (TASKS §1g-16, the results part)
+- Owner: "at the end of the track a 'best lap' time". Your line on the standings now reads "2nd   -   1:45.07   -   best
+  lap 0:34.20   -   0.4 s behind Biddy Blas" (never on a sprint: one lap, the best lap is the race).
+- The notes row carries the lap record beside the race record: "NEW RECORD  1:45.07, was 1:46.10   -   NEW BEST LAP
+  0:34.20" (before, a new best lap was dropped when the race was also a record), and the lap's near miss "0.3 S OFF YOUR
+  LAP RECORD" (DESIGN v0.12) beside the race's. The record is the one the save already keeps
+  (`records[league][track].lap`); K.record now also says `lapOffBy` / `oldLap`.
+- Config `LapTimes` (false = the v0.37 panel), `Near.LapSeconds = 0.5` (how close counts as a near miss).
+- Wording follows today's notes ("NEW BEST LAP", "S OFF YOUR ..."); the §1j review proposes "NEW LAP RECORD" / "SLOWER
+  THAN" - changed with that pass if approved. The start-of-race TIME TO BEAT is the in-race spike (§1g-16, next).
+- Tests: test_laps (15 checks).
+
 ## v0.37.0 (2026-11-25): what the stars mean - the info lines say it, a crown for a perfect cup (TASKS §3)
 - Owner: "the star for each league...what does that mean? it's not obvious to the player". One icon had two meanings and
   neither was said anywhere: the last pip on a HOME league poster (the league title) and the corner star on a cup tile

@@ -478,6 +478,18 @@ function K.nearRecord(out)
   return s .. ' S OFF YOUR RECORD'
 end
 
+-- v0.38.0 (owner 2026-11-25, TASKS §1g-16): the lap record's near miss, "0.4 S OFF YOUR LAP RECORD" (config
+-- Near.LapSeconds; false = off) - nil unless this race's best lap missed the record by that little
+function K.nearLap(out)
+  local within = tonumber((cfg.Near or {}).LapSeconds)
+  local d = out and not out.newLap and tonumber(out.lapOffBy)
+  if not (within and d and d >= 0 and d <= within) then return nil end
+  local s = ('%.1f'):format(d)
+  if s == '0.0' then s = ('%.2f'):format(d) end
+  if s == '0.00' then return 'LEVEL WITH YOUR LAP RECORD' end
+  return s .. ' S OFF YOUR LAP RECORD'
+end
+
 -- the record entry for a race's track and class, updated from this race: extra = { time, lap } (seconds; the time
 -- only when you finished - race.lua). Fills out.time / lap / newRecord / newLap / oldTime, and (v0.12) offBy = how
 -- far a finished race that didn't beat the record was off it.
@@ -488,7 +500,10 @@ local function updateRecord(ev, out, extra, vehicle)
   local rec = byClass[ev.path] or {}
   local changed = false
   if extra.lap and extra.lap > 0 and (not rec.lap or extra.lap < rec.lap) then
+    out.oldLap = rec.lap
     rec.lap, out.newLap, changed = extra.lap, true, true
+  elseif extra.lap and extra.lap > 0 and rec.lap then
+    out.lapOffBy = extra.lap - rec.lap -- v0.38.0: a best lap that didn't beat the lap record (0 = equal to it)
   end
   if extra.time and extra.time > 0 and (not rec.time or extra.time < rec.time) then
     out.oldTime, out.newRecord, changed = rec.time, true, true
