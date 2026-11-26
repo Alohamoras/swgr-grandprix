@@ -4,6 +4,10 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
+- [ ] **PODRACING league (2026-11-26, plan in TASKS §1h-L, not started):** (1) three difficulty steps (Learner / Pro /
+      Champion) or two (as now / full combat)? (2) your v0.40 pod cup results at the car leagues: move them to the new
+      league, or drop them? (3) should a step need a trophy at the step below to open, or all open from the start
+      (Claude's pick: all open)?
 - [ ] **Your saves after the away session (2026-11-26 ~00:50):** the Grand Prix save is back exactly as you left it (md5
       a9a708df..., backup in ~/.local/share/swgr-save-backups/away-20261125/). The game itself had rewritten its meta save
       `GriffinSave.6.sav` during the test races (one recon race was the campaign flashback "Memories of Mos Espa"), so that
