@@ -289,6 +289,12 @@ local function preparePod(ev, classKey, e, picks)
   local arch = archetype(1)
   local build = P.Build and C.asset(P.Build)
   if not (alive(arch) and build) then log('pod archetype or build not found: ' .. tostring(P.Build)); return nil, 'The podracer was not found' end
+  -- v0.44 (owner: "raise PRO to 7 everywhere"): a step with parts (config Pods.Steps[].parts) - every slot of the pod
+  -- build at that level for the race (the field races copies of it), the originals in the save, put back at the menu
+  if PODS.step(classKey).parts then
+    local okB, errB = pcall(applyBuild, P.Build, build, K.levelsFor(classKey))
+    if not okB then log('[pods] parts not set: ' .. tostring(errB)) end
+  end
   -- TASKS §1h-L PL0 (test only, DevTools + experiment.lua podRecon): your picks / part levels written onto the pod
   -- build the way the car builds get them (put back at the menu like theirs), and the build logged (podrecon.lua)
   local exp = AI.experiment()

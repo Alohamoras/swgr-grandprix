@@ -122,7 +122,8 @@ changes; a save from before keeps its four. The title race and the boss race use
   The poster shows one medal per step and no title star.
 - LEARNER = the v0.40 cup: the game's own pod build, no abilities anywhere. PRO (v0.43): your four abilities at level 3
   on your pod (written onto your race copy at load - the pod build has no ability slots) and a kit for every pod racer,
-  fired as in the car leagues; the harder AI profile. No tune-ups on pods.
+  fired as in the car leagues; the harder AI profile; v0.44 every pod part at 7 (the field too). No tune-ups on
+  pods.
 - **Your pod** (v0.42): the start screen's PILOT tile cycles the five pilots with a pod in the game data (Shade MythP3,
   Goli and Fola Hexing, Sebulba Nesodon, Kestar Northropi - his locked until you beat him), saved apart from your car
   pilot (`podRacer`). Racing as Sebulba drops his pod-racer twin from the field (`Pods.Twins`).

@@ -245,7 +245,7 @@ function K.podStep(key)
       if not c then
         local L = (cfg.Pods or {}).League or {}
         c = { key = st.key, step = st.name, name = ('%s %s'):format(L.name or 'PODRACING', st.name), line = st.line,
-          pods = true, index = i, parts = 0, mods = 0, abilities = 0 }
+          pods = true, index = i, parts = st.parts or 0, mods = 0, abilities = st.abilities or 0 }
         stepCache[key] = c
       end
       return c

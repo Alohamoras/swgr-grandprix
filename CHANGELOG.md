@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.44.0 (2026-11-26): PODRACING PRO at parts 7
+- Owner: "raise PRO to 7 everywhere". At PRO every part of the pod build is at 7 for the race (config
+  `Pods.Steps[].parts`; written before the launch like a car league's, the originals in the save, put back at the
+  menu). The whole field races copies of it, so everyone is faster, not just you. LEARNER keeps the game's own pod
+  build (cornering 0, afterburner 2, resilience 1, ramjet 0, battery 0, drift 0, plus its "Lots of Battery" tune-up).
+  The recon measured parts 10 as ~18 s faster per race on Mos Espa; 7 is somewhere between.
+- PRO's rules line says so. Your PRO lap records were set at the old parts and will fall quickly.
+- Fix (tests only): test_pods had a quote typo since v0.43.1 that stopped it running.
+- Tests: test_pods 53 checks.
+
 ## v0.43.1 (2026-11-26): the pod cup's planet on the cup result (TASKS §1h P5)
 - The owner's PODRACER cup result drew Mos Espa's planet blank ("no PlanetDef for Outer Rim"): nothing in a pod race
   loads that planet's definition, and the result only searched the loaded ones. cupend.lua now loads a missing one by

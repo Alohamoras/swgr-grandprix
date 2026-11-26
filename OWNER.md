@@ -11,9 +11,6 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
       racer ahead goes into ramjet within 3 s of yours 75% of the time, against 20% when you aren't ramjetting.
       Speed matching off doesn't stop it. The remaining lever (bots ramjet less readily) only shows when YOU drive:
       ~15 min, 3 races on The War Fields (docs/boost-fix-test-plan.md test 3). Say when and I'll set it up.
-- [ ] **Pod parts (2026-11-26 recon):** pod parts work - all six at 10 made the same pilot 17.8 s faster on Mos Espa
-      (top speed 995 -> 1400 kph), and the whole field got faster with them. Want a faster PRO (parts up), or keep the
-      game's own pod build at both steps?
 - [ ] **Your saves after the away session (2026-11-26 ~00:50):** the Grand Prix save is back exactly as you left it (md5
       a9a708df..., backup in ~/.local/share/swgr-save-backups/away-20261125/). The game itself had rewritten its meta save
       `GriffinSave.6.sav` during the test races (one recon race was the campaign flashback "Memories of Mos Espa"), so that
@@ -112,6 +109,8 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.44.0, PRO at parts 7 (2026-11-26):** every pod (yours and the field's) at 7 in every part at PRO. Faster
+      pods all round: too fast for the tight bits, or right? (10 is the next step up; LEARNER unchanged.)
 - [ ] **v0.43.1 (2026-11-26, installed 14:37):** at the end of a PODRACER cup the result screen should now draw Mos
       Espa's planet (the game calls it Tatooine) instead of a blank one.
 - [ ] **v0.43.0, PODRACING PRO with abilities (2026-11-26, installed 13:07; checked in a test race - abilities on your pod, 22 kit uses by the pods):** at PRO your four abilities show on the start screen and

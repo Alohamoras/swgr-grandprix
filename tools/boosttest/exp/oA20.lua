@@ -1,0 +1,1 @@
+return { label = 'owner A: MinRacePacingFactorForBoost 2.0', boostRecon = true, event = 'THE WAR FIELDS', styles = { Car = { MinRacePacingFactorForBoost = 2.0 }, Bike = { MinRacePacingFactorForBoost = 2.0 }, Skimmer = { MinRacePacingFactorForBoost = 2.0 } } }

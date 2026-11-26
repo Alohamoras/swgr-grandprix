@@ -306,8 +306,12 @@ return {
           -- §1h-L PL0, docs/podracing-recon-2026-11-25.md "PL0"): abilities = the level of your four picks and the
           -- field's kits (as a league's; the pod build has no ability slots, so yours go onto your pod's race copy at
           -- load, pods.lua); kits = the pod racers get their four (Abilities.Racers by name) and fire them (aiuse.lua).
-          { key = 'podspro', name = 'PRO', tagline = 'Abilities on every pod', abilities = 3, kits = true,
-            line = 'PRO. Your four abilities on your pod, and every pod racer carries a kit of their own. The field races harder and gives nothing away.' },
+          -- v0.44.0 (owner 2026-11-26: "raise PRO to 7 everywhere"): parts = every part of the pod build at this level for
+          -- the race (as a car league's; the whole field races copies of it), put back at the menu. The game's own pod
+          -- build: cornering 0, afterburner 2, resilience 1, ramjet 0, battery 0, drift 0 (LEARNER keeps it). Never
+          -- below the game's own: parts 0 broke TestAutopilot's ability in the recon.
+          { key = 'podspro', name = 'PRO', tagline = 'Abilities on every pod', abilities = 3, kits = true, parts = 7,
+            line = 'PRO. Every pod tuned to seven. Your four abilities on your pod, and every pod racer carries a kit of their own.' },
         } },
     TimeToBeat = { On = true, Route = 'viewport', Size = 44, Y = 0.38, Color = { 1, 1, 1 }, LapLine = false },
 

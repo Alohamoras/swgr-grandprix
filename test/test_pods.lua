@@ -130,7 +130,7 @@ local n, of = 0, 0
 for _, c in ipairs(cfg.Cups) do if not c.final and not c.rally and not c.pods then of = of + 1 end end
 T.check(of == 5 and select(2, K.golds('riffraff')) >= 5, 'five planet cups, the pods not among them')
 T.check(K.planetOf(cfg.Pools.pods[1].path).name == 'Tatooine' and K.planetOf(cfg.Pools.pods[3].path).name == 'Ando Prime',
-  'the pod tracks\' planets: Mos Espa = Tatooine (the game's name, PLA_Beagle), Mawhonic = Ando Prime')
+  'the pod tracks\' planets: Mos Espa = Tatooine (the game\'s name, PLA_Beagle), Mawhonic = Ando Prime')
 
 -- 4. the launch: start the cup, race 1 through LaunchCustomRace
 K.startCup('podspro', 'pods', 'car', nil, nil, d)
@@ -139,6 +139,7 @@ local ev = K.nextRace()
 T.check(ev.pod and ev.condTag == d[1].condTag, 'the next race is a pod race with its condition')
 local R = require('race')
 local okL, msg = R.launch(ev, 'podspro', 'car', { 'bolt.concuss', 'shield.impact', 'surge.impact', 'mine.double' }, nil)
+T.check(T.logHas('build for this race: VBD_MP_PlaneTour 0=7 1=7 2=7 3=7 4=7 5=7'), 'v0.44 PRO: every pod part at 7 for the race')
 T.check(R.run and R.run.pe and #R.run.pe.paths == 4 and R.run.pe.paths[1]:find('Disruptor_ConcussV2', 1, true),
   'v0.43 PRO: your four picks queued for your pod at level 3 (' .. tostring(R.run and R.run.pe and R.run.pe.paths[1]) .. ')')
 T.check(R.run.lo ~= nil and R.run.au ~= nil and T.logHas('[loadout] league podspro: AI racers get their four abilities at load'),
