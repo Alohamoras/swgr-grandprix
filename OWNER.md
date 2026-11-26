@@ -4,6 +4,10 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
+- [ ] **Merge to main (2026-11-25):** this session could not move `main` (it works in the `heat-plan` worktree). Everything
+      is on branch `worktree-heat-plan` (pushed), a fast-forward of main: in ~/Projects/swgr-grandprix run
+      `git merge --ff-only worktree-heat-plan` (and `git push`). KNOWLEDGE.md edits in ~/Projects/swgr-underground are
+      uncommitted for the same reason.
 - [ ] **Plain-English review, 86 lines (2026-11-25, TASKS §1j) - please do this one first:**
       https://claude.ai/artifact/EaNJsutAe6cWz2RPApBvNL - every line the mod writes on screen, now vs proposed, an
       Approve box and a note per line (saved as you go; Claude reads them back). Also as a doc:
@@ -85,6 +89,22 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.39.0, TIME TO BEAT (2026-11-25, installed):** while the countdown runs, "TIME TO BEAT 0:49.81" (your lap record
+      on this track at this league) or "NO LAP SET", middle of the screen, gone at the green light. Seen working in 3
+      races. Too big, too low, wrong colour? (`TimeToBeat.Size` / `Y` / `Color` in config.lua). The per-lap line is built
+      but off until you answer the best-laps question above (`TimeToBeat.LapLine = true` to try it: "LAP 1  0:47.73
+      +0.35" for 4 s, up to 2 s after the line).
+- [ ] **v0.38.1, the orange = the tab pill exactly (2026-11-25, installed):** read off the screen (sRGB 177, 81, 60; the
+      v0.36.4 orange was much lighter because UMG colours are linear). Seen: right on the sand; it fades where a line
+      crosses the dark grey starship (HOME's star line's right end, the cups page info line over the Jakku wreck, the
+      start screen's cup name). OK, or a dark backing there?
+- [ ] **v0.38.0, best lap on the standings (2026-11-25, installed, seen in game):** "1st - 1:12.88 - best lap 0:15.95 -
+      0.9 s ahead"; "NEW RECORD 1:12.88, was 1:13.26 - NEW BEST LAP 0:15.95" on one row; "0.3 S OFF YOUR LAP RECORD" when
+      close. `LapTimes = false` = as before.
+- [ ] **v0.37.0, the stars (2026-11-25, installed, seen in game):** HOME's info line now has a second line under the
+      rules ("Gold star: the league title. Finish the Galactic Cup in the top 3, then beat Kestar Bool..."); a perfect cup
+      wears a small crown (the game's champion-event icon) instead of the star, and its info line says "Crown: a perfect
+      cup. You won every race." (your Challenger Jakku Cup shows it). The crown is faint on Jakku's orange art - OK?
 - [ ] **StreamlineCampaign 1.0.4 (2026-11-26, installed, not released - branch `prologue-every-race`):** from the
       1.0.3 scene log of your full Restart Campaign: there's no vehicle choice at the start of Act I (the prologue
       ends in the Mastiff paddock, then the CampaignIntro race in your landspeeder). 1.0.4: prologue skip on (every
