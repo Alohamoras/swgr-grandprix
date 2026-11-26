@@ -1,0 +1,1 @@
+return { label = 'PL0 pod 1: Fola, your abilities written + fired, field kits read', podRecon = true, podPicks = true, podFire = true, podAiuse = true, boostRecon = true, event = 'MOS ESPA SPEEDWAY' }

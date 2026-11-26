@@ -1,0 +1,1 @@
+return { label = 'PL0 pod 2: Sebulba, your picks equipped on the race copy + fired, the field given kits', podRecon = true, podEquip = true, podFire = true, podLoadout = true, podAiuse = true, boostRecon = true, event = 'MOS ESPA SPEEDWAY' }

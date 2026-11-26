@@ -1,0 +1,1 @@
+return { label = 'boost 3: bots boost only at a pacing factor of 100 (no reactive boost)', boostRecon = true, event = 'THE WAR FIELDS', botStacks = 3, styles = { Car = { MinRacePacingFactorForBoost = 100 }, Bike = { MinRacePacingFactorForBoost = 100 }, Skimmer = { MinRacePacingFactorForBoost = 100 } } }
