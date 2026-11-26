@@ -178,8 +178,9 @@ switch. Open, if ever wanted again: what look was wanted (smaller? a corner badg
 Takedown / Ramjet later.
 - [x] Desk research: modes, events, settings; the `EventMode` swap lead; tools in v0.29.2 (`[elim]` order log,
       `experiment.lua eventPath` / `modeFrom`).
-- [ ] In-game recon (owner away): launch from the GP flow, the elimination order, the results screen, the knockout's
-      cinematic, `modeFrom` on another track.
+- [x] In-game recon (2026-11-26, docs/race-types-2026-11-13.md §2 "Recon results"): the eliminator and the knockout launch
+      from the GP flow; the `[elim]` order is clean; `modeFrom` makes any track an eliminator and the points already follow it;
+      the knockout's recap doesn't hang. Score by position (the knockout flags 2nd / 3rd eliminated too); skip records for mode-swapped races.
 - [ ] Owner picks a shape (A-D in the doc), then build.
 
 ## 1e. Rally cup (owner 2026-11-24: "all the tracks that are point to point")

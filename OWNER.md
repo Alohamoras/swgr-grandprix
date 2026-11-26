@@ -4,6 +4,11 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
+- [ ] **Your saves after the away session (2026-11-26 ~00:50):** the Grand Prix save is back exactly as you left it (md5
+      a9a708df..., backup in ~/.local/share/swgr-save-backups/away-20261125/). The game itself had rewritten its meta save
+      `GriffinSave.6.sav` during the test races (one recon race was the campaign flashback "Memories of Mos Espa"), so that
+      file was put back from the backup too (the changed one is kept in `game-after-session/`). **If Steam reports a cloud
+      conflict at the next start, pick the local files.**
 - [ ] **The PODRACER CUP's open calls (2026-11-26):** (1) the name - PODRACER CUP (PODRACING CUP is one letter too
       long for a tile), OK? (2) the pods race with the game's own pod build and kits: should the league's parts levels
       and your abilities / tune-ups apply to your pod (and the start screen's ability tiles then mean something), or
@@ -48,7 +53,8 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - [x] **Nexus release:** UE4SS link (Nexus mod 2), no licence (Nexus permissions instead), screenshots in docs/release/screenshots/ (2026-11-13).
 - [ ] **Special rounds (race types):** docs/race-types-2026-11-13.md section 4 - A eliminator mid-cup, B knockout as
   the Galactic Cup finale, C by league style (Junker eliminator, Ace knockout finale), D bonus events. Pick after the
-  in-game recon (needs the PC to Claude for ~30 min).
+  in-game recon - **done 2026-11-26**: both modes launch from our flow, and `modeFrom` makes ANY track an eliminator
+  with the points already right (results in the doc §2). Your pick of A-D.
 - [ ] **Making the loadout choice matter:** options in docs/loadout-options-2026-11-12.md. Claude's pick: split HEAT
   SHIELD into fire / frost packs + every planet cup draws at least one weather race, then golds unlock packs.
 - [x] **AI pilots: fixed strength + small form, or fully random?** Answered 2026-11-12: fixed, no per-race randomness (built in v0.28).

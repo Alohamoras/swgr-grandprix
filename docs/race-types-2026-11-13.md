@@ -2,7 +2,7 @@
 
 The owner (via the Podracing session, 2026-11-13): research Eliminator and Knockout first as special rounds in cups;
 note Takedown and Ramjet for later. Read-only research; nothing built until the owner picks a shape.
-**Status: desk research done (this file); the in-game recon (part 2) is waiting for a free desktop.** Tools for it
+**Status: desk research done; the in-game recon (part 2) done 2026-11-26 (results under §2 "Recon results"); the shape is the owner's (§4).** Tools for it
 are in v0.29.2.
 
 ## How to pick this up
@@ -59,6 +59,24 @@ could make **any track an eliminator**. v0.29.2 `experiment.lua modeFrom` does e
 4. The knockout too (`eventPath` = the Tour 2 one), and whether its recap cinematic plays or hangs outside the
    campaign (the Showdown's cinematic had to be taken off in v0.8.1).
 Plan: back up save.lua; 2-3 eliminator launches, 1-2 knockout, 1-2 `modeFrom` tries; screenshots; restore.
+
+### Recon results (2026-11-26, owner away; GP v0.40.0 `--dev`, TestAutopilot driving, Challenger, a test copy of the save)
+Three races, one each, all offline, no crash, no hang; screenshots in the session (not kept).
+
+| Race | How | What happened |
+|---|---|---|
+| **Eliminator** (The War Fields) | `experiment.lua eventPath` = `EVT_MAS_LOOP_A_FWD_ELIMINATOR` (mode `TimeEliminatorConfig_0`) | Launched from the GP flow with our field and loadouts. One racer out about every 15 s from 58 s on: 9 out (Sen Fira first ... Nik Skandaro 9th), the last 3 race to the flag; you 1st. **The `[elim]` order is clean** and each racer keeps the position they went out at (12, 11, 10 ...). The game ends on its own screen: a hologram podium of the top 3 and "Eliminator FINISHED" + CONTINUE - no finish-times table. |
+| **Knockout** (The Galactic Gauntlet, Tour 2) | `eventPath` = `EVT_WHP_LOOP_A_FWD_KNOCKOUT_TOUR2` (`KnockoutRaceConfig_0`) | Launched and ran 5.5 min to the end, **no hang** (its recap between rounds played or was skipped - nothing stuck). Rounds visible in the timing: 4 out by 70 s, a 48 s break, 5 more by 166 s, then the final; the HUD shows an "AT RISK OF KNOCK OUT" list. At the finish the 2nd and 3rd are ALSO flagged eliminated (positions 2, 3) - **score by position, never by the eliminated flag**. Screens: "FINISHED - You came 1st", then "Galactic Gauntlet FINISHED" with the full order (matches `[elim]` reversed exactly). |
+| **Eliminator mode on another track** | `modeFrom` = the eliminator's event; the cup's race (The Giants' Graveyard, a sprint) launched with `TimeEliminatorConfig_0` | **The mode carries over**: eliminations every ~15 s from 54 s, 6 out by your finish (3rd). GP's chain and standings panel attached as for any cup race (the game's table not there - nothing to hide); **the points already follow the elimination order** (eliminated racers keep their position). Side effects to handle in a build: the 3 never-eliminated bots behind you "finished" 90 s later (3:06-3:11, the mode's timeout) and the race set a NEW RECORD on the normal track's record. |
+
+Not tried: the experiment swap (`eventPath`) bypasses the cup run, so the chain stays quiet for the first two ("not a cup
+race") - whether our panel copes with the knockout's results screen is untested (the modeFrom race shows the eliminator's
+screen takes it). The knockout mode borrowed onto another track (`modeFrom` = the knockout) - its phases and recap are
+tied to its event; try before building shape B/C on other tracks.
+
+**What this means for §4:** shape A (an eliminator round mid-cup) works on ANY track through `modeFrom` - the special
+round need not be The War Fields; scoring by position is already right; records should be skipped for mode-swapped
+races. Shape B (the knockout as the Galactic Cup finale) works on the Gauntlet as it is. The owner picks.
 
 ## 3. Scoring (proposal)
 Points by final placing, with the eliminated ranked by when they went out: the first car out is 12th, the last one
