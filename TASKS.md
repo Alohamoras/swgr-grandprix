@@ -229,7 +229,23 @@ The rest, in the order recommended (details and engine names in the review doc's
       a classic rally restart.
 - [ ] 14. **Inter-mod flag** (§6.5): `ModRef:SetSharedVariable` so Streamline / Underground stand aside in a cup race.
 - [ ] 15. Takedowns from the bots' `CrashComponent` blame lists (§6.3): a results line / a standings bonus.
-- [ ] 16. Best-lap records beside the race records, a NEW BEST LAP line on the results (§6.5).
+- [ ] 16. **Best laps: TIME TO BEAT at the start, BEST LAP at the end** (owner 2026-11-25: "track best lap times so
+      that at the start of the race you are shown a 'time to beat' and at the end of the track a 'best lap' time
+      etc."; was "best-lap records ... NEW BEST LAP line on the results", §6.5). The record already exists: gp.lua
+      `records[league][eventPath].lap` (filled from `PlayerRaceEventComponent.BestLapTime` in race.lua). Missing is
+      the showing:
+      - [ ] Start: "TIME TO BEAT 1:12.40" (your best lap here at this league; none yet = "NO LAP SET") on screen
+            through the countdown, gone at the green light.
+      - [ ] Each lap crossed (watch `CurrentLapNumber`): that lap's time and +/- against the record, "NEW BEST LAP"
+            when it beats it (the "etc." - owner to confirm they want the per-lap line, not just start and end).
+      - [ ] End: the results / standings panel says BEST LAP 1:11.85 beside the race time, NEW BEST LAP when it's a
+            record (the near-miss line "0.4 S OFF YOUR LAP RECORD" shares the NEW RECORD row, DESIGN v0.12).
+      - [ ] Spike first: we have never drawn our own text in a race. Try a plain UserWidget added to the viewport
+            during the countdown (a TextBlock, game font, white with a shadow) vs writing into a HUD text the game
+            already shows; no hooks, nothing kept between ticks; it must stand aside for FreeRace / Theater's HUD
+            flag (`TheaterShowHidesHud`, KNOWLEDGE.md). Record the outcome in KNOWLEDGE.md.
+      - [ ] Open: a record per league (as now) or per track across leagues? Also show the best race time? Off
+            switch in config (`LapTimes = true`).
 - [ ] 17. Auto-continue on the results after 9 s idle, a countdown in the button, off by default (§6.1).
 - [ ] 18. LT / RT paging through a hidden `WBP_Tab_List_C` (§4.2).
 - [ ] 19. HUD parts hidden by class, a rally HUD without position and map (§4.2).
