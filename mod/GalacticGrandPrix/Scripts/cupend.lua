@@ -158,6 +158,27 @@ local function planetDefs()
   return by
 end
 
+-- v0.43.1 (TASKS §1h P5; the owner's PODRACER cup 2026-11-26 10:43: "no PlanetDef for Outer Rim", the Mos Espa planet
+-- drawn blank): a planet whose def is not in memory (nothing in a pod race loads Beagle's) is loaded by its codename,
+-- /Game/Griffin/Gameplay/Config/Planets/PLA_<code> (the pak index: one per planet), and its own name logged
+local PLA = '/Game/Griffin/Gameplay/Config/Planets/PLA_'
+local function defByCode(planet)
+  if type(planet) ~= 'table' then return nil end
+  for code, p in pairs(cfg.Planets or {}) do
+    if p == planet or (p.key and p.key == planet.key) then
+      local d = C.asset(PLA .. code)
+      if alive(d) then
+        log(('[cupend] %s: PlanetDef PLA_%s loaded (the game calls it "%s")'):format(tostring(planet.name), code,
+          tostring(C.text(d, 'PlayerFacingName'))))
+        return d
+      end
+    end
+  end
+  return nil
+end
+
+CE.defByCode = defByCode -- (for the tests)
+
 local function fill(w, sm)
   local defs = planetDefs()
   local d = { byVm = {}, order = {} }
@@ -167,7 +188,7 @@ local function fill(w, sm)
     local pname = r.planet and r.planet.name or ('?' .. i)
     local p = by[pname]
     if not p then
-      p = { name = pname, def = defs[pname], entries = {} }
+      p = { name = pname, def = defs[pname] or defByCode(r.planet), entries = {} }
       by[pname] = p
       planets[#planets + 1] = p
     end

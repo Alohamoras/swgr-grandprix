@@ -199,6 +199,15 @@ T.check(P.racerKey('Antagonist') == 'Antagonist' and P.cycle(1) ~= nil, 'Kestar 
 K.data.boss = nil
 T.check(P.racerKey('Antagonist') == 'DarkEnigma', 'Kestar not beaten: Shade')
 
+-- v0.43.1 (P5): the cup result loads a planet's def by its codename when none is in memory (the owner's PODRACER cup:
+-- "no PlanetDef for Outer Rim", Mos Espa drawn blank)
+local PLA = '/Game/Griffin/Gameplay/Config/Planets/PLA_Beagle'
+M.assets[PLA .. '.PLA_Beagle'] = M.new(PLA .. '.PLA_Beagle', { PlayerFacingName = FText('Outer Rim') }, 'PlanetDef')
+local CE = require('cupend')
+local bd = CE.defByCode(K.planetOf(cfg.Pools.pods[1].path))
+T.check(bd and rawget(bd, '__name'):find('PLA_Beagle', 1, true) and T.logHas('PlanetDef PLA_Beagle loaded (the game calls it "Outer Rim")'),
+  'the cup result: Mos Espa\'s planet def loaded by its codename (PLA_Beagle)')
+
 -- 7. v0.41: the v0.40 results at the car leagues move to LEARNER (best finish, fastest time / lap per track), once
 local P1, P2 = cfg.Pools.pods[1].path, cfg.Pools.pods[3].path
 local old = { best = { riffraff = { pods = 3, jakku = 1 }, ace = { pods = 1 } }, perfect = { ace = { pods = true } },

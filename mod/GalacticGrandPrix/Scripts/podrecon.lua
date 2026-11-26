@@ -34,9 +34,15 @@ end
 
 -- paths = ability class paths to equip on YOUR race copy at load (experiment podEquip; race 1 showed the pod build has
 -- no ability slots but your race copy has 4), from slot `from` (2: slot 1 is TestAutopilot's)
-function PRC.begin(exp, paths)
+function PRC.begin(exp, paths, ev)
   log('[podrecon] on: ' .. (exp.podFire and 'your abilities fired in turn from 20 s' or 'reading only')
     .. (paths and (', equip ' .. #paths .. ' on your race copy') or ''))
+  -- the cup result's planet for this track (cupend.lua's load by codename, v0.43.1): logs the game's own name
+  if exp.planetCheck and ev then
+    local okC, CE = pcall(require, 'cupend')
+    local d = okC and CE.defByCode and CE.defByCode(require('gp').planetOf(ev.path))
+    log('[podrecon] planet check: ' .. (d and 'PlanetDef loaded' or 'NO PlanetDef'))
+  end
   return { fire = exp.podFire == true, last = '', fired = 0, nextFire = nil, check = nil, ramjetChecks = 0,
     equip = paths, from = tonumber(exp.podEquipFrom) or 2, at = C.clock }
 end

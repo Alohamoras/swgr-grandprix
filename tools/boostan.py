@@ -16,6 +16,10 @@ for line in open(sys.argv[1]):
         cur = {'label': line.split('|')[1].strip() if '|' in line else line, 'rows': []}
         sections.append(cur)
         continue
+    if line.startswith('!'):  # a forced-ramjet marker (boostrecon.lua test 2)
+        if cur is not None:
+            cur.setdefault('forced', []).append(line)
+        continue
     if line.startswith('t_s') or cur is None:
         continue
     f = line.split(',')
@@ -46,12 +50,41 @@ for s in sections:
                     replied = True
                 spd5, gap5, you5 = r['ahead_kph'], r['ahead_m'], r['you_kph']
             events.append((t0, name, r0['ahead_m'], gap5, r0['ahead_kph'], spd5, r0['you_kph'], you5, already, replied))
+    # the base rate (docs/boost-fix-test-plan.md test 1): non-overlapping 3 s windows where you are NOT in ramjet the
+    # whole time and the racer ahead (within 250 m, not in ramjet at the start) stays the same racer - how often does it
+    # go into ramjet anyway? Near the reply rate = the reply is the track; well below = it's a reply to you.
+    base_n = base_hit = 0
+    i = 0
+    while i < len(rows):
+        r0 = rows[i]
+        ok = r0['ahead'] and r0['ahead_m'] is not None and r0['ahead_m'] <= 250 and not r0['ahead_b'].startswith('4') \
+            and not r0['you_b'].startswith('4')
+        if not ok:
+            i += 1
+            continue
+        j, hit, clean = i, False, True
+        while j < len(rows) and rows[j]['t'] - r0['t'] <= 3.01:
+            r = rows[j]
+            if r['you_b'].startswith('4') or r['ahead'] != r0['ahead']:
+                clean = False
+                break
+            if r['ahead_b'].startswith('4'):
+                hit = True
+            j += 1
+        if clean:
+            base_n += 1
+            base_hit += 1 if hit else 0
+        i = max(j, i + 1)
     n = len(events)
     rep = sum(1 for e in events if e[9])
     alr = sum(1 for e in events if e[8])
     closed = [e[2] - e[3] for e in events if e[3] is not None]
     dspd = [e[5] - e[4] for e in events if e[5] is not None and e[4] is not None]
-    print(f"== {s['label']}: {len(rows)} rows, {n} ramjets of yours with a racer ahead within 250 m")
+    print(f"== {s['label']}: {len(rows)} rows, {n} ramjets of yours with a racer ahead within 250 m"
+          + (f", {len(s.get('forced', []))} forced" if s.get('forced') else ''))
+    if base_n:
+        print(f"   base rate: the racer ahead went into ramjet in {base_hit} of {base_n} 3 s windows WITHOUT you ramjetting"
+              f" ({100 * base_hit / base_n:.0f}%)")
     if n:
         print(f"   the racer ahead: already in ramjet {alr}, ramjetted within 3 s {rep} of {n - alr}")
         print(f"   over 5 s: gap closed by {sum(closed)/len(closed):+.1f} m on average; its speed {sum(dspd)/len(dspd):+.0f} kph on average")

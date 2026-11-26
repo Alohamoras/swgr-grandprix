@@ -15,11 +15,16 @@ local function write(line)
   if f then f:write(line .. '\n'); f:close() end
 end
 
+-- exp.forceRamjetEvery = N (seconds; docs/boost-fix-test-plan.md test 2): from 15 s after the start, every N to 1.5 N s
+-- (a random gap, so it isn't always the same straight) YOUR boost component is put into ramjet
+-- (VehicleBoostComponent:Server_ChangeState(4)); the rows show whether it took and what the racer ahead does.
+-- exp.ramjetInstalled = true: every vehicle's VehicleBoostComponent.RamjetInstalled set true at the first row (pods).
 function BR.begin(exp, ev)
   write(('# %s | %s | %s'):format(os.date('%Y-%m-%d %H:%M:%S'), tostring(exp.label or '?'), tostring(ev and ev.title or '?')))
   write('t_s,you_kph,you_boost,you_pos,ahead,ahead_kph,ahead_boost,ahead_m,behind,behind_kph,behind_boost,behind_m')
   log('[boostrecon] on: rows every 0.5 s into boostrecon.csv')
-  return { last = 0, rows = 0 }
+  return { last = 0, rows = 0, every = tonumber(exp.forceRamjetEvery), nextForce = nil, forced = 0,
+    install = exp.ramjetInstalled == true }
 end
 
 local function kph(pawn)
@@ -47,6 +52,17 @@ function BR.tick(st, startedAt)
     end
   end
   byOwner('VehicleBoostComponent', 'BoostState', bs)
+  -- once: every vehicle's RamjetInstalled (pods: the ramjet never engaged), and (exp.ramjetInstalled) set it true
+  if not st.installLogged then
+    st.installLogged = true
+    local vals, set = {}, 0
+    for _, b in ipairs(C.find('VehicleBoostComponent')) do
+      vals[#vals + 1] = tostring(try(function() return b.RamjetInstalled end))
+      if st.install and pcall(function() b.RamjetInstalled = true end) then set = set + 1 end
+    end
+    log(('[boostrecon] RamjetInstalled on %d vehicles: %s%s'):format(#vals, table.concat(vals, ','),
+      st.install and (' - set true on ' .. set) or ''))
+  end
   byOwner('Afterburner', 'State', ab)
   byOwner('Ramjet', 'RamjetState', rj)
   local boost = setmetatable({}, { __index = function(_, a)
@@ -59,12 +75,27 @@ function BR.tick(st, startedAt)
     local pos = alive(rec) and try(function() return tonumber(rec.EventPosition) end)
     if pos and pos > 0 and alive(pawn) then
       local name = C.text(ps, 'PlayerNamePrivate') or '?'
-      local x = { name = name, kph = kph(pawn), at = where(pawn), boost = boost[C.addr(pawn)], pos = pos }
+      local x = { name = name, kph = kph(pawn), at = where(pawn), boost = boost[C.addr(pawn)], pos = pos, addr = C.addr(pawn) }
       byPos[pos] = x
       if try(function() return ps.bIsABot end) == false then you = x end
     end
   end
   if not you then return end
+  -- test 2: your ramjet forced at random moments
+  if st.every and C.clock - startedAt > 15000 then
+    if not st.nextForce then st.nextForce = C.clock + st.every * 1000 end
+    if C.clock >= st.nextForce then
+      st.nextForce = C.clock + math.floor(st.every * 1000 * (1 + math.random() * 0.5))
+      for _, b in ipairs(C.find('VehicleBoostComponent')) do
+        local owner = try(function() return b:GetOwner() end)
+        if alive(owner) and C.addr(owner) == you.addr then
+          local ok = pcall(function() b:Server_ChangeState(4) end)
+          st.forced = st.forced + 1
+          write(('! forced ramjet %d at %.1f s%s'):format(st.forced, (C.clock - startedAt) / 1000, ok and '' or ' (call failed)'))
+        end
+      end
+    end
+  end
   local function cell(o)
     if not o then return ',,,' end
     local d = dist(you.at, o.at)

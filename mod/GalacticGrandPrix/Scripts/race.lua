@@ -424,7 +424,7 @@ local function startRun(ev, classKey, p, skip, extra)
   if recon then
     local paths = exp.podEquip and AB.classPaths(AB.normalize(K.data.picks, 3), 3) or nil
     if paths and #paths > 3 then paths = { paths[1], paths[2], paths[3] } end -- (slot 1 is TestAutopilot's)
-    local okP, pr = pcall(require('podrecon').begin, exp, paths)
+    local okP, pr = pcall(require('podrecon').begin, exp, paths, ev)
     if okP then R.run.pr = pr else log('[podrecon] ' .. tostring(pr)) end
   end
   -- TASKS §1k (test only, DevTools + experiment.lua boostRecon): you, the racer ahead and behind every 0.5 s
