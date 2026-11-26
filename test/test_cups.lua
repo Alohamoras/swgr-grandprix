@@ -44,8 +44,8 @@ for _, cls in ipairs({ 'JUNKER', 'CHALLENGER', 'ACE' }) do
   M.press('BACKSPACE'); M.tick(3)
 end
 T.clickTitle('CHALLENGER'); M.tick(3)
-T.check(T.medals():find('^GOLD|SILVER|', 1) ~= nil and T.marks():find('^STAR GOLD|') ~= nil,
-  'Challenger: the Jakku gold with its perfect star, the Lantaana silver (' .. T.marks() .. ')')
+T.check(T.medals():find('^GOLD|SILVER|', 1) ~= nil and T.marks():find('^CROWN GOLD|') ~= nil,
+  'Challenger: the Jakku gold with its perfect-cup crown (v0.37), the Lantaana silver (' .. T.marks() .. ')')
 M.press('BACKSPACE'); M.tick(3)
 
 -- a cup races its draw (the tests' fixed rnd: pool order, each track's last variant)

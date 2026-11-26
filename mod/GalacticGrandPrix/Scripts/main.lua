@@ -247,6 +247,34 @@ local function bossTile(cls)
     act = function() return toStart('boss', cls.key) end }
 end
 
+-- v0.37.0 (owner: "the star for each league...what does that mean?"; TASKS §3): what the marks mean, in the info line
+-- under the focused tile (config StarLines). HOME: the league title (the gold star on the poster); the cups page: a
+-- perfect cup (the crown, config PerfectIcon). Worded to the §1j rules: say the rule, in the game's words.
+local function titleLine(c)
+  if cfg.StarLines == false then return nil end
+  local st = TI.status(c.key)
+  local boss = TI.bossName and TI.bossName() or 'Kestar Bool'
+  if type(st) == 'table' and st.won then
+    return ('Gold star: you are the %s champion. You beat %s in the Galactic Cup final.'):format(c.name:upper(), boss)
+  end
+  if not (TI.finaleOn and TI.finaleOn()) then return 'Gold star: win this league\'s title to light it.' end
+  local gate = ((cfg.Boss or {}).Gate) or 'trophy'
+  local how = gate == 'always' and 'Finish the Galactic Cup'
+    or (gate == 'gold' and 'Win the Galactic Cup' or 'Finish the Galactic Cup in the top 3')
+  return ('Gold star: the league title. %s, then beat %s in a one-on-one race to win it.'):format(how, boss)
+end
+local function perfectLine(cup, perfect, won)
+  if cfg.StarLines == false then return nil end
+  if perfect then return 'Crown: a perfect cup. You won every race.' end
+  if won then return 'Win every race of this cup in one go to earn the crown.' end
+  return nil
+end
+-- the perfect-cup mark (config PerfectIcon; 'star' = the old gold star)
+local function perfectIcon()
+  local p = cfg.PerfectIcon
+  if p == nil or p == 'star' or p == false then return ART.STAR end
+  return p
+end
 SCREENS.home = function()
   local items = {}
   -- v0.9: no cup is alive at HOME (one still here was left by a race that never loaded, or the page closed on the
@@ -277,7 +305,11 @@ SCREENS.home = function()
         -- (v0.21, owner: less clutter - no blurb, no counts the tile already shows; v0.22: no parts / abilities line)
         -- v0.36.1 (owner: "below each of the difficulties there should be an explanation of what that league mechanics
         -- are"): the league's rules line (config Leagues[].rules) as the focused poster's info line
-        info = padInfo(c.rules or '', 2),   -- (v0.36.3: two lines, so the posters never move between leagues)
+        -- (v0.37.0: + the gold star's meaning, config StarLines; three lines, the same for every league)
+        info = (function()
+          local tl = titleLine(c)
+          return tl and padInfo((c.rules or '') .. '\n' .. tl, 3) or padInfo(c.rules or '', 2)
+        end)(),
         act = function() S.class = c.key; K.data.class = c.key; K.save(); return go('cups') end }
     end
   end
@@ -379,8 +411,13 @@ SCREENS.cups = function()
       items[#items + 1] = { title = cup.name, art = ART.cup(cup, myVehicle().key) or cup.art, span = (cup.final and cfg.CupsRows) and 2 or nil,
         icon = mIcon, iconColor = mColor, -- (v0.22: no medal words, no planet badge)
         glyph = ball(cup),
-        corner = perfect and { { ART.STAR, ART.medalColor(1) } } or nil,
-        info = padInfo(cupInfo(cup)),
+        corner = perfect and { { perfectIcon(), ART.medalColor(1) } } or nil,
+        -- (v0.37.0: the crown's meaning after the cup's own lines, config StarLines)
+        info = (function()
+          local pl = perfectLine(cup, perfect, mIcon ~= nil)
+          local ci = cupInfo(cup)
+          return padInfo(pl and (ci ~= '' and (ci .. '\n' .. pl) or pl) or ci)
+        end)(),
         act = function() return toStart('cup', cls.key, cup.key) end }
     end
   end

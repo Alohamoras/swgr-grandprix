@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.37.0 (2026-11-25): what the stars mean - the info lines say it, a crown for a perfect cup (TASKS §3)
+- Owner: "the star for each league...what does that mean? it's not obvious to the player". One icon had two meanings and
+  neither was said anywhere: the last pip on a HOME league poster (the league title) and the corner star on a cup tile
+  (a perfect cup).
+- HOME: the focused league's info line is its rules, then the title's state - "Gold star: the league title. Finish the
+  Galactic Cup in the top 3, then beat Kestar Bool in a one-on-one race to win it." (Boss.Gate gold / always change the
+  first half), or once won "Gold star: you are the JUNKER champion. You beat Kestar Bool in the Galactic Cup final."
+  Three lines for every league, so the posters don't move.
+- The cups page: a perfect cup's info ends "Crown: a perfect cup. You won every race."; a cup with a trophy but not perfect
+  "Win every race of this cup in one go to earn the crown."
+- A perfect cup wears the game's crown (`Icons/Map/T_UI_Map_ChampionEvent_Icn`, its campaign map's champion-event icon)
+  instead of the star, so the star means only the league title. Config `PerfectIcon` (a texture path; 'star' = the old
+  star), `StarLines = false` = the info lines as before. The crown's look in game: not seen yet.
+- Lines worded to the §1j rules. Tests: test_stars (14 checks); test_cups expects the crown; util's marks() names it.
+
 ## v0.36.5 (2026-11-25): the cup result's bottom half - the verdict alone (owner)
 - Owner, on a screenshot of a Jakku cup's result: "the bottom half of the screen needs to be reworked. It still doesn't
   make much sense. Think about what should actually be on this screen, generally less is more." What the screenshot showed:

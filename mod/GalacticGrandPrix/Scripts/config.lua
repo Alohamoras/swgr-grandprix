@@ -52,6 +52,13 @@ return {
     -- brief ("Two abilities. One tune-up.") no longer heads the cups page; its `rules` line is HOME's info line for the
     -- focused league instead. true = the brief back under the league's name on the cups page.
     CupsBrief = false,
+    -- v0.37.0 (owner 2026-11-25: "the star for each league...what does that mean? it's not obvious to the player"):
+    -- the info lines say what the marks mean - HOME: the league title's state under the rules line (the gold star);
+    -- the cups page: a perfect cup or how to earn one. false = the lines as before.
+    StarLines = true,
+    -- v0.37.0: a perfect cup (every race won) wears the game's crown (its campaign map's champion-event icon), so the
+    -- star means only the league title. A texture path; 'star' = the old gold star.
+    PerfectIcon = '/Game/Griffin/UI/Library/Textures/Icons/Map/T_UI_Map_ChampionEvent_Icn',
     -- v0.24: HOME in rows: the leagues as tall posters (a medal per cup on each), RESET small below; the garage
     -- (the start screen) at this tile size, START this tall. v0.26: three leagues, wider (760)
     HomeRows = { { w = 760, h = 560, n = 3 }, { w = 600, h = 200 } },

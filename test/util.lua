@@ -131,7 +131,7 @@ function T.marks()
   local all = {}
   for _, it in ipairs(ui and ui.items or {}) do
     local m = {}
-    for _, c in ipairs(it.corner or {}) do m[#m + 1] = (c[1] == ART.LOCK and 'LOCK') or (c[1] == ART.STAR and 'STAR') or '?' end
+    for _, c in ipairs(it.corner or {}) do m[#m + 1] = (c[1] == ART.LOCK and 'LOCK') or (c[1] == ART.STAR and 'STAR') or (tostring(c[1]):find('ChampionEvent', 1, true) and 'CROWN') or '?' end
     if it.icon then m[#m + 1] = (tostring(it.icon):match('Medals_(%a+)') or '?'):upper() end
     if it.pips then
       local p = {}
