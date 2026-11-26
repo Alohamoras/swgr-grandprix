@@ -143,14 +143,23 @@ function LS.tick(r)
     if job.ref then hide(job, 'another mod hides the HUD') end
     return
   end
+  -- the countdown: the race state's CountdownEndTime (set when it starts; the 2026-11-25 spike: the HUD's
+  -- WBP_Hud_Countdown exists from the load with IsVisible() false, so its visibility is only logged)
+  local cet = gs and try(function() return gs.CountdownEndTime end)
+  local now = gs and try(function() return gs:GetServerWorldTimeSeconds() end)
+  local counting = type(cet) == 'number' and type(now) == 'number' and cet > 0 and now < cet
+  if counting and not job.cdAt then
+    job.cdAt = C.clock
+    log(('[lapshow] countdown running: %.1f s to the green light'):format(cet - now))
+  end
   local cd = C.first(COUNTDOWN)
   local vis = alive(cd) and try(function() return cd:IsVisible() end)
-  if not job.seen and alive(cd) then
-    job.seen = true
-    log(('[lapshow] countdown widget %s, visible %s, parent %s'):format(C.idname(cd), tostring(vis),
-      C.clsname(try(function() return cd:GetParent() end))))
+  if alive(cd) and vis ~= job.vis then
+    job.vis = vis
+    log(('[lapshow] countdown widget %s visible %s (parent %s), CountdownEndTime %s, world time %s'):format(C.idname(cd),
+      tostring(vis), C.clsname(try(function() return cd:GetParent() end)), tostring(cet), tostring(now)))
   end
-  if job.ref or not vis then return end
+  if job.ref or not (counting or vis) then return end
   local route = (conf() or {}).Route or 'viewport'
   local ok, why = false, nil
   if route == 'hud' then ok, why = showHud(job, cd) else ok, why = showViewport(job) end
