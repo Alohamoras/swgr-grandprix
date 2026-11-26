@@ -6,9 +6,18 @@
 -- cup, the first race of a random Jakku draw, made once and kept. Kestar Bool is the final boss: a KESTAR BOOL tile on
 -- the Ace cups page once the Ace title is won (8 tiles, 4 + 4), the Stadium Showdown, beating him unlocks him; an old
 -- save (the cc classes) gets a clean start, which locks him again.
+-- v0.33 (owner 2026-11-25): the title race is OFF and Kestar closes the Galactic Cup (test_finale); this file keeps the
+-- old flow under its config (Title.On = true, Boss.Where = 'tile'), which still works.
 local M = require('mock')
 local W = require('world')
 local T = require('util')
+local EVB = '/Game/Griffin/Gameplay/Events/Planets/Whippet/FINALBOSS/EVT_WHP_SHORTBOSS_FAIR'
+local function legacy(c)
+  c = c or {}
+  c.Title = { On = true, Name = 'TITLE RACE', DefaultCup = 'jakku', Default = { riffraff = 'Veteran', challenger = 'Rager', ace = 'Thrall' } }
+  c.Boss = { On = true, Event = EVB, Name = 'KESTAR BOOL', Opponent = 'Kestar Bool', League = 'ace', Where = 'tile', Laps = 6 }
+  return c
+end
 local five = { jakku = 3, lantaana = 1, ando = 2, crait = 3, sentinel = 1, galactic = 2 }
 local ORIG_OPP = 'Mercenary,ElegantProfessional,Star,InnerHonour,Thrall,Ghost,Rager,Nomad,Veteran,QuietStrength,Protege'
 local function grid(path)
@@ -24,7 +33,7 @@ local function wait3() local t0 = os.time(); while os.time() - t0 < 3 do end end
 ---------------------------------------------------------------------------------------------------------------------
 -- 1. no cup finished at Riff-Raff: the league default (Griff Halloran) on the first race of a Jakku draw; you race as Sen Fira
 T.boot({ version = 3, races = 20, cups = 5, class = 'riffraff', racer = 'Thrall', best = { riffraff = five },
-  restores = {}, abilityRestores = {} }, { Progression = { On = false } })
+  restores = {}, abilityRestores = {} }, legacy({ Progression = { On = false } }))
 W.cupEvents()
 local cfg = require('config')
 local EV = '/Game/Griffin/Gameplay/Events/Planets/'
@@ -37,7 +46,7 @@ local H = rawget(_G, 'GU_TEST_SCREENS')
 local tt
 for _, it in ipairs(H.SCREENS.cups().items) do if it.title == 'TITLE RACE' then tt = it end end
 T.check(tt and tt.desc == 'vs Griff Halloran' and tt.badge == nil, 'the tile names the default opponent: vs Griff Halloran (' .. tostring(tt and tt.desc) .. ')')
-T.check(tt and tt.info:find('1 v 1 against Griff Halloran on THE WAR FIELDS (REVERSE, SCORCHING), 2 laps', 1, true) ~= nil, 'its info: the track and laps (' .. tostring(tt and tt.info) .. ')')
+T.check(tt and tt.info:find('Griff Halloran, one on one, on THE WAR FIELDS (REVERSE, SCORCHING), 2 laps', 1, true) ~= nil, 'its info: the track and laps (' .. tostring(tt and tt.info) .. ')')
 T.check(T.save().titleTrack.riffraff == JAKKU1 and T.logCount('the title race track is THE WAR FIELDS (REVERSE, SCORCHING) (a random JAKKU CUP draw, kept)') == 1,
   'v0.26: the default track drawn once from Jakku and saved (titleTrack), logged once')
 require('gp').random = function(n) return 1 end -- (another draw would differ: the saved track must not)
@@ -132,7 +141,7 @@ for i, k in ipairs({ 'Mercenary', 'ElegantProfessional', 'Star', 'InnerHonour', 
   save.gridRestore.opponents[i] = '/Game/Griffin/Narrative/CharacterDefs/Racers/DA_Racer_' .. k
 end
 T.reset()
-T.boot(save, { Progression = { On = false }, Manual = true })
+T.boot(save, legacy({ Progression = { On = false }, Manual = true }))
 W.cupEvents()
 -- what the crashed game left (memory survives in this fake: the cut grid and list)
 rawget(M.assets[JAKKU1 .. '.EVT_MAS_LOOP_A_REV_HARD'], '__props').GridMakeup.Entries[1].NumEntrants = 2
@@ -152,7 +161,7 @@ T.reset()
 local all = { jakku = 1, lantaana = 1, ando = 1, crait = 1, sentinel = 1, galactic = 1 }
 T.boot({ version = 3, races = 30, cups = 7, class = 'ace', best = { ace = all, challenger = all },
   titles = { ace = { won = true, tries = 1, vs = 'Sen Fira' }, challenger = { won = true, tries = 1, vs = 'Biddy Blas' } },
-  restores = {}, abilityRestores = {} }, { Progression = { On = false } })
+  restores = {}, abilityRestores = {} }, legacy({ Progression = { On = false } }))
 W.cupEvents()
 local RC = require('racer')
 T.check(RC.locked('Antagonist'), 'Kestar still locked: the title alone doesn\'t unlock him')
@@ -175,7 +184,7 @@ T.check(T.marks():find('|$') ~= nil and not T.badges():find('BOSS', 1, true), 'v
 mark = T.mark()
 T.clickTitle('KESTAR BOOL')
 T.check(rawget(M.lastCall('LaunchQuickRace').args[2], '__name') == 'EVT_WHP_SHORTBOSS_FAIR', 'the Stadium Showdown')
-T.check(T.levels('VBD_Car_Base') == '0=9 1=9 2=9 3=9 4=9 5=9', 'Ace parts')
+T.check(T.levels('VBD_Car_Base') == '0=10 1=10 2=10 3=10 4=10 5=10', 'Ace parts')
 T.check(not T.logHas('[title] grid cut', mark), 'no grid cut for the boss (the Showdown is a 2-car grid already)')
 W.race(1); M.tick(5)
 W.finish(1, 300, 50); M.tick(25)

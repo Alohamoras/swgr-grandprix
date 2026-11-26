@@ -27,18 +27,20 @@ end
 local H = rawget(_G, 'GU_TEST_SCREENS')
 local function info(i) return tostring(H.S.ui.items[i].info or '') end
 M.press('F6'); M.tick(6)
-local ALL = 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|TITLE RACE|RALLY CUP'
+local ALL = 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|RALLY CUP' -- (v0.33: no title race)
 for _, cls in ipairs({ 'JUNKER', 'CHALLENGER', 'ACE' }) do
   T.clickTitle(cls); M.tick(3)
-  T.check(T.titles() == ALL, cls .. ': the 8 tiles (' .. T.titles() .. ')')
+  T.check(T.titles() == ALL, cls .. ': the 7 tiles (' .. T.titles() .. ')')
   local d = descs()
   local none = true
   for i = 1, 6 do none = none and d[i] == '' end
   T.check(none, cls .. ': no conditions line on the cup tiles (' .. table.concat(d, ' / '):gsub('\n', ' ') .. ')')
-  T.check(info(1):find("THE WAR FIELDS   -   THE GIANTS' GRAVEYARD   -   DEBRIS DUNES   -   FALLEN EMPIRE\nSCRAP SPIRAL", 1, true) ~= nil,
-    cls .. ': the Jakku Cup\'s info names its planet\'s five tracks (' .. info(1):gsub('\n', ' | ') .. ')')
-  T.check(info(6):find('A race on 3 of:   Jakku   -   Lantaana   -   Ando Prime   -   Crait   -   Sentinel I', 1, true) ~= nil
-    and info(6):find('Then THE GALACTIC GAUNTLET at Derven Acos', 1, true) ~= nil, cls .. ': the Galactic Cup\'s info: the planets, then the finals')
+  -- (v0.36.1, owner: no track names on the cups page - the planet's line alone)
+  T.check(info(1):find("Jakku. Starship wrecks boil under the scorching heat of this desert world.", 1, true) ~= nil
+    and info(1):find('THE WAR FIELDS', 1, true) == nil and info(1):find('SCRAP SPIRAL', 1, true) == nil,
+    cls .. ': the Jakku Cup\'s info is its planet\'s line, no track names (' .. info(1):gsub('\n', ' | ') .. ')')
+  T.check(info(6):find('Derven Acos. Home of the Galactic League, where racers face the ultimate challenge.\nThree planets, then Derven Acos.\nFinish on the podium and Kestar Bool waits in the stadium. One race for the title.', 1, true) ~= nil,
+    cls .. ': the Galactic Cup\'s info: the planets, then the finals, then (v0.33) the finale (' .. info(6):gsub('\n', ' | ') .. ')')
   M.press('BACKSPACE'); M.tick(3)
 end
 T.clickTitle('CHALLENGER'); M.tick(3)

@@ -255,16 +255,46 @@ local function makeTile(lib, pc, it, make)
 end
 
 -- v0.22 (owner: the gold and white text is too light on the menu's own pale art): while a page without a picture
--- behind it is built, every text colour is swapped for dark grey (U.ink); pages with a picture keep the light colours
+-- behind it is built, every text colour is swapped for an ink (U.ink: config Ink, burnt orange since v0.36.4; dark grey before);
+-- pages with a picture keep the light colours
 local inkOn = false
-local function textBlock(make, s, size, color, wrapAt)
+-- v0.36 (docs/layout-grammar-2026-11-25.md §1: every text we drew outside a tile was UMG's default Roboto; the owner
+-- chose the game's typefaces): face = 'display' | 'body' | 'numbers' -> the game's font asset from config GameFonts
+-- and that role's size multiplier. Each asset is looked up once per screen build (the memo is cleared with the
+-- textures': nothing kept between builds) and said once per launch in the log.
+local fonts, fontSaid = {}, {}
+local function gameFont(face)
+  local GF = cfg.GameFonts
+  local spec = type(GF) == 'table' and GF[face or 'body'] or nil
+  if not (type(spec) == 'table' and spec[1]) then return nil, 1 end
+  local f = fonts[face]
+  if f == nil then
+    f = C.asset(spec[1]) or false
+    fonts[face] = f
+    if not fontSaid[face] then
+      fontSaid[face] = true
+      log(('[fonts] %s: %s (%s)'):format(face, f and 'found' or 'NOT FOUND, Roboto instead', spec[1]))
+    end
+  end
+  return f or nil, tonumber(spec.size) or 1
+end
+U.gameFont = gameFont
+local function textBlock(make, s, size, color, wrapAt, face)
   local t = make('/Script/UMG.TextBlock')
   if not alive(t) then return nil end
   try(function() t:SetText(FText(s)) end)
   local c = color or { 1, 1, 1 }
   if inkOn then c = U.ink(c) end
   try(function() t:SetColorAndOpacity({ SpecifiedColor = { R = c[1], G = c[2], B = c[3], A = 1 }, ColorUseRule = 0 }) end)
-  if size then try(function() local f = t.Font; f.Size = math.floor(size * (U.TEXT or 1) + 0.5); t:SetFont(f) end) end
+  local fo, k = gameFont(face or 'body')
+  if size or fo then
+    try(function()
+      local f = t.Font
+      if size then f.Size = math.floor(size * k * (U.TEXT or 1) + 0.5) end
+      if fo then try(function() f.FontObject = fo end) end
+      t:SetFont(f)
+    end)
+  end
   if wrapAt then
     try(function() t:SetAutoWrapText(true) end)
     try(function() t.WrapTextAt = wrapAt end)
@@ -276,16 +306,24 @@ local GOLD, GREY, WHITE = { 1, 0.82, 0.35 }, { 0.72, 0.74, 0.78 }, { 1, 1, 1 }
 U.GOLD, U.GREY, U.WHITE = GOLD, GREY, WHITE
 -- the dark inks (v0.22): white and gold -> dark grey, the light grey (small print) -> a lighter dark grey
 U.DARK, U.DARK2 = { 0.12, 0.13, 0.14 }, { 0.26, 0.27, 0.29 }
+-- v0.36.4 (owner: the dark grey blends with the grey of the droid and the Steam box on many menus - "just change the
+-- text color to a burnt orange that fits the color scheme"): config Ink / Ink2 replace the two greys on every pale page;
+-- Ink = false brings the v0.22 greys back
+local function inkOf(key, fallback)
+  local c = cfg[key]
+  if type(c) == 'table' and c[1] and c[2] and c[3] then return c end
+  return fallback
+end
 function U.ink(c)
-  if c == GREY then return U.DARK2 end
-  return U.DARK
+  if c == GREY then return inkOf('Ink2', U.DARK2) end
+  return inkOf('Ink', U.DARK)
 end
 
 -- a screen's text lines ({ text, size, color }) into a vertical box, wrapped at `wrap`; top = the space above each
 local function addLines(box, make, lines, wrap, top)
   for _, ln in ipairs(lines or {}) do
     if ln[1] and ln[1] ~= '' then
-      local t = textBlock(make, ln[1], ln[2] or 18, ln[3] or GREY, wrap)
+      local t = textBlock(make, ln[1], ln[2] or 18, ln[3] or GREY, wrap, ln.face or 'body')
       local sl = t and try(function() return box:AddChildToVerticalBox(t) end)
       if sl then try(function() sl:SetPadding({ Left = 0, Top = top or 4, Right = 0, Bottom = 0 }) end) end
     end
@@ -295,12 +333,14 @@ end
 -- a table (spec.table, see below) into a vertical box: one horizontal box per row
 local function addTable(box, make, tb)
   local JUST = { left = 0, center = 1, right = 2 }
-  local function row(cells, color, colors, highlight, size)
+  local function row(cells, color, colors, highlight, size, header)
     local hb = make('/Script/UMG.HorizontalBox')
     if not alive(hb) then return end
     for i, col in ipairs(tb.cols) do
       local sb = make('/Script/UMG.SizeBox')
-      local t = textBlock(make, tostring(cells[i] or ''), size, (colors and colors[i]) or color or WHITE)
+      -- (v0.36: the numbers face on a right-aligned column's cells, the body face on names and the header row)
+      local face = (not header) and (col.face or (col.align == 'right' and 'numbers')) or 'body'
+      local t = textBlock(make, tostring(cells[i] or ''), size, (colors and colors[i]) or color or WHITE, nil, face)
       if t then try(function() t:SetJustification(JUST[col.align or 'left'] or 0) end) end
       if alive(sb) and t then
         try(function() sb:SetWidthOverride(col.w) end)
@@ -322,7 +362,7 @@ local function addTable(box, make, tb)
     local sl = try(function() return box:AddChildToVerticalBox(holder) end)
     if sl then try(function() sl:SetPadding({ Left = highlight and 0 or 6, Top = 2, Right = 0, Bottom = 0 }) end) end
   end
-  if tb.header then row(tb.header, GREY, nil, false, (tb.size or 20) - 2) end
+  if tb.header then row(tb.header, GREY, nil, false, (tb.size or 20) - 2, true) end
   for _, r in ipairs(tb.rows or {}) do row(r.cells, r.color, r.colors, r.highlight, tb.size or 20) end
 end
 -- v0.20 (menu review 1a): a big picture with lines beside it (spec.hero = { icon = texture, color = {r,g,b} (the tint:
@@ -472,7 +512,8 @@ function U.rowsNav(rows, items) return U.boxNav(U.rowBoxes(rows, items)) end
 --   it.pips = { {tex, color, alpha}, ... }  a row of small icons top left, where the badge was (a league's medals)
 --   it.glyph = {tex, color, px, side = 'left'}  one big icon, top middle (an ability's or a tune-up's icon).
 --     side = 'left' (v0.31, PR #1): flush to the left edge, as tall as the tile (a pilot's portrait, the game's own
---     256 px MainIcon texture); the tile's title shifts right of it
+--     256 px MainIcon texture); the tile's title shifts right of it. v0.33: scale = a share of the tile's height
+--     (the cup tiles' planets, config CupPlanets), centred on the left edge
 U.PIP_PX, U.CORNER_PX = 66, 72
 function U.hasDecor(it) return (it.icon or it.corner or it.pips or it.glyph or it.tag) and true or false end
 local function picture(make, tex, color, px, alpha)
@@ -522,6 +563,7 @@ function U.decorate(make, ov, it, tileH, tile)
     local tex = texture(g[1])
     if g.side == 'left' then
       px, ha, va = tileH or U.TILE_H, 1, 2
+      if type(g.scale) == 'number' and g.scale > 0 and g.scale < 1 then px = math.floor(px * g.scale) end
       pad = { Left = 0, Top = 0, Right = 0, Bottom = 0 }
       local title = tex and alive(tile) and try(function() return tile.Txt_Label_Title end)
       -- a little over the portrait, so a long name (Goli & 02-R0) stays inside the button
@@ -545,7 +587,13 @@ function U.decorate(make, ov, it, tileH, tile)
       local c = it.tag[2] or WHITE
       try(function() t:SetText(FText(it.tag[1])) end)
       try(function() t:SetColorAndOpacity({ SpecifiedColor = { R = c[1], G = c[2], B = c[3], A = 1 }, ColorUseRule = 0 }) end)
-      try(function() local f = t.Font; f.Size = math.floor(U.TAG_SIZE * (U.TEXT or 1) + 0.5); t:SetFont(f) end)
+      try(function()
+        local f = t.Font
+        local fo, k = gameFont('body') -- (v0.36: the game's body face on the caption too)
+        f.Size = math.floor(U.TAG_SIZE * k * (U.TEXT or 1) + 0.5)
+        if fo then try(function() f.FontObject = fo end) end
+        t:SetFont(f)
+      end)
       try(function() t:SetShadowColorAndOpacity({ R = 0, G = 0, B = 0, A = 0.85 }); t:SetShadowOffset({ X = 2, Y = 2 }) end)
       try(function() t:SetVisibility(4) end)
       place(ov, t, 1, 1, { Left = 16, Top = 12, Right = 0, Bottom = 0 })
@@ -617,7 +665,7 @@ local function buildInner(spec, host)
   local tree = host and host.tree
   if not alive(tree) then log('[menu] no widget tree'); return nil end
   local function make(path) return try(function() return StaticConstructObject(StaticFindObject(path), tree) end) end
-  memo = {}
+  memo, fonts = {}, {}
 
   local border, box = make('/Script/UMG.Border'), make('/Script/UMG.VerticalBox')
   local sizer, scroll, grid = make('/Script/UMG.SizeBox'), make('/Script/UMG.ScrollBox'), make('/Script/UMG.UniformGridPanel')
@@ -660,17 +708,31 @@ local function buildInner(spec, host)
   try(function() border:SetContent(content) end)
 
   local wrap = spec.rows and U.rowsWidth(spec.rows) or (U.TILE_W + 20) * U.COLS
-  local t1 = (spec.title or '') ~= '' and textBlock(make, spec.title, 34, WHITE) or nil
+  local t1 = (spec.title or '') ~= '' and textBlock(make, spec.title, 34, WHITE, nil, 'display') or nil
   if t1 then try(function() box:AddChildToVerticalBox(t1) end) end
   if spec.hero then addHero(box, make, spec.hero, wrap) end
   addLines(box, make, spec.lines, wrap)
 
   -- v0.6: an info line (spec.info = true): the full text of the focused tile (its item.info), set on every focus change
   -- (tile descriptions are cut after two lines; for mods the description is the point)
-  local info
+  local info, infoStrip
   if spec.info then
-    info = textBlock(make, ' ', 20, GOLD, wrap)
-    local sl = info and try(function() return box:AddChildToVerticalBox(info) end)
+    info = textBlock(make, ' ', 20, GOLD, wrap, 'body')
+    -- v0.36.3 (owner: "the grey text on the league selection screen is often in front of a grey background and you
+    -- can't read it"): a washed pale strip behind the info line (config InfoStrip, the sand of the menu's art), so the
+    -- dark ink reads whatever sits behind it - the droid, the speeder, the Steam box. Collapsed while the line is blank.
+    local IS = cfg.InfoStrip
+    if info and spec.infoStrip and type(IS) == 'table' and inkOn then   -- (spec.infoStrip: HOME today)
+      local b = make('/Script/UMG.Border')
+      if alive(b) then
+        try(function() b:SetBrushColor({ R = IS.R or 0.95, G = IS.G or 0.93, B = IS.B or 0.89, A = IS.A or 0.82 }) end)
+        try(function() b:SetPadding({ Left = 16, Top = 8, Right = 16, Bottom = 8 }) end)
+        try(function() b:SetContent(info) end)
+        try(function() b:SetVisibility(1) end)   -- (Collapsed until a tile with an info line is focused)
+        infoStrip = b
+      end
+    end
+    local sl = info and try(function() return box:AddChildToVerticalBox(infoStrip or info) end)
     if sl then try(function() sl:SetPadding({ Left = 0, Top = 6, Right = 0, Bottom = 0 }) end) end
   end
 
@@ -727,7 +789,7 @@ local function buildInner(spec, host)
     end
   end
   if spec.hint then
-    local th = textBlock(make, spec.hint, 15, GREY, wrap)
+    local th = textBlock(make, spec.hint, 15, GREY, wrap, 'body')
     if th then try(function() box:AddChildToVerticalBox(th) end) end
   end
   if #list == 0 then log('[menu] no tiles'); return nil end
@@ -735,7 +797,7 @@ local function buildInner(spec, host)
   -- v0.32.7: one D-pad map for every layout, from the tiles' boxes (U.boxNav)
   local boxes = spec.rows and U.rowBoxes(spec.rows, list) or U.gridBoxes(#list, U.COLS, U.TILE_W, U.TILE_H)
   local screen = { w = border, host = host, items = list, scroll = (not spec.rows and alive(scroll)) and scroll or nil, pc = pc,
-    grid = grid, info = info, cols = U.COLS, rows = spec.rows ~= nil, boxes = boxes, nav = U.boxNav(boxes) }
+    grid = grid, info = info, infoStrip = infoStrip, cols = U.COLS, rows = spec.rows ~= nil, boxes = boxes, nav = U.boxNav(boxes) }
   try(function() host.panel:ClearChildren() end)
   local sl = try(function() return host.panel:AddChildToVerticalBox(border) end)
   if not alive(sl) then sl = try(function() return host.panel:AddChild(border) end) end
@@ -789,6 +851,11 @@ function U.highlight(screen, i)
   end
   local it = screen.items[i]
   if screen.info and alive(screen.info) then try(function() screen.info:SetText(FText(it and it.info or ' ')) end) end
+  -- (v0.36.3: the pale strip only behind a line with words in it)
+  if screen.infoStrip and alive(screen.infoStrip) then
+    local blank = not tostring(it and it.info or ''):find('%S')
+    try(function() screen.infoStrip:SetVisibility(blank and 1 or 4) end)   -- (4 = SelfHitTestInvisible: drawn, no focus)
+  end
 end
 
 function U.focus(screen, i)
@@ -834,6 +901,7 @@ function U.panel(spec, tree, opts)
   opts = opts or {}
   if not alive(tree) then return nil, 'no widget tree' end
   local function make(path) return try(function() return StaticConstructObject(StaticFindObject(path), tree) end) end
+  fonts = {} -- (v0.36: the fonts looked up afresh on this screen's tree)
   local border, box = make('/Script/UMG.Border'), make('/Script/UMG.VerticalBox')
   if not (alive(border) and alive(box)) then return nil, 'could not build the panel' end
   try(function() border:SetBrushColor(U.PANEL_BG) end)
@@ -841,7 +909,7 @@ function U.panel(spec, tree, opts)
   try(function() border:SetContent(box) end)
   -- (the text wraps at the table's width or the panel's least width, whichever is wider: one panel width)
   local wrap = math.max(tableWidth(spec.table) or 0, (opts.minW or 1600) - 96)
-  local t1 = (spec.title or '') ~= '' and textBlock(make, spec.title, 34, WHITE) or nil
+  local t1 = (spec.title or '') ~= '' and textBlock(make, spec.title, 34, WHITE, nil, 'display') or nil
   if t1 then try(function() box:AddChildToVerticalBox(t1) end) end
   if spec.hero then addLines(box, make, spec.hero.lines, wrap) end -- (v0.20: the cup result's lines, no picture here)
   addLines(box, make, spec.lines, wrap)

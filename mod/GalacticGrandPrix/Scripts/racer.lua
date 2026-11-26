@@ -58,7 +58,11 @@ function RC.unlockText(r)
   if not (type(r) == 'table' and r.unlockBoss) then return nil end
   local TI = require('title')
   local c = K.league(TI.bossClass())
-  return ('To unlock: beat %s after the %s title'):format(TI.bossName(), c and c.name or TI.bossClass())
+  if TI.finaleOn and TI.finaleOn() then
+    -- v0.33: he is the Galactic Cup's finale
+    return ('%s races only for himself until you beat him in the %s Galactic Cup finale.'):format(TI.bossName(), c and c.name or TI.bossClass())
+  end
+  return ('%s races only for himself until you beat him after the %s title.'):format(TI.bossName(), c and c.name or TI.bossClass())
 end
 -- the pick; a locked pick (an old save, or a lock come back) is Shade, saved and logged
 function RC.current()

@@ -42,7 +42,11 @@ end
 
 -- v0.14: the short form of what opens a locked thing, for its tile ('5 trophies at RIFF-RAFF'; the full why goes in the
 -- screen's info line)
-local function shortCount(gold, of, name) return ('%d %s at %s'):format(of, gold and 'golds' or 'trophies', name) end
+-- v0.35.0 (docs/menu-text-review-2026-11-25.md): a sentence - 'Five JUNKER trophies open it' / 'A Galactic Cup trophy opens it'
+local WORDS = { 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine' }
+local function numWord(n) return WORDS[n] or tostring(n) end
+P.numWord = numWord
+local function shortCount(gold, of, name) return ('%s %s %s open it'):format(numWord(of), name, gold and 'golds' or 'trophies') end
 local function titleCase(s) return (tostring(s):lower():gsub("(%a)([%w']*)", function(a, b) return a:upper() .. b end)) end
 
 -- is a class open? -> open, why (the text for a locked tile's info: what opens it), short (the same for the tile)
@@ -61,7 +65,7 @@ function P.classOpen(data, classKey)
   local gold = conf().Unlock == 'gold'
   local n, of = count(data, prev.key, gold and 1 or 3)
   if n >= of then return true end
-  return false, ('%s in all %d planet cups at %s (%d / %d)'):format(gold and 'Gold' or 'A trophy', of, prev.name, n, of),
+  return false, ('%s in every %s planet cup opens it. %d of %d so far.'):format(gold and 'Gold' or 'A trophy', prev.name, n, of),
     shortCount(gold, of, prev.name)
 end
 
@@ -76,12 +80,17 @@ function P.cupOpen(data, classKey, cupKey)
   local gold = conf().Unlock == 'gold'
   local n, of = count(data, classKey, gold and 1 or 3)
   if n >= of then return true end
-  return false, ('%s in all %d planet cups at %s (%d / %d)'):format(gold and 'Gold' or 'A trophy', of, className(classKey), n, of),
+  return false, ('%s in every %s planet cup opens it. %d of %d so far.'):format(gold and 'Gold' or 'A trophy', className(classKey), n, of),
     shortCount(gold, of, className(classKey))
 end
 
 -- the finale cup (the Galactic Cup), or nil
 local function finalCup() for _, c in ipairs(cfg.Cups or {}) do if c.final then return c end end return nil end
+
+local function titleOn() return (cfg.Title or {}).On ~= false end
+-- v0.33: Kestar as the Galactic Cup's finale (config Boss) - the champion comes from there, no title race
+local function finaleOn() return type(cfg.Boss) == 'table' and cfg.Boss.On ~= false and cfg.Boss.Where ~= 'tile' and not titleOn() end
+P.finaleOn = finaleOn
 
 -- the title race at a class (v0.8, title.lua; v0.11): a trophy (or gold: Unlock) in the Galactic Cup at that class;
 -- once raced (a result saved under titles[class]) it stays open -> open, why, short
@@ -95,8 +104,8 @@ function P.titleOpen(data, classKey)
   local gold = conf().Unlock == 'gold'
   local b = bestOf(data, classKey, fin.key)
   if b and b <= (gold and 1 or 3) then return true end
-  return false, ('%s in the %s at %s'):format(gold and 'Gold' or 'A trophy', fin.name, className(classKey)),
-    ('%s %s'):format(titleCase(fin.name), gold and 'gold' or 'trophy')
+  return false, ('%s in the %s at %s opens it.'):format(gold and 'Gold' or 'A trophy', fin.name, className(classKey)),
+    ('%s %s %s opens it'):format(gold and 'Gold in the' or 'A', titleCase(fin.name), gold and '' or 'trophy'):gsub('%s+', ' ')
 end
 
 -- everything open, as a set of names ('CHALLENGER', 'GALACTIC CUP at RIFF-RAFF', 'TITLE RACE at RIFF-RAFF') - compared before /
@@ -109,7 +118,7 @@ function P.openSet(data)
       for _, cup in ipairs(cfg.Cups or {}) do
         if cup.final and P.cupOpen(data, c.key, cup.key) then s[cup.name .. ' at ' .. c.name] = true end
       end
-      if P.titleOpen(data, c.key) then s['TITLE RACE at ' .. c.name] = true end
+      if titleOn() and P.titleOpen(data, c.key) then s['TITLE RACE at ' .. c.name] = true end
     end
   end
   return s
@@ -135,7 +144,6 @@ end
 -- v0.20 (menu review 1b / 4b, docs/PHILOSOPHY.md point 6: "one thing just out of reach"): the nearest unlock, worked
 -- out from the same rules as above (nothing new): what is still locked that this class's results open, and how many
 -- more trophies (or golds: Unlock) that takes. Pure; the menus put 'Next: ' in front.
-local function titleOn() return (cfg.Title or {}).On ~= false end
 local function joinNames(list)
   if #list <= 1 then return list[1] or '' end
   return table.concat(list, ', ', 1, #list - 1) .. ' and ' .. list[#list]
@@ -169,9 +177,9 @@ function P.nextUnlock(data, classKey)
       end
       local text
       if missing then
-        text = ('a %s in the %s at %s opens the %s'):format(word, titleCase(missing), cname, joinNames(opens))
+        text = ('A %s in the %s at %s opens the %s'):format(word, titleCase(missing), cname, joinNames(opens))
       else
-        text = ('%d more %s at %s open the %s'):format(need, gold and 'golds' or 'trophies', cname, joinNames(opens))
+        text = ('%s more %s at %s open the %s'):format(numWord(need), gold and 'golds' or 'trophies', cname, joinNames(opens))
       end
       cands[#cands + 1] = { need = need, opens = opens, cup = missing, class = classKey, text = text }
     end
@@ -179,7 +187,7 @@ function P.nextUnlock(data, classKey)
   -- the title race: a trophy in the Galactic Cup (once that cup is open)
   if titleOn() and fin and P.cupOpen(data, classKey, fin.key) and not P.titleOpen(data, classKey) then
     cands[#cands + 1] = { need = 1, opens = { 'TITLE RACE' }, cup = fin.name, class = classKey,
-      text = ('a %s in the %s at %s opens the TITLE RACE'):format(word, titleCase(fin.name), cname) }
+      text = ('A %s in the %s at %s opens the TITLE RACE'):format(word, titleCase(fin.name), cname) }
   end
   table.sort(cands, function(a, b) return a.need < b.need end)
   return cands[1]
@@ -210,6 +218,11 @@ function P.nextGoal(data, prefer)
       local t = (data.titles or {})[c.key]
       if titleOn() and P.titleOpen(data, c.key) and not (t and t.won) then
         better({ need = 1, class = c.key, text = ('win the TITLE RACE at %s'):format(c.name) })
+      elseif finaleOn() and not (t and t.won) then
+        local fin = finalCup()
+        if fin and P.cupOpen(data, c.key, fin.key) then
+          better({ need = 1, class = c.key, text = ('beat %s in the %s finale at %s'):format(cfg.Boss.Opponent or 'Kestar Bool', titleCase(fin.name), c.name) })
+        end
       end
     end
   end

@@ -16,6 +16,11 @@
 -- The final boss (v0.21): Kestar Bool in the game's Stadium Showdown (the old title race, config Boss), a KESTAR BOOL
 -- tile on the Ace cups page once the Ace title is won (v0.26; was 150cc). Beating him saves boss = { beaten = true } and unlocks him
 -- as a racer (racer.lua unlockBoss). The Showdown's story cinematics are taken off for the race and put back (below).
+-- v0.33 (owner 2026-11-25: "ditch the title race and put the Kestar race at the end of the Galactic Cup"): the title
+-- race is off (config Title.On) and the Showdown is the Galactic Cup's FINALE at every league (config Boss, Where =
+-- 'cup'): a trophy in the cup's four points races adds it as race 5 of the same run (gp.lua K.record: T.finaleDue,
+-- T.finaleRace), no points; T.finale records the result - titles[league] (the champion) and, at Boss.League, the
+-- boss (the racer unlock). The tile way (Where = 'tile') and T.record stay for config.
 --
 -- Pure logic plus memory-only writes to two data assets, each through try / pcall; nothing kept between ticks.
 local C = require('core')
@@ -32,6 +37,9 @@ function T.on() return conf().On ~= false end
 function T.bossOn() return bconf().On ~= false and bconf().Event ~= nil end
 function T.bossClass() return bconf().League or 'ace' end
 function T.status(classKey) return (K.data.titles or {})[classKey] end
+-- v0.33: where Kestar is raced - 'cup' (the Galactic Cup's finale) or 'tile' (the v0.21 boss tile, after the title)
+function T.bossWhere() return bconf().Where == 'tile' and 'tile' or 'cup' end
+function T.finaleOn() return T.bossOn() and T.bossWhere() == 'cup' end
 
 ---------------------------------------------------------------------------------------------------------------------
 -- the title race's opponent and track
@@ -268,6 +276,70 @@ function T.restore(why)
   K.save()
   log(('[title] story cinematics put back (%s): %d'):format(why or '?', n))
   return n
+end
+
+---------------------------------------------------------------------------------------------------------------------
+-- v0.33: the Galactic Cup's finale (Where = 'cup')
+
+-- the finale as a cup race entry (gp.lua: appended to the run's list after the points races)
+function T.finaleRace()
+  local name = bconf().Name or 'KESTAR BOOL'
+  return { path = bconf().Event, title = name, base = name, kind = '1 v 1', laps = tonumber(bconf().Laps) or 6, boss = true }
+end
+-- is the finale due after this run's points races? rank = your rank in the cup's points table (Gate: 'trophy' = top
+-- 3, 'gold' = 1st, 'always')
+function T.finaleDue(run, rank)
+  if not T.finaleOn() or type(run) ~= 'table' or run.timed then return false end
+  local cup = K.cup(run.cup)
+  if not (cup and cup.final) then return false end
+  local gate = bconf().Gate or 'trophy'
+  if gate == 'always' then return true end
+  if not rank then return false end
+  return rank <= (gate == 'gold' and 1 or 3)
+end
+-- the cups page's line about it
+function T.finaleText()
+  local gate = bconf().Gate or 'trophy'
+  -- v0.35.0 (docs/menu-text-review-2026-11-25.md): in the announcer's voice
+  local lead = gate == 'always' and 'Then' or (gate == 'gold' and 'Take gold and' or 'Finish on the podium and')
+  return ('%s %s waits in the stadium. One race for the title.'):format(lead, T.bossName())
+end
+-- the finale's rows into the run's history (no points, nothing in the points table: the standings stay as the points
+-- races left them - cup.lua skips finale rows for the tie rule). pos = your finishing position (nil = DNF)
+function T.finaleRows(run, pos)
+  local me = tonumber(pos)
+  local rows = { { key = CU.YOU, place = me or 2, pts = 0, dnf = me == nil, finale = true },
+    { key = T.bossName(), place = me == 1 and 2 or 1, pts = 0, dnf = false, finale = true } }
+  run.history[#run.history + 1] = rows
+  run.race = run.race + 1
+  return rows
+end
+-- the finale's result into the save: titles[league] (won = the league champion); at Boss.League the boss too (the
+-- racer unlock). Returns what the result screens show: { finale = true, won, vs, pos, tries, firstWin, league,
+-- unlockedRacer }
+function T.finale(ev, pos, run)
+  local won = pos == 1
+  local cls = run.class
+  K.data.titles = K.data.titles or {}
+  local t = K.data.titles[cls] or { tries = 0 }
+  t.tries = (t.tries or 0) + 1
+  local was = t.won == true
+  if won then t.won, t.at, t.vs = true, os.date('%Y-%m-%d'), T.bossName() end
+  K.data.titles[cls] = t
+  local out = { finale = true, won = won, vs = T.bossName(), pos = pos, tries = t.tries, firstWin = won and not was,
+    league = K.leagueName(cls) }
+  if cls == T.bossClass() then
+    local b = type(K.data.boss) == 'table' and K.data.boss or {}
+    b.tries = (b.tries or 0) + 1
+    local beaten = b.beaten == true
+    if won then b.beaten, b.at = true, os.date('%Y-%m-%d') end
+    K.data.boss = b
+    out.unlockedRacer = won and not beaten
+  end
+  log(('FINALE %s: %s vs %s (try %d)%s'):format(K.leagueName(cls),
+    won and ('WON - you are the ' .. K.leagueName(cls) .. ' champion') or (pos and ('lost, ' .. C.ordinal(pos)) or 'DNF'),
+    T.bossName(), t.tries, out.unlockedRacer and (' - ' .. T.bossName() .. ' unlocked as a racer') or ''))
+  return out
 end
 
 ---------------------------------------------------------------------------------------------------------------------

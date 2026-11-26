@@ -51,7 +51,7 @@ local ALL = {}
 for _, c in ipairs(K.leagues()) do
   ALL[#ALL + 1] = c.name
   for _, cup in ipairs(K.cups()) do if cup.final then ALL[#ALL + 1] = cup.name .. ' at ' .. c.name end end
-  ALL[#ALL + 1] = 'TITLE RACE at ' .. c.name
+  if (cfg.Title or {}).On ~= false then ALL[#ALL + 1] = 'TITLE RACE at ' .. c.name end -- (v0.33: off)
 end
 local function copyBest(b) local o = {}; for k, v in pairs(b) do o[k] = {}; for k2, v2 in pairs(v) do o[k][k2] = v2 end end; return o end
 -- the cups open now: { class, cup }
@@ -80,7 +80,7 @@ local function checkState(label)
   local next1, tiles = oneStepSet(data), lockedTiles()
   local goals = {}
   for _, x in ipairs(locked) do
-    if next1[x] and tiles[x] and tiles[x]:find('^To open: ') then goals[#goals + 1] = x end
+    if next1[x] and tiles[x] and (tiles[x]:find(' open it$') or tiles[x]:find(' opens it$')) then goals[#goals + 1] = x end
   end
   if #goals == 0 then problems[#problems + 1] = label .. ': no visible locked thing one step away' end
   -- every single cup result from here

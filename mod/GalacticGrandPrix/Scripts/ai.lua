@@ -61,6 +61,26 @@ function A.profile(classKey, prof)
   if type(prof) == 'table' then return prof end
   return (aiCfg().Profiles or {})[tostring(classKey)] or {}
 end
+-- v0.34.3 (the Rally Cup's catch-up, config Rally.AI): the class's profile with `over` on top - its pacing / config /
+-- aggression tables merged key by key, every other key replaced; label = the name the log shows for it
+function A.merged(classKey, over, label)
+  local base = A.profile(classKey)
+  local out = {}
+  for k, v in pairs(base) do out[k] = v end
+  for k, v in pairs(type(over) == 'table' and over or {}) do
+    if type(v) == 'table' and type(base[k]) == 'table' and (k == 'pacing' or k == 'config' or k == 'aggression') then
+      local m = {}
+      for a, b in pairs(base[k]) do m[a] = b end
+      for a, b in pairs(v) do m[a] = b end
+      out[k] = m
+    else
+      out[k] = v
+    end
+  end
+  out.label = label or out.label
+  return out
+end
+local function profLabel(prof) return prof and (' (' .. tostring(prof.label or 'study profile') .. ')') or '' end
 -- the pressure for a class: its profile's + the hidden Adjust knob, kept within -1..2
 function A.pressure(classKey, prof)
   local p = (A.profile(classKey, prof).pressure or 0) + (tonumber(aiCfg().Adjust) or 0)
@@ -329,7 +349,7 @@ function A.launch(classKey, prof)
   if not A.enabled() then return 0 end
   local plan = A.plan(classKey, prof)
   local objs = A.lookup()
-  local who = tostring(classKey) .. (prof and ' (study profile)' or '')
+  local who = tostring(classKey) .. profLabel(prof)
   local n = 0
   if next(plan) ~= nil then
     local obj = objs[A.CONFIG]
@@ -374,7 +394,7 @@ function A.launch(classKey, prof)
       end
     end
   end
-  local ok, err = pcall(A.readback, ('race league=%s%s'):format(tostring(classKey), prof and ' study' or ''), objs, plan)
+  local ok, err = pcall(A.readback, ('race league=%s%s'):format(tostring(classKey), profLabel(prof)), objs, plan)
   if not ok then log('[aiset] read-back failed: ' .. tostring(err)) end
   return n
 end
@@ -489,7 +509,7 @@ function A.begin(classKey, prof)
   if not A.enabled() then return nil end
   local p = A.pressure(classKey, prof)
   local adj = tonumber(aiCfg().Adjust) or 0
-  log(('[ai] league %s%s: pressure %.2f (%s)%s'):format(tostring(classKey), prof and ' (study profile)' or '', p, A.label(p),
+  log(('[ai] league %s%s: pressure %.2f (%s)%s'):format(tostring(classKey), profLabel(prof), p, A.label(p),
     adj ~= 0 and (' - Adjust %+g'):format(adj) or ''))
   return { class = classKey, prof = prof, p = p, at = C.clock, done = {}, orig = {}, last = -1e9, logged = 0 }
 end

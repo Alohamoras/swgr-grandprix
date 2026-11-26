@@ -91,7 +91,7 @@ T.clickTitle('NEXT RACE')
 -- race 2: you 1st, Biddy Blas 2nd (27 each, you ahead on the latest race); a new record
 tx = race(1, { 1, 2 }, 118.0)
 T.check(has(tx, 'LEVEL ON POINTS WITH BIDDY BLAS, 2 RACES LEFT'), 'race 2: level on points (' .. tostring(find(tx, 'LEVEL') or find(tx, 'BEHIND') or find(tx, 'LEADING')) .. ')')
-T.check(find(tx, 'NEW RECORD  1:58.00   (was 2:00.00)') ~= nil and find(tx, 'OFF YOUR RECORD') == nil, 'race 2: NEW RECORD, and not "off your record"')
+T.check(find(tx, 'NEW RECORD  1:58.00, was 2:00.00') ~= nil and find(tx, 'OFF YOUR RECORD') == nil, 'race 2: NEW RECORD, and not "off your record"')
 T.clickTitle('NEXT RACE')
 -- race 3: Biddy Blas 1st, you 2nd (39 v 42), no record yet on this track: a new record, no near miss
 tx = race(2, { 1, 2 }, 130.0)

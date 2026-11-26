@@ -1,5 +1,193 @@
 # Changelog
 
+## v0.36.5 (2026-11-25): the cup result's bottom half - the verdict alone (owner)
+- Owner, on a screenshot of a Jakku cup's result: "the bottom half of the screen needs to be reworked. It still doesn't
+  make much sense. Think about what should actually be on this screen, generally less is more." What the screenshot showed:
+  the v0.36.2 POINTS tile wrapped "60 OF 60" into three big lines under the game's own PARTICIPATION STREAK heading,
+  spilling onto CONTINUE; the trophy tile was still headed WIN COUNT; the title still said RESULTS.
+- cupend.lua, `Tiles = 'trophy'` (the default): under the timeline one tile only - headed CUP RESULT, centred in its row:
+  your standing (1ST), the trophy (GOLD TROPHY), the medal. The points tile is collapsed with its whole section holder
+  (heading, backer), not just its texts. The title is the cup and the league ("JAKKU CUP  -  CHALLENGER"; CHAMPION added
+  after a won finale), set through the title widget's own `SetScreenTitleText` - the v0.34.2 text names were not this
+  widget's, which is why the screen kept saying RESULTS. The verdict is no longer in the title ('result' / 'streaks'
+  tiles keep it there).
+- How: each tile sits in a `WBP_Panel_Presentation_SectionHolder_C` (its heading is a `WBP_SectionSubLabel` with
+  `SetLabel`); the holder is found by `GetParent` at the moment of use, its slot in the row set to Fill + Center. Nothing
+  kept between ticks. The log's `[cupend] tile holders:` line says the parent chains found, `panels:` which step took
+  (`points tile gone`, `heading CUP RESULT`, `centred`, `title`), and the read-back line the heading and the holders'
+  visibility.
+- Not seen in game (built from the header dumps while the game ran): the centring is the one guess - if the holder's row
+  is not a horizontal box the slot calls fail and the log says so. `CupResult.Tiles = 'result'` brings the two tiles back.
+- Tests: test_cupend A checks the holder collapsed, SetLabel CUP RESULT, the slot Fill + Center, SetScreenTitleText; the
+  fake tour-end screen gained the holders and the row. 50 files pass.
+
+## v0.36.4 (2026-11-25): burnt orange ink on every pale page, the sand strip off (owner)
+- Owner: "you put the white background across some of the text but many of the menus still have the grey that blends
+  with the background, just change the text color to a burnt orange that fits the color scheme". The v0.22 dark greys
+  (0.12 for titles, body and info lines; 0.26 for the small print) go on every pale page: config `Ink` (burnt orange,
+  R 0.78 G 0.33 B 0.06) and `Ink2` (a deeper rust, R 0.62 G 0.28 B 0.08, so the small print still reads as the lighter
+  weight). ui.lua U.ink reads them; `Ink = false` / `Ink2 = false` = that grey back. Pages with a picture keep the light
+  colours as before.
+- `InfoStrip = false`: the v0.36.3 sand strip is off (the code stays; it covered one line on one page).
+- Not yet seen in game (built while the game ran): the two values are a first pick against the sand, the droid's grey and
+  the yellow speeder - name a shade and it is one config line.
+- Tests: 51 files pass (no test reads the ink colours).
+
+## v0.36.3 (2026-11-25): HOME reads - a sand strip behind the league's rules line, and a heading (owner)
+- Owner: "The grey text on the league selection screen is often in front of a grey background and you can't read it, not
+  sure what the solution is here, maybe another washed out color that fits the vibe." The line is the dark ink every pale
+  page uses (0.12 grey); it sits above the posters and runs to the right of the page's block, under the droid and the
+  Steam box - no one text colour reads on both the sand and that grey. ui.lua, config `InfoStrip`: a washed sand strip
+  (R 0.95 G 0.93 B 0.89, alpha 0.82 - the menu art's own light bands) behind HOME's info line, as wide as the block,
+  two lines tall so the posters never move between leagues, collapsed while the line is blank. The ink stays dark on it.
+  `InfoStrip = false` = none. HOME only (main.lua spec.infoStrip): the cups page pads its info line to five lines.
+- Owner: "you should probably have a heading like 'Choose a league' or 'League selection'". HOME's title is CHOOSE A LEAGUE
+  (the display face, like every page title; it was blank since v0.21).
+- The structural fix stays on the list (TASKS §1a-menus, layout grammar step 2: the game's left column, clear of the droid
+  and the speeder); the strip holds either way.
+- Tests: 51 files pass (no test reads HOME's title or the strip).
+
+## v0.36.2 (2026-11-25): the cup result screen's bottom half - the XP rank-up panel gone, a POINTS tile instead (owner)
+- Owner: "the top half with the planet and medals looks great, but the bottom half doesn't really make much sense". The
+  bottom half was the game's PvP rank-up panel wearing our numbers: a rank badge "1st", a next-rank badge "GOLD", a bar
+  filling to 102 / 105 as XP, and the races ticking in as XP awards ("SCRAP SPIRAL, 1st  +15") in the game's small font -
+  a level-up for a cup that has no levels. cupend.lua, config `CupResult.Progress = false` (the default): that panel is
+  collapsed and never started. The two tiles say the result: the WINS tile GOLD TROPHY over 1ST as before, the second
+  tile POINTS over "102 OF 105" (its game-side races / streak pair of texts collapsed, its own function never called). The
+  title line keeps the verdict ("RALLY CUP  -  JUNKER  -  GOLD TROPHY, 1ST"). `Progress = true` brings the panel and the
+  award lines back. The 20 s read-back line now reports the POINTS texts and the panel's visibility too. Not yet seen in
+  game (built while the game ran): if the tiles sit oddly without the panel under them, the next step is our own text
+  over that space (the final top 3 with points).
+- Tests: test_cupend updated (the progress panel collapsed, POINTS over 52 OF 60, no "52 / 60"); 51 files pass.
+
+## v0.36.1 (2026-11-25): the league's rules on HOME, no track names on the cups page (owner, two asks of the evening)
+- Owner: "drop the names of the planet tracks for the cup's selection screen". Config `CupTracks = false`: a planet cup's
+  info line is its planet's own line alone ("Jakku. Starship wrecks boil under the scorching heat of this desert world."),
+  the Rally Cup its one sentence; the circuit lists (five names, four to a line; the rally's seven stages) are gone.
+  `CupTracks = true` brings them back.
+- Owner: "below each of the difficulties there should be an explanation of what that league mechanics are (i.e. 7 points
+  in each part, two tune ups, etc). It should be written in the game voice ... it doesn't need to be shown on the next
+  page". Config `Leagues[].rules`, the focused poster's info line on HOME (it was empty since v0.22):
+  JUNKER "Afterburner and ramjet wound to ten on a scrapyard chassis. Cornering, resilience and drift stock, the battery
+  barely holding. One ability, no tune-ups." / CHALLENGER "Every part at seven, and every rig on the grid the same. Two
+  abilities, one tune-up." / ACE "Every part at ten, every credit spent. Three abilities, two tune-ups, and the field
+  fires everything it carries." The tagline under the name stays. The league's brief ("Two abilities. One tune-up.") no
+  longer heads the cups page (config `CupsBrief = true` puts it back).
+- Tests: test_cups, test_menu20, test_rally, test_start updated; 51 files pass.
+
+## v0.36.0 (2026-11-25): the game's typefaces on our text (docs/layout-grammar-2026-11-25.md §5 step 1; owner)
+- The layout grammar doc (measured against the game's own CAMPAIGN page): layout units are a 3840 x 2160 slate; the
+  game's pages are a left column x 120 - 2205 that stops at the yellow speeder, ours are centred and 750 - 1135 units
+  wider; every text we drew outside a tile was UMG's default Roboto (ui.lua textBlock set only the size) while the tiles
+  and tabs use the game's display face; pale pages had one ink. Owner's answers the same day: the left column, the
+  game's typefaces, the cups page as 4 + 3. One item a version; this is the first.
+- config `GameFonts`: the game's font assets `Font_Display` (page titles), `Font_Body` (sentences, the info line, table
+  headers and names, the tiles' small captions) and `Font_Numbers` (a table's right-aligned columns) set as the
+  `FontObject` of our TextBlocks, each with a size multiplier (`size = 1`; the faces are not Roboto's width). The
+  assets are looked up once per screen build and the log says `[fonts] display: found` (or NOT FOUND, Roboto instead).
+  `GameFonts = false`: Roboto as before. No layout change in this version, so the faces can be judged on their own.
+- Unproven until seen in game: that `Font_Display` is the tiles' heavy face and not `Font_Decorative`, and the sizes
+  (a composite font's default typeface at Roboto's point sizes). The paths and multipliers are config.
+
+## v0.35.0 (2026-11-25): the menus' words - the paddock announcer's voice (owner; docs/menu-text-review-2026-11-25.md pass 1)
+- Owner: "any text we do put on the screen should have the feel of star wars ... explain enough about the choices so
+  the player understands what they are choosing, but not put extra information that they might not need" - then
+  "use your recommendations, do one version". Every line we write is now in one voice (the review's §1: third person,
+  present tense, the setting's nouns, no label-colon-explanation, no parentheses, no control hints as sentences, no
+  talk of the software), and the tiles, badges and icons are not repeated in words.
+- HOME: Challenger "Proper rigs, and pilots out to make a name", Ace "Every credit on the rig. The galaxy's best
+  pilots"; a locked league's tile says "Five JUNKER trophies open it", its info line "A trophy in every JUNKER planet
+  cup opens it. 3 of 5 so far." (no press message). RESET: "Wipe the record books? Every trophy, lap record and title
+  goes." / "There is no way back. Wipe them?" / "A clean slate."
+- CUPS: the brief is the league's rules only ("One ability. No tune-ups."); every planet cup's info opens with the
+  planet's own line (the game's, config Planets.line: "Jakku. Starship wrecks boil under the scorching heat of this
+  desert world.") then its circuits; the Galactic Cup "Derven Acos. Home of the Galactic League, where racers face the
+  ultimate challenge. / Three planets, then Derven Acos. / Finish on the podium and Kestar Bool waits in the stadium.
+  One race for the title."; the Rally Cup "Seven stages, four racers, the clock decides. Weather and nightfall are
+  unknown until you arrive." then the routes.
+- START: "Shade. No family name, no sponsor, just the rig." (was "The campaign's racer"); the pilot, ability and
+  tune-up info lines are "Name. What it does." (no colon); the vehicle line "Landspeeder, speeder bike or skim speeder,
+  in the pilot's colours."; a tune-up slot this league does not have is titled by the league that opens it (ACE under
+  the TUNE-UP caption, review §3.2) with "Opens at ACE."; an empty slot "Nothing fitted."; the tune-up lines with a
+  semicolon are two sentences; no "picked" / "fitted" / "selected" messages (the tile changed), "Slot emptied" only;
+  a new pilot's message "Biddy Blas. Speeder bike, signature kit."; Kestar's lock "Kestar Bool races only for himself
+  until you beat him in the ACE Galactic Cup finale."
+- After a race: the headline in caps ("JAKKU CUP   -   SCRAP SPIRAL   -   RACE 1 OF 4"); "NEW RECORD  1:33.08, was
+  1:37.16"; the prompt "NEXT   FALLEN EMPIRE, SCORCHING          B   LEAVE THE CUP" (the weather part of the name;
+  no "race 2 of 4" - the badge says it); the finale next "BRONZE TROPHY SECURED. KESTAR BOOL NEXT, ONE RACE FOR THE
+  JUNKER TITLE"; "Leave the cup? The points and the trophy go with it."; CONTINUE without "Back to the cups".
+- The cup result's award lines "THE WAR FIELDS, 2nd" (no "Race 2:"), the finale "KESTAR BOOL, ONE ON ONE   -   ACE
+  CHAMPION" / "HE KEEPS THE TITLE". Unlocks: "CHALLENGER OPENS" / "CHALLENGER AND THE GALACTIC CUP AT JUNKER OPEN"
+  (no "UNLOCKED:"); "KESTAR BOOL RACES IN YOUR COLOURS NOW". The title / boss pages (off since v0.33) reworded too.
+  Offline: "The Grand Prix runs offline. Leave your party or the queue, then come back."
+- Not in this version (pass 2, one item a version, each seen in game): the results prompt as two text blocks, the
+  RESET tile smaller, the cups page header centred (review §3.1, 3.3, 3.4).
+- Tests: 19 files updated to the new lines; test_tiletext (the tile text budget) passes on every tile.
+
+## v0.34.3 (2026-11-25): the Rally Cup's rivals catch up (owner)
+- Owner: "for the rally cup, the enemies need a much stronger catch up factor". Every league profile switches the
+  game's catch-up off (MaxAiCatchupScale 1.0), which on the rally's point-to-point stages with a 4-car grid left the
+  rivals 15-57 s behind over a 1:46 stage (the owner's Challenger rally, grandprix.log 2026-11-25 16:27-16:30). Config
+  `Rally.AI` now goes on top of the league's profile for every rally stage (ai.lua `A.merged`, race.lua at launch):
+  `MaxAiCatchupScale 1.6` (the game's own 1.3) after `AiBehindTimeToMaxCatchup 0.5 s` behind (the game's 2), on
+  DA_AIConfig and both pacing assets, put back at the menu as always. The slowdown when ahead stays as the league has
+  it (off at Challenger / Ace: they don't wait for you either). The log says `[ai] league challenger (rally profile): ...`
+  and the `[aiset] race league=challenger (rally profile)` read-back shows the values. `Rally.AI = false` = the
+  league's profile as it is. Untested in game: the owner's next rally tells - the `[gaps]` lines per stage should
+  shrink from 15-57 s to a few seconds.
+- Tests: test_rally (the profile on the config and the pacing assets, the league's pressure kept), test_ai (A.merged).
+
+## v0.34.2 (2026-11-25): the cup result screen - the trophy and your standing, the streak tile gone (owner)
+- Owner, after the Ando cup: "the results screen at the end of the cup needs some work. Participation streak and win
+  count seem superfluous, replace those with just the trophy or ending standing of the cup". cupend.lua, config
+  `CupResult.Tiles = 'trophy'`: the participation tile (races in a row / best streak) is collapsed and its function
+  never called; the WINS tile is the trophy - the medal in its colour, "GOLD TROPHY" over your standing "1ST" ("NO
+  TROPHY" over "5TH") - and the screen's title line says it too ("ANDO CUP  -  JUNKER  -  GOLD TROPHY, 1ST"), so the
+  verdict shows even if the tile's texts turn out to be bound to the game's own numbers. A fourth text pass at 20 s
+  reads the tiles back first and logs what they hold (`[cupend] tiles read back`): if the owner still sees "WINS" and
+  a streak there, that line says why. `Tiles = 'result'` is v0.32.9's layout, `'streaks'` the game's.
+- Tests: test_cupend updated (the participation tile hidden, the title line, no POINTS / PODIUMS tile).
+
+## v0.34.1 (2026-11-25): the planets off the cup tiles (owner)
+- Owner, after seeing v0.33.0's planet pictures on the cup tiles in game: "didn't really turn out like I wanted them
+  to, go ahead and revert that change". Config `CupPlanets = false`: the cup tiles are as they were before v0.33.0
+  (the poster, the cup's name). The code stays behind the switch (0.86 brings it back); the once-per-cup-result
+  `[cupend] the timeline's planet widgets` recon line stays too. Tests: test_finale updated.
+
+## v0.34.0 (2026-11-25): the car per league - Junker engine 10, Challenger 7, Ace 10 (owner; L1 of §1b)
+- Owner (docs/league-styles-2026-11-12.md "2026-11-25"): "for ace let's set everything to 10 ... take the afterburner
+  and ramjet to 10" at Junker. Config `Leagues[].parts`: Junker `{ [1] = 10, [3] = 10, [4] = 2 }` (afterburner and
+  ramjet 6 -> 10, battery 2, cornering / resilience / drift stock), Challenger 7 everywhere (was 5; **owner to
+  confirm**, OWNER.md), Ace 10 everywhere (was 9). Every bot races a copy of your car, so each league's car is the
+  whole field's. Taglines: Challenger "Balanced rigs and pilots out to make a name", Ace "Money, maxed out, and a clean
+  field"; briefs "Balanced engines" / "Maxed-out engines".
+- `AI.Strength.ace` shifted down to `{ elite = 0, contender = -1, weak = -3 }`: with your car at 10 the old +2 / +1 had
+  nowhere to go, so the Elite race your car, contenders 9, the weak 7. (Open: the game's own level 10 writes 13 stacks,
+  so stacks above 10 may still count - a held race would tell; docs/league-styles §"2026-11-25".) Challenger 7 + 2 = 9
+  keeps its room. The `[builds]` log lines show each tier's levels at load as before.
+- Config only, no code. Tests: test_config, test_leagues, test_start, test_menu20, test_experiment, test_vehicles,
+  test_title, test_racervehicle updated to the new levels; 50 files pass.
+
+## v0.33.0 (2026-11-25): Kestar closes the Galactic Cup, no title race; the planets on the cup tiles (owner)
+- Owner: "ditch the title race and put the Kestar race at the end of the Galactic Cup" - his pick: race 5, only with
+  a trophy. The Galactic Cup's four points races decide the trophy as before; a trophy (config `Boss.Gate`: 'trophy' /
+  'gold' / 'always') adds Kestar Bool's Stadium Showdown as race 5 of the same cup - no points (the standings and the
+  tie rule stay as the points races left them), the standings page says "BRONZE TROPHY SECURED - NEXT: KESTAR BOOL,
+  1 v 1 FOR THE JUNKER TITLE" and NEXT RACE carries his face. Win it and you are that league's champion (the star on the
+  league's HOME tile, `titles[league]` in the save); at Ace it also unlocks him as a racer. Off the podium the cup just
+  ends. The cup result (both screens) says CHAMPION or "KESTAR BOOL KEEPS THE TITLE"; the tour-end screen's crown goes
+  on the finale only when you won it, its points line reads "Finale: KESTAR BOOL 1 v 1, won - ACE CHAMPION". The
+  TITLE RACE tile and the KESTAR BOOL tile are gone: seven tiles per league. `Title.On = true` / `Boss.Where = 'tile'`
+  keep the old flow (test_title, test_leagues cover it under that config).
+- Owner: "for the cup selection screen, let's try and use the planets from the end of cup screen": every cup tile
+  now carries the game's round planet picture (`Content/Planets/T_UI_Planet_<code>`, the set the tour-end timeline
+  draws from) flush left at 0.86 of the tile's height, the cup's name to its right (config `CupPlanets`: a share of
+  the height, or false). The Galactic Cup shows Derven Acos (the ringed one), the Rally Cup Ando Prime. Not yet seen
+  in game: the exact texture the timeline draws is logged once per cup result (`[cupend] the timeline's planet
+  widgets: ...`) so the tiles can be matched to it if they differ.
+- Tests: test_finale (48 checks, new), test_cups / flow / leagues / pacing / prog / racervehicle / title / trophies /
+  unlocks updated; 50 files, 1537 checks.
+
 ## v0.32.10 (2026-11-25): the cup result screen closes on A, Enter, Space, B or Escape (fix)
 - The first one in game closed by its 120 s timer, not by the owner: with the summary over the results our CUP RESULT
   button lost the focus, so the pad's A reached nothing, and Enter was never bound. Now, while the summary is up, the

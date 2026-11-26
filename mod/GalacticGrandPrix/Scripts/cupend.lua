@@ -18,6 +18,18 @@
 -- chain.lua's flags); AddToViewport under 10000 drew under the menu; the timeline's race widgets only show the place
 -- for a podium, so each one's place box is shown for every race, found by class a few times while the timeline plays in.
 -- Nothing is kept between ticks but the screen's path + address and numbers; the view models are told apart by address.
+-- v0.36.2 (owner 2026-11-25: "the top half with the planet and medals looks great, but the bottom half doesn't really
+-- make much sense"): the bottom half was the game's PvP rank-up panel wearing our numbers - a bar from "1st" to "GOLD",
+-- the points as XP, the races as XP awards ticking in. Config CupResult.Progress = false (the default) collapses that
+-- panel; the two tiles say the result instead: GOLD TROPHY over 1ST, POINTS over 102 OF 105. Progress = true: the panel.
+-- v0.36.5 (owner 2026-11-25, seen on a Jakku cup: "the bottom half needs to be reworked, it still doesn't make much
+-- sense ... think about what should actually be on this screen, less is more"): the points tile wrapped "60 OF 60" into
+-- three big lines under the game's PARTICIPATION STREAK heading, the other tile still said WIN COUNT, the title still
+-- said RESULTS (our text names were not the title widget's). Now the bottom half is the verdict alone: one tile, centred
+-- in its row, headed CUP RESULT - your standing, the trophy and the medal. The points tile goes with its whole section
+-- holder (heading, backer); the title is the cup and the league through the widget's own SetScreenTitleText. The
+-- tiles sit in the game's section holders (a heading with its Aurebesh line and a backer) in a row under the timeline;
+-- a tile's holder is its nearest ancestor of that class, found by GetParent at the moment of use.
 -- Config CupResult.Native = false: the old flow (CUP RESULT goes straight to our cup result page at the menu, which
 -- still follows either way).
 local C = require('core')
@@ -36,15 +48,48 @@ local VIS_COLLAPSED, VIS_SELF_HIT_INVISIBLE = 1, 4
 
 local function conf() return type(cfg.CupResult) == 'table' and cfg.CupResult or {} end
 function CE.on() return conf().Native ~= false end
+local function progressOn() return conf().Progress == true end   -- (v0.36.2: the XP rank-up panel only when asked)
 local function fixupMs() return (tonumber(conf().FixupS) or 12) * 1000 end
 function CE.closeMs() return (tonumber(conf().CloseS) or 120) * 1000 end
 -- v0.32.9 (owner, after the first one in game: "I love the layout ... I'd rather have something more prominent that
 -- just says how I did overall in the cup (gold / silver medal etc.)" than the wins-in-a-row and races-in-a-row tiles):
 -- the WINS tile carries the trophy - one medal in the trophy's colour, "GOLD TROPHY" over "1ST" - and the
 -- participation tile your points and podiums. Config CupResult.Tiles = 'streaks' keeps the game's own meaning.
+-- v0.34.2 (owner, after the Ando cup 2026-11-25: "Participation streak and win count seem superfluous, replace those
+-- with just the trophy or ending standing of the cup"): Tiles = 'trophy' (the default) - the participation tile is
+-- collapsed and its UpdateParticipation never called; the WINS tile is the trophy (the medal in its colour, "GOLD
+-- TROPHY" over your standing "1ST"); the screen's title line says the trophy and the standing too ("ANDO CUP  -  JUNKER
+-- -  GOLD TROPHY, 1ST"), in case the tile's texts are bound to the game's numbers (a read-back line in the log,
+-- `[cupend] tiles read back`, says what the texts hold a while after our writes). 'result' = v0.32.9's two tiles.
 local MEDAL = { GOLD = { R = 1.0, G = 0.78, B = 0.2, A = 1 }, SILVER = { R = 0.8, G = 0.8, B = 0.85, A = 1 }, BRONZE = { R = 0.8, G = 0.5, B = 0.25, A = 1 } }
-local function resultTiles() return conf().Tiles ~= 'streaks' end
+local function tilesMode() local t = conf().Tiles; return (t == 'streaks' or t == 'result') and t or 'trophy' end
+local function resultTiles() return tilesMode() ~= 'streaks' end
 local function trophyName(sm) return type(sm.trophy) == 'string' and sm.trophy:upper() or nil end
+local function standing(sm) return sm.rank and C.ordinal(sm.rank):upper() or '-' end
+local HOLDER = 'WBP_Panel_Presentation_SectionHolder_C'
+-- a tile's section holder (nil when none is found within a few parents); the chain of classes for the log
+local function holderOf(tile)
+  local o, chain = tile, {}
+  for _ = 1, 6 do
+    o = alive(o) and try(function() return o:GetParent() end) or nil
+    if not alive(o) then break end
+    chain[#chain + 1] = C.clsname(o)
+    if C.clsname(o) == HOLDER then return o, table.concat(chain, ' < ') end
+  end
+  return nil, table.concat(chain, ' < ')
+end
+local function collapse(o) return alive(o) and try(function() o:SetVisibility(VIS_COLLAPSED); return true end) == true end
+local function visOf(o) return tostring(alive(o) and try(function() return o:GetVisibility() end) or '-') end
+-- the trophy and the standing as one line ("GOLD TROPHY, 1ST" / "NO TROPHY, 5TH")
+local function verdict(sm) return ((trophyName(sm) and (trophyName(sm) .. ' TROPHY')) or 'NO TROPHY') .. ', ' .. standing(sm) end
+-- what a text block shows now (read-only; '-' = no such block, '?' = unreadable)
+local function textOf(o, field)
+  local t = alive(o) and try(function() return o[field] end)
+  if not alive(t) then return '-' end
+  local ft = try(function() return t:GetText() end)
+  local s = ft and try(function() return ft:ToString() end)
+  return type(s) == 'string' and s or '?'
+end
 
 ---------------------------------------------------------------------------------------------------------------------
 -- the cup as numbers: { races = { { title, planet (config entry), place (nil = DNF), pts, path } }, wins, top3, dnfs,
@@ -65,16 +110,19 @@ function CE.summary(out)
       if place <= 3 then top3 = top3 + 1 end
     end
     if streak > best then best = streak end
-    races[i] = { title = race.shown or race.title or '?', planet = K.planetOf(race.path), place = place, pts = (me and tonumber(me.pts)) or 0, path = race.path }
+    races[i] = { title = race.shown or race.title or '?', planet = K.planetOf(race.path), place = place, pts = (me and tonumber(me.pts)) or 0, path = race.path,
+      finale = race.boss == true } -- (v0.33: the Galactic Cup's finale, Kestar's 1 v 1: no points)
   end
   local cup = K.cup(run.cup)
   local pts = type(cfg.Points) == 'table' and tonumber(cfg.Points[1]) or 15
+  local scored = 0
+  for _, r in ipairs(races) do if not r.finale then scored = scored + 1 end end
   -- (your points: out.pts from K.record; the sum of the races' points when it isn't there)
   local total = tonumber(out.pts)
   if not total then total = 0; for _, r in ipairs(races) do total = total + r.pts end end
   return { races = races, wins = wins, top3 = top3, dnfs = dnfs, streak = best, total = total,
-    max = pts * #list, rank = tonumber(out.rank), trophy = out.trophy, name = cup and cup.name or tostring(run.cup),
-    league = K.leagueName(run.class), timed = run.timed == true }
+    max = pts * scored, rank = tonumber(out.rank), trophy = out.trophy, name = cup and cup.name or tostring(run.cup),
+    league = K.leagueName(run.class), timed = run.timed == true, finale = type(out.finale) == 'table' and out.finale or nil }
 end
 
 ---------------------------------------------------------------------------------------------------------------------
@@ -127,7 +175,8 @@ local function fill(w, sm)
     if e then
       set(e, 'FinishPosition', r.place or 0)
       set(e, 'NumberOfWrecks', 0)
-      set(e, 'Activity', (i == #sm.races) and ACT_CHAMPION or ACT_STANDARD)
+      -- (the crown on the cup's last race; v0.33: on the finale only when you won it)
+      set(e, 'Activity', (i == #sm.races and not (r.finale and r.place ~= 1)) and ACT_CHAMPION or ACT_STANDARD)
       local a = C.addr(e)
       if a then d.byVm[a] = r end
       p.entries[#p.entries + 1] = e
@@ -162,7 +211,15 @@ local function fill(w, sm)
   local awards = {}
   for i, r in ipairs(sm.races) do
     local what = r.place and C.ordinal(r.place) or 'DNF'
-    awards[#awards + 1] = { XP = r.pts, Tag = { TagName = FName('None') }, Reason = FText(('%s %d: %s, %s'):format(sm.timed and 'Stage' or 'Race', i, r.title, what)) }
+    if r.finale then
+      -- v0.33: the finale's line: won - the champion; lost - who kept the title
+      local fin = sm.finale or {}
+      -- (v0.35.0: no "Finale:" / "Race 2:" labels - the timeline shows the order)
+      what = r.place == 1 and ('%s CHAMPION'):format(tostring(fin.league or sm.league):upper()) or 'HE KEEPS THE TITLE'
+      awards[#awards + 1] = { XP = 0, Tag = { TagName = FName('None') }, Reason = FText(('%s, ONE ON ONE   -   %s'):format(tostring(fin.vs or 'Kestar Bool'):upper(), what)) }
+    else
+      awards[#awards + 1] = { XP = r.pts, Tag = { TagName = FName('None') }, Reason = FText(('%s, %s'):format(r.title, what)) }
+    end
   end
   local xp = new('PvpXPResultsVM', w)
   if xp then
@@ -202,8 +259,34 @@ local function panels(w, d, sm)
       call('UpdateWins', function() wins:UpdateWins(sm.wins) end)
     end
   end
-  if part then call('UpdateParticipation', function() part:UpdateParticipation(#sm.races - sm.dnfs, sm.streak) end) end
-  if prog then
+  if tilesMode() == 'trophy' then
+    -- v0.36.5: the verdict alone under the timeline - the trophy tile, headed CUP RESULT, centred in its row; the
+    -- points tile gone with its holder (v0.34.2 hid the tile and left its heading and backer; v0.36.2 made it POINTS)
+    local ph, pchain = nil, ''
+    if part then ph, pchain = holderOf(part) end
+    if part then ok[#ok + 1] = 'points tile gone' .. (collapse(ph or part) and (ph and '' or ' (the tile only)') or ' (failed)') end
+    local wh, wchain = nil, ''
+    if wins then wh, wchain = holderOf(wins) end
+    if wh then
+      local lab = try(function() return wh.WBP_SectionSubLabel end)
+      local said = alive(lab) and (try(function() lab:SetLabel(FText('CUP RESULT')); return true end) == true
+        or try(function() lab.Txt_Label:SetText(FText('CUP RESULT')); return true end) == true)
+      ok[#ok + 1] = 'heading CUP RESULT' .. (said and '' or ' (failed)')
+      -- the holder's slot in the row: fill the row, the tile centred in it at its own width (EHorizontalAlignment Center = 2)
+      local sl = try(function() return wh.Slot end)
+      local centred = alive(sl) and try(function() sl:SetSize({ SizeRule = 1, Value = 1 }); sl:SetHorizontalAlignment(2); return true end) == true
+      ok[#ok + 1] = 'centred' .. (centred and '' or (' (failed on ' .. (alive(sl) and C.clsname(sl) or 'no slot') .. ')'))
+    elseif wins then
+      ok[#ok + 1] = 'no holder for the trophy tile (' .. wchain .. ')'
+    end
+    log(('[cupend] tile holders: trophy < %s | points < %s'):format(wchain ~= '' and wchain or '-', pchain ~= '' and pchain or '-'))
+  elseif part then
+    call('UpdateParticipation', function() part:UpdateParticipation(#sm.races - sm.dnfs, sm.streak) end)
+  end
+  if prog and not progressOn() then
+    -- v0.36.2: the PvP rank-up panel (a bar from "1st" to "GOLD", the points as XP) makes no sense for a cup: collapsed
+    ok[#ok + 1] = 'Progress hidden' .. (try(function() prog:SetVisibility(VIS_COLLAPSED); return true end) == true and '' or ' (failed)')
+  elseif prog then
     if d.xp then set(prog, 'PVPXPVM', d.xp) end
     set(prog, 'StartRank', 1); set(prog, 'CurrentRank', 1); set(prog, 'NextRank', 2); set(prog, 'StartXP', 0)
     set(prog, 'TotalXPEarned', 0)                      -- (the animation adds each award itself)
@@ -211,28 +294,47 @@ local function panels(w, d, sm)
     setList(prog, 'XPAwards', d.awards)
     call('BeginProgressAnimationFromXPAwards', function() prog:BeginProgressAnimationFromXPAwards() end)
   end
-  -- the screen's title: the cup and the league (the title widget's text block, whichever name it has)
+  -- the screen's title: the cup and the league, through the title widget's own function (v0.36.5; the earlier text
+  -- names were not this widget's, so the screen kept saying RESULTS). The verdict is the tile's; 'result' / 'streaks'
+  -- tiles keep it in the title (v0.34.2).
   local title = sub('WBP_Screen_Title')
   if title then
     local text = ('%s  -  %s'):format(sm.name, sm.league)
-    local done = false
-    for _, f in ipairs({ 'Txt_Title', 'Txt_Label', 'Txt_Header' }) do
-      local t = try(function() return title[f] end)
-      if alive(t) and pcall(function() t:SetText(FText(text)) end) then done = true; break end
+    if tilesMode() ~= 'trophy' then text = text .. '  -  ' .. verdict(sm) end
+    if sm.finale and sm.finale.won then text = text .. '  -  CHAMPION' end
+    local done = try(function() title:SetScreenTitleText(FText(text)); return true end) == true
+    if not done then
+      local t = try(function() return title.Txt_ScreenTitle end)
+      done = alive(t) and try(function() t:SetText(FText(text)); return true end) == true
     end
-    if not done then try(function() title:SetText(FText(text)) end) end
+    ok[#ok + 1] = 'title' .. (done and '' or ' (failed)')
   end
   log('[cupend] panels: ' .. table.concat(ok, ', '))
 end
 
 -- the numbers into the texts the panels' own set-up may not show (a moment after the panels, then again later)
-local function direct(w, sm)
+local function direct(w, sm, readBack)
   local function put(holder, field, s)
     local o = try(function() return w[holder] end)
     local t = alive(o) and try(function() return o[field] end)
     if alive(t) then try(function() t:SetText(FText(s)) end) end
   end
-  if resultTiles() then
+  if readBack then
+    -- v0.34.2: what the texts hold now, before this pass writes them again - bound texts would show the game's numbers
+    local wins, part = try(function() return w.WBP_MP_Wins end), try(function() return w.WBP_MP_Participation end)
+    local prog = try(function() return w.WBP_MP_Progress end)
+    local ph, wh = alive(part) and holderOf(part) or nil, alive(wins) and holderOf(wins) or nil
+    local lab = alive(wh) and try(function() return wh.WBP_SectionSubLabel end) or nil
+    log(('[cupend] tiles read back (%s): Wins heading=%s label=%s amount=%s holder vis=%s | Participation vis=%s holder vis=%s label=%s amount=%s | Progress vis=%s'):format(tilesMode(),
+      textOf(lab, 'Txt_Label'), textOf(wins, 'Txt_Label'), textOf(wins, 'Txt_Amount'), visOf(wh),
+      visOf(part), visOf(ph), textOf(part, 'Txt_WinRaces'), textOf(part, 'Txt_WinsAmount'), visOf(prog)))
+  end
+  if tilesMode() == 'trophy' then
+    -- v0.36.5: the one tile - the trophy over your standing; nothing written on the points tile (it is collapsed)
+    local t = trophyName(sm)
+    put('WBP_MP_Wins', 'Txt_Label', t and (t .. ' TROPHY') or 'NO TROPHY')
+    put('WBP_MP_Wins', 'Txt_Amount', standing(sm))
+  elseif resultTiles() then
     -- the WINS tile: the trophy and your place; the participation tile: points and podiums
     local t = trophyName(sm)
     put('WBP_MP_Wins', 'Txt_Label', t and (t .. ' TROPHY') or 'NO TROPHY')
@@ -246,9 +348,37 @@ local function direct(w, sm)
     put('WBP_MP_Participation', 'Txt_Amount_1', tostring(#sm.races - sm.dnfs))
     put('WBP_MP_Participation', 'Txt_WinsAmount', tostring(sm.streak))
   end
-  put('WBP_MP_Progress', 'Txt_RankThreshold', ('%d / %d'):format(sm.total, sm.max))
-  if sm.rank then put('WBP_MP_Progress', 'Txt_CurrentRank', C.ordinal(sm.rank)) end
-  if type(sm.trophy) == 'string' then put('WBP_MP_Progress', 'Txt_NextRank', sm.trophy:upper()) end
+  if progressOn() then
+    put('WBP_MP_Progress', 'Txt_RankThreshold', ('%d / %d'):format(sm.total, sm.max))
+    if sm.rank then put('WBP_MP_Progress', 'Txt_CurrentRank', C.ordinal(sm.rank)) end
+    if type(sm.trophy) == 'string' then put('WBP_MP_Progress', 'Txt_NextRank', sm.trophy:upper()) end
+  else
+    local prog = try(function() return w.WBP_MP_Progress end)
+    if alive(prog) then try(function() prog:SetVisibility(VIS_COLLAPSED) end) end
+  end
+end
+
+-- v0.33 recon (once per summary, for the cups page's planets - art.lua A.ball): what the timeline's planet widgets
+-- draw: each child of the planets box, its class and the texture behind the first image field found. Read only.
+local function planetPictures(w)
+  local tl = try(function() return w.WBP_Timeline end)
+  local hb = alive(tl) and try(function() return tl.HB_Planets end)
+  local n = alive(hb) and try(function() return hb:GetChildrenCount() end)
+  if type(n) ~= 'number' or n < 1 then return nil end
+  local out = {}
+  for i = 0, math.min(n, 8) - 1 do
+    local c = try(function() return hb:GetChildAt(i) end)
+    if alive(c) then
+      local found = {}
+      for _, f in ipairs({ 'Img_Planet', 'Img_PlanetIcon', 'Img_Planet_Icon', 'Image_Planet', 'Img_Icon', 'Img_Bg', 'Img_Background' }) do
+        local img = try(function() return c[f] end)
+        local res = alive(img) and try(function() return img.Brush.ResourceObject end)
+        if alive(res) then found[#found + 1] = f .. '=' .. tostring(try(function() return res:GetFName():ToString() end)) end
+      end
+      out[#out + 1] = tostring(C.clsname(c)) .. (#found > 0 and (' (' .. table.concat(found, ' ') .. ')') or '')
+    end
+  end
+  return table.concat(out, ', ')
 end
 
 -- the timeline's race widgets show the place for a podium only: the place box shown for every race (matched to its
@@ -311,9 +441,13 @@ function CE.tick()
     local n = places(st)
     if n > 0 and not st.placesSaid then st.placesSaid = true; log(('[cupend] timeline race widgets: %d, place boxes shown'):format(n)) end
   end
-  if (st.direct == 0 and age > 1000) or (st.direct == 1 and age > 2500) or (st.direct == 2 and age > 8000) then
+  if (st.direct == 0 and age > 1000) or (st.direct == 1 and age > 2500) or (st.direct == 2 and age > 8000) or (st.direct == 3 and age > 20000) then
     st.direct = st.direct + 1
-    direct(w, st.sm)
+    direct(w, st.sm, st.direct == 4)      -- (the last pass reads the texts back first: did ours stick?)
+    if st.direct == 2 then
+      local pics = planetPictures(w)
+      if pics then log('[cupend] the timeline\'s planet widgets: ' .. pics) end
+    end
   end
   return true
 end

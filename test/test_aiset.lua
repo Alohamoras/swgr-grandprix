@@ -112,7 +112,7 @@ mark = T.mark()
 R.launch(ev, 'challenger', 'car', nil, nil, { ai = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 1.0 } } })
 T.check(W.rp.Default.PacingSettingsConfig.MaxAiCatchupScale == 1 and W.rp.Honest.PacingSettingsConfig.MaxAiCatchupScale == 1
   and W.ai.DefaultPacingSettings.MaxAiCatchupScale == 1, 'study profile pacing on all three')
-T.check(count('[aiset] race league=challenger study', mark) == 1, 'study race: one [aiset] line')
+T.check(count('[aiset] race league=challenger (study profile)', mark) == 1, 'study race: one [aiset] line')
 W.race(11); M.tick(60)
 W.finish(1); M.tick(25)
 t0 = os.time(); while os.time() - t0 < 3 do end

@@ -36,8 +36,22 @@ return {
     -- cols / rows / w / h (nil = the TabLayout grid)
     CupsLayout = { cols = 4, rows = 2, w = 520, h = 350 },
     -- v0.23 (TASKS round 3 item 2): the cups page in rows, centred: the five planet cups in one row, then the Galactic
-    -- Cup two tiles wide, the title race and (Ace, after its title) Kestar Bool. nil = the CupsLayout grid.
+    -- Cup two tiles wide and (v0.33: no title race) the Rally Cup. nil = the CupsLayout grid.
     CupsRows = { { w = 560, h = 380, n = 5 }, { w = 560, h = 380 } },
+    -- v0.33 (owner 2026-11-25: "use the planets from the end of cup screen"): the game's round planet picture (the
+    -- one the cup result's timeline draws) on the left of every cup tile, over the poster, the cup's name to its
+    -- right. A number = its height as a share of the tile's (1 = the full height, like the pilot portraits); false = off.
+    -- v0.34.1 (owner, after seeing it in game: "didn't really turn out like I wanted them to"): off. The code stays
+    -- (main.lua ball, art.lua A.ball, ui.lua's left glyph); 0.86 brings it back.
+    CupPlanets = false,
+    -- v0.36.1 (owner 2026-11-25: "drop the names of the planet tracks for the cup's selection screen"): the cups page's
+    -- info line names no tracks - a planet cup shows its planet's line only, the rally its one sentence. true = the
+    -- circuit names back (a planet cup's five, four to a line; the rally's seven stages).
+    CupTracks = false,
+    -- v0.36.1 (owner: the league's mechanics belong on HOME, "it doesn't need to be shown on the next page"): the league's
+    -- brief ("Two abilities. One tune-up.") no longer heads the cups page; its `rules` line is HOME's info line for the
+    -- focused league instead. true = the brief back under the league's name on the cups page.
+    CupsBrief = false,
     -- v0.24: HOME in rows: the leagues as tall posters (a medal per cup on each), RESET small below; the garage
     -- (the start screen) at this tile size, START this tall. v0.26: three leagues, wider (760)
     HomeRows = { { w = 760, h = 560, n = 3 }, { w = 600, h = 200 } },
@@ -50,6 +64,18 @@ return {
     FocusHoldMs = 1000,
     -- v0.25: a dark drop shadow on tile text (no grey strips since v0.24); false = none
     TileTextShadow = true,
+    -- v0.36 (docs/layout-grammar-2026-11-25.md §5 step 1; owner 2026-11-25: the game's typefaces): the game's own font
+    -- assets on every text we draw outside a tile (page titles, briefs, the info line, tables, prompts - Roboto, UMG's
+    -- default, until now; the tiles' own text was always the game's). display = page titles, body = sentences, the
+    -- info line, table headers and names, numbers = a table's right-aligned columns. A path can be swapped for another
+    -- of the game's composite fonts (Font_Decorative, Font_Diegetic, Font_DiegeticBody, Font_Subtitles_Fiction);
+    -- size = a multiplier on that role's sizes (the faces are not Roboto's width). false = Roboto as before.
+    -- The log says which were found: `[fonts] display: found`.
+    GameFonts = {
+      display = { '/Game/Griffin/UI/Library/Fonts/Font_Display', size = 1 },
+      body = { '/Game/Griffin/UI/Library/Fonts/Font_Body', size = 1 },
+      numbers = { '/Game/Griffin/UI/Library/Fonts/Font_Numbers', size = 1 },
+    },
     -- v0.23: racers' faces on the title race and final boss tiles, by racer key. v0.25 (seen in game 2026-11-11): the
     -- game's large character pictures (Content/Characters/*_Fallback) draw broken through the tile's picture (a white
     -- tile with scraps), so none are listed; the stadium picture stays. Format: { RacerKey = '/Game/...texture' }.
@@ -92,6 +118,19 @@ return {
     PageBackdrop = false,
     -- v0.22: dark grey text on the pages without a picture behind them (the menu's art is pale); false = light text
     DarkText = true,
+    -- v0.36.4 (owner: the dark grey "blends with the background" - the droid and the Steam box - on many menus; "just
+    -- change the text color to a burnt orange that fits the color scheme"): the ink on the pale pages. Ink = titles, body
+    -- lines and the info line (was dark grey 0.12); Ink2 = the small print, GREY lines (was 0.26 grey), a deeper rust so
+    -- the two still read as two weights. { R, G, B } 0..1. Ink = false (or Ink2 = false) = that v0.22 grey back.
+    Ink = { 0.78, 0.33, 0.06 },
+    Ink2 = { 0.62, 0.28, 0.08 },
+    -- v0.36.3 (owner: "the grey text on the league selection screen is often in front of a grey background and you can't
+    -- read it ... maybe another washed out color that fits the vibe"): a washed sand strip behind HOME's info line (the
+    -- league's rules), the colour of the menu art's own light bands; the dark ink stays. The strip is as wide as the
+    -- page's block, two lines tall, collapsed while the line is blank. false = no strip. (HOME only for now: the cups
+    -- page pads its info line to five lines, a tall pale box there would look odd - main.lua spec.infoStrip.)
+    -- v0.36.4: off (owner: the strip covered one line, the grey stayed on every other menu; the orange ink instead)
+    InfoStrip = false,
     -- v0.22: seconds the main menu must be on screen before the tab is added (was ~3 s, a v0.9.0 crash guard)
     -- v0.27.5: 0.5 (the v0.9.0 crash was most likely the long-gone CampaignLogger mod; 1.0 if the menu misbehaves)
     TabSettleS = 0.5,
@@ -125,7 +164,14 @@ return {
     -- Tiles (v0.32.9, owner): 'result' = the WINS tile shows the trophy and your place, the other one points and podiums;
     -- 'streaks' = the game's own wins-in-a-row / races meaning.
     -- MenuPage (v0.32.9, owner): false = after the tour-end screen the menu opens on the cups page, not our old result page.
-    CupResult = { Native = true, FixupS = 12, CloseS = 120, Tiles = 'result', MenuPage = false },
+    -- Tiles (cupend.lua): 'trophy' (v0.34.2, owner: the streak and win-count tiles are superfluous; v0.36.5, owner: "less
+    -- is more") = one tile under the timeline, headed CUP RESULT and centred: your standing, the trophy, the medal; the
+    -- points tile gone with its heading; the title the cup and the league. 'result' = v0.32.9's trophy + points /
+    -- podiums tiles; 'streaks' = the game's own wins and streaks.
+    -- v0.36.2 (owner: "the bottom half doesn't really make much sense"): Progress = false collapses the game's PvP rank-up
+    -- panel (a bar from "1st" to "GOLD", the points as XP, a race per award line). Progress = true: the panel with the
+    -- award lines as in v0.32.8-v0.36.1.
+    CupResult = { Native = true, FixupS = 12, CloseS = 120, Tiles = 'trophy', Progress = false, MenuPage = false },
 
     -- Lua garbage: collect a little on every tick (KB of work per step) so it never piles up into one big pause
     -- (v0.3.4, race stutter). GcStep = false to switch off for a comparison.
@@ -144,7 +190,8 @@ return {
     -- the four cc classes. Every part of your vehicle at `parts`; abilities = the level of everyone's abilities (yours
     -- and the AI's); mods = how many tune-up slots are open. v0.27 (owner: the v0.26 speed chevrons read as
     -- progress): tagline = the line on the focused HOME poster (who races here, in the galaxy's words); brief = what
-    -- you get, under the league's name on its cups page. key is used in the save (best / records / titles / leader / the cup
+    -- you get, under the league's name on its cups page. v0.35.0 (owner, docs/menu-text-review-2026-11-25.md): the
+    -- brief is the league's rules only (the tagline said what the rig is); the taglines in the paddock announcer's voice. key is used in the save (best / records / titles / leader / the cup
     -- run's `class` field, which holds a league key): never change it. The AI profile per league: AI.Profiles below.
     -- parts: one level for every slot, or a table by slot (EVehiclePartSlot: 0 Cornering, 1 Acceleration, 2 Resilience,
     -- 3 Boost, 4 AbilityUsage, 5 Advanced; the stat bars in the same order read CORNERING, AFTERBURNER, RESILIENCE,
@@ -156,15 +203,27 @@ return {
         -- ramjet 2 points more ("racing a piece of junk that can go faster than it probably should"): slots 1 and 3
         -- (Acceleration, Boost - the AFTERBURNER and RAMJET bars by their order on the parts screen) 2 -> 4, Battery 2
         -- v0.29.1 (owner): another +2 - afterburner and ramjet 6
-        { key = 'riffraff', name = 'JUNKER', parts = { [1] = 6, [3] = 6, [4] = 2 }, mods = 0, abilities = 1, open = true,
+        -- v0.34.0 (owner 2026-11-25, docs/league-styles-2026-11-12.md "2026-11-25"): the car per league decided. Junker:
+        -- afterburner and ramjet 10 ("take the afterburner and ramjet to 10"), battery 2, cornering / resilience / drift
+        -- stock - too much engine on a scrapyard chassis. Challenger 7 everywhere (was 5; owner to confirm). Ace 10
+        -- everywhere ("for ace let's set everything to 10") - the money league. Every bot races a copy of your car
+        -- (KNOWLEDGE §5), so this is the whole field's car at each league.
+        -- v0.36.1 (owner 2026-11-25: "below each of the difficulties there should be an explanation of what that league
+        -- mechanics are ... in the game voice"): `rules` - the focused poster's info line on HOME, the parts, abilities and
+        -- tune-ups as the paddock announcer says them (docs/menu-text-review-2026-11-25.md §1). The stat bars' names:
+        -- CORNERING, AFTERBURNER, RESILIENCE, RAMJET, BATTERY, DRIFT.
+        { key = 'riffraff', name = 'JUNKER', parts = { [1] = 10, [3] = 10, [4] = 2 }, mods = 0, abilities = 1, open = true,
           tagline = 'Scrapyard junk with too much engine',
-          brief = 'Hot-rodded junk   -   one ability   -   no tune-ups' },
-        { key = 'challenger', name = 'CHALLENGER', parts = 5, mods = 1, abilities = 2, open = true,
-          tagline = 'Tuned rigs and pilots out to make a name',
-          brief = 'Tuned engines   -   two abilities   -   one tune-up' },
-        { key = 'ace', name = 'ACE', parts = 9, mods = 2, abilities = 3,
-          tagline = 'The fastest pilots in the galaxy',
-          brief = 'Full-power engines   -   three abilities   -   two tune-ups' },
+          brief = 'One ability. No tune-ups.',
+          rules = 'Afterburner and ramjet wound to ten on a scrapyard chassis. Cornering, resilience and drift stock, the battery barely holding. One ability, no tune-ups.' },
+        { key = 'challenger', name = 'CHALLENGER', parts = 7, mods = 1, abilities = 2, open = true,
+          tagline = 'Proper rigs, and pilots out to make a name',
+          brief = 'Two abilities. One tune-up.',
+          rules = 'Every part at seven, and every rig on the grid the same. Two abilities, one tune-up.' },
+        { key = 'ace', name = 'ACE', parts = 10, mods = 2, abilities = 3,
+          tagline = 'Every credit on the rig. The galaxy\'s finest',
+          brief = 'Three abilities. Two tune-ups.',
+          rules = 'Every part at ten, every credit spent. Three abilities, two tune-ups, and the field fires everything it carries.' },
     },
 
     -- Points by place in each race (1st first); a racer who doesn't finish scores 0
@@ -178,6 +237,9 @@ return {
 
     -- (v0.21: the rival per class is gone - owner, 2026-11-11.)
 
+    -- v0.33 (owner 2026-11-25: "ditch the title race and put the Kestar race at the end of the Galactic Cup"): the
+    -- title race is OFF - Kestar Bool's 1 v 1 closes the Galactic Cup instead (Boss below). On = true brings the tile
+    -- back as it was (v0.8-v0.32):
     -- The title race (v0.8, title.lua; v0.21 owner; v0.26): a 1 v 1 on a normal track against the league leader, at
     -- the end of each league. Opens with a trophy in the Galactic Cup at the league. The opponent = the best-placed bot
     -- in the final standings of your most recent finished cup at that league (if you won it, the 2nd; else the
@@ -187,14 +249,19 @@ return {
     -- Default = the opponent (a DA_Racer_ key) before any cup has finished at the league: Riff-Raff Griff Halloran,
     -- Challenger Biddy Blas, Ace Sen Fira; the track then the first race of a random draw of the DefaultCup, made once
     -- per league and saved (titleTrack), so the tile shows a stable track.
-    Title = { On = true, Name = 'TITLE RACE', DefaultCup = 'jakku',
+    Title = { On = false, Name = 'TITLE RACE', DefaultCup = 'jakku',
         Default = { riffraff = 'Veteran', challenger = 'Rager', ace = 'Thrall' } },
 
-    -- The final boss (v0.21, owner; v0.26: after the ACE title): Kestar Bool in the game's Stadium Showdown (6 laps,
-    -- about 5 minutes; he copies your build). A KESTAR BOOL tile on the cups page of League once that league's title is
-    -- won; raced at that league's parts. Beating him saves `boss` and unlocks him as a racer (Racers, unlockBoss). The
-    -- event's story cinematics are taken off for the race and put back (title.lua). On = false: no boss tile.
-    Boss = { On = true, Event = EV .. 'Whippet/FINALBOSS/EVT_WHP_SHORTBOSS_FAIR', Name = 'KESTAR BOOL', Opponent = 'Kestar Bool', League = 'ace' },
+    -- v0.33 (owner 2026-11-25): Kestar Bool's Stadium Showdown (6 laps, about 5 minutes; he copies your build) is the
+    -- Galactic Cup's FINALE at every league: after the cup's four points races, a trophy (Gate = 'trophy'; 'gold' =
+    -- 1st only; 'always') adds the 1 v 1 as race 5 of the same cup - no points, the trophy is decided already. Win
+    -- and you are that league's champion (the star on its HOME tile; titles[league] in the save). Beating him at
+    -- League (Ace) also unlocks him as a racer (Racers, unlockBoss). Off the podium the cup simply ends. The event's
+    -- story cinematics are taken off for the race and put back (title.lua). On = false: no finale.
+    -- Where = 'tile' = the v0.21-v0.32 way instead: a KESTAR BOOL tile on League's cups page once its title is won
+    -- (needs Title.On). Laps = display only (the event runs its own).
+    Boss = { On = true, Event = EV .. 'Whippet/FINALBOSS/EVT_WHP_SHORTBOSS_FAIR', Name = 'KESTAR BOOL', Opponent = 'Kestar Bool',
+        League = 'ace', Gate = 'trophy', Where = 'cup', Laps = 6 },
 
     -- The planets, by the codename in the event paths (Events/Planets/<codename>/...). name and line are the game's
     -- own (PlanetDef). key doubles as the planet's pool and cup key (jakku ... sentinel; derven = the finals' pool).
@@ -352,7 +419,14 @@ return {
     -- a four-car grid (Rally.Grid: you + 3 rivals drawn from the racers at the start, the same three all cup); the
     -- standings by TOTAL TIME over the stages (cup.lua timed), a DNF = the slowest finisher + Rally.DnfPenaltyS.
     -- rally = true keeps it out of the planet-cup count (progression, the champion) and off the title race's track.
-    Rally = { Grid = 4, DnfPenaltyS = 30, GapGuessS = 2, HideWeather = true },
+    -- v0.34.3 (owner 2026-11-25: "for the rally cup, the enemies need a much stronger catch up factor"): Rally.AI goes on
+    -- top of the league's AI profile for every stage (ai.lua A.merged; same keys as AI.Profiles[league]). Every league
+    -- profile switches the game's catch-up off (MaxAiCatchupScale 1.0, "no rubber band"), and on the point-to-point
+    -- stages with a 4-car grid the rivals then fell 15-57 s behind over a 1:46 stage (Challenger rally, grandprix.log
+    -- 2026-11-25 16:27-16:30). The game's own catch-up: x1.3 pace after 2 s behind. The rally's: x1.6 after 0.5 s
+    -- behind, and the slowdown when ahead stays off (they don't wait for you either). AI = false: the league's as it is.
+    Rally = { Grid = 4, DnfPenaltyS = 30, GapGuessS = 2, HideWeather = true,
+              AI = { label = 'rally profile', pacing = { MaxAiCatchupScale = 1.6, AiBehindTimeToMaxCatchup = 0.5 } } },
     Cups = {
         { key = 'jakku', name = 'JAKKU CUP', art = 'T_UI_FE_Tile_01', pool = 'jakku' },
         { key = 'lantaana', name = 'LANTAANA CUP', art = 'T_UI_FE_Tile_02', pool = 'lantaana' },
@@ -472,7 +546,7 @@ return {
     -- compares it once per racer at launch and logs a mismatch). Shade drives the base landspeeder (owner). unlockBoss
     -- (v0.21) = locked until you beat the final boss (Boss above: Kestar Bool himself); until then the garage skips him.
     Racers = {
-        { key = 'DarkEnigma',          name = 'Shade',          vehicle = 'car',     line = 'The campaign\'s racer' },
+        { key = 'DarkEnigma',          name = 'Shade',          vehicle = 'car',     line = 'No family name, no sponsor, just the rig' },
         { key = 'Protege',             name = 'Ary Quill',      vehicle = 'car',     line = 'Audacious heir to the Quill racing legacy' },
         { key = 'Mercenary',           name = 'Malis Vazosk',   vehicle = 'bike',    line = 'Racing and mercenary work are one and the same' },
         { key = 'QuietStrength',       name = 'Nik Skandaro',   vehicle = 'car',     line = 'The Bools\' former enforcer, racing for solace' },
@@ -550,7 +624,11 @@ return {
                        Mercenary = 'weak', Protege = 'weak' },
             riffraff = { elite = 1 },
             challenger = { elite = 2, contender = 1, weak = -1 },
-            ace = { elite = 2, contender = 1, weak = -1 },
+            -- v0.34.0: Ace's car is at 10, so the tiers shift down instead of up - the Elite race your car, contenders a
+            -- step back (9), the weak three (7). (A lift only reaches a slot that has a tune set - loadout.lua
+            -- L.botParts - so at Junker the Elite's +1 goes onto the afterburner and ramjet, 10 -> 11 stacks, not onto
+            -- the stock slots.)
+            ace = { elite = 0, contender = -1, weak = -3 },
         },
         -- v0.32 (thrust.lua; docs/freerace-review-2026-11-25.md §6.3): a per-bot pace dial to TEST - a run-time tune set
         -- on the bot's vehicle multiplying its thrust (MaxRPM and the accelerations), applied ThrustAfterS after the
@@ -590,25 +668,25 @@ return {
     TuneUps = {
         { key = 'heat_shield', name = 'HEAT SHIELD', group = 'Status protection', line = 'Immune to Burning and Frozen',
           mods = { 'Conditions_BurningProtection', 'Conditions_FreezeProtection' } },
-        { key = 'armour', name = 'ARMOUR', group = 'Shields, surges & slipstream', line = 'Immune to Disrupted; Shielded for the first 10 s',
+        { key = 'armour', name = 'ARMOUR', group = 'Shields, surges & slipstream', line = 'Immune to Disrupted. Shielded for the first 10 s',
           mods = { 'Conditions_DisruptedProtection', 'Shielded_GainOnRaceStart' } },
-        { key = 'ice_cold', name = 'ICE COLD', group = 'Cooling & heat', line = 'Cooled while airborne; Cooled blocks Corroded',
+        { key = 'ice_cold', name = 'ICE COLD', group = 'Cooling & heat', line = 'Cooled while airborne. Cooled blocks Corroded',
           mods = { 'Cooled_GainWhileAirborne', 'Cooled_CorrodeProtection' } },
-        { key = 'redliner', name = 'REDLINER', group = 'Ramjet', line = 'Ramjet cools while active; Cooled 20 s when Redlining',
+        { key = 'redliner', name = 'REDLINER', group = 'Ramjet', line = 'Ramjet cools while active. Cooled 20 s when Redlining',
           mods = { 'Ramjet_TempCanDropWhileBoosting', 'Ramjet_CooledWhenCritical' } },
-        { key = 'ramjet_rider', name = 'RAMJET RIDER', group = 'Ramjet', line = 'No Ramjet heat in the air; 90% resets, no blow-up',
+        { key = 'ramjet_rider', name = 'RAMJET RIDER', group = 'Ramjet', line = 'No Ramjet heat in the air. 90% resets, no blow-up',
           mods = { 'Ramjet_NoHeatWhileAirborne', 'Ramjet_CriticalResetChance' } },
-        { key = 'afterburner', name = 'AFTERBURNER', group = 'Afterburner', line = 'No fuel used in the air; a full tank on landing',
+        { key = 'afterburner', name = 'AFTERBURNER', group = 'Afterburner', line = 'No fuel used in the air. a full tank on landing',
           mods = { 'Afterburner_BetterWhileAirborne', 'Afterburner_RefillOnLanding' } },
         { key = 'brawler', name = 'BRAWLER', group = 'Takedowns', line = 'Takedowns ready the Ramjet and give 4 Energy',
           mods = { 'Takedown_ResetHeat', 'Energy_GainOnTakedown' } },
         { key = 'survivor', name = 'SURVIVOR', group = 'Crashes & recovery', line = 'After a crash: Shielded and Surging for 30 s',
           mods = { 'Crash_ReturnWithShield', 'Crash_ReturnWithSurge' } },
-        { key = 'slipstreamer', name = 'SLIPSTREAMER', group = 'Shields, surges & slipstream', line = 'Slipstreaming cools you; 5 s of it starts a Surge',
+        { key = 'slipstreamer', name = 'SLIPSTREAMER', group = 'Shields, surges & slipstream', line = 'Slipstreaming cools you. 5 s of it starts a Surge',
           mods = { 'Slipstream_gainSurging', 'Cooled_GainWhileSlipstream' } },
         { key = 'firebug', name = 'FIREBUG', group = 'Cooling & heat', line = 'Burning makes 90% less heat and Overcharges you',
           mods = { 'Burning_GainOvercharged', 'Conditions_DecreaseBurningPotency' } },
-        { key = 'engineer', name = 'ENGINEER', group = 'Crashes & recovery', line = 'Malfunctions end 200% sooner; a perfect fix restores a Crash',
+        { key = 'engineer', name = 'ENGINEER', group = 'Crashes & recovery', line = 'Malfunctions end 200% sooner. a perfect fix restores a Crash',
           mods = { 'SysMalf_ShorterMalfunction', 'CritMalf_PerfectRecoversCrash' } },
         { key = 'tenacious', name = 'TENACIOUS', group = 'Status protection', line = 'Corroded crashes you 200% slower and never chokes you',
           mods = { 'Conditions_CorrodeResistance', 'Corrode_NoLongerChokes' } },

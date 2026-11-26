@@ -11,10 +11,16 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - [ ] **Best laps (2026-11-25, TASKS §1g item 16):** (1) a line each lap as you cross the finish (lap time, +/- your
       record, NEW BEST LAP), or only TIME TO BEAT at the start and BEST LAP at the end? (2) one lap record per track
       per league (as saved now), or one per track whatever the league? (3) show your best race time at the start too?
-- [ ] **League cars (2026-11-25, plan in docs/league-styles-2026-11-12.md "2026-11-25"):** (1) Challenger at 7 on every
-      part - confirm (was 5)? (2) Junker wreck limit 5 (the game's is 3) - or more? (3) Ace bots: keep their full ability
-      kits, or defensive / utility only for a cleaner field? (4) OK to shift Ace pilot strength down (Elite at your 10,
-      contenders 9, weak 7), since nothing goes above 10?
+- [x] **Layout grammar (2026-11-25, docs/layout-grammar-2026-11-25.md):** answered the same day: (1) the game's left
+      column, (2) the game's typefaces, (3) the cups page as 4 + 3 at 500 x 340. Built one item a version (TASKS §1a-menus).
+- [x] **Menu text and layout review (2026-11-25, docs/menu-text-review-2026-11-25.md):** answered "use your recommendations,
+      do one version, go" - the announcer's voice, Claude's taglines, the planet lines, one version: **v0.35.0** (the words).
+      Pass 2 (the layout: the results prompt split, RESET smaller, the cups header) one item a version, after your read.
+- [ ] **League cars (2026-11-25, plan in docs/league-styles-2026-11-12.md "2026-11-25"; L1 built as v0.34.0, installed):**
+      (1) Challenger at 7 on every part - confirm (was 5)? (2) Junker wreck limit 5 (the game's is 3) - or more? (3) Ace
+      bots: keep their full ability kits, or defensive / utility only for a cleaner field? (4) Ace pilot strength is
+      shifted down (Elite at your 10, contenders 9, weak 7) - but "nothing goes above 10" is unproven (the game's own
+      level 10 is 13 stacks): keep the shift, or test the old +2 / +1 / -1 at 10 in a held race?
 - [ ] **HEAT for Ace (2026-11-25, plan in docs/heat-2026-11-25.md):** (1) the name - HEAT, or something Star Wars-y
       (BOUNTY, WAGER, HOT RUN)? (2) opens at your first Ace gold (Claude's pick) or after the Ace title? (3) the first
       set (Claude's pick: Faster field, Budget cap, Bare garage, Weak kit, No mercy at the start, Grudge, Armed field - all on
@@ -96,9 +102,59 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
       brake): it should slide out and keep its speed instead of skidding and jolting. Tell me: too loose / too slow /
       too grippy, and whether the slide runs out mid-corner on long bends. All bikes slide, the bots' too. Values with the
       game's own beside each: `mod/BikeDrift/Scripts/config.lua`. Off: `Mods/BikeDrift/enabled.txt` -> `disabled.txt`.
+- [ ] **v0.36.4, every pale menu page (2026-11-25, installed while the game ran - restart first):** the text on HOME, the
+      cups page, the standings and every other page without a picture is burnt orange now (titles and lines R 0.78 G 0.33
+      B 0.06, the small print a deeper rust), the sand strip gone. Does it read over the droid and the Steam box, and over
+      the sand? Too loud, too brown? Name the shade you want and it is one line (`Ink`, `Ink2` in config.lua).
+- [x] **v0.36.3, HOME:** the sand strip - owner 2026-11-25: it covered one line, the grey stayed on the other menus; a burnt
+      orange ink instead (v0.36.4). The CHOOSE A LEAGUE heading stays.
+- [ ] **v0.36.5, the cup result's bottom half again (2026-11-25 ~22:50, installed while the game ran - restart first):**
+      your Jakku cup screenshot: "60 OF 60" wrapped into three big lines under PARTICIPATION STREAK, the other tile still
+      WIN COUNT, the title RESULTS. Now one tile only under the timeline, centred, headed CUP RESULT: 1ST, GOLD TROPHY, the
+      medal. The points tile is gone with its heading and backer; the title is the cup and the league ("JAKKU CUP  -
+      CHALLENGER"). Check: is the tile centred in its row at its normal width (or stretched across, or still at the left)?
+      Does the heading read CUP RESULT (with its Aurebesh line)? Does the title take? Not seen in game (built from the
+      header dumps while you played); the log's `[cupend] tile holders` and `panels:` lines say what was found. If you'd
+      rather see the final top 3 there after all, say so. `CupResult.Tiles = 'result'` brings the two tiles back.
+- [ ] **v0.36.1, HOME and the cups page (2026-11-25):** focus each league on HOME: the rules line under the posters -
+      JUNKER "Afterburner and ramjet wound to ten on a scrapyard chassis. Cornering, resilience and drift stock, the battery
+      barely holding. One ability, no tune-ups." / CHALLENGER "Every part at seven, and every rig on the grid the same. Two
+      abilities, one tune-up." / ACE "Every part at ten, every credit spent. Three abilities, two tune-ups, and the field fires
+      everything it carries." Right facts, right voice, short enough? The cups page: no track names and no brief under the
+      league's name any more; each planet cup's info is its planet's line alone.
+- [ ] **v0.36.0, the game's fonts (2026-11-25, installed while the game ran - restart first):** every line outside a
+      tile now uses the game's own typefaces (page titles the display face, sentences and the info line the body face,
+      the standings' number columns the numbers face). Look at HOME, a cups page, a START screen and one results panel:
+      is the display face the same heavy face as the tiles (else `GameFonts.display` should point at Font_Decorative)?
+      Too big or too small anywhere (`size` multipliers in config)? Layout is unchanged in this version on purpose.
+- [ ] **v0.35.0 the menus' words (2026-11-25):** read them where they live - HOME (the taglines, a locked league), a cups page
+      (the brief, a cup's planet line and circuits, the Galactic Cup and Rally Cup lines), a START screen (the pilot, vehicle,
+      ability and tune-up info lines; a locked tune-up tile now titled ACE), one results panel (the caps headline, the
+      "NEXT   ...          B   LEAVE THE CUP" prompt). Anything that reads flat or wrong: say which line, and the voice it
+      should have. The two taglines are the ones to argue with most.
+- [ ] **v0.34.3 Rally Cup catch-up (2026-11-25):** your ask "a much stronger catch up factor" - the rivals now get x1.6 pace
+      when 0.5 s behind (the game's own is x1.3 after 2 s; the leagues run 1.0 = none). Race a rally: do the rivals stay with
+      you on the stages (the `[gaps]` lines in grandprix.log were 15-57 s behind at 16:27-16:30)? Too strong = they sit on your
+      tail whatever you do; then 1.4 (config `Rally.AI.pacing.MaxAiCatchupScale`). Also: should the catch-up reach the planet
+      cups' back markers too, or stay a rally thing?
+- [ ] **v0.34.0 league cars (2026-11-25):** a cup at each league (§1b L4 after L2 / L3 too). Junker: do the engine-10
+      straights and stock corners feel like junk that goes too fast, and is it fun or a pinball? Challenger at 7: right
+      step up? Ace at 10: too fast (the old 200cc at 9 was "fast and brutal")? Do Sen / Biddy / Lyren still lead at Ace
+      now they race your car (`[builds]` lines in grandprix.log show each tier's levels)?
+- [ ] **v0.33.0 (2026-11-25, your two asks of the afternoon; install with the game closed: `./deploy.sh`):**
+  - ~~**The planets on the cup tiles**~~ seen 2026-11-25: "didn't really turn out like I wanted them to" - off in
+    v0.34.1 (`CupPlanets = false`, code kept). If you ever want another go, say what look you had in mind.
+  - **Kestar as the Galactic Cup finale:** race a Galactic Cup to a trophy - after race 4 the standings should say
+    "... TROPHY SECURED - NEXT: KESTAR BOOL, 1 v 1 FOR THE ... TITLE" and NEXT RACE launches the Stadium Showdown (6
+    laps, his cinematics off). Then the cup result: CHAMPION (or "KESTAR BOOL KEEPS THE TITLE"), the crown on the last
+    dot only if you won. Known from before: he is a weak boss without the game's catch-up (OWNER "Kestar is a weak
+    final boss") - say if the finale feels too easy and I'll give him a profile of his own.
 - [ ] **v0.32.6-8 (2026-11-25 evening, your picks 9-11), installed 2026-11-25 18:00 after the playtest:**
-  - **The cup result screen (10):** seen 2026-11-25 (Sentinel gold): "I love the layout of the screen and the recap". v0.32.9 puts
-    the trophy / place / points / podiums on the two tiles and skips our old page after it - check both.
+  - **The cup result screen (10):** seen 2026-11-25 (Sentinel gold): "I love the layout of the screen and the recap"; after the
+    Ando cup: "Participation streak and win count seem superfluous" -> **v0.34.2:** the streak tile is gone, the WINS tile is the
+    trophy over your standing, the title line says "GOLD TROPHY, 1ST" too. Check: does the tile now read GOLD TROPHY / 1ST, or
+    still WINS and a number? If the latter, the game's text bindings win - the log's `[cupend] tiles read back` line says so, and
+    the title line still carries the verdict; next step then would be our own text over the tile.
     (Was:) after a cup's last race, CUP RESULT now shows the game's own tour-end screen first
     (planets, your place per race, the points as the XP bar), then A / Enter / Escape takes you on to our cup result
     page. Built from another mod's notes, never seen in game by us: tell me what it looks like, what's wrong on it, or

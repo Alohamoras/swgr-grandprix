@@ -4,7 +4,8 @@
 --      logged once;
 --   2. each league's parts, ability level, tune-up slots and AI profile, on a real launch;
 --   3. the unlock ladder in the menus: Riff-Raff open, Challenger from Riff-Raff, Ace from Challenger;
---   4. Kestar Bool's tile on the Ace cups page after the Ace title (not after the Challenger one).
+--   4. Kestar Bool's tile on the Ace cups page after the Ace title (not after the Challenger one) - the v0.21-v0.32
+--      way, kept under config Title.On / Boss.Where = 'tile' (v0.33: Kestar closes the Galactic Cup - test_finale).
 local M = require('mock')
 local W = require('world')
 local T = require('util')
@@ -66,9 +67,9 @@ T.boot({ version = 3, picks = { 'bolt.concuss', 'shield.impact', 'surge.impact',
 K = require('gp')
 local AB, MS, A = require('abil'), require('modsel'), require('ai')
 local WANT = {
-  riffraff = { parts = '0=0 1=6 2=0 3=6 4=2 5=0', level = 1, slots = 0, bolt = 'BP_Ability_Disruptor_C', pressure = -1 },
-  challenger = { parts = 5, level = 2, slots = 1, bolt = 'BP_Ability_Disruptor_Concuss_C', pressure = 0 },
-  ace = { parts = 9, level = 3, slots = 2, bolt = 'BP_Ability_Disruptor_ConcussV2_C', pressure = 0.5 },
+  riffraff = { parts = '0=0 1=10 2=0 3=10 4=2 5=0', level = 1, slots = 0, bolt = 'BP_Ability_Disruptor_C', pressure = -1 },
+  challenger = { parts = 7, level = 2, slots = 1, bolt = 'BP_Ability_Disruptor_Concuss_C', pressure = 0 },
+  ace = { parts = 10, level = 3, slots = 2, bolt = 'BP_Ability_Disruptor_ConcussV2_C', pressure = 0.5 },
 }
 M.press('F6'); M.tick(6)
 for _, key in ipairs({ 'riffraff', 'challenger', 'ace' }) do
@@ -101,9 +102,9 @@ H = rawget(_G, 'GU_TEST_SCREENS')
 M.press('F6'); M.tick(6)
 T.check(T.locks() == '||LOCKED||', 'v0.27.2 (owner): a new save: Riff-Raff and Challenger open, Ace locked (' .. T.marks() .. ')')
 local items = H.SCREENS.home().items
-T.check(items[2].desc == 'Tuned rigs and pilots out to make a name' and items[3].desc == 'To open: 5 trophies at CHALLENGER',
+T.check(items[2].desc == 'Proper rigs, and pilots out to make a name' and items[3].desc == 'Five CHALLENGER trophies open it',
   'Challenger shows its tagline; the Ace lock says what opens it (' .. tostring(items[2].desc) .. ' / ' .. tostring(items[3].desc) .. ')')
-T.check(items[3].info:find('A trophy in all 5 planet cups at CHALLENGER (0 / 5)', 1, true) ~= nil, 'the full why in the info line')
+T.check(items[3].info:find('A trophy in every CHALLENGER planet cup opens it. 0 of 5 so far.', 1, true) ~= nil, 'the full why in the info line')
 T.clickTitle('ACE'); M.tick(3)
 T.check(H.S.screen == 'home', 'a locked league can\'t be entered')
 T.clickTitle('CHALLENGER'); M.tick(3)
@@ -119,7 +120,7 @@ K.data.best.challenger.sentinel = 2
 M.press('F6'); M.tick(3); M.press('F6'); M.tick(6)
 T.check(T.locks() == '||||', 'five Challenger trophies: Ace open (' .. T.marks() .. ')')
 T.clickTitle('ACE'); M.tick(3)
-T.check(H.S.screen == 'cups' and T.titles() == 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|TITLE RACE|RALLY CUP', 'the Ace cups page')
+T.check(H.S.screen == 'cups' and T.titles() == 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|RALLY CUP', 'the Ace cups page')
 T.finish()
 
 ---------------------------------------------------------------------------------------------------------------------
@@ -127,7 +128,9 @@ T.finish()
 T.reset()
 local all = { jakku = 1, lantaana = 1, ando = 1, crait = 1, sentinel = 1, galactic = 1 }
 T.boot({ version = 3, best = { riffraff = all, challenger = all, ace = all },
-  titles = { riffraff = { won = true, tries = 1 }, challenger = { won = true, tries = 1 } }, restores = {}, abilityRestores = {} })
+  titles = { riffraff = { won = true, tries = 1 }, challenger = { won = true, tries = 1 } }, restores = {}, abilityRestores = {} },
+  { Title = { On = true, Name = 'TITLE RACE', DefaultCup = 'jakku', Default = { riffraff = 'Veteran', challenger = 'Rager', ace = 'Thrall' } },
+    Boss = { On = true, Event = EV .. 'Whippet/FINALBOSS/EVT_WHP_SHORTBOSS_FAIR', Name = 'KESTAR BOOL', Opponent = 'Kestar Bool', League = 'ace', Where = 'tile', Laps = 6 } })
 K = require('gp')
 local TI = require('title')
 RC = require('racer')
@@ -147,8 +150,8 @@ W.backToMenu(); M.tick(45)
 T.check(T.logHas('TITLE RACE ACE: WON', mark) and T.logHas('unlocked: KESTAR BOOL (the final boss) on the ACE cups page', mark), 'the Ace title won: Kestar unlocked, logged')
 local hl = {}
 for _, l in ipairs(H.SCREENS.titleResult().lines) do hl[#hl + 1] = tostring(l[1]) end
-T.check(hl[1] == 'ACE CHAMPION' and hl[2] == 'UNLOCKED:  KESTAR BOOL, the final boss', 'the title result: ACE CHAMPION, Kestar unlocked (' .. table.concat(hl, ' | ') .. ')')
+T.check(hl[1] == 'ACE CHAMPION' and hl[2] == 'KESTAR BOOL WAITS IN THE STADIUM', 'the title result: ACE CHAMPION, Kestar unlocked (' .. table.concat(hl, ' | ') .. ')')
 T.clickTitle('CONTINUE'); M.tick(3)
 T.check(T.ntiles() == 9 and T.titles():find('|TITLE RACE|KESTAR BOOL|RALLY CUP$') ~= nil, 'the Ace cups page: KESTAR BOOL, then the Rally Cup (' .. T.titles() .. ')')
-T.check(RC.unlockText('Antagonist') == 'To unlock: beat Kestar Bool after the ACE title', 'his lock names the Ace title')
+T.check(RC.unlockText('Antagonist') == 'Kestar Bool races only for himself until you beat him after the ACE title.', 'his lock names the Ace title')
 T.finish()

@@ -133,11 +133,11 @@ for k = 1, 3 do
   T.check(T.logCount('RESULT ', mark) == 1 and T.save().run.race == k + 1, 'B: race ' .. k .. ' recorded once, on the results screen; the cup at race ' .. (k + 1))
   local txt = W.textsSince(calls)
   T.check(not txt:find('STANDINGS', 1, true) and txt:find('THIS RACE', 1, true) and txt:find('POINTS', 1, true) and (k > 1 or not txt:find('MOVED', 1, true))
-    and txt:find(('race %d of 4'):format(k), 1, true), 'B: race ' .. k .. ': the panel has the cup line and the table')
+    and txt:find(('RACE %d OF 4'):format(k), 1, true), 'B: race ' .. k .. ': the panel has the cup line and the table')
   -- v0.21: no rival marked on the panel
   T.check(not txt:find('RIVAL', 1, true), 'B: race ' .. k .. ': no RIVAL on the panel (v0.21)')
   local nxt = T.save().run.list[k + 1].title
-  T.check(txt:find(('NEXT RACE: race %d of 4, %s.   B: leave the cup.'):format(k + 1, nxt), 1, true) and not txt:find('CONTINUE:', 1, true),
+  T.check(txt:find(('NEXT   %s          B   LEAVE THE CUP'):format((nxt:gsub('%s*%((.-)%)$', ', %1'))), 1, true) and not txt:find('CONTINUE', 1, true),
     'B: race ' .. k .. ': the prompt says what NEXT RACE and B do (no CONTINUE)')
   T.check(W.contVis == 1, 'B: race ' .. k .. ': the game\'s CONTINUE hidden (Collapsed)')
   if k == 1 then
@@ -275,7 +275,7 @@ W.results(); M.tick(4)
 local x1, x2 = buttonXs(calls)
 T.check(W.contVis == 0 and x1 and x2 and x2 - x1 >= 420 * 1.2 + 80 and #W.canvasKids == 2 and W.resultsBack == nil,
   'C4: HideContinue = false: CONTINUE visible, NEXT RACE left of it, no Back screen')
-T.check(W.textsSince(calls):find('CONTINUE: the main menu', 1, true) ~= nil, 'C4: the v0.20 prompt')
+T.check(W.textsSince(calls):find('CONTINUE   LEAVE THE CUP', 1, true) ~= nil, 'C4: the v0.20 prompt')
 mark = T.mark()
 W.backToMenu(); M.tick(MENU_TICKS)
 T.check(T.logHas('[chain] the results went to the main menu before NEXT RACE', mark) and T.titles() == 'NEXT RACE', 'C4: CONTINUE: today\'s standings page')

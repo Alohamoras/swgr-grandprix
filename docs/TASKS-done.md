@@ -6,6 +6,11 @@ an unticked box here may be stale (superseded by later versions) - TASKS.md is t
 
 ---
 
+- **2026-11-25, v0.33.0 (owner):** the title race gone; Kestar's Showdown is the Galactic Cup's finale (race 5 with a
+  trophy, no points, the league title; Ace unlocks him). The game's round planet pictures on the cup tiles. CHANGELOG.
+
+---
+
 
 Design: DESIGN.md. Shared playbook and house rules: ~/Projects/swgr-underground/AUTOMATION.md.
 One git tag per chunk; push after each tag.

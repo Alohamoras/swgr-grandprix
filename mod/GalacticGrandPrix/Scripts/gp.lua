@@ -393,6 +393,8 @@ function K.nextRace()
   local r = run and K.runRaces(run)[run.race]
   if not r then return nil end
   local ev = { path = r.path, title = r.title, kind = r.kind, laps = r.laps, base = r.base, cup = run.cup, race = run.race, class = run.class }
+  -- v0.33: the Galactic Cup's finale (Kestar's Showdown: race.lua takes its story cinematics off)
+  if r.boss then ev.boss, ev.finale = true, true end
   -- v0.30 (the Rally Cup): the small grid's rivals for race.lua, and the name to show BEFORE the stage (the weather
   -- kept secret: the route's base name) - chain.lua's NEXT RACE prompt and the via-the-menu line
   if run.timed then
@@ -576,26 +578,51 @@ function K.record(ev, pos, field, extra)
   local run = K.data.run
   -- (v0.15: outside a cup - the title race - the racer's vehicle; racer.lua requires gp, so it's loaded here lazily)
   local okV, veh = pcall(function() return run and run.vehicle or require('racer').vehicle().key end)
-  if ev.titleRace then
-    -- v0.21: a title race runs a cup's track with two cars: its time is shown, but it is no cup record
+  local inRun = run and ev.cup == run.cup and ev.race == run.race and ev.class == run.class
+  if ev.titleRace or ev.boss then
+    -- v0.21: a title race runs a cup's track with two cars: its time is shown, but it is no cup record (v0.33: the
+    -- finale's Showdown neither)
     out.time, out.lap = extra.time, extra.lap
   else
     updateRecord(ev, out, extra, okV and veh or nil)
   end
-  -- v0.8: a title race (v0.21: 1 v 1 against the class leader) and the final boss are never part of a cup
-  if ev.titleRace or ev.boss then
+  -- v0.8: a title race (v0.21: 1 v 1 against the class leader) and the final boss are never part of a cup (v0.33: the
+  -- boss as the Galactic Cup's finale is - below)
+  if ev.titleRace or (ev.boss and not inRun) then
     local okT, res = pcall(function() return require('title').record(ev, pos) end)
     if okT then for k, v in pairs(res) do out[k] = v end else log('title race not recorded: ' .. tostring(res)) end
     K.save()
     return out
   end
-  if run and ev.cup == run.cup and ev.race == run.race and ev.class == run.class then
-    out.rows = CU.addRace(run, field, cfg.Points)
-    log(('cup %s race %d: %s'):format(run.cup, run.race - 1, names(out.rows)))
+  if inRun then
+    local TI = require('title')
+    if ev.boss then
+      -- v0.33: the finale: no points; the champion and (at Ace) the racer unlock into the save
+      out.rows = TI.finaleRows(run, pos)
+      out.finale = TI.finale(ev, pos, run)
+      log(('cup %s race %d (the finale): %s'):format(run.cup, run.race - 1, names(out.rows)))
+    else
+      out.rows = CU.addRace(run, field, cfg.Points)
+      log(('cup %s race %d: %s'):format(run.cup, run.race - 1, names(out.rows)))
+    end
     out.run = run
     if CU.finished(run) then
       local before = PR.openSet(K.data)
       local rank, pts, total = CU.yourRank(run)
+      -- v0.33: the points races decided the trophy before the finale (run.decided); a trophy adds the finale as one
+      -- more race of this run, and the cup goes on
+      if type(run.decided) == 'table' then rank, pts, total = run.decided.rank, run.decided.pts, run.decided.total
+      elseif TI.finaleDue(run, rank) then
+        local fr = TI.finaleRace()
+        run.list[#run.list + 1] = fr
+        run.races, run.finale = #run.list, true
+        run.decided = { rank = rank, pts = pts, total = total, trophy = CU.trophy(rank) }
+        out.finaleNext = { rank = rank, trophy = CU.trophy(rank), vs = TI.bossName(), league = K.leagueName(run.class) }
+        log(('cup %s %s: %s with %d points after %d races - %s; the finale added as race %d: %s'):format(K.leagueName(run.class),
+          run.cup, C.ordinal(rank), pts, run.races - 1, CU.trophy(rank) and (CU.trophy(rank) .. ' trophy') or 'no trophy', run.races, fr.title))
+        K.save()
+        return out
+      end
       out.cupOver, out.rank, out.pts, out.total, out.trophy = true, rank, pts, total, CU.trophy(rank)
       K.data.best[run.class] = K.data.best[run.class] or {}
       local was = K.data.best[run.class][run.cup]

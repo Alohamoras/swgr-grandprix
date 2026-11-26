@@ -17,7 +17,8 @@ WHAT'S IN IT
   the finale is Dai Bendu Ascension at night. A stage not finished costs the slowest finisher's time plus 30 s.
 - Points after every race (15, 12, 10, 9 ... 1), standings on the results screen, then straight into the next race.
   Gold, silver and bronze trophies; track records; "near miss" lines when you just missed one.
-- A title race for each league against its points leader, and a final boss once you're the Ace champion.
+- Take a trophy in the Galactic Cup and Kestar Bool waits as its finale: a 1 v 1 in the stadium for the league title.
+  Beat him at Ace and he races for you.
 - Rivals that stay rivals: the elite pilots (Sen Fira, Biddy Blas, Lyren Shok) race stronger cars and are usually
   the ones to beat. No catch-up for the AI at Challenger and Ace - a lead you build is yours.
 - Pick your pilot, then a vehicle (landspeeder, speeder bike, or skim speeder). A new pilot starts on their own vehicle. The other two get that rider's scheme (ace, enforcer, raider, vintage, or robotic, in paint, rust, or steel). The pilot tile shows that racer's face (the game's own portrait). Your four abilities start as that pilot's signature kit, and you can change them, along with your tune-ups, on the cup's start screen.

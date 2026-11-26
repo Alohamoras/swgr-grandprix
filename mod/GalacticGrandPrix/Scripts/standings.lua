@@ -104,7 +104,7 @@ end
 local function raceNotes(r, ev)
   local note, big = {}, false
   if r.newRecord and K.fmtTime then
-    note[#note + 1] = ('NEW RECORD  %s%s'):format(K.fmtTime(r.time), r.oldTime and ('   (was %s)'):format(K.fmtTime(r.oldTime)) or ''); big = true
+    note[#note + 1] = ('NEW RECORD  %s%s'):format(K.fmtTime(r.time), r.oldTime and (', was %s'):format(K.fmtTime(r.oldTime)) or ''); big = true
   else
     local near = K.nearRecord and K.nearRecord(r)
     if near then note[#note + 1] = near; big = true end
@@ -115,11 +115,18 @@ end
 
 -- v0.20: the cup result's "what's next" line: what the cup unlocked, else the nearest unlock at the class (prog.lua's
 -- rules) - nil when neither (the near miss, "1 POINT FROM GOLD", is on the race line already)
+-- v0.35.0 (docs/menu-text-review-2026-11-25.md): 'CHALLENGER OPENS' / 'CHALLENGER AND THE GALACTIC CUP AT JUNKER OPEN'
+function SD.opensLine(list)
+  local up = {}
+  for i, n in ipairs(list) do up[i] = tostring(n):upper():gsub('^GALACTIC CUP', 'THE GALACTIC CUP') end
+  if #up == 1 then return up[1] .. ' OPENS' end
+  return table.concat(up, ', ', 1, #up - 1) .. ' AND ' .. up[#up] .. ' OPEN'
+end
 function SD.whatsNext(r)
-  if r.unlocked and #r.unlocked > 0 then return 'UNLOCKED:  ' .. table.concat(r.unlocked, '   -   ') end
+  if r.unlocked and #r.unlocked > 0 then return SD.opensLine(r.unlocked) end
   local run = r.run
   local nu = run and PR.nextUnlock and PR.nextUnlock(K.data, run.class)
-  return nu and ('Next: ' .. nu.text) or nil
+  return nu and nu.text or nil
 end
 
 -- v0.20 (menu review 1): the cup result, a screen of its own. hero = the medal large with the trophy, the cup and
@@ -140,6 +147,16 @@ function SD.cupSpec(r)
   hero.lines[#hero.lines + 1] = { ('%s   -   %s   -   %s%s'):format(cup.name, cls.name,
     (run and run.timed) and (K.fmtTime(r.total) .. ' in all') or ((r.pts or 0) .. ' points'), r.newBest and '   -   NEW BEST' or ''), 22, U.WHITE }
   if r.perfect then hero.lines[#hero.lines + 1] = { 'PERFECT CUP', 30, U.GOLD } end
+  -- v0.33: the Galactic Cup's finale (Kestar's 1 v 1): the champion, or who kept the title
+  local fin = r.finale
+  if type(fin) == 'table' then
+    if fin.won then
+      hero.lines[#hero.lines + 1] = { ('%s CHAMPION'):format(tostring(fin.league or ''):upper()), 30, U.GOLD }
+      if fin.unlockedRacer then hero.lines[#hero.lines + 1] = { tostring(fin.vs or 'Kestar Bool'):upper() .. ' RACES IN YOUR COLOURS NOW', 22, U.GOLD } end
+    else
+      hero.lines[#hero.lines + 1] = { ('%s KEEPS THE TITLE'):format(tostring(fin.vs or 'Kestar Bool'):upper()), 26, U.GREY }
+    end
+  end
   local after = {}
   -- v0.22 (quiet pass): no 'Last race' line - only its record / near misses and the cup's near miss, when there are
   -- any; what the cup unlocked, but no goal line (owner: no goal lines)
@@ -147,7 +164,7 @@ function SD.cupSpec(r)
   local nearCup = run and CU.nearTrophy(run, run.timed and (cfg.Near or {}).TrophySeconds or (cfg.Near or {}).TrophyPoints) or nil
   if nearCup then note[#note + 1] = nearCup end
   if #note > 0 then after[#after + 1] = { table.concat(note, '   -   '), 20, U.GOLD } end
-  if r.unlocked and #r.unlocked > 0 then after[#after + 1] = { 'UNLOCKED:  ' .. table.concat(r.unlocked, '   -   '), 24, U.GOLD } end
+  if r.unlocked and #r.unlocked > 0 then after[#after + 1] = { SD.opensLine(r.unlocked), 24, U.GOLD } end
   return { key = 'standings', title = '', hero = hero, lines = {}, after = after,
     table = run and SD.podiumTable(run) or nil, backdrop = ART.BACKDROP, cupOver = true, center = true }
 end
@@ -161,12 +178,19 @@ function SD.spec(r)
   local run = r.run
   local cup = run and K.cup(run.cup) or { name = '?' }
   local lines = {}
-  lines[#lines + 1] = { ('%s   -   %s   -   %s %d of %d'):format(cup.name, ev.title, (run and run.timed) and 'stage' or 'race', ev.race or 0, run and run.races or 4), 22, U.WHITE }
+  -- (v0.35.0: one caps headline, like the stakes line under it)
+  lines[#lines + 1] = { ('%s   -   %s   -   %s %d OF %d'):format(tostring(cup.name):upper(), tostring(ev.title):upper(), (run and run.timed) and 'STAGE' or 'RACE', ev.race or 0, run and run.races or 4), 22, U.WHITE }
   lines[#lines + 1] = { yourLine(r, ev), 18 }
   -- v0.12 (docs/PHILOSOPHY.md points 2 and 4): between races one stakes line from the points left (it names the racer
   -- you chase or lead); then ONE line for the record, the best lap and the near misses together
   local stakes = run and K.run() and CU.stakes(run, cfg.Points) or nil
   if stakes then lines[#lines + 1] = { stakes, 22, U.WHITE } end
+  -- v0.33: the points races done, a trophy in hand: the finale next
+  local fn = r.finaleNext
+  if type(fn) == 'table' then
+    lines[#lines + 1] = { ('%s. %s NEXT, ONE RACE FOR THE %s TITLE'):format(fn.trophy and (fn.trophy .. ' TROPHY SECURED') or ('%s PLACE SECURED'):format(ordinal(fn.rank or 0):upper()),
+      tostring(fn.vs or 'KESTAR BOOL'):upper(), tostring(fn.league or ''):upper()), 22, U.GOLD }
+  end
   local note, big = raceNotes(r, ev)
   if #note > 0 then lines[#lines + 1] = { table.concat(note, '   -   '), big and 22 or 20, U.GOLD } end
   return { key = 'standings', title = '', lines = lines, center = true,

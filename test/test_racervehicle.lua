@@ -38,7 +38,7 @@ T.check(RC.vehicle('DarkEnigma').key == 'car', 'Shade: the base landspeeder')
 -- 2. Kestar locked -> Shade
 T.check(RC.locked('Antagonist') and not RC.locked('Mentor') and not RC.locked('DarkEnigma'), 'Kestar locked (not beaten), the others not')
 T.check(RC.current().key == 'DarkEnigma' and T.save().racer == 'DarkEnigma', 'Kestar picked but locked: Shade, saved')
-T.check(T.logHas('[racer] Kestar Bool is locked (to unlock: beat kestar bool after the ace title) - racing as Shade'), 'the fall back logged')
+T.check(T.logHas('[racer] Kestar Bool is locked (kestar bool races only for himself until you beat him in the ace galactic cup finale.) - racing as Shade'), 'the fall back logged')
 
 -- 3. cycling skips him while locked
 local seen, kestar = {}, false
@@ -62,8 +62,8 @@ for _, it in ipairs(items) do
 end
 T.check(racer and racer.title == 'BIDDY BLAS', 'the RACER tile: Biddy Blas')
 T.check(veh and veh.title == 'SPEEDER BIKE', 'the VEHICLE tile: his speeder bike (' .. tostring(veh and veh.title) .. ')')
-T.check(racer and racer.info:find('^Biddy Blas:  Hot%-headed') ~= nil, 'its info: "Biddy Blas: <bio>" (' .. tostring(racer and racer.info) .. ')')
-T.check(racer and racer.info:find('Kestar Bool is locked. To unlock: beat Kestar Bool after the ACE title.', 1, true) ~= nil, 'and how to unlock Kestar')
+T.check(racer and racer.info:find('^Biddy Blas%. Hot%-headed') ~= nil, 'its info: "Biddy Blas: <bio>" (' .. tostring(racer and racer.info) .. ')')
+T.check(racer and racer.info:find('Kestar Bool races only for himself until you beat him in the ACE Galactic Cup finale.', 1, true) ~= nil, 'and how to unlock Kestar')
 -- HOME's GARAGE tile: the racer and the vehicle type
 local garage
 for _, it in ipairs(SC.home().items) do if it.title == 'GARAGE' then garage = it end end
@@ -91,7 +91,7 @@ T.clickTitle('JAKKU CUP')
 local args = M.lastCall('LaunchQuickRace').args
 T.check(rawget(args[1], '__name') == 'VA_Skimmer' and rawget(args[3], '__name'):find('VBD_Skimmer_Base', 1, true) ~= nil,
   'Sebulba races the skim speeder build')
-T.check(T.levels('VBD_Skimmer_Base') == '0=5 1=5 2=5 3=5 4=5 5=5', 'Challenger parts on the skimmer build')
+T.check(T.levels('VBD_Skimmer_Base') == '0=7 1=7 2=7 3=7 4=7 5=7', 'Challenger parts on the skimmer build')
 T.check(T.levels('VBD_Car_Base') == '0=0 1=0 2=0 3=0 4=0 5=0' and T.levels('VBD_Bike_Base') == '0=0 1=0 2=0 3=0 4=0 5=0', 'the car and bike builds untouched')
 T.check(T.logHas('vehicle=skimmer') and not T.logHas('PreferredVehicleType'), 'launch logged with the skimmer; the game\'s byte agrees (no mismatch line)')
 W.race(11); M.tick(10)
@@ -109,7 +109,7 @@ local ev = { path = EV .. 'Mastiff/EVT_MAS_LOOP_A_FWD', title = 'The War Fields'
 local ok = R.launch(ev, 'ace', RC.vehicle().key, nil, nil)
 T.check(ok and T.logHas('[racer] Fola Kanjen: the game\'s PreferredVehicleType is 2, config says skimmer (arch 3) - racing the config\'s skimmer'),
   'mismatch logged; config wins (' .. tostring(ok) .. ')')
-T.check(T.levels('VBD_Skimmer_Base') == '0=9 1=9 2=9 3=9 4=9 5=9', 'the skimmer build at Ace')
+T.check(T.levels('VBD_Skimmer_Base') == '0=10 1=10 2=10 3=10 4=10 5=10', 'the skimmer build at Ace')
 W.race(11); M.tick(10)
 W.backToMenu(); M.tick(45)
 T.check(T.levels('VBD_Skimmer_Base') == '0=0 1=0 2=0 3=0 4=0 5=0', 'put back')

@@ -6,6 +6,16 @@ local T = require('util')
 T.boot(nil, { Progression = { On = false } })
 local A = require('ai')
 local cfg = require('config')
+-- v0.34.3: A.merged - the Rally Cup's profile is the league's with Rally.AI on top (tables merged, scalars replaced)
+do
+  local m = A.merged('challenger', { label = 'rally profile', pacing = { MaxAiCatchupScale = 1.6, AiBehindTimeToMaxCatchup = 0.5 }, perfectStart = 60 }, 'rally profile')
+  T.check(m.label == 'rally profile' and m.pressure == 0 and m.errors == 0 and m.perfectStart == 60
+    and m.pacing.MaxAiCatchupScale == 1.6 and m.pacing.AiBehindTimeToMaxCatchup == 0.5 and m.pacing.MaxAiSlowdownScale == 1.0 and m.pacing.AiSlowdownDuringCrash == 1.0
+    and m.config.SpeedMatchingMaxMatchers == 0 and cfg.AI.Profiles.challenger.pacing.MaxAiCatchupScale == 1.0 and cfg.AI.Profiles.challenger.label == nil,
+    'v0.34.3: A.merged - pacing merged, scalars replaced, the league\'s profile itself untouched')
+  local r = cfg.Rally.AI
+  T.check(type(r) == 'table' and r.pacing.MaxAiCatchupScale == 1.6 and r.pacing.AiBehindTimeToMaxCatchup == 0.5 and r.label == 'rally profile', 'v0.34.3: config Rally.AI - catch-up x1.6 after 0.5 s')
+end
 -- v0.18: this test drives the mechanism with the v0.10-v0.17 profiles (pinned here); the real v0.18 profiles are
 -- checked at the end
 local REAL = cfg.AI.Profiles

@@ -97,15 +97,62 @@ Owner's plan: keep playing ~a week without crashes, then publish as a beta.
 - [ ] A week of crash-free play, then `tools/package.sh <tag>` and upload as a beta.
 - [x] **FreeRace 1.1c + 1.3 read (2026-11-25)**: `docs/freerace-review-2026-11-25.md`; items 1-6 built as v0.32.x, the rest listed in §1g.
 
+## 1a-menus. Menu text and layout review (owner 2026-11-25) - pass 1 built v0.35.0, pass 2 open
+**docs/menu-text-review-2026-11-25.md**: the voice (§1), every screen's text with replacements (§2), four layout changes
+(§3), the build plan (§4). Owner: "use your recommendations, do one version, go".
+- [x] Pass 1, the words (v0.35.0): every §2 line, plus §3.2 (a locked tune-up tile titled by its league). Owner to read
+      them in game: HOME, a cups page, a START screen, one results panel (OWNER.md).
+- [ ] Pass 2, the layout, one item a version, each seen in game: §3.1 the results prompt as two text blocks (next race left,
+      the B hint right); §3.3 RESET PROGRESS smaller and off the D-pad path; §3.4 the cups page header centred over the tiles;
+      ~~§3.5 check the cup result's award lines fit without the game's ellipsis~~ (moot: the award lines are off, v0.36.2).
+- [ ] **Layout grammar (2026-11-25, docs/layout-grammar-2026-11-25.md):** measured against the game's own CAMPAIGN page.
+      Units are a 3840 x 2160 slate; the game's content is a left column x 120-2205 (clear of the speeder and the droid),
+      ours are centred and 750-1135 units wider; our out-of-tile text is UMG's Roboto, not the game's faces; one ink on pale
+      pages. Owner 2026-11-25: left column, game fonts, cups 4 + 3. Build order (§5), one item a version, each seen in game:
+      - [x] 1 game fonts: v0.36.0 built + installed 2026-11-25 while the game ran (restart needed); owner to look at HOME,
+            a cups page, START and one results panel; `[fonts]` log lines say which assets were found
+      - [ ] 2 the column (spec.column x 120 w 2085, rows + header left-aligned, GAP 28 / 40)
+      - [ ] 3 cups 4 + 3 at 500 x 340, the info line's 2-line box (the circuits are off the page since v0.36.1, `CupTracks`)
+      - [ ] 4 the results prompt as two blocks (§3.1), RESET PROGRESS small (§3.3)
+
+## 1a-rally-ai. The Rally Cup's catch-up (owner 2026-11-25) - v0.34.3, untested in game
+"the enemies need a much stronger catch up factor": config `Rally.AI` on top of the league's profile (`A.merged`): catch-up
+x1.6 after 0.5 s behind. **Open:** the number (1.6 a guess; the owner's next rally's `[gaps]` lines decide); whether the
+15 s start grace should hold the catch-up at the game's value (FreeRace held MaxAiCatchupScale at 0 for 15 s; ours lives on
+the assets, written at launch, so a hold would need a second write at 15 s); a catch-up for the planet cups' back markers.
+
+## 1a-cupend. The cup result screen's bottom half (owner 2026-11-25) - v0.34.2, v0.36.2
+v0.34.2: "Participation streak and win count seem superfluous": WINS tile = trophy over standing, title line carries the
+verdict. The 18:01 read-back (Rally Cup, Junker) settled the open question: `SetText` sticks (Wins label=GOLD TROPHY
+amount=1ST), the tile texts are not bound.
+v0.36.2 (owner: "the bottom half doesn't really make much sense"): the bottom half was the game's PvP rank-up panel - a bar
+from "1st" to "GOLD", the points as XP, the races as XP awards. `CupResult.Progress = false` collapses it; the second tile
+is POINTS over "102 OF 105".
+v0.36.5 (owner's Jakku screenshot 22:37: "the bottom half needs to be reworked, it still doesn't make much sense ... less is
+more"): "60 OF 60" wrapped into three big lines, the game's headings PARTICIPATION STREAK / WIN COUNT stayed, the title
+stayed RESULTS (our text names were wrong; the widget has `SetScreenTitleText`). Now one tile: the trophy tile's section
+holder (`WBP_Panel_Presentation_SectionHolder_C`, found by GetParent) headed CUP RESULT through its `WBP_SectionSubLabel:
+SetLabel`, its row slot Fill + Center; the points tile's holder collapsed. **Open (owner's look):** did the centring take
+(the log's `[cupend] tile holders` line says the parent chain and `panels:` which step failed)? The final top 3 only if the
+owner asks for it.
+
+## 1a-planets. The planets on the cup tiles (v0.33.0) - reverted v0.34.1
+Owner 2026-11-25 (seen in game): "didn't really turn out like I wanted them to" -> `CupPlanets = false`. Code kept behind the
+switch. Open, if ever wanted again: what look was wanted (smaller? a corner badge? the planet instead of the poster?).
+
 ## 1b. League styles (owner 2026-11-12: "different styles of racing"; agreed, not built)
 **docs/league-styles-2026-11-12.md** - each league its own character (the car, the field, the tracks, the kit).
 - [x] Junker: renamed, afterburner and ramjet +2 (v0.28.3).
 - [ ] Junker = banger racing: more aggressive bots (`AI.Profiles.riffraff.aggression`).
 - [ ] Ace = weather and night: the draw leans to condition variants (gp.lua `K.draw`, a per-league lean).
 **2026-11-25 (owner): the car per league decided** - the plan in the doc's "2026-11-25" section. One tag per chunk:
-- [ ] L1. **Parts** (config only): Junker `{ [1] = 10, [3] = 10, [4] = 2 }`, Challenger `7`, Ace `10`; `AI.Strength.ace` shifted
+- [x] L1. **Parts** (config only): Junker `{ [1] = 10, [3] = 10, [4] = 2 }`, Challenger `7`, Ace `10`; `AI.Strength.ace` shifted
       to `{ elite = 0, contender = -1, weak = -3 }` (no room above 10); briefs / taglines. Tests; the `[builds]` lines
-      show each tier's levels. **Owner to confirm Challenger 7** (OWNER.md).
+      show each tier's levels. **Owner to confirm Challenger 7** (OWNER.md). **Built v0.34.0 (2026-11-25), installed;
+      the owner's test is next.** Found while building: a strength lift only reaches a slot that has a tune set
+      (loadout.lua L.botParts skips level-0 slots), so at Junker the Elite's +1 goes onto the afterburner and ramjet
+      (10 -> 11 stacks), not onto cornering / grip as the plan said; and the game's own level 10 is 13 stacks, so
+      "no room above 10" is unproven - a held race with Ace back at `{ elite = 2 }` would show whether 12 stacks count.
 - [ ] L2. **Ace clean field:** `AI.Profiles.ace` aggression (VersusPlayer and VersusAI) down; check the `[gaps]` spread.
 - [ ] L3. **Wreck limit per league** (= §1g item 8): `Leagues[].wrecks`, Junker 5, the others the game's 3; the mod tops
       `VehicleHealth` up and grows the HUD pips (`WBP_HUD_Crashes_C`).
