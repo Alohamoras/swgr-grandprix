@@ -79,7 +79,15 @@ for _, it in ipairs(gi.items) do
   if it.kind == 'vehicle' then vt = it end
   if it.kind == 'racer' then pil = it end
 end
-T.check(table.concat(kinds, ',') == 'racer,vehicle,START', 'the pods start screen: PILOT, PODRACER, START - no step, tune-up or ability tiles (' .. table.concat(kinds, ',') .. ')')
+T.check(table.concat(kinds, ',') == 'racer,vehicle,ability,ability,ability,ability,START', 'v0.43: the PRO start screen: PILOT, PODRACER, your four abilities, START - no tune-ups (' .. table.concat(kinds, ',') .. ')')
+-- LEARNER: no abilities
+H.S.start.class = 'pods'
+local lk = {}
+for _, it in ipairs(H.SCREENS.garage().items) do lk[#lk + 1] = tostring(it.kind or it.title) end
+T.check(table.concat(lk, ',') == 'racer,vehicle,START', 'the LEARNER start screen: PILOT, PODRACER, START (' .. table.concat(lk, ',') .. ')')
+H.S.start.class = 'podspro'
+local AB0 = require('abil')
+T.check(AB0.levelFor('podspro') == 3 and AB0.levelFor('pods') == 1, 'the ability level: PRO 3 (as ACE)')
 T.check(gi.lines[1][1] == 'PODRACING PRO', 'the header: PODRACING PRO')
 -- the PILOT tile: Shade (the car pilot here is Shade) flies the MythP3; no signature-kit words; Kestar's pod locked
 T.check(pil.title == 'SHADE' and pil.info:find('Shade flies the MythP3.', 1, true) == 1 and not pil.info:find('signature', 1, true)
@@ -125,12 +133,19 @@ T.check(K.planetOf(cfg.Pools.pods[1].path).name == 'Outer Rim' and K.planetOf(cf
   'the pod tracks\' planets: Mos Espa = Outer Rim, Mawhonic = Ando Prime')
 
 -- 4. the launch: start the cup, race 1 through LaunchCustomRace
-K.startCup('pods', 'pods', 'car', nil, nil, d)
+K.startCup('podspro', 'pods', 'car', nil, nil, d)
 T.check(K.data.run.pods == true, 'the run is marked as the pods cup')
 local ev = K.nextRace()
 T.check(ev.pod and ev.condTag == d[1].condTag, 'the next race is a pod race with its condition')
 local R = require('race')
-local okL, msg = R.launch(ev, 'pods', 'car', nil, nil)
+local okL, msg = R.launch(ev, 'podspro', 'car', { 'bolt.concuss', 'shield.impact', 'surge.impact', 'mine.double' }, nil)
+T.check(R.run and R.run.pe and #R.run.pe.paths == 4 and R.run.pe.paths[1]:find('Disruptor_ConcussV2', 1, true),
+  'v0.43 PRO: your four picks queued for your pod at level 3 (' .. tostring(R.run and R.run.pe and R.run.pe.paths[1]) .. ')')
+T.check(R.run.lo ~= nil and R.run.au ~= nil and T.logHas('[loadout] league podspro: AI racers get their four abilities at load'),
+  'v0.43 PRO: the pod racers get kits (loadout) and fire them (aiuse)')
+local LO0 = require('loadout')
+local kit = table.concat(LO0.kitFor('Dud Bolt', 'podspro'), ',')
+T.check(kit:find('Shockwave_Punch_Mk2', 1, true) and kit:find('Mine_Triple_AI', 1, true), 'Dud Bolt\'s kit at PRO (' .. kit .. ')')
 T.check(okL, 'launched (' .. tostring(msg) .. ')')
 local c = custom[1]
 T.check(c and rawget(c.arch, '__name') == 'VA_Plane' and rawget(c.mode, '__name'):find('GMV_Race', 1, true)

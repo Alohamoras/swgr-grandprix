@@ -362,7 +362,7 @@ at times) - so abilities are a build step, not a question; the ramjet is still u
 **Owner 2026-11-26: two steps, LEARNER and PRO** (PRO = the table's Pro + Champion: abilities both sides, the harder AI;
 the thrust dial / shorter grace if PRO turns out too easy); both open from the start; the v0.40 results move to LEARNER.
 
-- [ ] **PL0. Recon (owner away, test save, ~1 h).** On `VBD_MP_PlaneTour`: read its `AbilitySlots`, `SlotToUpgradeLevelMap`,
+- [x] **PL0. Recon (owner away, test save, ~1 h).** (done 2026-11-26: docs/podracing-recon-2026-11-25.md "PL0") On `VBD_MP_PlaneTour`: read its `AbilitySlots`, `SlotToUpgradeLevelMap`,
       `Affixes` and the pawn's components (is there a ramjet? which part slot drives pod speed?); write an ability into the
       pod build's slots (Ion Bolt / Shockwave / mine classes, then the campaign's pod abilities - find which ones the
       campaign hands pods: `Tour3/Racers/Plane` builds `VBD_PlaneTest_0x`, the memory events' builds) and race: does it show
@@ -391,11 +391,11 @@ the thrust dial / shorter grace if PRO turns out too easy); both open from the s
         no signature-kit message, the lock line about his pod.
   - [x] **Bug: racing as Sebulba put him on the grid twice** (his `DA_PlaneRacer_Nesodon` twin stayed in the field):
         config `Pods.Twins`, the twin dropped from the field.
-- [ ] **PL3. Your abilities on the pod** (PRO; v0.41.0 hid the ability / tune-up tiles on the pods start screen - they come back at PRO with this step): race.lua `preparePod` writes your picks onto the pod build the way
+- [x] **PL3. Your abilities on the pod** (v0.43.0: onto your race copy at load, level 3; the tiles at PRO) (PRO; v0.41.0 hid the ability / tune-up tiles on the pods start screen - they come back at PRO with this step): race.lua `preparePod` writes your picks onto the pod build the way
       `applyAbilities` does for cars (originals in `abilityRestores`), filtered to the families PL0 proves (`AB.classPaths`
       + a family filter); the start screen's ability tiles shown only at Pro / Champion (hidden at Learner - today they show
       and do nothing); tune-ups the same if PL0 shows affixes work on pods.
-- [ ] **PL4. The field's kits and pace** (P4 folded in): config `Abilities.PodRacers` (a kit per pod pilot, `_AI` variants),
+- [x] **PL4. The field's kits and pace** (v0.43.0: kits + aiuse at PRO; the pace profile per step is PL6's) (P4 folded in): config `Abilities.PodRacers` (a kit per pod pilot, `_AI` variants),
       loadout.lua / aiuse.lua run for pod races at Pro / Champion; an AI profile per step (`Pods.Steps[step].ai`: pressure,
       pacing, aggression, grace 10 / 10 / 5 s), Champion's thrust dial (thrust.lua) on the pod pilots.
 - [ ] **PL5. Tests + docs.** test_pods: the league on HOME, the step tile, the per-step records, abilities written / put back

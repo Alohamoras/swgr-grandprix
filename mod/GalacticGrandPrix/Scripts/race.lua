@@ -281,7 +281,7 @@ end
 -- message for the player.
 -- v0.40 (TASKS §1h; pods.lua): a pod race - the bare pod track, the game's pod build as it is, the league's AI
 -- profile, the field and your pod (pods.lua), your pilot into the character list
-local function preparePod(ev, classKey, e)
+local function preparePod(ev, classKey, e, picks)
   local P = (require('config').Pods or {})
   local veh = { key = 'pod', name = 'podracer', arch = 1, build = P.Build }
   local tag = C.tag(try(function() return e.VehicleTypeTag end))
@@ -313,12 +313,15 @@ local function preparePod(ev, classKey, e)
   if not gmv then log('[pods] ' .. tostring(why)); pcall(PODS.restore, 'not launched'); return nil, 'The pod race could not be set up' end
   local okR, errR = pcall(RC.begin, you)
   if not okR then log('[racer] not set: ' .. tostring(errR)) end
-  return { e = e, veh = veh, tag = tag, arch = arch, build = build, ai = ai, modNames = {}, pod = true, gmv = gmv }
+  -- v0.43 (TASKS §1h-L PL3): at a step with abilities (PRO) your four picks, onto your pod's race copy at load
+  local podPicks
+  if picks and PODS.abilitiesAt(classKey) then podPicks = AB.classPaths(picks, AB.levelFor(classKey)) end
+  return { e = e, veh = veh, tag = tag, arch = arch, build = build, ai = ai, modNames = {}, pod = true, gmv = gmv, podPicks = podPicks }
 end
 
 local function prepare(ev, classKey, vehKey, picks, mods, opts)
   local e = C.asset(ev.path)
-  if e and ev.pod then return preparePod(ev, classKey, e) end
+  if e and ev.pod then return preparePod(ev, classKey, e, picks) end
   if not e then log('event not found: ' .. ev.path); return nil, 'Event not found: ' .. ev.path:match('([^/]+)$') end
   -- v0.15: the vehicle is the racer's (main.lua passes RC.vehicle(); a cup passes the one it started with)
   -- (v0.31: no key - the title race, the boss - races the vehicle picked in the garage, like a cup: RC.chosenVehicle)
@@ -415,7 +418,9 @@ local function startRun(ev, classKey, p, skip, extra)
   local okU, au = true, nil
   local exp = AI.experiment()
   local recon = ev.pod and exp and exp.podRecon
-  if not ev.pod or (recon and exp.podAiuse) then okU, au = pcall(AU.begin, classKey) end -- (PL0: the pods' kits read)
+  local kits = ev.pod and PODS.kitsAt(classKey) -- (v0.43: PRO - the pod racers carry kits and fire them)
+  if not ev.pod or kits or (recon and exp.podAiuse) then okU, au = pcall(AU.begin, classKey) end -- (PL0: the pods' kits read)
+  if ev.pod and p.podPicks then R.run.pe = PODS.equipBegin(p.podPicks) end
   if recon then
     local paths = exp.podEquip and AB.classPaths(AB.normalize(K.data.picks, 3), 3) or nil
     if paths and #paths > 3 then paths = { paths[1], paths[2], paths[3] } end -- (slot 1 is TestAutopilot's)
@@ -441,7 +446,7 @@ local function startRun(ev, classKey, p, skip, extra)
   if okT then R.run.th = th else log('[thrust] ' .. tostring(th)) end
   R.menuSeen = false
   R.menuGone()
-  if ev.pod and not (recon and exp.podLoadout) then log('[pods] the pods race with the game\'s own builds and kits (no loadout)'); return end
+  if ev.pod and not kits and not (recon and exp.podLoadout) then log('[pods] the pods race with the game\'s own builds and kits (no loadout)'); return end
   local ok3, lo = pcall(LO.begin, classKey, p.modNames, p.yourKeys)
   if ok3 then R.run.lo = lo else log('[loadout] ' .. tostring(lo)) end
 end
@@ -800,6 +805,11 @@ function R.watch()
   if r.lo and not r.lo.done then
     local ok, err = pcall(LO.apply, r.lo)
     if not ok then log('[loadout] apply failed: ' .. tostring(err)); r.lo = nil end
+  end
+  -- v0.43 (TASKS §1h-L PL3): at PRO, your picks onto your pod's race copy while the race loads (pods.lua)
+  if r.pe and not r.pe.done then
+    local okE, errE = pcall(PODS.equip, r.pe)
+    if not okE then log('[pods] your abilities failed: ' .. tostring(errE)); r.pe.done = true end
   end
   -- TASKS §1h-L PL0 (test only): your picks onto your pod's race copy while the race loads (podrecon.lua)
   if r.pr and r.pr.equip and not r.pr.equipped then

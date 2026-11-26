@@ -302,10 +302,12 @@ return {
         Steps = {
           { key = 'pods', name = 'LEARNER', tagline = 'The pace to learn the tracks',
             line = 'LEARNER. The game\'s own podracers, no abilities on the grid. The pace to learn the tracks.' },
-          -- (PRO's abilities, yours and the field's, come after the recon, TASKS §1h-L PL0 / PL3 / PL4: until then PRO
-          -- is the harder AI profile only)
-          { key = 'podspro', name = 'PRO', tagline = 'The field gives nothing away',
-            line = 'PRO. The field races harder and gives nothing away. The pods at full pace.' },
+          -- v0.43.0 (owner 2026-11-26: "i thought the pro podracing was supposed to add abilities"; the recon, TASKS
+          -- §1h-L PL0, docs/podracing-recon-2026-11-25.md "PL0"): abilities = the level of your four picks and the
+          -- field's kits (as a league's; the pod build has no ability slots, so yours go onto your pod's race copy at
+          -- load, pods.lua); kits = the pod racers get their four (Abilities.Racers by name) and fire them (aiuse.lua).
+          { key = 'podspro', name = 'PRO', tagline = 'Abilities on every pod', abilities = 3, kits = true,
+            line = 'PRO. Your four abilities on your pod, and every pod racer carries a kit of their own. The field races harder and gives nothing away.' },
         } },
     TimeToBeat = { On = true, Route = 'viewport', Size = 44, Y = 0.38, Color = { 1, 1, 1 }, LapLine = false },
 
@@ -598,6 +600,13 @@ return {
         -- by their style in the game's data. The same every race; the league sets the level.
         AI = true,
         Racers = {
+            -- v0.43.0 (TASKS §1h-L PL4): the pod racers' kits for PODRACING PRO (matched by name; keys not racer defs).
+            -- Sebulba's is Mentor's below. Every family fired from a pod in the recon (Disruptor, Mine, Shield, Surge).
+            Pod_Cabbage         = { name = 'Dud Bolt',        offensive = 'shockwave.vectored', defensive = 'shield.impact',  utility = 'surge.impact',   wildcard = 'mine.double' },
+            Pod_Celery          = { name = 'Gasgano',         offensive = 'bolt.multi',         defensive = 'shield.surging', utility = 'surge.overtake', wildcard = 'mine.frozen' },
+            Pod_Garlic          = { name = 'Teemto Pagalies', offensive = 'bolt.concuss',       defensive = 'shield.surging', utility = 'vent.auto',      wildcard = 'surge.overtake' },
+            Pod_Onion           = { name = 'Ben Quadinaros',  offensive = 'shockwave.magnetic', defensive = 'shield.impact',  utility = 'scrubber.auto',  wildcard = 'mine.double' },
+            Pod_Pepper          = { name = 'Ody Mandrell',    offensive = 'bolt.multi',         defensive = 'shield.impact',  utility = 'surge.impact',   wildcard = 'shockwave.vectored' },
             Antagonist          = { name = 'Kestar Bool',    offensive = 'bolt.concuss',       defensive = 'shield.impact',  utility = 'surge.impact',   wildcard = 'shockwave.vectored' },
             Rager               = { name = 'Biddy Blas',     offensive = 'shockwave.vectored', defensive = 'shield.impact',  utility = 'vent.flame',     wildcard = 'surge.impact' },
             DarkEnigma          = { name = 'Shade',          offensive = 'bolt.concuss',       defensive = 'shield.surging', utility = 'vent.auto',      wildcard = 'scrubber.auto' },

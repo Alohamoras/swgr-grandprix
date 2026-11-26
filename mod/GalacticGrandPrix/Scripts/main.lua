@@ -508,9 +508,10 @@ SCREENS.cups = function()
 end
 
 -- the garage: one tile per thing you can change; Select cycles it (v0.8: no pick screens)
-local function cyclePick(i)
-  local level = levelNow()
-  local picks = picksFor(curLeague())
+local function cyclePick(i, classKey)
+  -- (v0.43: classKey = the league whose level the picks are made at - a PODRACING step on its start screen)
+  local level = classKey and AB.levelFor(classKey) or levelNow()
+  local picks = picksFor(classKey or curLeague())
   local choices = AB.choices(i, level, picks)
   if #choices == 0 then return nil end
   local at = 0
@@ -572,6 +573,19 @@ local function podGarage(items, st)
   for _, it in ipairs(items) do if it.kind ~= 'step' then n = n + 1 end end
   rows[#rows + 1] = { w = G.w, h = G.h, n = n }
   if #items > n then rows[#rows + 1] = { w = G.w, h = G.h, n = #items - n } end
+  -- v0.43 (TASKS §1h-L PL3): at a step with abilities (PRO) your four, as on a car league's start screen
+  if require('pods').abilitiesAt(st.class) then
+    local level = AB.levelFor(st.class)
+    local picks = picksFor(st.class)
+    for i = 1, 4 do
+      local lab = AB.label(picks[i], level)
+      items[#items + 1] = { title = (lab or '?'):upper(), art = ART.ABILITIES, kind = 'ability',
+        glyph = { ART.ability(AB.family(picks[i])), { 1, 1, 1 }, 100 }, tag = { 'ABILITY', { 0.62, 0.85, 1 } },
+        info = ('%s. %s.'):format(lab or '?', AB.blurb(picks[i])),
+        act = function() cyclePick(i, st.class); S.message = nil; return true end }
+    end
+    rows[#rows + 1] = { w = G.w, h = G.h, n = 4 }
+  end
   local cup = K.cup(st.cup)
   items[#items + 1] = { title = 'START', art = ART.cup(cup), span = 4, act = startLaunch }
   rows[#rows + 1] = { w = G.w, h = G.startH or 170 }

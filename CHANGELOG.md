@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.43.0 (2026-11-26): PODRACING PRO with abilities (TASKS §1h-L PL0, PL3, PL4)
+- Owner: "i thought the pro podracing was supposed to add abilities and ramjet, it's not in there" - chose the recon
+  first. The recon (owner away, test save; docs/podracing-recon-2026-11-25.md "PL0"): the pod build has no ability
+  slots, but your pod's race copy has four, and abilities written there at load fire; the pod racers fire kits once
+  given them; pod parts change pace for the whole field; the ramjet never engaged on a pod.
+- PRO: your four abilities on your pod (written onto your race copy while the race loads, pods.lua `P.equip`; nothing
+  to put back - the copies go with the race), at level 3 as at ACE (`Pods.Steps[].abilities`); the ability tiles on
+  the PRO start screen (LEARNER keeps none). The pod racers carry a kit each and fire it (`Pods.Steps[].kits`:
+  loadout.lua and aiuse.lua run for PRO pod races): new kits for Dud Bolt, Gasgano, Teemto Pagalies, Ben Quadinaros
+  and Ody Mandrell in `Abilities.Racers` (by name); Sebulba keeps Mentor's, Kestar his own.
+- PRO's poster tagline: "Abilities on every pod"; its rules line says so.
+- Not changed: the ramjet (not something we can switch on - see the recon), pod parts (the owner's call: they work,
+  for the whole field).
+- Tests: test_pods 51 checks (the PRO / LEARNER start screens, your picks queued at level 3, the field's kits).
+- Seen in game in the recon (the mechanism); this build itself not yet raced.
+
 ## v0.42.0 (2026-11-26): the PODRACING page, fly your pilot's pod (TASKS §1h-L PL2b, the owner's v0.41 notes)
 - Owner: a PODRACING tab at the top? It would touch the Party box, so (agreed) the HOME poster now opens a PODRACING page
   with LEARNER and PRO as league posters (medal, crown, tagline, rules line); each opens the PODRACER CUP's start screen

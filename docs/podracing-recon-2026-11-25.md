@@ -83,3 +83,36 @@ field is **you + 6 pod pilots + Kestar = 8**.
 ## KNOWLEDGE.md rows added
 
 §3 "A podracer race launches" and §4 "the pod cast" (2026-11-25).
+
+## PL0 (2026-11-26): abilities, parts and the ramjet on pods (TASKS §1h-L)
+
+Owner away; test save (the owner's GP save and the game's SaveGames backed up with md5s in
+`~/.local/share/swgr-save-backups/pods-boost-20261126/`). GP dev build (podrecon.lua, experiment.lua switches
+`podRecon / podPicks / podEquip / podFire / podLoadout / podAiuse / podLevels`), TestAutopilot driving, PRO step,
+a fresh game per pod race (TestAutopilot cannot arm a second pod race in one session).
+
+| Race | Pilot, track | Switches | Result |
+|---|---|---|---|
+| 1 | Fola, Mos Espa | your picks onto the pod build, fire, read the field | 1st 2:34.83; field 2:35.2-2:49.2 |
+| 2 | Sebulba, Mos Espa | your picks onto your **race copy** at load, fire, the field given kits | 1st 2:36.00; field 2:42.0-2:59.1, 7 racers |
+| 3 | Goli, Mawhonic | pod parts 0 | autopilot never armed ("your car has no Autopilot ability"), killed; no time |
+| 4 | Fola, Mos Espa | pod parts 10 | 3rd 2:17.01 (top speed 1400 kph, 995 in race 1); Sebulba 2:05.25, field to 2:31.7 |
+
+- **The pod build `VBD_MP_PlaneTour` has no ability slots** (0; levels 0=0 1=2 2=1 3=0 4=0 5=0, one affix
+  `AFXCustom_LotsOfBattery`, 6 affix slots): writing abilities into it does nothing.
+- **Your pod's race copy has 4 ability slots** (`GfnPlayerState.RacerBuildState.VehicleBuilds[].AbilitySlots`, as for
+  cars). Ability classes written there while the race loads become your abilities: race 2 wrote Multi-Bolt II,
+  Surging Shield II, Overtaking Surge II (slot 1 was TestAutopilot's), and every `Server_Trigger(true)` took the fired
+  one to active (11 fires).
+- **The pod racers fire kits once given them** (loadout.lua's `equip` on their race copies, as for cars): race 2, about
+  20 uses - Disruptor, Mine, Shield, Surge. Without kits (race 1) they carry and fire nothing.
+- **Pod parts work, and the field gets them too** (every pod races a copy of the launch build, as cars do): all six
+  parts at 10 = 17.8 s faster for the same pilot on Mos Espa, and the whole field faster with it. Parts at 0 broke
+  the autopilot's ability (race 3) - not tried again.
+- **The ramjet:** every pod has a `Ramjet` and an `Afterburner` component (8 of each in an 8-pod race), the ramjets
+  read Ready (1) most of the race - but the autopilot never used one in four pod races, and every pod's
+  `VehicleBoostComponent.BoostState` read 2 (afterburner) all race, while the same autopilot in a car goes into
+  ramjet (state 4) within 10 s. So the ramjet may simply not engage on a pod (the owner: "there's no ramjet"). Only a
+  real pad can tell whether the boost button does anything more on a pod.
+- **The pilots:** Goli flies her own green Hexing (screenshot, race 3), Fola her Hexing, Sebulba his Nesodon with no
+  twin on the grid (race 2: you + 6).

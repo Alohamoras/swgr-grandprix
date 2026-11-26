@@ -70,6 +70,53 @@ function P.cycle(dir)
   end
   return cur
 end
+-- v0.43 (TASKS §1h-L PL3 / PL4): a step's config (Pods.Steps) by league key, or {}
+function P.step(classKey)
+  for _, s in ipairs(conf().Steps or {}) do if s.key == classKey then return s end end
+  return {}
+end
+function P.abilitiesAt(classKey) return P.step(classKey).abilities ~= nil end
+function P.kitsAt(classKey) return P.step(classKey).kits == true end
+-- your picks onto YOUR pod's race copy while the race loads (RacerBuildState.VehicleBuilds[].AbilitySlots: the pod
+-- build itself has no ability slots - recon 2026-11-26 race 1; race 2: all three written this way fired). The copies
+-- go with the race world: nothing to put back. A slot holding Autopilot (TestAutopilot's, tests only) is left alone.
+function P.equipBegin(paths)
+  if type(paths) ~= 'table' or #paths == 0 then return nil end
+  return { paths = paths, at = C.clock }
+end
+function P.equip(st)
+  if not st or st.done then return end
+  if C.clock - st.at > 30000 then st.done = true; log('[pods] your abilities: gave up (no race copy of yours)'); return end
+  for _, ps in ipairs(C.find('GfnPlayerState')) do
+    if try(function() return ps.bIsABot end) == false then
+      local vb = try(function() return ps.RacerBuildState.VehicleBuilds end)
+      local nb = vb and try(function() return vb:GetArrayNum() end) or 0
+      if nb == 0 then return end
+      local cls = {}
+      for i, p in ipairs(st.paths) do cls[i] = C.uclass(p) end
+      local n, names = 0, {}
+      for b = 1, nb do
+        local slots = try(function() return vb[b].AbilitySlots end)
+        local ns = slots and try(function() return slots:GetArrayNum() end) or 0
+        local k = 1
+        for j = 1, ns do
+          local cur = try(function() return slots[j] end)
+          local curName = alive(cur) and C.idname(cur) or ''
+          if not curName:find('Autopilot', 1, true) and st.paths[k] then
+            if cls[k] and pcall(function() slots[j] = cls[k] end) then
+              n = n + 1
+              if b == 1 then names[#names + 1] = st.paths[k]:match('BP_Ability_([%w_]+)%.') or st.paths[k] end
+            end
+            k = k + 1
+          end
+        end
+      end
+      st.done = true
+      log(('[pods] your abilities on your pod: %s (%d slot writes over %d race builds)'):format(table.concat(names, ', '), n, nb))
+      return
+    end
+  end
+end
 -- the pod's name for a pilot ('MythP3'), or nil
 function P.podName(key) local p = P.pilot(key); return p and p.pod or nil end
 -- the field's racer def paths (Pods.Field: 'DA_PlaneRacer_Cabbage', ..., 'DA_Racer_Antagonist'), minus the one you race as

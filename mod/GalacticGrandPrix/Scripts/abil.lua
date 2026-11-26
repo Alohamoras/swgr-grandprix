@@ -35,6 +35,8 @@ function AB.blurb(pick) return (conf().Blurb or {})[AB.family(pick) or ''] or ''
 -- the league's ability level (v0.26)
 function AB.levelFor(classKey)
   for _, c in ipairs(cfg.Leagues or {}) do if c.key == classKey then return c.abilities or 1 end end
+  -- v0.43: a PODRACING step with abilities (config Pods.Steps[].abilities)
+  for _, s in ipairs(((cfg.Pods or {}).Steps) or {}) do if s.key == classKey and s.abilities then return s.abilities end end
   return 1
 end
 
