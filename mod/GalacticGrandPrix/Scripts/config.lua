@@ -129,8 +129,12 @@ return {
     -- change the text color to a burnt orange that fits the color scheme"): the ink on the pale pages. Ink = titles, body
     -- lines and the info line (was dark grey 0.12); Ink2 = the small print, GREY lines (was 0.26 grey), a deeper rust so
     -- the two still read as two weights. { R, G, B } 0..1. Ink = false (or Ink2 = false) = that v0.22 grey back.
-    Ink = { 0.78, 0.33, 0.06 },
-    Ink2 = { 0.62, 0.28, 0.08 },
+    -- v0.38.1 (owner: "the same orange shade as the top bar in the menu uses i.e. when Grand Prix is highlighted"): Ink =
+    -- the selected tab pill's terracotta, read off a 4K screenshot (sRGB 177, 81, 60) and given here as the LINEAR colour
+    -- UMG wants (our v0.36.4 text drew sRGB 229, 155, 69 from 0.78 / 0.33 / 0.06 - the screen shows linear values
+    -- sRGB-encoded); Ink2 = the same hue darker (sRGB 127, 58, 43). KNOWLEDGE.md §6.
+    Ink = { 0.44, 0.082, 0.045 },
+    Ink2 = { 0.212, 0.042, 0.024 },
     -- v0.36.3 (owner: "the grey text on the league selection screen is often in front of a grey background and you can't
     -- read it ... maybe another washed out color that fits the vibe"): a washed sand strip behind HOME's info line (the
     -- league's rules), the colour of the menu art's own light bands; the dark ink stays. The strip is as wide as the

@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.38.1 (2026-11-25): the menu ink = the tab pill's orange exactly (TASKS §3, owner)
+- Owner: "the orange text in the menus, it should be the same orange shade as the top bar in the menu uses i.e. when
+  Grand Prix is highlighted". Read off a 4K screenshot with GRAND PRIX selected: the pill is sRGB 177, 81, 60. UMG takes
+  LINEAR colours (proof: our v0.36.4 ink 0.78 / 0.33 / 0.06 drew sRGB 229, 155, 69 - the sRGB encoding of those values),
+  so `Ink = { 0.44, 0.082, 0.045 }` (the pill), `Ink2 = { 0.212, 0.042, 0.024 }` (the same hue darker, sRGB 127, 58, 43).
+- The v0.36.4 orange was much lighter than the pill (a linear value treated as sRGB); this is the first exact match.
+
 ## v0.38.0 (2026-11-25): best laps on the standings (TASKS §1g-16, the results part)
 - Owner: "at the end of the track a 'best lap' time". Your line on the standings now reads "2nd   -   1:45.07   -   best
   lap 0:34.20   -   0.4 s behind Biddy Blas" (never on a sprint: one lap, the best lap is the race).
