@@ -417,7 +417,9 @@ local function startRun(ev, classKey, p, skip, extra)
   local recon = ev.pod and exp and exp.podRecon
   if not ev.pod or (recon and exp.podAiuse) then okU, au = pcall(AU.begin, classKey) end -- (PL0: the pods' kits read)
   if recon then
-    local okP, pr = pcall(require('podrecon').begin, exp)
+    local paths = exp.podEquip and AB.classPaths(AB.normalize(K.data.picks, 3), 3) or nil
+    if paths and #paths > 3 then paths = { paths[1], paths[2], paths[3] } end -- (slot 1 is TestAutopilot's)
+    local okP, pr = pcall(require('podrecon').begin, exp, paths)
     if okP then R.run.pr = pr else log('[podrecon] ' .. tostring(pr)) end
   end
   -- TASKS §1k (test only, DevTools + experiment.lua boostRecon): you, the racer ahead and behind every 0.5 s
@@ -439,7 +441,7 @@ local function startRun(ev, classKey, p, skip, extra)
   if okT then R.run.th = th else log('[thrust] ' .. tostring(th)) end
   R.menuSeen = false
   R.menuGone()
-  if ev.pod then log('[pods] the pods race with the game\'s own builds and kits (no loadout)'); return end
+  if ev.pod and not (recon and exp.podLoadout) then log('[pods] the pods race with the game\'s own builds and kits (no loadout)'); return end
   local ok3, lo = pcall(LO.begin, classKey, p.modNames, p.yourKeys)
   if ok3 then R.run.lo = lo else log('[loadout] ' .. tostring(lo)) end
 end
@@ -798,6 +800,11 @@ function R.watch()
   if r.lo and not r.lo.done then
     local ok, err = pcall(LO.apply, r.lo)
     if not ok then log('[loadout] apply failed: ' .. tostring(err)); r.lo = nil end
+  end
+  -- TASKS §1h-L PL0 (test only): your picks onto your pod's race copy while the race loads (podrecon.lua)
+  if r.pr and r.pr.equip and not r.pr.equipped then
+    local okE, errE = pcall(require('podrecon').equip, r.pr)
+    if not okE then log('[podrecon] equip failed: ' .. tostring(errE)); r.pr.equipped = true end
   end
   -- TASKS §1k (test only): the boost recon's 0.5 s rows until you finish (boostrecon.lua)
   if r.br and r.startedAt and not r.finished then

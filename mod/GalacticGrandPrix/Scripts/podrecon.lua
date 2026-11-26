@@ -32,9 +32,43 @@ function PRC.dumpBuild(b, levelsText)
     tostring(try(function() return b.UnlockedAffixSlots end))))
 end
 
-function PRC.begin(exp)
-  log('[podrecon] on: ' .. (exp.podFire and 'your abilities fired in turn from 20 s' or 'reading only'))
-  return { fire = exp.podFire == true, last = '', fired = 0, nextFire = nil, check = nil, ramjetChecks = 0 }
+-- paths = ability class paths to equip on YOUR race copy at load (experiment podEquip; race 1 showed the pod build has
+-- no ability slots but your race copy has 4), from slot `from` (2: slot 1 is TestAutopilot's)
+function PRC.begin(exp, paths)
+  log('[podrecon] on: ' .. (exp.podFire and 'your abilities fired in turn from 20 s' or 'reading only')
+    .. (paths and (', equip ' .. #paths .. ' on your race copy') or ''))
+  return { fire = exp.podFire == true, last = '', fired = 0, nextFire = nil, check = nil, ramjetChecks = 0,
+    equip = paths, from = tonumber(exp.podEquipFrom) or 2, at = C.clock }
+end
+
+-- while the race loads (race.lua, every tick until done or 10 s): your picks into your race copy's ability slots, as
+-- loadout.lua does for the bots and TestAutopilot for its Autopilot (RacerBuildState.VehicleBuilds[].AbilitySlots)
+function PRC.equip(st)
+  if not st.equip or st.equipped then return end
+  if C.clock - st.at > 30000 then st.equipped = true; log('[podrecon] equip: gave up (no race copy of yours)'); return end
+  for _, ps in ipairs(C.find('GfnPlayerState')) do
+    if try(function() return ps.bIsABot end) == false then
+      local vb = try(function() return ps.RacerBuildState.VehicleBuilds end)
+      local nb = vb and try(function() return vb:GetArrayNum() end) or 0
+      if nb == 0 then return end
+      local n, names = 0, {}
+      for b = 1, nb do
+        local slots = try(function() return vb[b].AbilitySlots end)
+        local ns = slots and try(function() return slots:GetArrayNum() end) or 0
+        for k, p in ipairs(st.equip) do
+          local j = st.from + k - 1
+          local cls = j <= ns and C.uclass(p)
+          if cls and pcall(function() slots[j] = cls end) then
+            n = n + 1
+            if b == 1 then names[#names + 1] = j .. '=' .. (p:match('BP_Ability_([%w_]+)%.') or p) end
+          end
+        end
+      end
+      st.equipped = true
+      log(('[podrecon] equip: %d slot writes over %d race builds: %s'):format(n, nb, table.concat(names, ', ')))
+      return
+    end
+  end
 end
 
 -- the ramjet / afterburner components in the race world (a sweep each: only twice a race)
