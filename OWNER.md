@@ -67,8 +67,13 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
-- [ ] **BikeSkin v0.3.0 (2026-11-26, ~/Projects/swgr-bikeskin) - the real mod, installed, loads at the next game
-      start; no keys.** Every offline race on a **landspeeder**: ~4 s in it becomes Shade's bike, your rider takes the
+- [ ] **BikeSkin v0.4.0 (2026-11-26) + StreamlineCampaign 1.0.1 switched on - restart the game.** The drifter bike is
+      now your landspeeder's **Marlin** kit, shown in CUSTOMIZE as **"Drifter Bike (prototype)"**: pick it, race the
+      landspeeder (also in the campaign) = the bike; any other look (your Beluga) = a normal landspeeder. Check: the
+      name shows; a Marlin race is the bike; a Beluga race is a plain landspeeder that doesn't lean (the first race
+      after switching kits might still lean - tell me if it did). Other kit: `Kit = "..."` in BikeSkin's config.lua.
+- [x] **BikeSkin v0.3.0 (2026-11-26, ~/Projects/swgr-bikeskin) - the real mod, installed, loads at the next game
+      start; no keys.** (Owner: "everything else played great"; pose -> Bike_Scout in v0.3.1.) Every offline race on a **landspeeder**: ~4 s in it becomes Shade's bike, your rider takes the
       Bike_Race pose (your pick), and it leans like the second F9 (every landspeeder leans, bots too). Check: all three
       there? Still right after a crash / reset? Any stutter every 2 s? Settings (bike look, Bike_Scout pose, lean off):
       `mod/BikeSkin/Scripts/config.lua`. (Spike results: F7 press 1 right; F9 twice looked right. The spike is off now.)
