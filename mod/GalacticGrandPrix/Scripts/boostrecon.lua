@@ -36,12 +36,22 @@ end
 function BR.tick(st, startedAt)
   if not startedAt or C.clock - st.last < 500 then return end
   st.last = C.clock
-  local boost = {}
-  for _, b in ipairs(C.find('VehicleBoostComponent')) do
-    local owner = try(function() return b:GetOwner() end)
-    local a = alive(owner) and C.addr(owner)
-    if a then boost[a] = try(function() return tonumber(b.BoostState) end) end
+  -- (2026-11-26 pod races: BoostState read 2 all race for everyone, so the afterburner's State (0 active, 1 cooldown,
+  -- 2 recovering) and the ramjet's RamjetState (1 ready, 2 engaging, 3 active, ...) are written beside it: "b/a/r")
+  local bs, ab, rj = {}, {}, {}
+  local function byOwner(cls, field, into)
+    for _, b in ipairs(C.find(cls)) do
+      local owner = try(function() return b:GetOwner() end)
+      local a = alive(owner) and C.addr(owner)
+      if a then into[a] = try(function() return tonumber(b[field]) end) end
+    end
   end
+  byOwner('VehicleBoostComponent', 'BoostState', bs)
+  byOwner('Afterburner', 'State', ab)
+  byOwner('Ramjet', 'RamjetState', rj)
+  local boost = setmetatable({}, { __index = function(_, a)
+    return ('%s/%s/%s'):format(tostring(bs[a] or '-'), tostring(ab[a] or '-'), tostring(rj[a] or '-'))
+  end })
   local byPos, you = {}, nil
   for _, ps in ipairs(C.find('GfnPlayerState')) do
     local rec = try(function() return ps.RaceEventComponent end)
