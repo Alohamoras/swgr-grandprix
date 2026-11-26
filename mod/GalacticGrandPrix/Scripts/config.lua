@@ -118,12 +118,19 @@ return {
     PageBackdrop = false,
     -- v0.22: dark grey text on the pages without a picture behind them (the menu's art is pale); false = light text
     DarkText = true,
+    -- v0.36.4 (owner: the dark grey "blends with the background" - the droid and the Steam box - on many menus; "just
+    -- change the text color to a burnt orange that fits the color scheme"): the ink on the pale pages. Ink = titles, body
+    -- lines and the info line (was dark grey 0.12); Ink2 = the small print, GREY lines (was 0.26 grey), a deeper rust so
+    -- the two still read as two weights. { R, G, B } 0..1. Ink = false (or Ink2 = false) = that v0.22 grey back.
+    Ink = { 0.78, 0.33, 0.06 },
+    Ink2 = { 0.62, 0.28, 0.08 },
     -- v0.36.3 (owner: "the grey text on the league selection screen is often in front of a grey background and you can't
     -- read it ... maybe another washed out color that fits the vibe"): a washed sand strip behind HOME's info line (the
     -- league's rules), the colour of the menu art's own light bands; the dark ink stays. The strip is as wide as the
     -- page's block, two lines tall, collapsed while the line is blank. false = no strip. (HOME only for now: the cups
     -- page pads its info line to five lines, a tall pale box there would look odd - main.lua spec.infoStrip.)
-    InfoStrip = { R = 0.95, G = 0.93, B = 0.89, A = 0.82 },
+    -- v0.36.4: off (owner: the strip covered one line, the grey stayed on every other menu; the orange ink instead)
+    InfoStrip = false,
     -- v0.22: seconds the main menu must be on screen before the tab is added (was ~3 s, a v0.9.0 crash guard)
     -- v0.27.5: 0.5 (the v0.9.0 crash was most likely the long-gone CampaignLogger mod; 1.0 if the menu misbehaves)
     TabSettleS = 0.5,

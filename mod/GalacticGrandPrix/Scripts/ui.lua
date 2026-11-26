@@ -255,7 +255,8 @@ local function makeTile(lib, pc, it, make)
 end
 
 -- v0.22 (owner: the gold and white text is too light on the menu's own pale art): while a page without a picture
--- behind it is built, every text colour is swapped for dark grey (U.ink); pages with a picture keep the light colours
+-- behind it is built, every text colour is swapped for an ink (U.ink: config Ink, burnt orange since v0.36.4; dark grey before);
+-- pages with a picture keep the light colours
 local inkOn = false
 -- v0.36 (docs/layout-grammar-2026-11-25.md §1: every text we drew outside a tile was UMG's default Roboto; the owner
 -- chose the game's typefaces): face = 'display' | 'body' | 'numbers' -> the game's font asset from config GameFonts
@@ -305,9 +306,17 @@ local GOLD, GREY, WHITE = { 1, 0.82, 0.35 }, { 0.72, 0.74, 0.78 }, { 1, 1, 1 }
 U.GOLD, U.GREY, U.WHITE = GOLD, GREY, WHITE
 -- the dark inks (v0.22): white and gold -> dark grey, the light grey (small print) -> a lighter dark grey
 U.DARK, U.DARK2 = { 0.12, 0.13, 0.14 }, { 0.26, 0.27, 0.29 }
+-- v0.36.4 (owner: the dark grey blends with the grey of the droid and the Steam box on many menus - "just change the
+-- text color to a burnt orange that fits the color scheme"): config Ink / Ink2 replace the two greys on every pale page;
+-- Ink = false brings the v0.22 greys back
+local function inkOf(key, fallback)
+  local c = cfg[key]
+  if type(c) == 'table' and c[1] and c[2] and c[3] then return c end
+  return fallback
+end
 function U.ink(c)
-  if c == GREY then return U.DARK2 end
-  return U.DARK
+  if c == GREY then return inkOf('Ink2', U.DARK2) end
+  return inkOf('Ink', U.DARK)
 end
 
 -- a screen's text lines ({ text, size, color }) into a vertical box, wrapped at `wrap`; top = the space above each

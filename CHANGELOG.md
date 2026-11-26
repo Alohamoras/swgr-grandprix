@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.36.4 (2026-11-25): burnt orange ink on every pale page, the sand strip off (owner)
+- Owner: "you put the white background across some of the text but many of the menus still have the grey that blends
+  with the background, just change the text color to a burnt orange that fits the color scheme". The v0.22 dark greys
+  (0.12 for titles, body and info lines; 0.26 for the small print) go on every pale page: config `Ink` (burnt orange,
+  R 0.78 G 0.33 B 0.06) and `Ink2` (a deeper rust, R 0.62 G 0.28 B 0.08, so the small print still reads as the lighter
+  weight). ui.lua U.ink reads them; `Ink = false` / `Ink2 = false` = that grey back. Pages with a picture keep the light
+  colours as before.
+- `InfoStrip = false`: the v0.36.3 sand strip is off (the code stays; it covered one line on one page).
+- Not yet seen in game (built while the game ran): the two values are a first pick against the sand, the droid's grey and
+  the yellow speeder - name a shade and it is one config line.
+- Tests: 51 files pass (no test reads the ink colours).
+
 ## v0.36.3 (2026-11-25): HOME reads - a sand strip behind the league's rules line, and a heading (owner)
 - Owner: "The grey text on the league selection screen is often in front of a grey background and you can't read it, not
   sure what the solution is here, maybe another washed out color that fits the vibe." The line is the dark ink every pale
