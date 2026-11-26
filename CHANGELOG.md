@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.39.0 (2026-11-25): TIME TO BEAT through the countdown - our first text in a race (TASKS §1g-16)
+- Owner: "at the start of the race you are shown a 'time to beat'". While the countdown runs, "TIME TO BEAT  0:49.81"
+  (your lap record on this track at this league) - or "NO LAP SET" - in the game's display font, white with a shadow,
+  in the middle of the screen below the countdown lights; gone at the green light. Not on the Kestar finale.
+- How (the spike, KNOWLEDGE.md §6): a plain UserWidget of our own in the viewport (a CanvasPanel root, one TextBlock),
+  held only as a C.ref and removed at the start; the countdown is read from the race state's `CountdownEndTime` (the
+  HUD's countdown widget is there from the load and always reads not visible). Lookups only before the start, every
+  250 ms, nothing after. Stands aside while FreeRace / Theater hide the HUD (`TheaterShowHidesHud`).
+- The per-lap line is built and OFF (`TimeToBeat.LapLine = false`) until the owner answers OWNER.md: as you cross the
+  line, "LAP 1   0:47.73   +0.35" against your lap record, "NEW BEST LAP  0:47.10" when it beats it, for 4 s (up to 2 s
+  after the line: it rides the race's 2 s read). Never on a sprint.
+- Seen in game 2026-11-25: TIME TO BEAT 0:49.81 (War Fields scorching), NO LAP SET (War Fields dawn), LAP 1 / LAP 2 with
+  the switch on. Config `TimeToBeat = { On, Route = 'viewport' | 'hud', Size, Y, Color, LapLine }` ('hud' untried).
+- Tests: test_lapshow (15 checks).
+
 ## v0.38.1 (2026-11-25): the menu ink = the tab pill's orange exactly (TASKS §3, owner)
 - Owner: "the orange text in the menus, it should be the same orange shade as the top bar in the menu uses i.e. when
   Grand Prix is highlighted". Read off a 4K screenshot with GRAND PRIX selected: the pill is sRGB 177, 81, 60. UMG takes

@@ -281,13 +281,13 @@ The rest, in the order recommended (details and engine names in the review doc's
       etc."; was "best-lap records ... NEW BEST LAP line on the results", §6.5). The record already exists: gp.lua
       `records[league][eventPath].lap` (filled from `PlayerRaceEventComponent.BestLapTime` in race.lua). Missing is
       the showing:
-      - [ ] Start: "TIME TO BEAT 1:12.40" (your best lap here at this league; none yet = "NO LAP SET") on screen
+      - [x] Start: (v0.39.0, seen in game) "TIME TO BEAT 1:12.40" (your best lap here at this league; none yet = "NO LAP SET") on screen
             through the countdown, gone at the green light.
-      - [ ] Each lap crossed (watch `CurrentLapNumber`): that lap's time and +/- against the record, "NEW BEST LAP"
+      - [x] Each lap crossed (v0.39.0, built, OFF: `TimeToBeat.LapLine`; seen working with it on) (watch `CurrentLapNumber`): that lap's time and +/- against the record, "NEW BEST LAP"
             when it beats it (the "etc." - owner to confirm they want the per-lap line, not just start and end).
-      - [ ] End: the results / standings panel says BEST LAP 1:11.85 beside the race time, NEW BEST LAP when it's a
+      - [x] End: (v0.38.0, seen in game) the results / standings panel says BEST LAP 1:11.85 beside the race time, NEW BEST LAP when it's a
             record (the near-miss line "0.4 S OFF YOUR LAP RECORD" shares the NEW RECORD row, DESIGN v0.12).
-      - [ ] Spike first: we have never drawn our own text in a race. Try a plain UserWidget added to the viewport
+      - [x] Spike first (2026-11-25: a plain UserWidget in the viewport works; KNOWLEDGE.md §6): we have never drawn our own text in a race. Try a plain UserWidget added to the viewport
             during the countdown (a TextBlock, game font, white with a shadow) vs writing into a HUD text the game
             already shows; no hooks, nothing kept between ticks; it must stand aside for FreeRace / Theater's HUD
             flag (`TheaterShowHidesHud`, KNOWLEDGE.md). Record the outcome in KNOWLEDGE.md.
@@ -415,14 +415,14 @@ clear. This pass is about being clear.
       pip is the league TITLE (gold = you beat Kestar Bool in the Galactic Cup's finale, `titles[league]`; faint grey =
       not yet; main.lua ~274), and on a cup tile the corner star is a PERFECT CUP (won every race; main.lua ~382).
       Claude's pick, to confirm with the owner (OWNER.md):
-      - [ ] HOME: the focused league's info line ends with the title's state - "CHAMPION: BEAT KESTAR BOOL IN THE
+      - [x] (v0.37.0, worded to §1j) HOME: the focused league's info line ends with the title's state - "CHAMPION: BEAT KESTAR BOOL IN THE
             GALACTIC CUP FINALE" (grey) / "LEAGUE CHAMPION" (gold) - so the star is explained where you're looking.
-      - [ ] Cups page: a perfect cup's info line says "PERFECT CUP: EVERY RACE WON"; an unperfected won cup can say
+      - [x] (v0.37.0) Cups page: a perfect cup's info line says "PERFECT CUP: EVERY RACE WON"; an unperfected won cup can say
             "WIN EVERY RACE FOR A STAR".
-      - [ ] Two icons, not one: keep the star for the league title, and a different game icon for a perfect cup (a
+      - [x] (v0.37.0) Two icons, not one: keep the star for the league title, and a different game icon for a perfect cup (a
             laurel / crown from the game's icon set; look in `ICONS`) so the two can't be confused.
       - [ ] Optional: a one-time hint the first time a star lights ("STAR = LEAGUE CHAMPION") on the cup result screen.
-- [ ] **Menu ink = the tab pill's orange (owner 2026-11-25: "the orange text in the menus, it should be the same
+- [x] **(v0.38.1: Ink = linear {0.44, 0.082, 0.045} = the pill's sRGB 177/81/60, read off the screen) Menu ink = the tab pill's orange (owner 2026-11-25: "the orange text in the menus, it should be the same
       orange shade as the top bar in the menu uses i.e. when Grand Prix is highlighted").** v0.36.4's config
       `Ink = { 0.78, 0.33, 0.06 }` is a burnt orange of our own; the selected-tab pill is terracotta, about
       `{ 0.78, 0.31, 0.23 }` by eye (KNOWLEDGE.md, menu accent row). Read the pill's real colour (its brush /
