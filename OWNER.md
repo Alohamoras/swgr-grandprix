@@ -102,7 +102,7 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
-- [ ] **v0.42.0, the PODRACING page and your pod (2026-11-26, not yet seen in game):** the PODRACING poster opens a page with
+- [ ] **v0.42.0, the PODRACING page and your pod (2026-11-26, installed 11:44, not yet seen in game):** the PODRACING poster opens a page with
       LEARNER and PRO as posters; the start screen's PILOT tile cycles the five pilots with a pod (Shade, Goli, Fola,
       Sebulba; Kestar once beaten) and the vehicle tile names the pod. Check: does Goli / Fola / Sebulba really fly their
       own pod (the recon only raced Shade and Kestar)? B goes start screen -> PODRACING -> HOME.
