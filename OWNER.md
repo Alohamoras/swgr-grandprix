@@ -4,6 +4,9 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
+- [ ] **Best laps (2026-11-25, TASKS §1g item 16):** (1) a line each lap as you cross the finish (lap time, +/- your
+      record, NEW BEST LAP), or only TIME TO BEAT at the start and BEST LAP at the end? (2) one lap record per track
+      per league (as saved now), or one per track whatever the league? (3) show your best race time at the start too?
 - [ ] **League cars (2026-11-25, plan in docs/league-styles-2026-11-12.md "2026-11-25"):** (1) Challenger at 7 on every
       part - confirm (was 5)? (2) Junker wreck limit 5 (the game's is 3) - or more? (3) Ace bots: keep their full ability
       kits, or defensive / utility only for a cleaner field? (4) OK to shift Ace pilot strength down (Elite at your 10,
