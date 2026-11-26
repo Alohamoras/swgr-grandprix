@@ -326,6 +326,18 @@ before an Ace cup; each is worth heat; each cup keeps the best heat you won gold
 - [x] Do the AI fire their abilities, Shields included (R7)? **Answered 2026-11-25 (v0.32.1 in game)**: with the selection cycled every 4 s each bot fired 2-4 kinds a race (Vents, Surges, Repairs, Mines, Shockwaves, Disruptors); Shields only where the game's acid / corroding rules say. Before: slot 0 only.
 
 ## 3. Known gaps (small fixes)
+- [ ] **Say what the stars mean (owner 2026-11-25: "the star for each league...what does that mean? it's not obvious
+      to the player").** One icon (`ART.STAR`), two meanings, neither said anywhere: on a HOME league tile the last
+      pip is the league TITLE (gold = you beat Kestar Bool in the Galactic Cup's finale, `titles[league]`; faint grey =
+      not yet; main.lua ~274), and on a cup tile the corner star is a PERFECT CUP (won every race; main.lua ~382).
+      Claude's pick, to confirm with the owner (OWNER.md):
+      - [ ] HOME: the focused league's info line ends with the title's state - "CHAMPION: BEAT KESTAR BOOL IN THE
+            GALACTIC CUP FINALE" (grey) / "LEAGUE CHAMPION" (gold) - so the star is explained where you're looking.
+      - [ ] Cups page: a perfect cup's info line says "PERFECT CUP: EVERY RACE WON"; an unperfected won cup can say
+            "WIN EVERY RACE FOR A STAR".
+      - [ ] Two icons, not one: keep the star for the league title, and a different game icon for a perfect cup (a
+            laurel / crown from the game's icon set; look in `ICONS`) so the two can't be confused.
+      - [ ] Optional: a one-time hint the first time a star lights ("STAR = LEAGUE CHAMPION") on the cup result screen.
 - [ ] **Menu ink = the tab pill's orange (owner 2026-11-25: "the orange text in the menus, it should be the same
       orange shade as the top bar in the menu uses i.e. when Grand Prix is highlighted").** v0.36.4's config
       `Ink = { 0.78, 0.33, 0.06 }` is a burnt orange of our own; the selected-tab pill is terracotta, about

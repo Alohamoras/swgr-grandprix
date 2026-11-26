@@ -4,6 +4,10 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
+- [ ] **The stars (2026-11-25, TASKS §3):** today the gold star on a league tile = you beat Kestar Bool in that
+      league's Galactic Cup finale (league champion), and the star in a cup tile's corner = a perfect cup (every race
+      won). Claude's pick: say it in the info line under the focused tile, and give the perfect cup a different icon
+      so one star means one thing. OK, or would you rather drop one of the two stars?
 - [ ] **Best laps (2026-11-25, TASKS §1g item 16):** (1) a line each lap as you cross the finish (lap time, +/- your
       record, NEW BEST LAP), or only TIME TO BEAT at the start and BEST LAP at the end? (2) one lap record per track
       per league (as saved now), or one per track whatever the league? (3) show your best race time at the start too?
