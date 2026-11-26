@@ -313,6 +313,42 @@ before an Ace cup; each is worth heat; each cup keeps the best heat you won gold
 - [ ] **H6. Recon:** start from the back of the grid (no grid-slot write known); Kestar Bool in a normal event's field.
 - [ ] **H7. Owner playtest:** a few Ace cups climbing the heat; tune the points; watch the `[gaps]` spread at high heat.
 
+## 1j. Plain-English pass on every line we wrote (owner 2026-11-25) - not started
+Owner: "i still don't like the phrasing on a lot of the text, it's concise, but it still sounds like it was written by
+AI, i.e. 'the clock decides' and 'every rig on the same grid'.. it sort of invents terms and assumes the reader can
+figure out what you're trying to say. I think you can do better." The v0.35.0 rewrite (pass 1) made it short, not
+clear. This pass is about being clear.
+- [ ] **The rules (write them at the top of the doc, check every line against them):**
+      - Say what happens, in the words the game uses. No coined terms ("rig", "the clock", "the field", "wound to
+        ten", "proper rigs"); the game says vehicle / car, parts level, racers, abilities, tune-ups.
+      - Full sentences a first-time player understands without knowing the mod. If a rule is the point, state the
+        rule ("the lowest total time wins"), not a hint at it ("the clock decides").
+      - No slogans, no rule-of-three rhythm, no "X, and Y" flourishes, no clipped fragments to sound punchy.
+      - Numbers as numbers where they're rules ("level 7 parts", "4 tracks"), words only in flavour text.
+      - Flavour lines (taglines) may have character, but must still mean something literal.
+- [ ] **The inventory:** every player-facing string we wrote, in one table with where it is (file:line), where it
+      shows, the line now and the proposed line: config.lua (league tagline / brief / rules, tune-up lines, rally
+      and finale texts, messages), main.lua (cup info lines, Kestar tile, wipe / leave / offline / error prompts,
+      the garage captions), standings / cupend / stakes lines (stakes.lua, near misses), title.lua. Leave the game's own
+      planet and pilot bios as they are (the config `line`s copied from the game).
+- [ ] **Examples, to set the bar:**
+      - Rally (main.lua ~341) now: "Four stages, four racers, the clock decides. Weather and nightfall are unknown until
+        you arrive." -> "4 point-to-point tracks against 3 other racers. Your times are added up across all 4, and
+        the lowest total wins. You won't know the weather or time of day until each race starts."
+      - Challenger rules (config ~221) now: "Every part at seven, and every rig on the grid the same. Two abilities,
+        one tune-up." -> "All vehicles, yours included, have level 7 parts, so nobody has an engine advantage. You
+        can take 2 abilities and 1 tune-up."
+      - Riff-Raff rules now: "Afterburner and ramjet wound to ten on a scrapyard chassis. Cornering, resilience and drift
+        stock, the battery barely holding." -> "Every vehicle has level 10 engine parts and stock everything else:
+        fast on the straights, hard to turn, and the battery drains quickly. 1 ability, no tune-ups."
+        (check the real slot levels in config before writing)
+      - Ace tagline now: "Every credit on the rig. The galaxy's ..." -> say what Ace is: "The best racers in the galaxy,
+        on fully upgraded vehicles."
+- [ ] **Owner review before install:** the whole table as a page (old / new side by side, a box to tick or a note per
+      line) so the owner signs off line by line; then one tag (strings only, tests for any width / line-count
+      limits - the info lines are padded to 1-2 lines, `padInfo`).
+- [ ] Add the rules to KNOWLEDGE.md / AUTOMATION.md as the house style for all the Galactic Racer mods' text.
+
 ## 2. Waiting on the owner's play (details and tick boxes in OWNER.md "Playtests")
 - [ ] v0.27.x: the finish times then STANDINGS (A, or 6 s); Challenger open from the start; Riff-Raff's feel (parts
       2 on three slots); the posters' taglines and the cups page brief; the garage's TUNE-UP / ABILITY captions.
