@@ -12,6 +12,7 @@ local PT = require('paint')
 local HZ = require('hazards')
 local AU = require('aiuse')
 local TH = require('thrust')
+local LS = require('lapshow')
 local try, alive, addr, log = C.try, C.alive, C.addr, C.log
 
 local R = { run = nil, menuLocked = nil }
@@ -370,6 +371,9 @@ local function startRun(ev, classKey, p, skip, extra)
   -- v0.32: the bots' kits put to use (aiuse.lua): the selection cycled, the configs covered, the uses counted
   local okU, au = pcall(AU.begin, classKey)
   if okU then R.run.au = au else log('[aiuse] ' .. tostring(au)) end
+  -- v0.39: TIME TO BEAT through the countdown (lapshow.lua, config TimeToBeat)
+  local okL, ls = pcall(LS.start, ev)
+  if okL then R.run.ls = ls else log('[lapshow] ' .. tostring(ls)) end
   -- v0.32: the bots' thrust dial (thrust.lua; off unless config AI.Thrust or an experiment asks)
   local okT, th = pcall(TH.begin, classKey)
   if okT then R.run.th = th else log('[thrust] ' .. tostring(th)) end
@@ -718,6 +722,11 @@ function R.watch()
     local ok, err = pcall(LO.apply, r.lo)
     if not ok then log('[loadout] apply failed: ' .. tostring(err)); r.lo = nil end
   end
+  -- v0.39: TIME TO BEAT before the green light (lapshow.lua; its own sweep every 250 ms until the start, then nothing)
+  if r.ls and not r.ls.done then
+    local okS, errS = pcall(LS.tick, r)
+    if not okS then log('[lapshow] stopped: ' .. tostring(errS)); r.ls = nil end
+  end
   R.perf(r)
   if r.looks and not r.looks.done2 then
     local okL, errL = pcall(LK.tick, r)
@@ -779,6 +788,7 @@ function R.watch()
   if not (alive(fe) and addr(fe) ~= r.oldFe) then return nil end
   R.restoreBuild('main menu')
   pcall(AI.restore, r.ai)
+  pcall(LS.stop, r)
   -- (v0.3.5: the race is marked over BEFORE anything that could fail)
   R.run = nil; HZ.stop()
   if r.recordTried then

@@ -251,6 +251,12 @@ return {
     -- same row (records[league][track].lap). Never on a sprint. false = the v0.37 panel (a new best lap only as a note,
     -- and only without a new race record).
     LapTimes = true,
+    -- v0.39.0 (owner 2026-11-25: "at the start of the race you are shown a 'time to beat'"; TASKS §1g-16): "TIME TO BEAT
+    -- 1:12.40" (your lap record on this track at this league; "NO LAP SET" before you have one) over the screen while
+    -- the countdown runs, gone at the green light (lapshow.lua). Route = 'viewport' (a widget of our own over the HUD)
+    -- or 'hud' (the text put into the game's HUD canvas). Size = the font size, Y = how far down the screen (share of
+    -- its height), Color = { R, G, B } linear. Stands aside while FreeRace / Theater hide the HUD. On = false = off.
+    TimeToBeat = { On = true, Route = 'viewport', Size = 44, Y = 0.3, Color = { 1, 1, 1 } },
 
     -- (v0.21: the rival per class is gone - owner, 2026-11-11.)
 
