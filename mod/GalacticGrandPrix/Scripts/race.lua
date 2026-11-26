@@ -289,6 +289,22 @@ local function preparePod(ev, classKey, e)
   local arch = archetype(1)
   local build = P.Build and C.asset(P.Build)
   if not (alive(arch) and build) then log('pod archetype or build not found: ' .. tostring(P.Build)); return nil, 'The podracer was not found' end
+  -- TASKS §1h-L PL0 (test only, DevTools + experiment.lua podRecon): your picks / part levels written onto the pod
+  -- build the way the car builds get them (put back at the menu like theirs), and the build logged (podrecon.lua)
+  local exp = AI.experiment()
+  if exp and exp.podRecon then
+    if exp.podPicks then
+      local okA, errA = pcall(applyAbilities, P.Build, build, AB.classPaths(AB.normalize(K.data.picks, 3), 3))
+      if not okA then log('[podrecon] abilities not set: ' .. tostring(errA)) end
+    end
+    if tonumber(exp.podLevels) then
+      local lv = {}
+      for sl = 0, 5 do lv[sl] = math.floor(tonumber(exp.podLevels)) end
+      local okB, errB = pcall(applyBuild, P.Build, build, lv)
+      if not okB then log('[podrecon] levels not set: ' .. tostring(errB)) end
+    end
+    pcall(require('podrecon').dumpBuild, build, R.levelsText(readLevels(build)))
+  end
   local okI, ai = pcall(function() AI.launch(classKey, nil); return AI.begin(classKey, nil) end)
   if not okI then log('[ai] ' .. tostring(ai)); ai = nil end
   if RC.pending() then pcall(RC.restore, 'before launch') end
@@ -397,7 +413,18 @@ local function startRun(ev, classKey, p, skip, extra)
   -- v0.32: the bots' kits put to use (aiuse.lua): the selection cycled, the configs covered, the uses counted
   -- (v0.40: not in a pod race - the pods keep the game's own kits)
   local okU, au = true, nil
-  if not ev.pod then okU, au = pcall(AU.begin, classKey) end
+  local exp = AI.experiment()
+  local recon = ev.pod and exp and exp.podRecon
+  if not ev.pod or (recon and exp.podAiuse) then okU, au = pcall(AU.begin, classKey) end -- (PL0: the pods' kits read)
+  if recon then
+    local okP, pr = pcall(require('podrecon').begin, exp)
+    if okP then R.run.pr = pr else log('[podrecon] ' .. tostring(pr)) end
+  end
+  -- TASKS §1k (test only, DevTools + experiment.lua boostRecon): you, the racer ahead and behind every 0.5 s
+  if exp and exp.boostRecon then
+    local okB, br = pcall(require('boostrecon').begin, exp, ev)
+    if okB then R.run.br = br else log('[boostrecon] ' .. tostring(br)) end
+  end
   if okU then R.run.au = au else log('[aiuse] ' .. tostring(au)) end
   -- v0.39: TIME TO BEAT through the countdown (lapshow.lua, config TimeToBeat)
   local okL, ls = pcall(LS.start, ev)
@@ -545,6 +572,10 @@ local function readField(r)
       end
       if you then
         local pawn = try(function() return ps.PawnPrivate end)
+        if r.pr then
+          local okP, errP = pcall(require('podrecon').onYou, r.pr, ps, pawn, r.startedAt)
+          if not okP then log('[podrecon] stopped: ' .. tostring(errP)); r.pr = nil end
+        end
         local kph = alive(pawn) and try(function() local v = pawn:GetVelocity(); return math.sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z) * 0.036 end) or 0
         if kph > r.top then r.top = kph end
         if f.pos then r.lastPos = f.pos end
@@ -767,6 +798,11 @@ function R.watch()
   if r.lo and not r.lo.done then
     local ok, err = pcall(LO.apply, r.lo)
     if not ok then log('[loadout] apply failed: ' .. tostring(err)); r.lo = nil end
+  end
+  -- TASKS §1k (test only): the boost recon's 0.5 s rows until you finish (boostrecon.lua)
+  if r.br and r.startedAt and not r.finished then
+    local okB, errB = pcall(require('boostrecon').tick, r.br, r.startedAt)
+    if not okB then log('[boostrecon] stopped: ' .. tostring(errB)); r.br = nil end
   end
   -- v0.39: TIME TO BEAT before the green light (lapshow.lua; its own sweep every 250 ms until the start, then nothing)
   if r.ls and not r.ls.done then

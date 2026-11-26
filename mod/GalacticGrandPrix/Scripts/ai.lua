@@ -93,6 +93,12 @@ function A.label(p)
 end
 -- the tune ops a class applies to field f: the pressure's, then the profile's own explicit op (ops[f] = { add, mul })
 function A.classOp(classKey, f, prof)
+  -- TASKS §1k (test only): experiment.lua ops[f] = 'game' leaves that tune field at the game's own value (no league
+  -- lift), or { add, mul } replaces the league's op
+  local exp = A.experiment()
+  local eo = exp and type(exp.ops) == 'table' and exp.ops[f]
+  if eo == 'game' then return { 0, 1 } end
+  if type(eo) == 'table' then return { eo[1] or 0, eo[2] or 1 } end
   local o = A.opFor(A.pressure(classKey, prof), f)
   local x = (A.profile(classKey, prof).ops or {})[f]
   if type(x) == 'table' then return { o[1] * (x[2] or 1) + (x[1] or 0), o[2] * (x[2] or 1) } end
@@ -125,9 +131,14 @@ end
 local function readNum(obj, path)
   local o, k = walk(obj, path)
   local v = o and try(function() return o[k] end)
-  return type(v) == 'number' and v or nil
+  -- (TASKS §1k, 2026-11-26: booleans too - EnableSpeedMatchingZone, AllowSpeedMatchingWhenBoosting)
+  return (type(v) == 'number' or type(v) == 'boolean') and v or nil
 end
-local function near(a, b) return a and b and math.abs(a - b) < 1e-4 end
+local function near(a, b)
+  if type(a) == 'boolean' or type(b) == 'boolean' then return a == b end
+  return a and b and math.abs(a - b) < 1e-4
+end
+local function fmt(v) return type(v) == 'number' and ('%g'):format(v) or tostring(v) end
 -- read the struct, set the field on it (as race.lua does for SlotToUpgradeLevelMap); true when it reads back
 local function writeNum(obj, path, v)
   local o, k = walk(obj, path)
@@ -161,12 +172,13 @@ function A.plan(classKey, profOverride)
     if type(prof.aggression.chance) == 'number' then want('AggressionConfig.VersusPlayer.Chance', { mul = prof.aggression.chance }) end
     if type(prof.aggression.cooldown) == 'number' then want('AggressionConfig.VersusPlayer.Cooldown', { mul = prof.aggression.cooldown }) end
   end
-  for path, v in pairs(prof.config or {}) do if type(v) == 'number' then want(path, { set = v }) end end
+  for path, v in pairs(prof.config or {}) do if type(v) == 'number' or type(v) == 'boolean' then want(path, { set = v }) end end
   return w
 end
 -- the value a planned write gives, from the current one
 function A.planned(t, cur)
   local v = t.set ~= nil and t.set or cur
+  if type(v) == 'boolean' then return v end
   if t.mul then v = v * t.mul end
   return v
 end
@@ -328,14 +340,14 @@ local function writePlan(path, obj, plan)
       if orig == nil then orig = cur end
       local nv = A.planned(plan[fp], orig)
       if near(nv, cur) then
-        parts[#parts + 1] = ('%s %g (as is)'):format(fp, cur)
+        parts[#parts + 1] = ('%s %s (as is)'):format(fp, fmt(cur))
       else
         if mine[fp] == nil then mine[fp] = orig; rest[path] = mine; K.save() end
         if writeNum(obj, fp, nv) then
           n = n + 1
-          parts[#parts + 1] = ('%s %g -> %g'):format(fp, cur, nv)
+          parts[#parts + 1] = ('%s %s -> %s'):format(fp, fmt(cur), fmt(nv))
         else
-          parts[#parts + 1] = ('%s %g -> %g FAILED'):format(fp, cur, nv)
+          parts[#parts + 1] = ('%s %s -> %s FAILED'):format(fp, fmt(cur), fmt(nv))
         end
       end
     end
@@ -488,8 +500,8 @@ function A.restoreConfig(why)
       for f in pairs(fields) do keys[#keys + 1] = f end
       table.sort(keys)
       for _, f in ipairs(keys) do
-        if writeNum(obj, f, fields[f]) then parts[#parts + 1] = ('%s=%g'):format(f, fields[f])
-        else bad = bad + 1; parts[#parts + 1] = ('%s=%g FAILED'):format(f, fields[f]) end
+        if writeNum(obj, f, fields[f]) then parts[#parts + 1] = ('%s=%s'):format(f, fmt(fields[f]))
+        else bad = bad + 1; parts[#parts + 1] = ('%s=%s FAILED'):format(f, fmt(fields[f])) end
       end
       log(('[ai] AI config put back (%s): %s %s'):format(why or '', path:match('([^/]+)$'), table.concat(parts, ' ')))
     else
