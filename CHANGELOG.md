@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.41.0 (2026-11-26): PODRACING, a league of its own (TASKS §1h-L PL1-PL2)
+- Owner, after racing v0.40: "does it make more sense to just have podracing league with one cup? ... would be nice to
+  turn up the difficulty". A PODRACING poster on HOME after ACE opens the PODRACER CUP's start screen directly (no cups
+  page; B and CONTINUE go back to HOME). The car leagues' cups pages no longer show the PODRACER CUP tile.
+- A STEP tile on the pods start screen: LEARNER / PRO (owner: two steps, both open from the start). Saved as `podStep`;
+  each step is its own league key in the save (`pods`, `podspro`): its own trophy, lap records, perfect cup and AI profile
+  (LEARNER = Challenger's profile, PRO = Ace's with the Elite back rows). The poster shows a medal per step. The header
+  and the cup result read PODRACING LEARNER / PODRACING PRO.
+- PRO is the harder AI only for now: abilities for you and the pods wait on the recon (PL0, needs the game).
+- The pods start screen drops the tune-up and ability tiles (they did nothing for pods).
+- Save: the v0.40 cup's results at the car leagues move to LEARNER at the first load (owner: "Move to Learner") - the
+  best finish, the perfect cup, the standings, and the fastest time and lap per pod track; once (`podsMoved`), logged
+  `[save] v0.41: ...`. RESET keeps the step picked.
+- prog.lua: a pod step opens nothing (the standings no longer offer "trophies open the GALACTIC CUP" there).
+- Config: `Pods.League` (name, tagline, rules), `Pods.Steps`, `AI.Profiles.pods` / `podspro`, `AI.BackRows.pods` / `podspro`.
+- HOME: four posters in the top row, each narrowed to fit config `HomeRowMaxW` (2880, the cups page's widest row): 4 x 705 (was 3 x 760).
+- Tests: test_pods 40 checks (the poster, the step tile, no cups page, the save move); 13 older tests follow the new HOME (PODRACING) and the 7-cup car pages.
+- Not yet seen in game.
+
 ## v0.40.0 (2026-11-26): the PODRACER CUP (TASKS §1h P2-P3, P6; recon P1 in docs/podracing-recon-2026-11-25.md)
 - Owner: "i like your ideas, draft up some tasks" (the pods cup, §4). A PODRACER CUP tile after the Rally Cup at every
   league: 4 races drawn from the game's pod-made circuits - Mos Espa Speedway, Mawhonic Speedway (and reversed), Holdfast's

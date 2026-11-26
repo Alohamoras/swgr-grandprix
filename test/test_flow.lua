@@ -7,14 +7,14 @@ T.boot(nil, { Progression = { On = false } }) -- (unlocks: test_prog, test_unloc
 T.check(W.tab.label == 'GRAND PRIX', 'tab added with the label GRAND PRIX')
 M.press('F6'); M.tick(6)
 T.check(T.logHas('[menu] home'), 'F6 opens the home screen')
-T.check(T.titles() == 'JUNKER|CHALLENGER|ACE|GARAGE|RESET PROGRESS', 'home: the three leagues, GARAGE, RESET (no EXIT) (' .. T.titles() .. ')')
+T.check(T.titles() == 'JUNKER|CHALLENGER|ACE|PODRACING|GARAGE|RESET PROGRESS', 'home: the three leagues, GARAGE, RESET (no EXIT) (' .. T.titles() .. ')')
 T.clickTitle('CHALLENGER'); M.tick(3)
-T.check(T.ntiles() == 8 and T.ntiles() == #require('config').Cups, 'v0.11 (v0.30: + the Rally Cup; v0.33: no title race): 8 tiles (v0.40: + the Podracing Cup) - every cup of the league on one page, no BACK (' .. T.ntiles() .. ')')
-T.check(T.titles() == 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|RALLY CUP|PODRACER CUP', 'the five planet cups, the Galactic Cup, the Rally Cup (' .. T.titles() .. ')')
+T.check(T.ntiles() == 7 and T.ntiles() == #require('config').Cups - 1, 'v0.11 (v0.30: + the Rally Cup; v0.33: no title race): 8 tiles (v0.40: + the Podracing Cup) - every cup of the league on one page, no BACK (' .. T.ntiles() .. ')')
+T.check(T.titles() == 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|RALLY CUP', 'the five planet cups, the Galactic Cup, the Rally Cup (' .. T.titles() .. ')')
 local L = require('config').CupsLayout
 T.check(L.cols * L.rows >= 8 and L.cols * (L.rows - 1) < 8 and L.w >= 400 and L.w <= 520 and L.h >= 270 and L.h <= 350,
-  'the cups layout fits 8 tiles with no empty row, tiles between the old cups size and the home size (' .. L.cols .. ' x ' .. L.rows .. ', ' .. L.w .. ' x ' .. L.h .. ')')
-T.check(T.logHas('[menu] cups (8 tiles)'), 'cups page built with 8 tiles (v0.33: no title race)')
+  'the cups layout fits 7 tiles with no empty row, tiles between the old cups size and the home size (' .. L.cols .. ' x ' .. L.rows .. ', ' .. L.w .. ' x ' .. L.h .. ')')
+T.check(T.logHas('[menu] cups (7 tiles)'), 'cups page built with 8 tiles (v0.33: no title race)')
 T.check(T.logHas('[menu] cups'), 'cups page')
 
 -- one race: bots finish around you; you finish `you`

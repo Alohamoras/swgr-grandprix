@@ -52,7 +52,7 @@ K.load()
 T.check(not T.logHas('a clean start', mark) and K.data.version == 3 and K.data.picks[3] == 'vent.flame', 'the next load: a v3 save, no second clean start')
 -- HOME: three leagues, no cc anywhere
 M.press('F6'); M.tick(6)
-T.check(T.titles() == 'JUNKER|CHALLENGER|ACE|GARAGE|RESET PROGRESS', 'HOME: the three leagues (' .. T.titles() .. ')')
+T.check(T.titles() == 'JUNKER|CHALLENGER|ACE|PODRACING|GARAGE|RESET PROGRESS', 'HOME: the three leagues (' .. T.titles() .. ')')
 local H = rawget(_G, 'GU_TEST_SCREENS')
 local words = {}
 for _, it in ipairs(H.SCREENS.home().items) do words[#words + 1] = tostring(it.title) .. ' ' .. tostring(it.desc) .. ' ' .. tostring(it.info) end
@@ -100,7 +100,7 @@ T.boot({ version = 3, restores = {}, abilityRestores = {} })
 K = require('gp')
 H = rawget(_G, 'GU_TEST_SCREENS')
 M.press('F6'); M.tick(6)
-T.check(T.locks() == '||LOCKED||', 'v0.27.2 (owner): a new save: Riff-Raff and Challenger open, Ace locked (' .. T.marks() .. ')')
+T.check(T.locks() == '||LOCKED|||', 'v0.27.2 (owner): a new save: Riff-Raff and Challenger open, Ace locked (' .. T.marks() .. ')')
 local items = H.SCREENS.home().items
 T.check(items[2].desc == 'Proper rigs, and pilots out to make a name' and items[3].desc == 'Five CHALLENGER trophies open it',
   'Challenger shows its tagline; the Ace lock says what opens it (' .. tostring(items[2].desc) .. ' / ' .. tostring(items[3].desc) .. ')')
@@ -112,15 +112,15 @@ T.check(H.S.screen == 'cups', 'Challenger entered on a new save')
 M.press('BACKSPACE'); M.tick(3)
 K.data.best = { riffraff = { jakku = 3, lantaana = 3, ando = 2, crait = 1, sentinel = 3 } }
 M.press('F6'); M.tick(3); M.press('F6'); M.tick(6)
-T.check(T.locks() == '||LOCKED||', 'five Riff-Raff trophies: Ace still locked (only Challenger trophies open it) (' .. T.marks() .. ')')
+T.check(T.locks() == '||LOCKED|||', 'five Riff-Raff trophies: Ace still locked (only Challenger trophies open it) (' .. T.marks() .. ')')
 K.data.best.challenger = { jakku = 1, lantaana = 1, ando = 1, crait = 1 }
 M.press('F6'); M.tick(3); M.press('F6'); M.tick(6)
-T.check(T.locks() == '||LOCKED||', 'four Challenger trophies: Ace still locked')
+T.check(T.locks() == '||LOCKED|||', 'four Challenger trophies: Ace still locked')
 K.data.best.challenger.sentinel = 2
 M.press('F6'); M.tick(3); M.press('F6'); M.tick(6)
-T.check(T.locks() == '||||', 'five Challenger trophies: Ace open (' .. T.marks() .. ')')
+T.check(T.locks() == '|||||', 'five Challenger trophies: Ace open (' .. T.marks() .. ')')
 T.clickTitle('ACE'); M.tick(3)
-T.check(H.S.screen == 'cups' and T.titles() == 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|RALLY CUP|PODRACER CUP', 'the Ace cups page')
+T.check(H.S.screen == 'cups' and T.titles() == 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|RALLY CUP', 'the Ace cups page')
 T.finish()
 
 ---------------------------------------------------------------------------------------------------------------------
@@ -138,10 +138,10 @@ H = rawget(_G, 'GU_TEST_SCREENS')
 T.check(TI.bossClass() == 'ace', 'the boss follows the Ace title')
 M.press('F6'); M.tick(6)
 T.clickTitle('CHALLENGER'); M.tick(3)
-T.check(T.ntiles() == 9 and not T.titles():find('KESTAR', 1, true), 'the Challenger title won: no Kestar on its page')
+T.check(T.ntiles() == 8 and not T.titles():find('KESTAR', 1, true), 'the Challenger title won: no Kestar on its page')
 M.press('BACKSPACE'); M.tick(3)
 T.clickTitle('ACE'); M.tick(3)
-T.check(T.ntiles() == 9 and not T.titles():find('KESTAR', 1, true), 'Ace before its title: no Kestar')
+T.check(T.ntiles() == 8 and not T.titles():find('KESTAR', 1, true), 'Ace before its title: no Kestar')
 mark = T.mark()
 T.clickTitle('TITLE RACE')
 W.race(1); M.tick(5); W.finish(1, 120, 55); M.tick(25)
@@ -152,6 +152,6 @@ local hl = {}
 for _, l in ipairs(H.SCREENS.titleResult().lines) do hl[#hl + 1] = tostring(l[1]) end
 T.check(hl[1] == 'ACE CHAMPION' and hl[2] == 'KESTAR BOOL WAITS IN THE STADIUM', 'the title result: ACE CHAMPION, Kestar unlocked (' .. table.concat(hl, ' | ') .. ')')
 T.clickTitle('CONTINUE'); M.tick(3)
-T.check(T.ntiles() == 10 and T.titles():find('|TITLE RACE|KESTAR BOOL|RALLY CUP|PODRACER CUP$') ~= nil, 'the Ace cups page: KESTAR BOOL, then the Rally Cup (' .. T.titles() .. ')')
+T.check(T.ntiles() == 9 and T.titles():find('|TITLE RACE|KESTAR BOOL|RALLY CUP$') ~= nil, 'the Ace cups page: KESTAR BOOL, then the Rally Cup (' .. T.titles() .. ')')
 T.check(RC.unlockText('Antagonist') == 'Kestar Bool races only for himself until you beat him after the ACE title.', 'his lock names the Ace title')
 T.finish()

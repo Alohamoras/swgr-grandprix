@@ -346,7 +346,7 @@ the pod tracks: "Outer Rim" is a guess - see the `[cupend] ... no PlanetDef for`
 pod or not (owner), TestAutopilot does not arm on a second pod race in a row ("your car has no Autopilot ability").
 Follow-ups once this stands: the "clean" no-offence cup (§4) could reuse P3's family filter for the player's picks.
 
-### 1h-L. PODRACING as a league of its own (owner 2026-11-26) - agreed, NOT started (owner: "don't start yet")
+### 1h-L. PODRACING as a league of its own (owner 2026-11-26) - PL1 + PL2 built v0.41.0 (not yet seen in game); PL0 recon waits for the game
 Owner after racing v0.40.0: "The podracing cup is fun ... is the pod racer the same speed and tracks for each cup? does it
 make more sense to just have podracing league with one cup? also there's no ramjet or abilities, which does feel good for
 learning, but would be nice to turn up the difficulty if we wanted to." Answer: today's cup IS the same at every league (the
@@ -359,7 +359,8 @@ at times) - so abilities are a build step, not a question; the ramjet is still u
 | **Learner** (= v0.40 today) | the game's pod build, no abilities | no abilities, the game's pace, start grace |
 | **Pro** | your abilities, pod-suitable families only | the pods carry and fire kits; the AI pushes harder |
 | **Champion** | as Pro (+ parts / ramjet if PL0 says they work) | faster bots (thrust dial), full aggression, a shorter grace |
-(Two steps instead of three if the owner prefers - open question in OWNER.md.)
+**Owner 2026-11-26: two steps, LEARNER and PRO** (PRO = the table's Pro + Champion: abilities both sides, the harder AI;
+the thrust dial / shorter grace if PRO turns out too easy); both open from the start; the v0.40 results move to LEARNER.
 
 - [ ] **PL0. Recon (owner away, test save, ~1 h).** On `VBD_MP_PlaneTour`: read its `AbilitySlots`, `SlotToUpgradeLevelMap`,
       `Affixes` and the pawn's components (is there a ramjet? which part slot drives pod speed?); write an ability into the
@@ -368,15 +369,15 @@ at times) - so abilities are a build step, not a question; the ramjet is still u
       on the HUD and fire? Bots: does aiuse.lua's selection cycling make the pod pilots fire (their configs are in
       `DA_AIAbilityConfigCollection`)? Parts levels 0 vs 10 on the pod build in two held races: does pod pace change? Write
       the results into docs/podracing-recon-2026-11-25.md + KNOWLEDGE rows. (TestAutopilot: restart the game between pod races.)
-- [ ] **PL1. The league.** config `Leagues` + `{ key = 'pods', name = 'PODRACING', pods = true, open = true }` (its own
+- [x] **PL1. The league.** (v0.41.0: `Pods.League` + `Pods.Steps`, kept out of `Leagues` so the car unlock chain never sees them; each step its own league key `pods` / `podspro`; no cups page - the poster opens the start screen; the save move in gp.lua `K.movePods`) config `Leagues` + `{ key = 'pods', name = 'PODRACING', pods = true, open = true }` (its own
       poster art, tagline, rules line to the §1j rules); the `pods` cup moves out of `Cups`-for-every-league into this league
       only (the three car leagues' cups pages lose the PODRACER CUP tile); save: best / records / perfect under `pods`; old
       saves: a v0.40 pods result at a car league moves to the league (or is dropped - owner). prog.lua: no unlock gate,
       not counted toward any car league; HOME's pips for this poster = one per difficulty step.
-- [ ] **PL2. The difficulty step.** On the pods start screen a STEP tile (Learner / Pro / Champion, cycles like the vehicle
+- [x] **PL2. The difficulty step.** (v0.41.0: the STEP tile, LEARNER / PRO, saved `podStep`; per-step records by league key; AI.Profiles.pods = Challenger's, podspro = Ace's) On the pods start screen a STEP tile (Learner / Pro / Champion, cycles like the vehicle
       tile, the info line says what changes in plain words); saved per player (`podStep`); each step keeps its own trophy,
       record and perfect cup (`best.pods[cup..step]` or a step key - decide in PL1); the cup result says the step.
-- [ ] **PL3. Your abilities on the pod** (Pro / Champion): race.lua `preparePod` writes your picks onto the pod build the way
+- [ ] **PL3. Your abilities on the pod** (PRO; v0.41.0 hid the ability / tune-up tiles on the pods start screen - they come back at PRO with this step): race.lua `preparePod` writes your picks onto the pod build the way
       `applyAbilities` does for cars (originals in `abilityRestores`), filtered to the families PL0 proves (`AB.classPaths`
       + a family filter); the start screen's ability tiles shown only at Pro / Champion (hidden at Learner - today they show
       and do nothing); tune-ups the same if PL0 shows affixes work on pods.

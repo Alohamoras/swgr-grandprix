@@ -44,7 +44,7 @@ T.check(nightOk, 'whatever is drawn, the last stage is Dai Bendu Ascension at ni
 -- 2. the cups page: the RALLY CUP last; its info
 M.press('F6'); M.tick(6)
 T.clickTitle('JUNKER'); M.tick(3)
-T.check(T.titles():find('|RALLY CUP|PODRACER CUP$') ~= nil, 'the RALLY CUP tile on the cups page (' .. T.titles() .. ')')
+T.check(T.titles():find('|RALLY CUP$') ~= nil, 'the RALLY CUP tile on the cups page (' .. T.titles() .. ')')
 local info
 for _, it in ipairs(H.SCREENS.cups().items) do if it.title == 'RALLY CUP' then info = tostring(it.info) end end
 T.check(info:find('Seven stages, four racers, the clock decides. Weather and nightfall are unknown until you arrive.', 1, true) ~= nil and info:find('DAI BENDU ASCENSION', 1, true) == nil,

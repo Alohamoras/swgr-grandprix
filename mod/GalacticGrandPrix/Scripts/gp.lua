@@ -15,6 +15,58 @@ local K = { data = nil }
 -- (K.cleanStart): backed up, every bit of progress cleared, the garage kept.
 K.SAVE_VERSION = 3
 
+-- v0.41 (owner 2026-11-26: "Move to Learner"; TASKS §1h-L PL1): the v0.40 PODRACER CUP was raced at the car leagues;
+-- its results there (best / perfect / standings under the cup key 'pods', and the lap records on the pod tracks) move
+-- to the PODRACING league's first step: the best finish, the fastest time and lap per track. Once (podsMoved); logged.
+function K.movePods(d)
+  if d.podsMoved then return end
+  local to = ((cfg.Pods or {}).Steps or {})[1]
+  to = to and to.key
+  if not to then return end
+  local podPath = {}
+  for _, r in ipairs((cfg.Pools or {}).pods or {}) do podPath[r.path] = true end
+  local moved = 0
+  for _, lg in ipairs(cfg.Leagues or {}) do
+    local k = lg.key
+    local b = (d.best[k] or {}).pods
+    if b then
+      d.best[to] = d.best[to] or {}
+      local cur = d.best[to].pods
+      if not cur or b < cur then d.best[to].pods = b end
+      d.best[k].pods = nil
+      moved = moved + 1
+    end
+    if (d.perfect[k] or {}).pods then
+      d.perfect[to] = d.perfect[to] or {}
+      d.perfect[to].pods = true
+      d.perfect[k].pods = nil
+    end
+    local sd = (d.standings[k] or {}).pods
+    if sd then
+      d.standings[to] = d.standings[to] or {}
+      if not d.standings[to].pods or (tonumber(sd.YOU) or 0) > (tonumber(d.standings[to].pods.YOU) or 0) then d.standings[to].pods = sd end
+      d.standings[k].pods = nil
+    end
+    for path, rec in pairs(d.records[k] or {}) do
+      if podPath[path] and type(rec) == 'table' then
+        d.records[to] = d.records[to] or {}
+        local cur = d.records[to][path]
+        if not cur then d.records[to][path] = rec
+        else
+          local t1, t2 = tonumber(rec.time), tonumber(cur.time)
+          if t1 and (not t2 or t1 < t2) then cur.time, cur.at, cur.vehicle = t1, rec.at, rec.vehicle end
+          local l1, l2 = tonumber(rec.lap), tonumber(cur.lap)
+          if l1 and (not l2 or l1 < l2) then cur.lap = l1 end
+        end
+        d.records[k][path] = nil
+        moved = moved + 1
+      end
+    end
+  end
+  d.podsMoved = true
+  if moved > 0 then log(('[save] v0.41: the PODRACER CUP is a league of its own - %d results from the car leagues moved to %s'):format(moved, to)) end
+end
+
 local function fill(d)
   d.version = tonumber(d.version) or K.SAVE_VERSION
   d.races = tonumber(d.races) or 0
@@ -63,6 +115,9 @@ local function fill(d)
   d.aiCoverRestores = type(d.aiCoverRestores) == 'table' and d.aiCoverRestores or {}
   -- v0.32.6: the pacing assets' row names to put back (ai.lua A.launchRows), by asset path
   d.aiRowRestores = type(d.aiRowRestores) == 'table' and d.aiRowRestores or {}
+  -- v0.41: the PODRACING step picked last (config Pods.Steps key; nil = the first)
+  d.podStep = type(d.podStep) == 'string' and d.podStep or nil
+  K.movePods(d)
   return d
 end
 
@@ -86,7 +141,7 @@ end
 -- is copied to save.backup-reset-<date>.lua first. Returns the backup's name. (main.lua asks twice.) v0.26: the same
 -- list is what an old save keeps at its clean start (K.cleanStart).
 K.KEEP_ON_RESET = { 'version', 'racer', 'picks', 'mods', 'restores', 'abilityRestores', 'modRestores', 'aiRestores',
-  'racerRestore', 'titleRestore', 'gridRestore', 'aiCoverRestores', 'aiRowRestores', 'paintRestore' }
+  'racerRestore', 'titleRestore', 'gridRestore', 'aiCoverRestores', 'aiRowRestores', 'paintRestore', 'podStep', 'podsMoved' }
 local function keepGarage(was)
   local d = {}
   for _, k in ipairs(K.KEEP_ON_RESET) do d[k] = was[k] end
@@ -174,9 +229,37 @@ end
 -- leagues, cups, race pools, vehicles
 
 function K.leagues() return cfg.Leagues or {} end
+-- v0.41 (TASKS §1h-L): the PODRACING league's steps (config Pods.Steps), each its own league key in the save. Not in
+-- K.leagues(): the car leagues' unlock chain, goals and cups pages never see them.
+function K.podsOn() return (cfg.Pods or {}).On ~= false end
+function K.podSteps() return (cfg.Pods or {}).Steps or {} end
+local stepCache = {}
+-- a step key -> a league-like table { key, name = 'PODRACING LEARNER', step = 'LEARNER', pods = true, line }, or nil
+function K.podStep(key)
+  if key == nil then return nil end
+  for i, st in ipairs(K.podSteps()) do
+    if st.key == key then
+      local c = stepCache[key]
+      if not c then
+        local L = (cfg.Pods or {}).League or {}
+        c = { key = st.key, step = st.name, name = ('%s %s'):format(L.name or 'PODRACING', st.name), line = st.line,
+          pods = true, index = i, parts = 0, mods = 0, abilities = 0 }
+        stepCache[key] = c
+      end
+      return c
+    end
+  end
+  return nil
+end
+-- the step picked last (saved, podStep), the first step before any pick
+function K.curPodStep()
+  local k = K.data and K.data.podStep
+  if K.podStep(k) then return k end
+  return (K.podSteps()[1] or {}).key
+end
 function K.league(key)
   for _, c in ipairs(K.leagues()) do if c.key == key then return c end end
-  return nil
+  return K.podStep(key)
 end
 -- a league's name for the screen and the log ('RIFF-RAFF'), or the key itself
 function K.leagueName(key)

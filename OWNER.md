@@ -4,20 +4,14 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
-- [ ] **PODRACING league (2026-11-26, plan in TASKS §1h-L, not started):** (1) three difficulty steps (Learner / Pro /
-      Champion) or two (as now / full combat)? (2) your v0.40 pod cup results at the car leagues: move them to the new
-      league, or drop them? (3) should a step need a trophy at the step below to open, or all open from the start
-      (Claude's pick: all open)?
 - [ ] **Your saves after the away session (2026-11-26 ~00:50):** the Grand Prix save is back exactly as you left it (md5
       a9a708df..., backup in ~/.local/share/swgr-save-backups/away-20261125/). The game itself had rewritten its meta save
       `GriffinSave.6.sav` during the test races (one recon race was the campaign flashback "Memories of Mos Espa"), so that
       file was put back from the backup too (the changed one is kept in `game-after-session/`). **If Steam reports a cloud
       conflict at the next start, pick the local files.**
-- [ ] **The PODRACER CUP's open calls (2026-11-26):** (1) the name - PODRACER CUP (PODRACING CUP is one letter too
-      long for a tile), OK? (2) the pods race with the game's own pod build and kits: should the league's parts levels
-      and your abilities / tune-ups apply to your pod (and the start screen's ability tiles then mean something), or
-      hide those tiles for this cup? (3) should a podracer gold count toward the league's progress (it shows a medal pip
-      on HOME like the Rally Cup now) - Claude's pick: yes, as the rally.
+- [ ] **The PODRACER CUP's name (2026-11-26):** PODRACER CUP (PODRACING CUP is one letter too long for a tile), OK?
+      (v0.41: the other two calls are settled by the PODRACING league - abilities on your pod come at PRO after the
+      recon, and the pods no longer count toward a car league.)
 - [ ] **Merge to main (2026-11-25):** this session could not move `main` (it works in the `heat-plan` worktree). Everything
       is on branch `worktree-heat-plan` (pushed), a fast-forward of main: in ~/Projects/swgr-grandprix run
       `git merge --ff-only worktree-heat-plan` (and `git push`). KNOWLEDGE.md edits in ~/Projects/swgr-underground are
@@ -108,6 +102,10 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.41.0, PODRACING as its own league (2026-11-26, not yet installed / seen in game):** HOME has a PODRACING poster
+      after ACE (a medal per step); it opens the PODRACER CUP's start screen, where the DIFFICULTY tile cycles LEARNER / PRO.
+      The car leagues' cups pages lose the PODRACER CUP tile. Check: your v0.40 pod trophy shows on the LEARNER medal;
+      B from the start screen goes HOME; PRO feels harder (it is the AI only for now - abilities need the recon, PL0).
 - [ ] **v0.40.0, the PODRACER CUP (2026-11-26, installed) - P8, the pacing, is yours:** a new tile after the Rally Cup at
       every league: 4 races on the pod tracks (Mos Espa, Mawhonic and Holdfast's Folly, forward and reversed, dry or
       weather), you in your pilot's podracer (Shade's MythP3 unless you race as Kestar, Goli, Fola or Sebulba) against
@@ -340,6 +338,8 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - [ ] **v1.0 pass:** every cup at every class, once the above feel right.
 
 ## Done (moved here when answered)
+- [x] **PODRACING league (2026-11-26):** two steps (LEARNER / PRO); the v0.40 cup results move to LEARNER; both steps
+      open from the start. Built v0.41.0 (TASKS §1h-L PL1-PL2).
 - 2026-11-11 night, Claude's in-game check (owner away, save restored, md5 checked): v0.22-v0.24 seen working
   (CHANGELOG v0.25.0); fixed in v0.25: HOME opening on RESET, milky unfocused tiles, hard-to-read tile text, broken
   portraits. Title race: a lone bot's pace swings ~10 s; a leading bot doesn't wait (your 40 s slower Biddy was his

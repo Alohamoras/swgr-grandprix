@@ -12,14 +12,14 @@ local ART = require('art')
 M.press('F6'); M.tick(6)
 
 -- HOME
-T.check(T.titles() == 'JUNKER|CHALLENGER|ACE|RESET PROGRESS', 'HOME: the three leagues and RESET, no GARAGE (' .. T.titles() .. ')')
+T.check(T.titles() == 'JUNKER|CHALLENGER|ACE|PODRACING|RESET PROGRESS', 'HOME: the three leagues and RESET, no GARAGE (' .. T.titles() .. ')')
 T.check(S.ui.rows and S.ui.nav ~= nil, 'HOME in rows (the D-pad map made)')
-T.check(T.pips('CHALLENGER') == 'GB------.', 'Challenger: gold, bronze, five faint medals, the title star not won (' .. tostring(T.pips('CHALLENGER')) .. ')')
-T.check(T.badges() == '|||', 'no words on the HOME tiles (' .. T.badges() .. ')')
-T.check(T.marks():find('^pips:%S+|pips:%S+|pips:%S+|$') ~= nil, 'v0.27: only the medal pips on the posters, no chevrons (' .. T.marks() .. ')')
+T.check(T.pips('CHALLENGER') == 'GB-----.', 'Challenger: gold, bronze, five faint medals, the title star not won (' .. tostring(T.pips('CHALLENGER')) .. ')')
+T.check(T.badges() == '||||', 'no words on the HOME tiles (' .. T.badges() .. ')')
+T.check(T.marks():find('^pips:%S+|pips:%S+|pips:%S+|pips:%S+|$') ~= nil, 'v0.27: only the medal pips on the posters, no chevrons (' .. T.marks() .. ')')
 T.check(S.ui.items[1].desc == 'Scrapyard junk with too much engine' and S.ui.items[3].desc == 'Every credit on the rig. The galaxy\'s finest',
   'v0.27: each poster\'s tagline (' .. tostring(S.ui.items[1].desc) .. ')')
-T.check(S.ui.nav[1].down == 4 and S.ui.nav[4].up ~= nil, 'down from JUNKER reaches RESET, and back up')
+T.check(S.ui.nav[1].down == 5 and S.ui.nav[5].up ~= nil, 'down from JUNKER reaches RESET, and back up')
 
 -- the cups page -> the start screen
 T.clickTitle('CHALLENGER'); M.tick(3)

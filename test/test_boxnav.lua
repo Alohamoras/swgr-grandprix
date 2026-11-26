@@ -26,14 +26,14 @@ T.check(nav[4].up == 1 and nav[5].up == 2, 'rows: up to the nearest centre above
 T.check(nav[4].down == 6 and nav[5].down == 6 and nav[6].up == 4 and nav[6].left == nil and nav[6].right == nil, 'rows: the wide bar is reached from both tiles above it and goes back up to the one under its middle (the tie)')
 T.check(nav[1].up == nil and nav[6].down == nil, 'rows: edges')
 
--- the mod's own home page: JUNKER | CHALLENGER | ACE over GARAGE | RESET (test_start's expectation kept)
+-- the mod's own home page: JUNKER | CHALLENGER | ACE | PODRACING over GARAGE | RESET (test_start's expectation kept)
 M.press('F6'); M.tick(6)
 local S = rawget(_G, 'GU_TEST_SCREENS').S
-T.check(T.titles() == 'JUNKER|CHALLENGER|ACE|GARAGE|RESET PROGRESS', 'home: five tiles (' .. T.titles() .. ')')
+T.check(T.titles() == 'JUNKER|CHALLENGER|ACE|PODRACING|GARAGE|RESET PROGRESS', 'home: six tiles (' .. T.titles() .. ')')
 local n2 = S.ui.nav
-T.check(n2[1].right == 2 and n2[3].left == 2 and n2[3].right == nil, 'home: the leagues side by side')
-T.check(n2[1].down == 4 and n2[4].up ~= nil and n2[5].up ~= nil and n2[4].right == 5, 'home: down from JUNKER reaches the bottom row, and back up')
-T.check(#S.ui.boxes == 5 and S.ui.boxes[4].y > S.ui.boxes[1].y, 'home: the boxes kept on the screen (rows stacked)')
+T.check(n2[1].right == 2 and n2[3].left == 2 and n2[3].right == 4 and n2[4].right == nil, 'home: the leagues side by side')
+T.check(n2[1].down == 5 and n2[5].up ~= nil and n2[6].up ~= nil and n2[5].right == 6, 'home: down from JUNKER reaches the bottom row, and back up')
+T.check(#S.ui.boxes == 6 and S.ui.boxes[5].y > S.ui.boxes[1].y and S.ui.boxes[4].y == S.ui.boxes[1].y, 'home: the boxes kept on the screen (rows stacked)')
 -- the game's own navigation got the same links
 T.check(M.called('SetNavigationRuleExplicit') >= 8, 'the map pushed into the game\'s navigation rules (' .. M.called('SetNavigationRuleExplicit') .. ' links)')
 -- (the arrows are the game's own: it moves focus along the rules U.wire pushed; the mod only follows)

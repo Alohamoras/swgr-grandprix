@@ -176,8 +176,7 @@ local function cupsInOrder()
   for _, c in ipairs(K.cups()) do if not c.final and not c.rally and not c.pods then out[#out + 1] = c end end
   for _, c in ipairs(K.cups()) do if c.final then out[#out + 1] = c end end
   for _, c in ipairs(K.cups()) do if c.rally then out[#out + 1] = c end end -- (v0.30: the Rally Cup, drawn last on the cups page)
-  -- (v0.40: the PODRACER CUP after it; config Pods.On = false hides it)
-  for _, c in ipairs(K.cups()) do if c.pods and (cfg.Pods or {}).On ~= false then out[#out + 1] = c end end
+  -- (v0.40-v0.40.x: the PODRACER CUP after it; v0.41 it is the PODRACING league's only cup - HOME's poster)
   return out
 end
 -- v0.23: a racer's face from config Portraits (a game texture path; v0.31: the 256 px MainIcon of each racer's
@@ -197,6 +196,7 @@ local function lockCorner() return { { ART.LOCK, ART.LOCK_COLOR } } end
 local startLaunch -- (below, with the garage)
 local function toStart(kind, classKey, cupKey)
   S.start = { kind = kind, class = classKey, cup = cupKey }
+  if K.podStep(classKey) then S.class = classKey end -- (v0.41: B from the pods start screen goes HOME - SCREENS.cups)
   if kind == 'cup' then
     S.start.draw = K.draw(cupKey)
     local names = {}
@@ -315,6 +315,22 @@ SCREENS.home = function()
         act = function() S.class = c.key; K.data.class = c.key; K.save(); return go('cups') end }
     end
   end
+  -- v0.41 (owner 2026-11-26, TASKS §1h-L PL1): the PODRACING league - one poster after the car leagues, always open;
+  -- a medal per step (config Pods.Steps), no title star; it opens the PODRACER CUP's start screen (no cups page), at
+  -- the step picked last
+  local podCup = K.cup('pods')
+  if K.podsOn() and podCup and #K.podSteps() > 0 then
+    local L = (cfg.Pods or {}).League or {}
+    local pips = {}
+    for _, st in ipairs(K.podSteps()) do
+      local b = K.best(st.key, podCup.key)
+      if b and b <= 3 then pips[#pips + 1] = { ART.medal(b), ART.medalColor(b) }
+      else pips[#pips + 1] = { ART.medal(1), ART.GREY, 0.35 } end
+    end
+    items[#items + 1] = { title = L.name or 'PODRACING', art = ART.cup(podCup), pips = pips, classKey = K.curPodStep(), pods = true,
+      desc = L.tagline, info = padInfo(L.rules or '', 2),
+      act = function() return toStart('cup', K.curPodStep(), podCup.key) end }
+  end
   -- (v0.24: no GARAGE tile - the garage is the start screen of every race, after its cup; config StartScreen = false
   -- brings the v0.23 tile back)
   if cfg.StartScreen == false then
@@ -341,10 +357,28 @@ SCREENS.home = function()
   -- remembered focus: openPage clears it). v0.21 (owner): no "Next:" line.
   local last = (K.data.last and K.data.last.class) or K.data.class
   local focus
-  for i, it in ipairs(items) do if it.classKey and it.classKey == last and not it.disabled then focus = i end end
+  for i, it in ipairs(items) do
+    if it.classKey and (it.classKey == last or (it.pods and K.podStep(last))) and not it.disabled then focus = i end
+  end
   -- v0.36.3 (owner: "a heading like 'Choose a league' ... to let the player know what this choice screen is")
+  -- v0.41: the posters' row holds every poster (the PODRACING one too): more posters than config HomeRows[1].n get
+  -- narrower to fit config HomeRowMaxW (the cups page's widest row: 5 x 560 + gaps = 2880): 4 x 705
+  local rows = cfg.HomeRows
+  if type(rows) == 'table' and rows[1] then
+    local posters = 0
+    for _, it in ipairs(items) do if it.classKey or it.pips or (it.disabled and it.corner) then posters = posters + 1 end end
+    local r1 = rows[1]
+    local base = tonumber(r1.n) or posters
+    if posters ~= base and posters > 0 then
+      local maxW = tonumber(cfg.HomeRowMaxW) or 2880
+      local w = math.min(r1.w, math.floor((maxW - U.GAP * (posters - 1)) / posters))
+      local out = { { w = w, h = r1.h, n = posters } }
+      for k = 2, #rows do out[k] = rows[k] end
+      rows = out
+    end
+  end
   return { key = 'home', title = 'CHOOSE A LEAGUE', lines = { msgLine() }, items = items, info = true, infoStrip = true, focus = focus,
-    rows = cfg.HomeRows, center = cfg.HomeRows ~= nil }
+    rows = rows, center = rows ~= nil }
 end
 
 -- the focused cup's info (v0.26, random cups: no fixed race list): what opens a locked cup, then the planet's own line
@@ -392,6 +426,9 @@ local function cupInfo(cup, head)
 end
 
 SCREENS.cups = function()
+  -- v0.41: the PODRACING league has no cups page - every way to it (B on its start screen, CONTINUE after its cup)
+  -- lands on HOME
+  if K.podStep(S.class) then S.screen = 'home'; return SCREENS.home() end
   local cls = K.league(S.class) or K.leagues()[1]
   local items = {}
   -- v0.33 (owner: "use the planets from the end of cup screen"): the planet's round picture on the tile's left (config
@@ -503,6 +540,22 @@ local function startHeader(st)
   end
   return 'KESTAR BOOL', { { 'The stadium, one on one', 22, U.WHITE } }
 end
+-- v0.41: the PODRACING start screen - the pilot and PODRACER tiles, the STEP tile on its own row, START
+local function podGarage(items, st)
+  local G = cfg.GarageRows or { w = 470, h = 300, startH = 170 }
+  local rows, n = {}, 0
+  for _, it in ipairs(items) do if it.kind ~= 'step' then n = n + 1 end end
+  rows[#rows + 1] = { w = G.w, h = G.h, n = n }
+  if #items > n then rows[#rows + 1] = { w = G.w, h = G.h, n = #items - n } end
+  local cup = K.cup(st.cup)
+  items[#items + 1] = { title = 'START', art = ART.cup(cup), span = 4, act = startLaunch }
+  rows[#rows + 1] = { w = G.w, h = G.startH or 170 }
+  local title, sub = startHeader(st)
+  local lines = {}
+  for _, l in ipairs(sub or {}) do lines[#lines + 1] = l end
+  lines[#lines + 1] = msgLine()
+  return { key = 'garage', title = title, lines = lines, items = items, info = true, rows = rows, center = true, focus = #items }
+end
 SCREENS.garage = function()
   local level = levelNow()
   local picks = picksFor(curLeague())
@@ -546,6 +599,26 @@ SCREENS.garage = function()
       art = '/Game/Griffin/UI/Library/Textures/Content/Arcade/T_UI_Arcade_Bgl_Plane_Tile', tag = { 'VEHICLE', U.GOLD },
       info = ('This cup is raced in podracers. You race as %s in their own podracer.'):format(who and who.name or 'Shade'),
       act = function() return true end }
+    -- v0.41 (owner 2026-11-26, TASKS §1h-L PL2): the STEP tile - Select cycles the difficulty (config Pods.Steps), kept
+    -- in the save (podStep); the cup's draw stays. Each step keeps its own trophy and lap records.
+    local stp = K.podStep(st.class) or K.podStep(K.curPodStep())
+    if stp and #K.podSteps() > 1 then
+      local b = K.best(stp.key, st.cup)
+      items[#items + 1] = { title = stp.step, span = 2, kind = 'step', art = ART.cup(K.cup(st.cup)),
+        icon = (b and b <= 3) and ART.medal(b) or nil, iconColor = (b and b <= 3) and ART.medalColor(b) or nil,
+        tag = { 'DIFFICULTY', { 0.62, 0.85, 1 } },
+        info = stp.line or stp.step,
+        act = function()
+          local list = K.podSteps()
+          local nxt = list[(stp.index or 1) % #list + 1]
+          st.class = nxt.key
+          S.class = nxt.key
+          K.data.podStep = nxt.key
+          K.save()
+          S.message = nil
+          return true
+        end }
+    end
   elseif RC and RC.cycleVehicle then
     local veh = myVehicle()
     items[#items + 1] = { title = (veh.name or 'VEHICLE'):upper(), span = 2, kind = 'vehicle',
@@ -558,6 +631,9 @@ SCREENS.garage = function()
       end }
   end
   local choices = #items
+  -- v0.41 (TASKS §1h-L PL3, the owner's v0.40 note): no tune-up or ability tiles on the pods start screen - the pods
+  -- race with the game's own build and kits (they come back for PRO once the recon proves pods take them)
+  if podCup then return podGarage(items, st) end
   local list = modsFor()
   local slots, fromClass = 0, {}
   for _, c in ipairs(K.leagues()) do

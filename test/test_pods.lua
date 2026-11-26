@@ -46,26 +46,50 @@ end
 local function gmvGrid() return rawget(M.assets[GMV .. '.GMV_Race'], '__props').GridMakeup.Entries[1].NumEntrants end
 local function pref(k) return rawget(W.racerDef(k), '__props').PreferredVehicleType end
 
--- 1. the cups page: the PODRACER CUP after the Rally Cup; Pods.On = false hides it
+-- 1. v0.41 (TASKS §1h-L PL1-PL2): PODRACING is a league of its own - a poster on HOME after the car leagues, no
+-- PODRACER CUP tile on the car leagues' cups pages; Pods.On = false hides the poster
 M.press('F6'); M.tick(6)
-T.clickTitle('JUNKER'); M.tick(3)
-T.check(T.titles():find('RALLY CUP|PODRACER CUP', 1, true) ~= nil, 'the cups page: PODRACER CUP after the Rally Cup (' .. T.titles() .. ')')
+T.check(T.titles():find('ACE|PODRACING', 1, true) ~= nil, 'HOME: the PODRACING poster after ACE (' .. T.titles() .. ')')
+local function homeItem()
+  for _, it in ipairs(H.SCREENS.home().items) do if it.title == 'PODRACING' then return it end end
+end
+T.check(homeItem() and #homeItem().pips == 2 and homeItem().info:find('LEARNER or PRO', 1, true), 'the poster: a medal per step, its rules line')
 cfg.Pods.On = false
-local names = {}
-for _, it in ipairs(H.SCREENS.cups().items) do names[#names + 1] = it.title end
-T.check(not table.concat(names, '|'):find('PODRACING', 1, true), 'Pods.On = false: no pods tile')
+T.check(homeItem() == nil, 'Pods.On = false: no poster')
 cfg.Pods.On = true
-local podTile
-for _, it in ipairs(H.SCREENS.cups().items) do if it.title == 'PODRACER CUP' then podTile = it end end
-T.check(podTile and podTile.info:find('podracing tracks of Mos Espa', 1, true) and podTile.art:find('Bgl_Plane_Tile', 1, true),
-  'the pods tile: its info line and the Mos Espa pod picture')
-
--- the start screen of the pods cup: the VEHICLE tile says PODRACER (and who you race as)
-H.S.start = { kind = 'cup', class = 'riffraff', cup = 'pods', draw = {} }
-local vt
-for _, it in ipairs(H.SCREENS.garage().items) do if it.kind == 'vehicle' then vt = it end end
+T.clickTitle('JUNKER'); M.tick(3)
+T.check(not T.titles():find('PODRACER', 1, true), 'the car cups page: no PODRACER CUP tile (' .. T.titles() .. ')')
+-- the poster opens the cup's start screen at the first step (no cups page)
+H.S.screen = 'home'
+cfg.StartScreen = true -- (the start screen: off in the older tests)
+local res = homeItem().act()
+T.check(H.S.screen == 'garage' and H.S.start.cup == 'pods' and H.S.start.class == 'pods' and #H.S.start.draw == 4,
+  'the poster -> the PODRACER CUP start screen at LEARNER, 4 races drawn')
+local gi = H.SCREENS.garage()
+local vt, step, kinds = nil, nil, {}
+for _, it in ipairs(gi.items) do
+  kinds[#kinds + 1] = tostring(it.kind or it.title)
+  if it.kind == 'vehicle' then vt = it end
+  if it.kind == 'step' then step = it end
+end
 T.check(vt and vt.title == 'PODRACER' and vt.info:find('You race as Shade', 1, true), 'the pods start screen: PODRACER, as Shade (' .. tostring(vt and vt.info) .. ')')
+T.check(table.concat(kinds, ',') == 'racer,vehicle,step,START', 'no tune-up or ability tiles on the pods start screen (' .. table.concat(kinds, ',') .. ')')
+T.check(gi.lines[1][1] == 'PODRACING LEARNER' and step.title == 'LEARNER', 'the header and the STEP tile: LEARNER')
+step.act()
+T.check(H.S.start.class == 'podspro' and K.data.podStep == 'podspro' and #H.S.start.draw == 4, 'Select: PRO, saved, the draw kept')
+for _, it in ipairs(H.SCREENS.garage().items) do if it.kind == 'step' then step = it end end
+T.check(step.title == 'PRO', 'the STEP tile reads PRO')
+step.act()
+T.check(H.S.start.class == 'pods' and K.data.podStep == 'pods', 'Select again: back to LEARNER')
+-- B on the pods start screen (the garage's back is the cups page) lands on HOME
+H.S.screen = 'cups'
+local sc = H.SCREENS.cups()
+T.check(sc.key == 'home' and H.S.screen == 'home', 'the cups page of a pod step is HOME')
+T.check(K.leagueName('podspro') == 'PODRACING PRO' and K.league('pods').pods == true, 'the step names: PODRACING PRO')
+T.check(PR.nextUnlock(K.data, 'pods') == nil, 'a pod step opens nothing (no "Galactic Cup" goal)')
 H.S.start = nil
+H.S.screen = 'home'
+cfg.StartScreen = false
 
 -- 2. the draw: 4 races, 4 different layouts, each a pod race with a condition tag
 local d = K.draw('pods', T.RND)
@@ -84,12 +108,12 @@ T.check(K.planetOf(cfg.Pools.pods[1].path).name == 'Outer Rim' and K.planetOf(cf
   'the pod tracks\' planets: Mos Espa = Outer Rim, Mawhonic = Ando Prime')
 
 -- 4. the launch: start the cup, race 1 through LaunchCustomRace
-K.startCup('riffraff', 'pods', 'car', nil, nil, d)
+K.startCup('pods', 'pods', 'car', nil, nil, d)
 T.check(K.data.run.pods == true, 'the run is marked as the pods cup')
 local ev = K.nextRace()
 T.check(ev.pod and ev.condTag == d[1].condTag, 'the next race is a pod race with its condition')
 local R = require('race')
-local okL, msg = R.launch(ev, 'riffraff', 'car', nil, nil)
+local okL, msg = R.launch(ev, 'pods', 'car', nil, nil)
 T.check(okL, 'launched (' .. tostring(msg) .. ')')
 local c = custom[1]
 T.check(c and rawget(c.arch, '__name') == 'VA_Plane' and rawget(c.mode, '__name'):find('GMV_Race', 1, true)
@@ -134,4 +158,19 @@ local P = require('pods')
 T.check(P.racerKey('Rager') == 'DarkEnigma' and P.racerKey('Antagonist') == 'Antagonist', 'no pod of your own: Shade\'s; Kestar keeps his')
 local fp = P.fieldPaths('Antagonist')
 T.check(#fp == 6 and not table.concat(fp, ','):find('Antagonist', 1, true), 'racing as Kestar: he is not also in the field')
+-- 7. v0.41: the v0.40 results at the car leagues move to LEARNER (best finish, fastest time / lap per track), once
+local P1, P2 = cfg.Pools.pods[1].path, cfg.Pools.pods[3].path
+local old = { best = { riffraff = { pods = 3, jakku = 1 }, ace = { pods = 1 } }, perfect = { ace = { pods = true } },
+  standings = { ace = { pods = { YOU = 60 } } },
+  records = { riffraff = { [P1] = { time = 200, lap = 49 }, ['/x/EVT_A'] = { time = 1 } }, ace = { [P1] = { time = 190, lap = 50 }, [P2] = { time = 170 } } } }
+K.movePods(old)
+T.check(old.best.pods.pods == 1 and old.best.riffraff.pods == nil and old.best.ace.pods == nil and old.best.riffraff.jakku == 1,
+  'moved: the best finish (gold), the car cups untouched')
+T.check(old.perfect.pods.pods == true and old.standings.pods.pods.YOU == 60, 'moved: the perfect cup, the standings')
+local r1 = old.records.pods[P1]
+T.check(r1.time == 190 and r1.lap == 49 and old.records.pods[P2].time == 170 and old.records.riffraff['/x/EVT_A'] and old.records.ace[P1] == nil,
+  'moved: the fastest time and lap per pod track; the car tracks stay')
+old.best.ace.pods = 2
+K.movePods(old)
+T.check(old.best.ace.pods == 2 and old.podsMoved, 'only once (podsMoved)')
 T.finish()

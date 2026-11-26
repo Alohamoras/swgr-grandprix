@@ -76,6 +76,8 @@ return {
     -- v0.24: HOME in rows: the leagues as tall posters (a medal per cup on each), RESET small below; the garage
     -- (the start screen) at this tile size, START this tall. v0.26: three leagues, wider (760)
     HomeRows = { { w = 760, h = 560, n = 3 }, { w = 600, h = 200 } },
+    -- v0.41: with the PODRACING poster the top row holds four posters, each narrowed to fit this width (4 x 705)
+    HomeRowMaxW = 2880,
     GarageRows = { w = 470, h = 300, startH = 170 },
     -- v0.24 (owner): the garage is every race's start screen (cup -> garage with START focused -> race). false = the
     -- v0.23 way: a cup starts at once, the GARAGE tile on HOME.
@@ -281,7 +283,23 @@ return {
         Field = { 'DA_PlaneRacer_Nesodon', 'DA_PlaneRacer_Cabbage', 'DA_PlaneRacer_Celery', 'DA_PlaneRacer_Garlic',
                   'DA_PlaneRacer_Onion', 'DA_PlaneRacer_Pepper', 'DA_Racer_Antagonist' },
         Owners = { DarkEnigma = true, Antagonist = true, Ghost = true, Nomad = true, Mentor = true },
-        Fallback = 'DarkEnigma' },
+        Fallback = 'DarkEnigma',
+        -- v0.41.0 (owner 2026-11-26, TASKS §1h-L PL1-PL2): PODRACING is a league of its own - one poster on HOME after
+        -- the car leagues, one cup (the PODRACER CUP), no cups page: the poster opens the cup's start screen, where a STEP
+        -- tile picks the difficulty. Each step is its own league key in the save (best / records / perfect / standings),
+        -- so each keeps its own trophy and lap records; its AI profile is AI.Profiles[step key]. key is used in the save:
+        -- never change it. The owner chose two steps (2026-11-26: "Two"), both open from the start. Results from the
+        -- v0.40 cup at the car leagues move to the first step at the first load (gp.lua fill).
+        League = { name = 'PODRACING', tagline = 'Two engines, a cockpit and nerve',
+          rules = 'Your pilot\'s podracer against Sebulba, the pod racers and Kestar Bool. One cup, four races. Pick LEARNER or PRO on the start screen.' },
+        Steps = {
+          { key = 'pods', name = 'LEARNER',
+            line = 'LEARNER. The game\'s own podracers, no abilities on the grid. The pace to learn the tracks.' },
+          -- (PRO's abilities, yours and the field's, come after the recon, TASKS §1h-L PL0 / PL3 / PL4: until then PRO
+          -- is the harder AI profile only)
+          { key = 'podspro', name = 'PRO',
+            line = 'PRO. The field races harder and gives nothing away. The pods at full pace.' },
+        } },
     TimeToBeat = { On = true, Route = 'viewport', Size = 44, Y = 0.38, Color = { 1, 1, 1 }, LapLine = false },
 
     -- (v0.21: the rival per class is gone - owner, 2026-11-11.)
@@ -506,7 +524,8 @@ return {
         { key = 'rally', name = 'RALLY CUP', art = 'T_UI_FE_Tile_A', rally = true, pool = 'rally', finale = 'Night' },
         -- v0.40.0 (TASKS §1h): the PODRACER CUP - 4 of the pod tracks, you in your pilot's podracer (Shade's when yours
         -- has none) against the 6 pod racers and Kestar Bool, points as usual; not a planet cup (no Galactic Cup unlock,
-        -- no league champion). Config Pods.
+        -- no league champion). Config Pods. v0.41.0: raced only in the PODRACING league (Pods.League / Steps), never
+        -- on the car leagues' cups pages.
         { key = 'pods', name = 'PODRACER CUP', artPath = '/Game/Griffin/UI/Library/Textures/Content/Arcade/T_UI_Arcade_Bgl_Plane_Tile',
           pods = true, pool = 'pods' },
     },
@@ -721,7 +740,8 @@ return {
         -- to TRAIL you, out of the race by design. Per league, the tier those two take instead: 'Challengers' keeps the
         -- whole field in the fight, 'Elite' at Ace (FreeRace's two hardest levels). false / missing = the game's own.
         -- The names go into the save first and back at the menu; the first launch logs the rows the game really has.
-        BackRows = { riffraff = 'Challengers', challenger = 'Challengers', ace = 'Elite' },
+        BackRows = { riffraff = 'Challengers', challenger = 'Challengers', ace = 'Elite',
+                     pods = 'Challengers', podspro = 'Elite' }, -- (v0.41: the PODRACING steps, config Pods.Steps)
         Profiles = {
             riffraff = { pressure = -1, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.4 }, perfectStart = 45,
                          config = { SpeedMatchingMaxMatchers = 0 } },
@@ -729,6 +749,12 @@ return {
                            perfectStart = 45, config = { SpeedMatchingMaxMatchers = 0 } },
             ace = { pressure = 0.5, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 1.0, AiSlowdownDuringCrash = 1.0 }, errors = 0,
                     perfectStart = 45, config = { SpeedMatchingMaxMatchers = 0 } },
+            -- v0.41 (TASKS §1h-L PL1): the PODRACING steps (config Pods.Steps). LEARNER = Challenger's profile (what the
+            -- v0.40 cup raced with at that league); PRO = Ace's (more pressure, the whole field in the fight - BackRows)
+            pods = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 1.0, AiSlowdownDuringCrash = 1.0 }, errors = 0,
+                     perfectStart = 45, config = { SpeedMatchingMaxMatchers = 0 } },
+            podspro = { pressure = 0.5, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 1.0, AiSlowdownDuringCrash = 1.0 }, errors = 0,
+                        perfectStart = 45, config = { SpeedMatchingMaxMatchers = 0 } },
         },
     },
 

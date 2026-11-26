@@ -109,6 +109,22 @@ written into `RacerDef.PreferredCustomisationForVehicleArchetype` before launch,
 the menu). Choosing a pilot starts your four abilities as that pilot's signature kit; edits stay until the pilot
 changes; a save from before keeps its four. The title race and the boss race use the picked vehicle too.
 
+## 3d. PODRACING (v0.40 cup, v0.41 a league of its own; owner 2026-11-25 / 26; TASKS §1h, §1h-L)
+- One poster on HOME after the three car leagues: PODRACING. It has one cup, the PODRACER CUP (4 races drawn from the
+  game's pod-made circuits: Mos Espa, Mawhonic and Holdfast's Folly, forward and reversed, dry or weather), and no cups
+  page: the poster opens the cup's start screen.
+- You race your pilot's own podracer (Shade's when your pilot has none) against the 6 pod racers and Kestar Bool: an
+  8-pod grid. Points as usual. Recon and launch: docs/podracing-recon-2026-11-25.md, pods.lua.
+- **Difficulty steps** (owner: two, both open from the start): a STEP tile on the start screen cycles LEARNER / PRO, kept
+  in the save (`podStep`). Each step is its own league key in the save (`pods`, `podspro`), so each keeps its own
+  trophy, lap records and perfect cup, and has its own AI profile (`AI.Profiles.pods` = Challenger's, `podspro` = Ace's).
+  The poster shows one medal per step and no title star.
+- LEARNER = the v0.40 cup: the game's own pod build and kits. PRO today = the harder AI profile only; your abilities and
+  the field's kits come once the recon (TASKS PL0) proves pods take them (PL3 / PL4). No tune-up or ability tiles show
+  on the pods start screen until then.
+- Not part of the car leagues: it opens nothing, needs nothing, and is not counted in their medals or goals. The v0.40
+  results raced at the car leagues moved to LEARNER at the first v0.41 load (best finish, fastest time and lap per track).
+
 ## 4. Leagues (v0.26; were the speed classes)
 The recon behind this: your parts make your vehicle much faster (5 levels on every part: a race went from 152 s to
 124 s, top speed 448 → 576 kph); AI pace comes from the rubber band (`DA_RaceTuneConfig`), which follows you; the AI's

@@ -153,6 +153,7 @@ end
 -- in the Ando Cup at CHALLENGER opens the GALACTIC CUP' / 'a trophy in the Galactic Cup at RIFF-RAFF opens the TITLE RACE' }
 function P.nextUnlock(data, classKey)
   if not P.on() or not P.classOpen(data, classKey) then return nil end
+  if not classByKey(classKey) then return nil end -- (v0.41: the PODRACING steps open nothing)
   local gold = conf().Unlock == 'gold'
   local word = gold and 'gold' or 'trophy'
   local cname = className(classKey)

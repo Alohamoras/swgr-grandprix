@@ -34,7 +34,7 @@ local function count(s)
 end
 local function at(s) for i, l in ipairs(M.log) do if l:find(s, 1, true) then return i end end end
 local OPEN = '[boot] opening the GRAND PRIX tab (BootToGrandPrix)'
-local HOME = 'JUNKER|CHALLENGER|ACE|GARAGE|RESET PROGRESS'
+local HOME = 'JUNKER|CHALLENGER|ACE|PODRACING|GARAGE|RESET PROGRESS'
 local function save(extra)
   local s = { version = 3, races = 5, cups = 0, class = 'riffraff', best = {}, restores = {}, abilityRestores = {} }
   for k, v in pairs(extra or {}) do s[k] = v end

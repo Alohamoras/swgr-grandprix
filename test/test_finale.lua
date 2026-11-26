@@ -21,7 +21,7 @@ local cfg = require('config')
 -- 1. the cups page: seven tiles, no title race, no boss; the planets on the tiles; the Galactic Cup's info
 M.press('F6'); M.tick(6)
 T.clickTitle('JUNKER'); M.tick(3)
-T.check(T.titles() == 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|RALLY CUP|PODRACER CUP' and T.ntiles() == 8,
+T.check(T.titles() == 'JAKKU CUP|LANTAANA CUP|ANDO CUP|CRAIT CUP|SENTINEL CUP|GALACTIC CUP|RALLY CUP' and T.ntiles() == 7,
   'the cups page: the seven cups, no TITLE RACE, no KESTAR BOOL (' .. T.titles() .. ')')
 -- v0.34.1: the planets are off by default (owner); the code is still covered with the switch set
 T.check(cfg.CupPlanets == false and H.SCREENS.cups().items[1].glyph == nil, 'v0.34.1: CupPlanets off by default, no planet on the tiles')
@@ -37,7 +37,7 @@ cfg.CupPlanets = false
 T.check(H.SCREENS.cups().items[1].glyph == nil, 'CupPlanets = false: no planet')
 T.check(T.pips('JUNKER') == nil, '(not on this page)')
 M.press('BACKSPACE'); M.tick(3)
-T.check(T.pips('JUNKER') == '--------.', 'home: no trophies, the champion\'s star grey (' .. tostring(T.pips('JUNKER')) .. ')')
+T.check(T.pips('JUNKER') == '-------.', 'home: no trophies, the champion\'s star grey (' .. tostring(T.pips('JUNKER')) .. ')')
 
 ---------------------------------------------------------------------------------------------------------------------
 -- 2. the Galactic Cup at Junker, 3rd in every race: bronze, the finale added as race 5; lost to Kestar
@@ -92,9 +92,9 @@ for _, l in ipairs(spec.hero and spec.hero.lines or {}) do hero[#hero + 1] = tos
 text = table.concat(hero, ' / ')
 T.check(text:find('BRONZE TROPHY', 1, true) ~= nil and text:find('KESTAR BOOL KEEPS THE TITLE', 1, true) ~= nil, 'the cup result: the bronze, Kestar keeps the title (' .. text .. ')')
 T.clickTitle('CONTINUE'); M.tick(3)
-T.check(T.medals():find('|BRONZE||$') ~= nil and T.ntiles() == 8, 'the cups page: the Galactic bronze, still seven tiles (' .. T.medals() .. ')')
+T.check(T.medals():find('|BRONZE|$') ~= nil and T.ntiles() == 7, 'the cups page: the Galactic bronze, still seven tiles (' .. T.medals() .. ')')
 M.press('BACKSPACE'); M.tick(3)
-T.check(T.pips('JUNKER') == '-----B--.', 'home: the bronze, the star still grey (' .. tostring(T.pips('JUNKER')) .. ')')
+T.check(T.pips('JUNKER') == '-----B-.', 'home: the bronze, the star still grey (' .. tostring(T.pips('JUNKER')) .. ')')
 
 ---------------------------------------------------------------------------------------------------------------------
 -- 3. off the podium: the cup ends after race 4, no finale
@@ -138,7 +138,7 @@ T.check(sm and #sm.races == 5 and sm.races[5].finale and sm.races[5].pts == 0 an
   ('the tour-end summary: 5 races, the finale without points, 60 of 60 (%s)'):format(sm and (#sm.races .. ' ' .. sm.total .. '/' .. sm.max) or '?'))
 T.clickTitle('CONTINUE'); M.tick(3)
 M.press('BACKSPACE'); M.tick(3)
-T.check(T.pips('ACE') == '-----G--*', 'home: the Ace Galactic gold and the champion\'s star (' .. tostring(T.pips('ACE')) .. ')')
+T.check(T.pips('ACE') == '-----G-*', 'home: the Ace Galactic gold and the champion\'s star (' .. tostring(T.pips('ACE')) .. ')')
 
 ---------------------------------------------------------------------------------------------------------------------
 -- 5. the rules on their own: the gate, the race entry, the rows, the nearest goal
