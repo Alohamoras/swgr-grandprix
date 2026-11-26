@@ -4,6 +4,11 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
+- [ ] **Plain-English review, 86 lines (2026-11-25, TASKS §1j) - please do this one first:**
+      https://claude.ai/artifact/EaNJsutAe6cWz2RPApBvNL - every line the mod writes on screen, now vs proposed, an
+      Approve box and a note per line (saved as you go; Claude reads them back). Also as a doc:
+      docs/plain-english-2026-11-25.md. Nothing is installed until you've been through it. Two picks in there are yours:
+      "NEW LAP RECORD" vs your "BEST LAP" wording (L64), and "SLOWER THAN" vs "OFF" for the near misses (L62, L65).
 - [ ] **The stars (2026-11-25, TASKS §3):** today the gold star on a league tile = you beat Kestar Bool in that
       league's Galactic Cup finale (league champion), and the star in a cup tile's corner = a perfect cup (every race
       won). Claude's pick: say it in the info line under the focused tile, and give the perfect cup a different icon

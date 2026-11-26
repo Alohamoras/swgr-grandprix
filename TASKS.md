@@ -360,12 +360,12 @@ before an Ace cup; each is worth heat; each cup keeps the best heat you won gold
 - [ ] **H6. Recon:** start from the back of the grid (no grid-slot write known); Kestar Bool in a normal event's field.
 - [ ] **H7. Owner playtest:** a few Ace cups climbing the heat; tune the points; watch the `[gaps]` spread at high heat.
 
-## 1j. Plain-English pass on every line we wrote (owner 2026-11-25) - not started
+## 1j. Plain-English pass on every line we wrote (owner 2026-11-25) - proposal written, owner reviewing
 Owner: "i still don't like the phrasing on a lot of the text, it's concise, but it still sounds like it was written by
 AI, i.e. 'the clock decides' and 'every rig on the same grid'.. it sort of invents terms and assumes the reader can
 figure out what you're trying to say. I think you can do better." The v0.35.0 rewrite (pass 1) made it short, not
 clear. This pass is about being clear.
-- [ ] **The rules (write them at the top of the doc, check every line against them):**
+- [x] **The rules (write them at the top of the doc, check every line against them):** (docs/plain-english-2026-11-25.md)
       - Say what happens, in the words the game uses. No coined terms ("rig", "the clock", "the field", "wound to
         ten", "proper rigs"); the game says vehicle / car, parts level, racers, abilities, tune-ups.
       - Full sentences a first-time player understands without knowing the mod. If a rule is the point, state the
@@ -373,7 +373,7 @@ clear. This pass is about being clear.
       - No slogans, no rule-of-three rhythm, no "X, and Y" flourishes, no clipped fragments to sound punchy.
       - Numbers as numbers where they're rules ("level 7 parts", "4 tracks"), words only in flavour text.
       - Flavour lines (taglines) may have character, but must still mean something literal.
-- [ ] **The inventory:** every player-facing string we wrote, in one table with where it is (file:line), where it
+- [x] **The inventory:** (86 lines in docs/plain-english-2026-11-25.md, 2026-11-25) every player-facing string we wrote, in one table with where it is (file:line), where it
       shows, the line now and the proposed line: config.lua (league tagline / brief / rules, tune-up lines, rally
       and finale texts, messages), main.lua (cup info lines, Kestar tile, wipe / leave / offline / error prompts,
       the garage captions), standings / cupend / stakes lines (stakes.lua, near misses), title.lua. Leave the game's own
@@ -391,7 +391,8 @@ clear. This pass is about being clear.
         (check the real slot levels in config before writing)
       - Ace tagline now: "Every credit on the rig. The galaxy's ..." -> say what Ace is: "The best racers in the galaxy,
         on fully upgraded vehicles."
-- [ ] **Owner review before install:** the whole table as a page (old / new side by side, a box to tick or a note per
+- [ ] **Owner review before install:** page up 2026-11-25: https://claude.ai/artifact/EaNJsutAe6cWz2RPApBvNL (ticks + notes
+      saved in its db collection `review`, doc per line id L01..L86; read back with ArtifactData list). The whole table as a page (old / new side by side, a box to tick or a note per
       line) so the owner signs off line by line; then one tag (strings only, tests for any width / line-count
       limits - the info lines are padded to 1-2 lines, `padInfo`).
 - [ ] Add the rules to KNOWLEDGE.md / AUTOMATION.md as the house style for all the Galactic Racer mods' text.
