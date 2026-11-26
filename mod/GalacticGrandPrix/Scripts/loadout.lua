@@ -287,7 +287,9 @@ function L.strengthFor(name, league)
   local key = nameIndex()[name or '']
   local tier = key and (sc.Pilots or {})[key]
   local per = sc[tostring(league)]
-  return (tier and type(per) == 'table' and tonumber(per[tier])) or 0
+  if type(per) ~= 'table' then return 0 end
+  -- (v0.45: `base` = the lift of every pilot not in a tier)
+  return (tier and tonumber(per[tier])) or tonumber(per.base) or 0
 end
 -- AI test 2026-11-13 (Underground plan chunk 0, test-only): experiment.lua's botStacksAbs = N sets every bot's parts
 -- to level N whatever your build: the stacking upgrades' stacks to N, and the Battery (one item per level,

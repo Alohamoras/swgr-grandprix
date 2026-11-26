@@ -103,3 +103,19 @@ OWNER playtest. Check pods too (`Pods.Steps` AI profiles) and the Rally (its own
 - `tools/boosttest/exp/` - the experiment files used on 2026-11-26 (b0-b3 with `botStacks = 3`; pod1-pod4).
 - `mod/GalacticGrandPrix/Scripts/ai.lua` - experiment `ops` ('game' per tune field), `config` (numbers and booleans),
   `styles` (driving-style fields), all put back at the menu.
+
+## The owner's races (2026-11-26, CHALLENGER, The War Fields; built as v0.45.0)
+
+| Race | Setting | Boost score | Notes |
+|---|---|---|---|
+| 1 | baseline (0.99) | 2/5 | 2nd; the racers ahead matched the boost |
+| 2 | threshold 2.0 (blind) | 4/5 | "definitely faster ... but they had a hard time keeping up in general" |
+| 3 | threshold 1.3 (blind) | 3-4/5 | "enemies seemed slower in general" |
+| 4 | 2.0 + bots +2 parts | 4/5 | "field kept up better, i crashed once and still took 1st"; the last racer far behind |
+| 5 | 2.0 + bots +3 + catch-up 1.6 after 2 s | 4/5 | 5th after two crashes, a pack within 0.4 s; spread 32 s |
+| 6 | 2.0 + bots +3 + catch-up 1.6 after 0.5 s | 4/5 | 2nd after one crash; spread 24 s |
+| 7 | 2.0 + bots +5 + catch-up 1.6 after 0.5 s | - | "didn't crash ... finished 1st but barely ... pretty close to a good tune" |
+
+Built (owner: all leagues scaled, keep the tiers): threshold 2.0 and catch-up 1.6 after 0.5 s everywhere; strength
+around +5 (CHALLENGER, ACE) / +3 (JUNKER). Note: a race's `[exp] result` line carries the experiment file in place when
+the results are written - swapping the file before the owner leaves the results screen mislabels it (races 2 and 6).

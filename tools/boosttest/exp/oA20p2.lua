@@ -1,0 +1,1 @@
+return { label = 'owner 4: MinRacePacingFactorForBoost 2.0 + bots +2 parts', boostRecon = true, event = 'THE WAR FIELDS', botStacks = 2, styles = { Car = { MinRacePacingFactorForBoost = 2.0 }, Bike = { MinRacePacingFactorForBoost = 2.0 }, Skimmer = { MinRacePacingFactorForBoost = 2.0 } } }

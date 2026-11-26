@@ -734,13 +734,17 @@ return {
             Pilots = { Thrall = 'elite', Rager = 'elite', Star = 'elite', Antagonist = 'elite',
                        Ghost = 'contender', Veteran = 'contender', QuietStrength = 'contender',
                        Mercenary = 'weak', Protege = 'weak' },
-            riffraff = { elite = 1 },
-            challenger = { elite = 2, contender = 1, weak = -1 },
+            -- v0.45.0 (owner's boost races 2026-11-26, TASKS §1k: "pretty close to a good tune" at +5 for every bot at
+            -- CHALLENGER; owner: all leagues scaled, keep the tiers): base = every pilot not in a tier. JUNKER +3 around,
+            -- CHALLENGER and ACE +5 around. (v0.34-v0.44: riffraff { elite = 1 }, challenger { elite = 2, contender = 1,
+            -- weak = -1 }, ace { elite = 0, contender = -1, weak = -3 }.)
+            riffraff = { base = 3, elite = 4, contender = 3, weak = 2 },
+            challenger = { base = 5, elite = 6, contender = 5, weak = 4 },
             -- v0.34.0: Ace's car is at 10, so the tiers shift down instead of up - the Elite race your car, contenders a
             -- step back (9), the weak three (7). (A lift only reaches a slot that has a tune set - loadout.lua
             -- L.botParts - so at Junker the Elite's +1 goes onto the afterburner and ramjet, 10 -> 11 stacks, not onto
             -- the stock slots.)
-            ace = { elite = 0, contender = -1, weak = -3 },
+            ace = { base = 5, elite = 6, contender = 5, weak = 4 },
         },
         -- v0.32 (thrust.lua; docs/freerace-review-2026-11-25.md §6.3): a per-bot pace dial to TEST - a run-time tune set
         -- on the bot's vehicle multiplying its thrust (MaxRPM and the accelerations), applied ThrustAfterS after the
@@ -763,12 +767,17 @@ return {
         BackRows = { riffraff = 'Challengers', challenger = 'Challengers', ace = 'Elite',
                      pods = 'Challengers', podspro = 'Elite' }, -- (v0.41: the PODRACING steps, config Pods.Steps)
         Profiles = {
-            riffraff = { pressure = -1, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 0.4 }, perfectStart = 45,
-                         config = { SpeedMatchingMaxMatchers = 0 } },
-            challenger = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 1.0, AiSlowdownDuringCrash = 1.0 }, errors = 0,
-                           perfectStart = 45, config = { SpeedMatchingMaxMatchers = 0 } },
-            ace = { pressure = 0.5, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 1.0, AiSlowdownDuringCrash = 1.0 }, errors = 0,
-                    perfectStart = 45, config = { SpeedMatchingMaxMatchers = 0 } },
+            -- v0.45.0 (owner's boost races 2026-11-26, TASKS §1k, docs/boost-recon-2026-11-26.md): every car league -
+            -- styles MinRacePacingFactorForBoost 2.0 (the game's 0.99: the racer ahead ramjetted in reply to yours 75%
+            -- of the time; at 2.0 none did in 5 races, your boost 4/5 against 2/5) and the catch-up of the bots BEHIND
+            -- you strong (MaxAiCatchupScale 1.6 after 0.5 s - the Rally's; bots ahead never slow down). Junker keeps
+            -- its own slowdown (0.4).
+            riffraff = { pressure = -1, pacing = { MaxAiCatchupScale = 1.6, AiBehindTimeToMaxCatchup = 0.5, MaxAiSlowdownScale = 0.4 }, perfectStart = 45,
+                         config = { SpeedMatchingMaxMatchers = 0 }, styles = { MinRacePacingFactorForBoost = 2.0 } },
+            challenger = { pressure = 0, pacing = { MaxAiCatchupScale = 1.6, AiBehindTimeToMaxCatchup = 0.5, MaxAiSlowdownScale = 1.0, AiSlowdownDuringCrash = 1.0 }, errors = 0,
+                           perfectStart = 45, config = { SpeedMatchingMaxMatchers = 0 }, styles = { MinRacePacingFactorForBoost = 2.0 } },
+            ace = { pressure = 0.5, pacing = { MaxAiCatchupScale = 1.6, AiBehindTimeToMaxCatchup = 0.5, MaxAiSlowdownScale = 1.0, AiSlowdownDuringCrash = 1.0 }, errors = 0,
+                    perfectStart = 45, config = { SpeedMatchingMaxMatchers = 0 }, styles = { MinRacePacingFactorForBoost = 2.0 } },
             -- v0.41 (TASKS §1h-L PL1): the PODRACING steps (config Pods.Steps). LEARNER = Challenger's profile (what the
             -- v0.40 cup raced with at that league); PRO = Ace's (more pressure, the whole field in the fight - BackRows)
             pods = { pressure = 0, pacing = { MaxAiCatchupScale = 1.0, MaxAiSlowdownScale = 1.0, AiSlowdownDuringCrash = 1.0 }, errors = 0,

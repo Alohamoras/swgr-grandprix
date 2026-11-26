@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.45.0 (2026-11-26): boosting feels fast - the field stops matching your ramjet (TASKS §1k)
+- Owner: "the racers in front of you speed up so quickly when you ramjet and afterburner, this is the most annoying
+  part of the game". The recon (docs/boost-recon-2026-11-26.md): the racer ahead went into ramjet within 3 s of yours
+  75% of the time, against 20% otherwise. The owner raced 7 tuning races on The War Fields at CHALLENGER (boost score
+  1-5: baseline 2, then 4, 3-4, 4, 4, 4, 4; docs/boost-fix-test-plan.md "The owner's races").
+- **Every car league:** the bots boost only at a pacing factor of 2.0 (the driving styles' `MinRacePacingFactorForBoost`,
+  the game's 0.99 - none of the racers ahead replied to the owner's ramjet in 5 races at 2.0), and the bots BEHIND you
+  catch up strongly (1.6x after 0.5 s behind, the Rally Cup's; was off) - bots ahead of you still never slow down.
+  Config `AI.Profiles[league].styles` (new: driving-style fields, written on all three styles at launch, put back at
+  the menu like the AI config) and `pacing`.
+- **The field faster:** pilot strength (`AI.Strength`) around +5 parts at CHALLENGER and ACE, +3 at JUNKER, tiers kept
+  (owner): elite +6 / contender +5 / weak +4 / everyone else +5 (JUNKER +4 / +3 / +2 / +3; new `base` for pilots not in
+  a tier). The owner's last race at +5 for everyone: 1st by a whisker with no crashes - "pretty close to a good tune".
+- ACE: its cars are at parts 10, so the bots now stack above 10 - not yet seen in a race (OWNER.md).
+- Pods and the Rally keep their own AI (the Rally already had this catch-up).
+- Tests: test_ai, test_experiment updated (63 / 24 checks).
+
 ## v0.44.0 (2026-11-26): PODRACING PRO at parts 7
 - Owner: "raise PRO to 7 everywhere". At PRO every part of the pod build is at 7 for the race (config
   `Pods.Steps[].parts`; written before the launch like a car league's, the originals in the save, put back at the

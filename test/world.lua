@@ -247,7 +247,7 @@ function W.aiConfig()
   -- the driving styles (MenuRecon 2026-11-12, the boost rules): W.ds.Car / Bike / Skimmer
   W.ds = {}
   for kind, v in pairs({ Car = { 0.4, 3.0, 55 }, Bike = { 0.5, 2.5, 30 }, Skimmer = { 0.4, 3.0, 55 } }) do
-    W.ds[kind] = { MinEnergyForAfterburner = v[1], MinBoostTime = v[2], MaxDegreesOffHeadingForBoost = v[3], MinTimeBetweenBoosts = 1.0 }
+    W.ds[kind] = { MinEnergyForAfterburner = v[1], MinBoostTime = v[2], MaxDegreesOffHeadingForBoost = v[3], MinTimeBetweenBoosts = 1.0, MinRacePacingFactorForBoost = 0.99 }
     M.assets['/Game/Griffin/AI/DS_' .. kind .. '_Base.DS_' .. kind .. '_Base'] = M.new('DS_' .. kind .. '_Base', W.ds[kind], kind .. 'AIDrivingStyleDef')
   end
   W.pacingAssets()

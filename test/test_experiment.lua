@@ -19,13 +19,19 @@ startCup()
 T.check(M.called('LaunchQuickRace') == 1 and W.ds.Car.MinEnergyForAfterburner == 0.4 and not T.logHas('[exp]'), 'no experiment.lua: no [exp], the styles untouched')
 W.race(11); M.tick(5)
 T.check(not T.logHas('[exp]'), 'no experiment.lua: nothing at load')
+-- v0.45 (the owner's boost races): the league's driving-style write, no experiment needed - all three styles
+T.check(W.ds.Car.MinRacePacingFactorForBoost == 2.0 and W.ds.Bike.MinRacePacingFactorForBoost == 2.0 and W.ds.Skimmer.MinRacePacingFactorForBoost == 2.0
+  and T.logHas('[ai] league challenger: driving style DS_Car_Base: MinRacePacingFactorForBoost 0.99 -> 2'),
+  'v0.45: the bots boost only at a pacing factor of 2.0 (all three driving styles), written at launch')
 -- v0.28 pilot strength (config AI.Strength, no experiment): fixed, by tier, at Challenger Elite +2 / contender +1 / weak -1
-T.check(T.logHas('[ai] pilot strength (challenger): ') and T.logHas('Biddy Blas +2 (') and T.logHas('Sen Fira +2 (') and T.logHas('Kestar Bool +2 (')
-  and not T.logHas('Katja Mox +') and not T.logHas('Katja Mox -'), 'v0.28: pilot strength at load - the Elite +2, an unlisted pilot left as you')
-T.check(T.logHas('Biddy Blas +2 (20 upgrades, now 7)'), 'v0.28: Biddy\'s stacking parts 5 -> 7 (the Battery upgrade left alone)')
+-- (v0.45, the owner's boost races: Challenger Elite +6 / contender +5 / weak +4, every other pilot +5)
+T.check(T.logHas('[ai] pilot strength (challenger): ') and T.logHas('Biddy Blas +6 (') and T.logHas('Sen Fira +6 (') and T.logHas('Kestar Bool +6 (')
+  and T.logHas('Katja Mox +5 ('), 'v0.45: pilot strength at load - the Elite +6, an unlisted pilot +5 (base)')
+T.check(T.logHas('Biddy Blas +6 (20 upgrades, now 11)'), 'v0.45: Biddy\'s stacking parts 5 -> 11 (the Battery upgrade left alone)')
 local LO = require('loadout')
-T.check(LO.strengthFor('Biddy Blas', 'riffraff') == 1 and LO.strengthFor('Goli & 02-R0', 'riffraff') == 0 and LO.strengthFor('Malis Vazosk', 'ace') == -3 and LO.strengthFor('Biddy Blas', 'ace') == 0 and LO.strengthFor('Goli & 02-R0', 'ace') == -1
-  and LO.strengthFor('Shade', 'ace') == 0 and LO.strengthFor('Biddy Blas', 'nosuch') == 0, 'v0.28 / v0.34.0: the strength table per league (Riff-Raff: the Elite +1 only; Ace shifted down: Elite 0, contender -1, weak -3)')
+T.check(LO.strengthFor('Biddy Blas', 'riffraff') == 4 and LO.strengthFor('Goli & 02-R0', 'riffraff') == 3 and LO.strengthFor('Malis Vazosk', 'ace') == 4
+  and LO.strengthFor('Biddy Blas', 'ace') == 6 and LO.strengthFor('Shade', 'ace') == 5 and LO.strengthFor('Biddy Blas', 'nosuch') == 0,
+  'v0.45: the strength table per league (Junker +4/+3/+2, base +3; Ace +6/+5/+4, base +5)')
 W.backToMenu(); M.tick(45)
 M.press('BACKSPACE'); M.tick(3); T.clickTitle('YES'); M.tick(3) -- (leave the cup)
 
@@ -45,7 +51,7 @@ T.clickTitle('START'); M.tick(5)
 T.check(T.logHas('[exp] experiment "boost-a" for this race', mark), 'the experiment named at launch')
 T.check(W.ds.Car.MinEnergyForAfterburner == 0.2 and W.ds.Car.MinBoostTime == 1.5 and W.ds.Bike.MaxDegreesOffHeadingForBoost == 45
   and W.ds.Skimmer.MinEnergyForAfterburner == 0.4, 'the car and bike styles written, the skimmer\'s untouched')
-T.check(T.logHas('[exp] driving style DS_Car_Base: MinBoostTime 3 -> 1.5, MinEnergyForAfterburner 0.4 -> 0.2', mark), 'the style writes logged')
+T.check(T.logHas('driving style DS_Car_Base: ', mark) and T.logHas('MinBoostTime 3 -> 1.5', mark) and T.logHas('MinEnergyForAfterburner 0.4 -> 0.2', mark), 'the style writes logged')
 T.check(T.save().aiRestores['/Game/Griffin/AI/DS_Car_Base'].MinEnergyForAfterburner == 0.4, 'the style\'s originals in the save first (a crash is put right)')
 T.check(W.ai.ForcedErrorDuration == 4, 'an extra DA_AIConfig field from the experiment')
 T.check(T.logHas("[exp] event: THE GIANTS' GRAVEYARD instead of", mark) and T.launched() == 'EVT_MAS_P2P_FWD', 'the experiment\'s fixed event launched (' .. tostring(T.launched()) .. ')')

@@ -7,10 +7,6 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - [ ] **A ramjet for pods? (2026-11-26):** every pod comes with `RamjetInstalled = false` (cars: true) - that's why pods
       have no ramjet. I could switch it on for your pod (and the field's) at PRO; it may or may not work from your boost
       button (setting it mid-race didn't make the autopilot ramjet). Want me to try it as an option you test?
-- [ ] **Boosting and the field (TASKS §1k, docs/boost-recon-2026-11-26.md):** round 2 says the reply is real - the
-      racer ahead goes into ramjet within 3 s of yours 75% of the time, against 20% when you aren't ramjetting.
-      Speed matching off doesn't stop it. The remaining lever (bots ramjet less readily) only shows when YOU drive:
-      ~15 min, 3 races on The War Fields (docs/boost-fix-test-plan.md test 3). Say when and I'll set it up.
 - [ ] **Your saves after the away session (2026-11-26 ~00:50):** the Grand Prix save is back exactly as you left it (md5
       a9a708df..., backup in ~/.local/share/swgr-save-backups/away-20261125/). The game itself had rewritten its meta save
       `GriffinSave.6.sav` during the test races (one recon race was the campaign flashback "Memories of Mos Espa"), so that
@@ -109,6 +105,9 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.45.0, the boost fix (2026-11-26):** every car league: the bots stop matching your ramjet, the ones behind you
+      catch up hard, the field +5 parts (JUNKER +3), tiers kept. Check a cup at JUNKER and at ACE (ACE's bots now stack
+      above parts 10 - never seen in a race: anything odd, crashes, absurd speed?). Does a crash cost you a few places?
 - [ ] **v0.44.0, PRO at parts 7 (2026-11-26):** every pod (yours and the field's) at 7 in every part at PRO. Faster
       pods all round: too fast for the tight bits, or right? (10 is the next step up; LEARNER unchanged.)
 - [ ] **v0.43.1 (2026-11-26, installed 14:37):** at the end of a PODRACER cup the result screen should now draw Mos

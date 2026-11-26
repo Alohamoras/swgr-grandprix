@@ -390,18 +390,28 @@ function A.launch(classKey, prof)
   local exp = A.experiment()
   if exp then
     log(('[exp] experiment "%s" for this race'):format(tostring(exp.label or '?')))
+  end
+  -- v0.45 (owner's boost races 2026-11-26, TASKS §1k): the league profile's `styles` (driving-style fields, written on
+  -- all three DS_<kind>_Base assets - e.g. MinRacePacingFactorForBoost 2.0: the bots stop matching your ramjet), an
+  -- experiment's styles[kind] on top. Originals into the save, put back at the menu with the AI config. The styles
+  -- also drive TestAutopilot (tests only).
+  do
+    local base = A.profile(classKey, prof).styles
     for _, kind in ipairs({ 'Car', 'Bike', 'Skimmer' }) do
-      local want = exp.styles and exp.styles[kind]
-      if type(want) == 'table' and next(want) ~= nil then
+      local want = {}
+      if type(base) == 'table' then for k, v in pairs(base) do want[k] = v end end
+      local ex = exp and exp.styles and exp.styles[kind]
+      if type(ex) == 'table' then for k, v in pairs(ex) do want[k] = v end end
+      if next(want) ~= nil then
         local path = A.STYLES:format(kind)
         local o = C.asset(path)
-        if not alive(o) then log('[exp] driving style not found: ' .. path)
+        if not alive(o) then log('[ai] driving style not found: ' .. path)
         else
           local sp = {}
           for fp, v in pairs(want) do if type(v) == 'number' then sp[fp] = { set = v } end end
           local k, parts = writePlan(path, o, sp)
           n = n + k
-          log(('[exp] driving style %s: %s'):format(short(path), table.concat(parts, ', ')))
+          log(('[ai] league %s: driving style %s: %s'):format(who, short(path), table.concat(parts, ', ')))
         end
       end
     end

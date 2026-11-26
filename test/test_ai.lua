@@ -11,7 +11,7 @@ do
   local m = A.merged('challenger', { label = 'rally profile', pacing = { MaxAiCatchupScale = 1.6, AiBehindTimeToMaxCatchup = 0.5 }, perfectStart = 60 }, 'rally profile')
   T.check(m.label == 'rally profile' and m.pressure == 0 and m.errors == 0 and m.perfectStart == 60
     and m.pacing.MaxAiCatchupScale == 1.6 and m.pacing.AiBehindTimeToMaxCatchup == 0.5 and m.pacing.MaxAiSlowdownScale == 1.0 and m.pacing.AiSlowdownDuringCrash == 1.0
-    and m.config.SpeedMatchingMaxMatchers == 0 and cfg.AI.Profiles.challenger.pacing.MaxAiCatchupScale == 1.0 and cfg.AI.Profiles.challenger.label == nil,
+    and m.config.SpeedMatchingMaxMatchers == 0 and cfg.AI.Profiles.challenger.pacing.MaxAiCatchupScale == 1.6 and cfg.AI.Profiles.challenger.label == nil,
     'v0.34.3: A.merged - pacing merged, scalars replaced, the league\'s profile itself untouched')
   local r = cfg.Rally.AI
   T.check(type(r) == 'table' and r.pacing.MaxAiCatchupScale == 1.6 and r.pacing.AiBehindTimeToMaxCatchup == 0.5 and r.label == 'rally profile', 'v0.34.3: config Rally.AI - catch-up x1.6 after 0.5 s')
@@ -168,8 +168,10 @@ local want = { ['riffraff'] = 0.4, ['challenger'] = 1.0, ['ace'] = 1.0 }
 cfg.AI.Profiles = REAL
 for cls, slow in pairs(want) do
   local q = A.plan(cls)
-  T.check(q['DefaultPacingSettings.MaxAiCatchupScale'].set == 1 and math.abs(q['DefaultPacingSettings.MaxAiSlowdownScale'].set - slow) < 1e-9
-    and q.SpeedMatchingMaxMatchers.set == 0, 'v0.21 ' .. cls .. ': catch-up 1.0, slowdown ' .. slow .. ', speed matching off')
+  -- v0.45 (the owner's boost races): the catch-up of the bots behind you 1.6 after 0.5 s in every league
+  T.check(q['DefaultPacingSettings.MaxAiCatchupScale'].set == 1.6 and q['DefaultPacingSettings.AiBehindTimeToMaxCatchup'].set == 0.5
+    and math.abs(q['DefaultPacingSettings.MaxAiSlowdownScale'].set - slow) < 1e-9
+    and q.SpeedMatchingMaxMatchers.set == 0, 'v0.45 ' .. cls .. ': catch-up 1.6 after 0.5 s, slowdown ' .. slow .. ', speed matching off')
   T.check((cls == 'riffraff') == (q.ForcedErrorChance == nil), 'v0.18 ' .. cls .. ': forced errors ' .. (cls == 'riffraff' and 'kept' or 'off'))
   -- v0.21 (owner, 200cc: "i crash a lot and still get ~2nd place"): no easing off while you crash from 100cc up
   local crash = q['DefaultPacingSettings.AiSlowdownDuringCrash']
