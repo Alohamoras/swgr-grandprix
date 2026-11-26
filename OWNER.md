@@ -101,6 +101,10 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Underground - revised leak fix (2026-11-22, SPEED PLAN S2).** S4 showed the opponents' speed comes only from the
   shared template, so it can't be fixed at one level. Proposal: keep the template per league and cancel the leak on YOUR
   car (your power figure = parts total - a league correction, ~24 points in Ace). OK? Then ~8 calibration races.
+- **Best-lap leaderboard (later idea, TASKS §4, 2026-11-26).** When it's time to build it: where should the shared
+  board live? GitHub repo + JSON (recommended: free and visible, but pushers need a GitHub account), a Cloudflare
+  Worker (no account needed, someone has to keep spam out), or a Google Form + Sheet? And should it appear in the
+  Nexus release, or stay just for you and friends?
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)

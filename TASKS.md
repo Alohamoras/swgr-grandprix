@@ -524,6 +524,22 @@ clear. This pass is about being clear.
 - **Ideas for the future (owner, 2026-11-12):** a deeper dive into the tune-up system; a **Grand Tour** (every track
   on a planet, or all 86); a **podracing cup or league** (docs/tracks-by-planet.md "Not in the cups"); **leaning by
   league** for the random cups (Riff-Raff mostly forward layouts, conditions likely at Ace).
+- [ ] **A shared best-lap leaderboard, optional (owner 2026-11-26: "racers could optionally push to for best lap
+      times"; a later idea, not started).** The game mod stays offline: it never touches the network (house rule, ban
+      worry; UE4SS Lua has no sockets, and calling `curl` from the game would freeze it). A small **companion script**
+      (`tools/gp-board`, run while the game is closed) does the network part:
+      `push` reads `save.lua` `records[league][track]` (`time`, `lap`, `at`, `vehicle`) and sends your best laps;
+      `pull` downloads the shared board and writes `Mods/GalacticGrandPrix/leaderboard.txt`, which the mod reads.
+      In game, `lapshow.lua` / `standings.lua` add a world best next to yours: `BEST LAP 0:48.12 · WORLD 0:47.10 (Biddy)`.
+      **Where the data lives** (owner's call, OWNER.md): (1) recommended, a public GitHub repo with `leaderboard.json`,
+      pulled from the raw URL with no account; pushes come in as a pre-filled GitHub issue, and an Action checks each
+      one and merges it into the JSON (free, every change visible, bad entries can be deleted; pushers need a GitHub
+      account); (2) a Cloudflare Worker + KV (no account needed, but someone has to own it and keep spam out);
+      (3) a Google Form feeding a Sheet (almost no code, but pulling is clunky).
+      **Rules:** an entry is keyed by league + track + vehicle class, with the mod version so a later rule change
+      doesn't mix incompatible times; on the honour system (`save.lua` is plain text, no anti-cheat, so never call it
+      "ranked"); a display name picked in the script, never a Steam ID; opt-in, so the mod works the same with no
+      `leaderboard.txt`. Size: the companion script is ~100 lines, plus one line in the mod.
 - **Progress badges** beside HOME (the game's insignias) in place of goal lines.
 - **PHILOSOPHY.md is out of date** (rival cut, leagues): rewrite to match today? (OWNER.md)
 
