@@ -4,6 +4,10 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
+- [ ] **Boosting and the field (TASKS §1k, 2026-11-26 recon, docs/boost-recon-2026-11-26.md):** the racer ahead of
+      you does go into ramjet within ~3 s of yours, but the autopilot can't tell a reply from "everyone boosts on this
+      straight". Pick: A. bots ramjet less readily (a driving-style dial, only bots feel it), B. speed matching off,
+      or C. you race once with each (I'd set up the dev build) and choose by feel. Nothing built yet.
 - [ ] **Pod parts (2026-11-26 recon):** pod parts work - all six at 10 made the same pilot 17.8 s faster on Mos Espa
       (top speed 995 -> 1400 kph), and the whole field got faster with them. Want a faster PRO (parts up), or keep the
       game's own pod build at both steps?

@@ -457,7 +457,12 @@ clear. This pass is about being clear.
       limits - the info lines are padded to 1-2 lines, `padInfo`).
 - [ ] Add the rules to KNOWLEDGE.md / AUTOMATION.md as the house style for all the Galactic Racer mods' text.
 
-## 1k. Boosting should feel fast: the field speeds up when you boost (owner 2026-11-26) - not started
+## 1k. Boosting should feel fast: the field speeds up when you boost (owner 2026-11-26) - recon done, the pick is the owner's
+**Recon 2026-11-26: docs/boost-recon-2026-11-26.md** (5 held-pace races, boostrecon.lua + tools/boostan.py). The racer
+ahead went into ramjet within 3 s of yours every time it wasn't already in one (5 of 5, ~+100 kph) - but the autopilot
+only ramjets where everyone does, so "it replied" can't be told from "same straight" yet. `AllowAIToContinuePlayerBoost`
+off changed nothing. Candidates for the owner: A. the driving styles' `MinRacePacingFactorForBoost` (game 0.99) up -
+bots ramjet less readily, felt only by the human; B. the speed matching zone off; C. one owner race with each.
 Owner: "explore why the racers in front of you speed up so quickly when you ramjet and afterburner, this is the most
 annoying part of the game, it should feel faster to boost and the field just adapts automatically without boosting."
 A recon first (owner away, test save), then a fix the owner picks. Leads, from docs/ai-tuning-research-2026-11-11.md
