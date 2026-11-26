@@ -310,6 +310,13 @@ before an Ace cup; each is worth heat; each cup keeps the best heat you won gold
 - [x] Do the AI fire their abilities, Shields included (R7)? **Answered 2026-11-25 (v0.32.1 in game)**: with the selection cycled every 4 s each bot fired 2-4 kinds a race (Vents, Surges, Repairs, Mines, Shockwaves, Disruptors); Shields only where the game's acid / corroding rules say. Before: slot 0 only.
 
 ## 3. Known gaps (small fixes)
+- [ ] **Menu ink = the tab pill's orange (owner 2026-11-25: "the orange text in the menus, it should be the same
+      orange shade as the top bar in the menu uses i.e. when Grand Prix is highlighted").** v0.36.4's config
+      `Ink = { 0.78, 0.33, 0.06 }` is a burnt orange of our own; the selected-tab pill is terracotta, about
+      `{ 0.78, 0.31, 0.23 }` by eye (KNOWLEDGE.md, menu accent row). Read the pill's real colour (its brush /
+      `ColorAndOpacity` on the selected tab widget, or sample a screenshot with GRAND PRIX highlighted), set `Ink` to it
+      exactly and `Ink2` to a darker shade of the same hue (two weights still). Check readability on the pale pages
+      and over the droid / Steam box; note the exact value in KNOWLEDGE.md.
 - [x] A DNF skipped the results panel; the last race kept the game's own CONTINUE. Both fixed in v0.28.1 (in-game
       check: OWNER.md).
 
