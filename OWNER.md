@@ -67,11 +67,12 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
-- [ ] **BikeSkinSpike v0.1.0 (2026-11-25, new project ~/Projects/swgr-bikeskin: a bike's look on a landspeeder) -
-      installed, loads at the next game start:** in an offline race **on a landspeeder**, after the countdown press
-      **F7** (a display bike rides on your car, your car's look hidden; **F11** undoes it): is there a bike, where does it
-      sit, is your pilot floating? Then another race, **F6** (the bike preset put straight on your car, stays for the
-      race): bike, mess, nothing, or crash? Tell Claude; the log has the details.
+- [ ] **BikeSkinSpike v0.2.0 (2026-11-25, ~/Projects/swgr-bikeskin: a bike's look on a landspeeder) - installed, loads
+      at the next game start.** (v0.1: F6 worked - the bike on your landspeeder; rider's legs wrong, no lean.) In an
+      offline **landspeeder** race: **F6** (bike look), then **F7** repeatedly - the rider's pose cycles Race -> Scout ->
+      Chopper -> the car's: which sits right? Then **F9** once and **restart the race**, F6 again: does it lean in
+      corners? If not, F9 again (adds a roll-righting force), restart, F6. Does the force change the handling? Every
+      landspeeder leans with F9, bots too.
 - [x] **BikeDrift v0.2.0 (2026-11-25):** "better, for what it is I think it's neat" - parked as is, still installed
       (off: `Mods/BikeDrift/enabled.txt` -> `disabled.txt`). Was: **BikeDrift v0.1.0 (2026-11-25, new mod, repo ~/Projects/swgr-bikedrift) - installed 2026-11-25 18:31, loads at the next game start:**
       Race any bike event and corner hard with X (the energy
