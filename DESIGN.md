@@ -115,13 +115,17 @@ changes; a save from before keeps its four. The title race and the boss race use
   page: the poster opens the cup's start screen.
 - You race your pilot's own podracer (Shade's when your pilot has none) against the 6 pod racers and Kestar Bool: an
   8-pod grid. Points as usual. Recon and launch: docs/podracing-recon-2026-11-25.md, pods.lua.
-- **Difficulty steps** (owner: two, both open from the start): a STEP tile on the start screen cycles LEARNER / PRO, kept
-  in the save (`podStep`). Each step is its own league key in the save (`pods`, `podspro`), so each keeps its own
+- **Difficulty steps** (owner: two, both open from the start): v0.42 a PODRACING page (the HOME poster opens it) shows
+  LEARNER and PRO as league posters, each opening the cup's start screen (v0.41 had a STEP tile there); the step picked
+  last is kept in the save (`podStep`). Each step is its own league key in the save (`pods`, `podspro`), so each keeps its own
   trophy, lap records and perfect cup, and has its own AI profile (`AI.Profiles.pods` = Challenger's, `podspro` = Ace's).
   The poster shows one medal per step and no title star.
 - LEARNER = the v0.40 cup: the game's own pod build and kits. PRO today = the harder AI profile only; your abilities and
   the field's kits come once the recon (TASKS PL0) proves pods take them (PL3 / PL4). No tune-up or ability tiles show
   on the pods start screen until then.
+- **Your pod** (v0.42): the start screen's PILOT tile cycles the five pilots with a pod in the game data (Shade MythP3,
+  Goli and Fola Hexing, Sebulba Nesodon, Kestar Northropi - his locked until you beat him), saved apart from your car
+  pilot (`podRacer`). Racing as Sebulba drops his pod-racer twin from the field (`Pods.Twins`).
 - Not part of the car leagues: it opens nothing, needs nothing, and is not counted in their medals or goals. The v0.40
   results raced at the car leagues moved to LEARNER at the first v0.41 load (best finish, fastest time and lap per track).
 

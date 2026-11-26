@@ -102,6 +102,10 @@ up next session. Newest first in each section. (Started 2026-11-11; Claude keeps
 - **Reboot the PC when convenient** - GPU faults (kernel Xid) still happen in races; no reboot since 2026-11-12. **Rebooted 2026-11-22** (the NVIDIA driver update needed it); before that: **Owner away all week (2026-11-15): no reboot until then** - tests run on the un-rebooted PC (same as the 2026-11-15 baseline).
 
 ## Playtests (only a real race can tell)
+- [ ] **v0.42.0, the PODRACING page and your pod (2026-11-26, not yet seen in game):** the PODRACING poster opens a page with
+      LEARNER and PRO as posters; the start screen's PILOT tile cycles the five pilots with a pod (Shade, Goli, Fola,
+      Sebulba; Kestar once beaten) and the vehicle tile names the pod. Check: does Goli / Fola / Sebulba really fly their
+      own pod (the recon only raced Shade and Kestar)? B goes start screen -> PODRACING -> HOME.
 - [ ] **v0.41.0, PODRACING as its own league (2026-11-26, installed 11:26, not yet seen in game; save backup save.backup-20261126-112649.lua):** HOME has a PODRACING poster
       after ACE (a medal per step); it opens the PODRACER CUP's start screen, where the DIFFICULTY tile cycles LEARNER / PRO.
       The car leagues' cups pages lose the PODRACER CUP tile. Check: your v0.40 pod trophy shows on the LEARNER medal;

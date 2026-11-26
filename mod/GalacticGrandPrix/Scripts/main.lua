@@ -316,8 +316,7 @@ SCREENS.home = function()
     end
   end
   -- v0.41 (owner 2026-11-26, TASKS §1h-L PL1): the PODRACING league - one poster after the car leagues, always open;
-  -- a medal per step (config Pods.Steps), no title star; it opens the PODRACER CUP's start screen (no cups page), at
-  -- the step picked last
+  -- a medal per step (config Pods.Steps), no title star. v0.42 (PL2b): it opens the PODRACING page (SCREENS.pods)
   local podCup = K.cup('pods')
   if K.podsOn() and podCup and #K.podSteps() > 0 then
     local L = (cfg.Pods or {}).League or {}
@@ -329,7 +328,7 @@ SCREENS.home = function()
     end
     items[#items + 1] = { title = L.name or 'PODRACING', art = ART.cup(podCup), pips = pips, classKey = K.curPodStep(), pods = true,
       desc = L.tagline, info = padInfo(L.rules or '', 2),
-      act = function() return toStart('cup', K.curPodStep(), podCup.key) end }
+      act = function() S.focusMem.pods = nil; return go('pods') end } -- (v0.42: its own league page)
   end
   -- (v0.24: no GARAGE tile - the garage is the start screen of every race, after its cup; config StartScreen = false
   -- brings the v0.23 tile back)
@@ -425,10 +424,36 @@ local function cupInfo(cup, head)
   return table.concat(out, '\n')
 end
 
+-- v0.42 (owner 2026-11-26, TASKS §1h-L PL2b; asked for a PODRACING tab at the top, which would touch the Party box):
+-- the PODRACING page - its steps (config Pods.Steps) as league posters, each with its medal, crown and rules line;
+-- one opens the PODRACER CUP's start screen at that step. B: HOME.
+SCREENS.pods = function()
+  local L = (cfg.Pods or {}).League or {}
+  local cup = K.cup('pods')
+  local items, focus = {}, nil
+  for _, st in ipairs(K.podSteps()) do
+    local b = cup and K.best(st.key, cup.key)
+    local perfect = cup and K.perfect and K.perfect(st.key, cup.key)
+    local pl = perfectLine(cup, perfect, b == 1)
+    items[#items + 1] = { title = st.name, art = ART.cup(cup), desc = st.tagline,
+      icon = (b and b <= 3) and ART.medal(b) or nil, iconColor = (b and b <= 3) and ART.medalColor(b) or nil,
+      corner = perfect and { { perfectIcon(), ART.medalColor(1) } } or nil,
+      info = padInfo(pl and ((st.line or '') .. '\n' .. pl) or (st.line or ''), 2),
+      act = function()
+        K.data.podStep = st.key; K.save()
+        return toStart('cup', st.key, cup.key)
+      end }
+    if st.key == K.curPodStep() then focus = #items end
+  end
+  local rows = cfg.HomeRows and { { w = cfg.HomeRows[1].w, h = cfg.HomeRows[1].h, n = #items } } or nil
+  return { key = 'pods', title = L.name or 'PODRACING', lines = { msgLine() }, items = items, info = true, infoStrip = true,
+    focus = focus, rows = rows, center = rows ~= nil }
+end
+
 SCREENS.cups = function()
   -- v0.41: the PODRACING league has no cups page - every way to it (B on its start screen, CONTINUE after its cup)
-  -- lands on HOME
-  if K.podStep(S.class) then S.screen = 'home'; return SCREENS.home() end
+  -- lands on its own page (v0.42: SCREENS.pods; v0.41 HOME)
+  if K.podStep(S.class) then S.screen = 'pods'; return SCREENS.pods() end
   local cls = K.league(S.class) or K.leagues()[1]
   local items = {}
   -- v0.33 (owner: "use the planets from the end of cup screen"): the planet's round picture on the tile's left (config
@@ -565,7 +590,28 @@ SCREENS.garage = function()
   -- info line with how to unlock him. Selecting a pilot sets the vehicle back to theirs and the four abilities
   -- back to that pilot's signature kit; both can be changed afterwards (PR #1, v0.31). The pilot tile carries the
   -- racer's face: config Portraits, the game's own MainIcon texture.
-  if RC and RC.current then
+  local podCup = S.start and S.start.cup and (K.cup(S.start.cup) or {}).pods
+  if podCup and RC and RC.get then
+    -- v0.42 (owner 2026-11-26, TASKS §1h-L PL2b): the PILOT tile of the pods start screen - the five pilots with a pod
+    -- (config Pods.Pilots), saved apart from your car pilot (podRacer); Kestar's locked until you beat him. Pod words.
+    local P = require('pods')
+    local key = P.chosen()
+    local r = RC.get(key) or {}
+    local face = portrait(key)
+    local lockLine = ''
+    for _, p in ipairs(P.pilots()) do
+      if P.locked(p.key) then
+        local o = RC.get(p.key) or {}
+        lockLine = lockLine .. ('  %s\'s %s opens once you beat him in a Galactic Cup final.'):format(o.name or p.key, p.pod or 'pod')
+      end
+    end
+    items[#items + 1] = { title = (r.name or 'PILOT'):upper(), span = 2, kind = 'racer',
+      art = (key == 'Antagonist') and ART.SHOWDOWN or 'T_UI_FE_Tile_01',
+      glyph = face and { face, { 1, 1, 1 }, side = 'left' } or nil,
+      tag = { 'PILOT', { 0.62, 0.85, 1 } },
+      info = ('%s flies the %s.'):format(r.name or '?', P.podName(key) or 'podracer') .. lockLine,
+      act = function() P.cycle(1); S.message = nil; return true end }
+  elseif RC and RC.current then
     local r = RC.current() or {}
     local locks = {}
     for _, o in ipairs(RC.list()) do
@@ -590,35 +636,17 @@ SCREENS.garage = function()
         return true
       end }
   end
-  local podCup = S.start and S.start.cup and (K.cup(S.start.cup) or {}).pods
   if podCup then
-    -- v0.40 (TASKS §1h P6): the PODRACER CUP races pods whatever is picked here: the tile says so (no cycling)
+    -- v0.40 (TASKS §1h P6): the PODRACER CUP races pods whatever is picked here: the tile says so (no cycling);
+    -- v0.42: titled by the pod the PILOT tile's pilot flies
     local P = require('pods')
-    local who = RC and RC.get and RC.get(P.racerKey(RC.current().key))
-    items[#items + 1] = { title = 'PODRACER', span = 2, kind = 'vehicle',
-      art = '/Game/Griffin/UI/Library/Textures/Content/Arcade/T_UI_Arcade_Bgl_Plane_Tile', tag = { 'VEHICLE', U.GOLD },
-      info = ('This cup is raced in podracers. You race as %s in their own podracer.'):format(who and who.name or 'Shade'),
+    local key = P.chosen()
+    local who = RC and RC.get and RC.get(key)
+    local pod = P.podName(key)
+    items[#items + 1] = { title = pod and pod:upper() or 'PODRACER', span = 2, kind = 'vehicle',
+      art = '/Game/Griffin/UI/Library/Textures/Content/Arcade/T_UI_Arcade_Bgl_Plane_Tile', tag = { 'PODRACER', U.GOLD },
+      info = ('%s\'s podracer. Every pilot on this grid flies their own.'):format(who and who.name or 'Shade'),
       act = function() return true end }
-    -- v0.41 (owner 2026-11-26, TASKS §1h-L PL2): the STEP tile - Select cycles the difficulty (config Pods.Steps), kept
-    -- in the save (podStep); the cup's draw stays. Each step keeps its own trophy and lap records.
-    local stp = K.podStep(st.class) or K.podStep(K.curPodStep())
-    if stp and #K.podSteps() > 1 then
-      local b = K.best(stp.key, st.cup)
-      items[#items + 1] = { title = stp.step, span = 2, kind = 'step', art = ART.cup(K.cup(st.cup)),
-        icon = (b and b <= 3) and ART.medal(b) or nil, iconColor = (b and b <= 3) and ART.medalColor(b) or nil,
-        tag = { 'DIFFICULTY', { 0.62, 0.85, 1 } },
-        info = stp.line or stp.step,
-        act = function()
-          local list = K.podSteps()
-          local nxt = list[(stp.index or 1) % #list + 1]
-          st.class = nxt.key
-          S.class = nxt.key
-          K.data.podStep = nxt.key
-          K.save()
-          S.message = nil
-          return true
-        end }
-    end
   elseif RC and RC.cycleVehicle then
     local veh = myVehicle()
     items[#items + 1] = { title = (veh.name or 'VEHICLE'):upper(), span = 2, kind = 'vehicle',
@@ -903,7 +931,7 @@ end
 ---------------------------------------------------------------------------------------------------------------------
 -- input
 
-local BACK = { cups = 'home', garage = (cfg.StartScreen == false) and 'home' or 'cups', standings = 'cups', titleResult = 'cups' }
+local BACK = { cups = 'home', pods = 'home', garage = (cfg.StartScreen == false) and 'home' or 'cups', standings = 'cups', titleResult = 'cups' }
 -- v0.9: B on the standings while the cup runs (races 1-3) - one confirm: YES forfeits and goes HOME, NO = the standings
 -- (v0.21: also straight from B on the results screen's panel, chain.lua CH.leaveAsk)
 local function leaveConfirm()

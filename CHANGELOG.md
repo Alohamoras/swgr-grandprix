@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.42.0 (2026-11-26): the PODRACING page, fly your pilot's pod (TASKS §1h-L PL2b, the owner's v0.41 notes)
+- Owner: a PODRACING tab at the top? It would touch the Party box, so (agreed) the HOME poster now opens a PODRACING page
+  with LEARNER and PRO as league posters (medal, crown, tagline, rules line); each opens the PODRACER CUP's start screen
+  at that step. B: start screen -> the PODRACING page -> HOME; CONTINUE after the cup -> the PODRACING page. The v0.41
+  DIFFICULTY tile is gone.
+- Owner: "why don't we get to pilot the podracing vehicle for the pilot we choose?" Only five pilots have a pod in the
+  game data (Shade MythP3, Goli and Fola Hexing, Sebulba Nesodon, Kestar Northropi); any other pilot silently raced as
+  Shade. The pods start screen's PILOT tile now cycles those five, saved apart from your car pilot (`podRacer`; before a
+  pick: your car pilot if they have a pod, else Shade). Kestar's pod stays locked until you beat him (owner). The
+  vehicle tile is titled by the pod (MYTHP3, HEXING, ...).
+- Owner: the pilot text didn't fit pods ("signature kit", "Kestar races only for himself..."): the pods PILOT tile says
+  "Shade flies the MythP3." and "Kestar Bool's Northropi opens once you beat him in a Galactic Cup final."; no kit words.
+- Fix: racing as Sebulba put him on the grid twice (his pod-racer twin stayed in the field): config `Pods.Twins`.
+- Config: `Pods.Pilots`, `Pods.Twins`, a `tagline` per step. Tests: test_pods 46 checks.
+- Not yet seen in game.
+
 ## v0.41.0 (2026-11-26): PODRACING, a league of its own (TASKS §1h-L PL1-PL2)
 - Owner, after racing v0.40: "does it make more sense to just have podracing league with one cup? ... would be nice to
   turn up the difficulty". A PODRACING poster on HOME after ACE opens the PODRACER CUP's start screen directly (no cups

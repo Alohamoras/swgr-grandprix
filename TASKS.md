@@ -377,6 +377,20 @@ the thrust dial / shorter grace if PRO turns out too easy); both open from the s
 - [x] **PL2. The difficulty step.** (v0.41.0: the STEP tile, LEARNER / PRO, saved `podStep`; per-step records by league key; AI.Profiles.pods = Challenger's, podspro = Ace's) On the pods start screen a STEP tile (Learner / Pro / Champion, cycles like the vehicle
       tile, the info line says what changes in plain words); saved per player (`podStep`); each step keeps its own trophy,
       record and perfect cup (`best.pods[cup..step]` or a step key - decide in PL1); the cup result says the step.
+- [x] **PL2b. The owner's v0.41 notes (2026-11-26: "i like your suggestions, write up some tasks and do it") - built v0.42.0 (not yet seen in game):**
+  - [x] **A league page, not a step tile** (owner asked about a PODRACING tab at the top; it would touch the Party box, so
+        agreed instead): the HOME poster opens a PODRACING page with LEARNER and PRO as league posters (medal, crown,
+        rules line), each opening the cup's start screen. B: start screen -> the pods page -> HOME; CONTINUE after the
+        cup -> the pods page. The DIFFICULTY tile goes. (If a top tab is wanted later, this page moves to it as is.)
+  - [x] **Fly the pod of the pilot you pick** (owner: "why don't we get to pilot the podracing vehicle for the pilot we
+        choose?"): only five pilots have a pod in the game data (Shade MythP3, Goli and Fola Hexing, Sebulba Nesodon,
+        Kestar Northropi); everyone else silently became Shade. On the pods start screen the PILOT tile cycles only those
+        five, saved apart from your car pilot (`podRacer`), the info line names the pod. Kestar's stays locked until you
+        beat him (owner). (Unproven, for the recon PL0: the six pod-only racers as your pilot.)
+  - [x] **Pod words on the pods start screen** (owner: "signature kit ... doesn't apply to pod racing", the Kestar line):
+        no signature-kit message, the lock line about his pod.
+  - [x] **Bug: racing as Sebulba put him on the grid twice** (his `DA_PlaneRacer_Nesodon` twin stayed in the field):
+        config `Pods.Twins`, the twin dropped from the field.
 - [ ] **PL3. Your abilities on the pod** (PRO; v0.41.0 hid the ability / tune-up tiles on the pods start screen - they come back at PRO with this step): race.lua `preparePod` writes your picks onto the pod build the way
       `applyAbilities` does for cars (originals in `abilityRestores`), filtered to the families PL0 proves (`AB.classPaths`
       + a family filter); the start screen's ability tiles shown only at Pro / Champion (hidden at Learner - today they show

@@ -117,6 +117,8 @@ local function fill(d)
   d.aiRowRestores = type(d.aiRowRestores) == 'table' and d.aiRowRestores or {}
   -- v0.41: the PODRACING step picked last (config Pods.Steps key; nil = the first)
   d.podStep = type(d.podStep) == 'string' and d.podStep or nil
+  -- v0.42: the pod pilot picked on the pods start screen (config Pods.Pilots key; nil = your car pilot's pod or Shade's)
+  d.podRacer = type(d.podRacer) == 'string' and d.podRacer or nil
   K.movePods(d)
   return d
 end
@@ -141,7 +143,7 @@ end
 -- is copied to save.backup-reset-<date>.lua first. Returns the backup's name. (main.lua asks twice.) v0.26: the same
 -- list is what an old save keeps at its clean start (K.cleanStart).
 K.KEEP_ON_RESET = { 'version', 'racer', 'picks', 'mods', 'restores', 'abilityRestores', 'modRestores', 'aiRestores',
-  'racerRestore', 'titleRestore', 'gridRestore', 'aiCoverRestores', 'aiRowRestores', 'paintRestore', 'podStep', 'podsMoved' }
+  'racerRestore', 'titleRestore', 'gridRestore', 'aiCoverRestores', 'aiRowRestores', 'paintRestore', 'podStep', 'podsMoved', 'podRacer' }
 local function keepGarage(was)
   local d = {}
   for _, k in ipairs(K.KEEP_ON_RESET) do d[k] = was[k] end

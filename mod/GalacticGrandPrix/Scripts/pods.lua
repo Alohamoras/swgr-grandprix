@@ -23,17 +23,62 @@ local RACERS = '/Game/Griffin/Narrative/CharacterDefs/Racers/'
 local CHAINS = { 'IntroCinematic', 'PreRaceCinematicChain', 'SideBettingCinematicChain', 'IgnitionCinematicChain',
   'EventCompleteCinematicChain', 'EventFailedCinematicChain', 'ResultsCinematicChain' }
 
--- the pilot you race as: yours when they own a pod, else the first owner (Shade)
+-- v0.42 (TASKS §1h-L PL2b): the pilots with a pod (config Pods.Pilots: { key, pod }), in the PILOT tile's order
+function P.pilots()
+  local list = conf().Pilots
+  if type(list) == 'table' and #list > 0 then return list end
+  local out = {}
+  for k in pairs(conf().Owners or {}) do out[#out + 1] = { key = k } end
+  table.sort(out, function(a, b) return a.key < b.key end)
+  return out
+end
+function P.pilot(key)
+  for _, p in ipairs(P.pilots()) do if p.key == key then return p end end
+  return nil
+end
+local function locked(key)
+  local okR, RC = pcall(require, 'racer')
+  return okR and RC.locked and RC.locked(key) or false
+end
+P.locked = locked
+-- the pilot you race as: `current` when they own a pod (and are not locked: Kestar until beaten), else Shade
 function P.racerKey(current)
-  local owners = conf().Owners or {}
-  if current and owners[current] then return current end
+  if current and P.pilot(current) and not locked(current) then return current end
   return conf().Fallback or 'DarkEnigma'
 end
+-- the pod pilot picked on the pods start screen (saved apart from your car pilot: podRacer); before any pick your car
+-- pilot when they own a pod, else Shade
+function P.chosen()
+  local k = K.data and K.data.podRacer
+  if k and P.pilot(k) and not locked(k) then return k end
+  local okR, RC = pcall(require, 'racer')
+  local cur = okR and RC.current and (RC.current() or {}).key or nil
+  return P.racerKey(cur)
+end
+-- Select on the PILOT tile: the next pilot with a pod (a locked one skipped), saved -> the new key
+function P.cycle(dir)
+  local list, cur = P.pilots(), P.chosen()
+  local at = 1
+  for i, p in ipairs(list) do if p.key == cur then at = i end end
+  for step = 1, #list do
+    local p = list[((at - 1 + step * (dir or 1)) % #list) + 1]
+    if not locked(p.key) then
+      K.data.podRacer = p.key
+      K.save()
+      return p.key
+    end
+  end
+  return cur
+end
+-- the pod's name for a pilot ('MythP3'), or nil
+function P.podName(key) local p = P.pilot(key); return p and p.pod or nil end
 -- the field's racer def paths (Pods.Field: 'DA_PlaneRacer_Cabbage', ..., 'DA_Racer_Antagonist'), minus the one you race as
+-- (v0.42: and their pod-racer twin, config Pods.Twins - racing as Sebulba put him on the grid twice)
 function P.fieldPaths(youKey)
   local out = {}
+  local twin = (conf().Twins or {})[tostring(youKey)]
   for _, n in ipairs(conf().Field or {}) do
-    if n ~= 'DA_Racer_' .. tostring(youKey) then out[#out + 1] = RACERS .. n end
+    if n ~= 'DA_Racer_' .. tostring(youKey) and n ~= twin then out[#out + 1] = RACERS .. n end
   end
   return out
 end

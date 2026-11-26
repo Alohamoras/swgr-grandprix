@@ -292,7 +292,7 @@ local function preparePod(ev, classKey, e)
   local okI, ai = pcall(function() AI.launch(classKey, nil); return AI.begin(classKey, nil) end)
   if not okI then log('[ai] ' .. tostring(ai)); ai = nil end
   if RC.pending() then pcall(RC.restore, 'before launch') end
-  local you = PODS.racerKey(RC.current().key)
+  local you = PODS.chosen() -- (v0.42: the pod pilot picked on the pods start screen)
   local gmv, why = PODS.prepare(e, you)
   if not gmv then log('[pods] ' .. tostring(why)); pcall(PODS.restore, 'not launched'); return nil, 'The pod race could not be set up' end
   local okR, errR = pcall(RC.begin, you)

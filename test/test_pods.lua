@@ -59,34 +59,51 @@ T.check(homeItem() == nil, 'Pods.On = false: no poster')
 cfg.Pods.On = true
 T.clickTitle('JUNKER'); M.tick(3)
 T.check(not T.titles():find('PODRACER', 1, true), 'the car cups page: no PODRACER CUP tile (' .. T.titles() .. ')')
--- the poster opens the cup's start screen at the first step (no cups page)
+-- v0.42 (TASKS §1h-L PL2b): the poster opens the PODRACING page - LEARNER and PRO as league posters
 H.S.screen = 'home'
 cfg.StartScreen = true -- (the start screen: off in the older tests)
-local res = homeItem().act()
-T.check(H.S.screen == 'garage' and H.S.start.cup == 'pods' and H.S.start.class == 'pods' and #H.S.start.draw == 4,
-  'the poster -> the PODRACER CUP start screen at LEARNER, 4 races drawn')
+homeItem().act()
+local pg = H.SCREENS[H.S.screen]()
+local pt = {}
+for i, it in ipairs(pg.items) do pt[i] = it.title end
+T.check(H.S.screen == 'pods' and table.concat(pt, '|') == 'LEARNER|PRO' and pg.title == 'PODRACING', 'the poster -> the PODRACING page: LEARNER | PRO (' .. table.concat(pt, '|') .. ')')
+T.check(pg.items[2].info:find('PRO.', 1, true) == 1 and pg.items[1].desc == 'The pace to learn the tracks', 'each step: its tagline and rules line')
+-- PRO opens the cup's start screen at PRO
+pg.items[2].act()
+T.check(H.S.screen == 'garage' and H.S.start.cup == 'pods' and H.S.start.class == 'podspro' and #H.S.start.draw == 4 and K.data.podStep == 'podspro',
+  'PRO -> the PODRACER CUP start screen at PRO, 4 races drawn, the step saved')
 local gi = H.SCREENS.garage()
-local vt, step, kinds = nil, nil, {}
+local vt, pil, kinds = nil, nil, {}
 for _, it in ipairs(gi.items) do
   kinds[#kinds + 1] = tostring(it.kind or it.title)
   if it.kind == 'vehicle' then vt = it end
-  if it.kind == 'step' then step = it end
+  if it.kind == 'racer' then pil = it end
 end
-T.check(vt and vt.title == 'PODRACER' and vt.info:find('You race as Shade', 1, true), 'the pods start screen: PODRACER, as Shade (' .. tostring(vt and vt.info) .. ')')
-T.check(table.concat(kinds, ',') == 'racer,vehicle,step,START', 'no tune-up or ability tiles on the pods start screen (' .. table.concat(kinds, ',') .. ')')
-T.check(gi.lines[1][1] == 'PODRACING LEARNER' and step.title == 'LEARNER', 'the header and the STEP tile: LEARNER')
-step.act()
-T.check(H.S.start.class == 'podspro' and K.data.podStep == 'podspro' and #H.S.start.draw == 4, 'Select: PRO, saved, the draw kept')
-for _, it in ipairs(H.SCREENS.garage().items) do if it.kind == 'step' then step = it end end
-T.check(step.title == 'PRO', 'the STEP tile reads PRO')
-step.act()
-T.check(H.S.start.class == 'pods' and K.data.podStep == 'pods', 'Select again: back to LEARNER')
--- B on the pods start screen (the garage's back is the cups page) lands on HOME
+T.check(table.concat(kinds, ',') == 'racer,vehicle,START', 'the pods start screen: PILOT, PODRACER, START - no step, tune-up or ability tiles (' .. table.concat(kinds, ',') .. ')')
+T.check(gi.lines[1][1] == 'PODRACING PRO', 'the header: PODRACING PRO')
+-- the PILOT tile: Shade (the car pilot here is Shade) flies the MythP3; no signature-kit words; Kestar's pod locked
+T.check(pil.title == 'SHADE' and pil.info:find('Shade flies the MythP3.', 1, true) == 1 and not pil.info:find('signature', 1, true)
+  and pil.info:find('Kestar Bool\'s Northropi opens once you beat him in a Galactic Cup final.', 1, true),
+  'the PILOT tile: Shade flies the MythP3, Kestar\'s pod locked (' .. pil.info .. ')')
+T.check(vt.title == 'MYTHP3' and vt.info:find('Shade\'s podracer', 1, true) == 1, 'the PODRACER tile: MYTHP3 (' .. vt.title .. ')')
+local carRacer = K.data.racer
+local seen = {}
+for _ = 1, 5 do
+  pil.act()
+  for _, it in ipairs(H.SCREENS.garage().items) do if it.kind == 'racer' then pil = it end end
+  seen[#seen + 1] = pil.title
+end
+T.check(table.concat(seen, ',') == 'GOLI & 02-R0,FOLA KANJEN,SEBULBA,SHADE,GOLI & 02-R0', 'Select cycles the pod pilots, Kestar skipped while locked (' .. table.concat(seen, ',') .. ')')
+T.check(K.data.podRacer == 'Ghost' and K.data.racer == carRacer, 'the pod pilot saved apart (podRacer), your car pilot untouched')
+local P0 = require('pods')
+T.check(P0.chosen() == 'Ghost' and P0.racerKey('Rager') == 'DarkEnigma', 'the pod pilot raced: Goli; a pilot with no pod -> Shade')
+-- B on the pods start screen (the garage's back is the cups page) lands on the PODRACING page; its B is HOME
 H.S.screen = 'cups'
 local sc = H.SCREENS.cups()
-T.check(sc.key == 'home' and H.S.screen == 'home', 'the cups page of a pod step is HOME')
+T.check(sc.key == 'pods' and H.S.screen == 'pods', 'the cups page of a pod step is the PODRACING page')
 T.check(K.leagueName('podspro') == 'PODRACING PRO' and K.league('pods').pods == true, 'the step names: PODRACING PRO')
 T.check(PR.nextUnlock(K.data, 'pods') == nil, 'a pod step opens nothing (no "Galactic Cup" goal)')
+K.data.podRacer = nil
 H.S.start = nil
 H.S.screen = 'home'
 cfg.StartScreen = false
@@ -155,9 +172,18 @@ T.check(T.logHas('[pods] put back'), 'the put-back line')
 local RC = require('racer')
 K.data.racer = 'Rager'
 local P = require('pods')
-T.check(P.racerKey('Rager') == 'DarkEnigma' and P.racerKey('Antagonist') == 'Antagonist', 'no pod of your own: Shade\'s; Kestar keeps his')
+T.check(P.racerKey('Rager') == 'DarkEnigma' and P.racerKey('Mentor') == 'Mentor', 'no pod of your own: Shade\'s; Sebulba keeps his')
 local fp = P.fieldPaths('Antagonist')
 T.check(#fp == 6 and not table.concat(fp, ','):find('Antagonist', 1, true), 'racing as Kestar: he is not also in the field')
+-- v0.42: racing as Sebulba drops his pod-racer twin from the field (he was on the grid twice)
+local fs = table.concat(P.fieldPaths('Mentor'), ',')
+T.check(#P.fieldPaths('Mentor') == 6 and not fs:find('Nesodon', 1, true) and fs:find('Antagonist', 1, true), 'racing as Sebulba: his twin not in the field (' .. #P.fieldPaths('Mentor') .. ')')
+-- Kestar beaten: his pod opens
+K.data.boss = { beaten = true }
+T.check(P.racerKey('Antagonist') == 'Antagonist' and P.cycle(1) ~= nil, 'Kestar beaten: he flies his Northropi')
+K.data.boss = nil
+T.check(P.racerKey('Antagonist') == 'DarkEnigma', 'Kestar not beaten: Shade')
+
 -- 7. v0.41: the v0.40 results at the car leagues move to LEARNER (best finish, fastest time / lap per track), once
 local P1, P2 = cfg.Pools.pods[1].path, cfg.Pools.pods[3].path
 local old = { best = { riffraff = { pods = 3, jakku = 1 }, ace = { pods = 1 } }, perfect = { ace = { pods = true } },

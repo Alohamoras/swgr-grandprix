@@ -284,6 +284,13 @@ return {
                   'DA_PlaneRacer_Onion', 'DA_PlaneRacer_Pepper', 'DA_Racer_Antagonist' },
         Owners = { DarkEnigma = true, Antagonist = true, Ghost = true, Nomad = true, Mentor = true },
         Fallback = 'DarkEnigma',
+        -- v0.42.0 (owner 2026-11-26: "why don't we get to pilot the podracing vehicle for the pilot we choose?"; TASKS
+        -- §1h-L PL2b): the pilots you can fly a pod as, in the PILOT tile's order on the pods start screen, with their
+        -- pod (only these five have one in the game data). Kestar Bool's stays locked until you beat him (owner), as
+        -- his car does. Twins = a pilot whose pod-racer twin is in Field: dropped from the field when you race as them.
+        Pilots = { { key = 'DarkEnigma', pod = 'MythP3' }, { key = 'Ghost', pod = 'Hexing' }, { key = 'Nomad', pod = 'Hexing' },
+                   { key = 'Mentor', pod = 'Nesodon' }, { key = 'Antagonist', pod = 'Northropi' } },
+        Twins = { Mentor = 'DA_PlaneRacer_Nesodon' },
         -- v0.41.0 (owner 2026-11-26, TASKS §1h-L PL1-PL2): PODRACING is a league of its own - one poster on HOME after
         -- the car leagues, one cup (the PODRACER CUP), no cups page: the poster opens the cup's start screen, where a STEP
         -- tile picks the difficulty. Each step is its own league key in the save (best / records / perfect / standings),
@@ -291,13 +298,13 @@ return {
         -- never change it. The owner chose two steps (2026-11-26: "Two"), both open from the start. Results from the
         -- v0.40 cup at the car leagues move to the first step at the first load (gp.lua fill).
         League = { name = 'PODRACING', tagline = 'Two engines, a cockpit and nerve',
-          rules = 'Your pilot\'s podracer against Sebulba, the pod racers and Kestar Bool. One cup, four races. Pick LEARNER or PRO on the start screen.' },
+          rules = 'Your pilot\'s podracer against Sebulba, the pod racers and Kestar Bool. One cup, four races, at LEARNER or PRO.' },
         Steps = {
-          { key = 'pods', name = 'LEARNER',
+          { key = 'pods', name = 'LEARNER', tagline = 'The pace to learn the tracks',
             line = 'LEARNER. The game\'s own podracers, no abilities on the grid. The pace to learn the tracks.' },
           -- (PRO's abilities, yours and the field's, come after the recon, TASKS §1h-L PL0 / PL3 / PL4: until then PRO
           -- is the harder AI profile only)
-          { key = 'podspro', name = 'PRO',
+          { key = 'podspro', name = 'PRO', tagline = 'The field gives nothing away',
             line = 'PRO. The field races harder and gives nothing away. The pods at full pace.' },
         } },
     TimeToBeat = { On = true, Route = 'viewport', Size = 44, Y = 0.38, Color = { 1, 1, 1 }, LapLine = false },
