@@ -154,7 +154,7 @@ end
 local function relockRacer()
   local okR, RC = pcall(require, 'racer')
   if okR and K.data.racer and RC.locked and RC.locked(K.data.racer) then
-    local fell = (' Racer %s is locked again: racing as %s.'):format(RC.displayName(K.data.racer), RC.list()[1].name)
+    local fell = (' %s is locked again. Racing as %s.'):format(RC.displayName(K.data.racer), RC.list()[1].name)
     K.data.racer = RC.list()[1].key
     return fell
   end
@@ -565,8 +565,8 @@ function K.nearRecord(out)
   if not (within and d and d >= 0 and d <= within) then return nil end
   local s = ('%.1f'):format(d)
   if s == '0.0' then s = ('%.2f'):format(d) end
-  if s == '0.00' then return 'LEVEL WITH YOUR RECORD' end
-  return s .. ' S OFF YOUR RECORD'
+  if s == '0.00' then return 'EQUAL TO YOUR RECORD' end
+  return s .. ' S SHORT OF YOUR RECORD'
 end
 
 -- v0.38.0 (owner 2026-11-25, TASKS §1g-16): the lap record's near miss, "0.4 S OFF YOUR LAP RECORD" (config
@@ -577,8 +577,8 @@ function K.nearLap(out)
   if not (within and d and d >= 0 and d <= within) then return nil end
   local s = ('%.1f'):format(d)
   if s == '0.0' then s = ('%.2f'):format(d) end
-  if s == '0.00' then return 'LEVEL WITH YOUR LAP RECORD' end
-  return s .. ' S OFF YOUR LAP RECORD'
+  if s == '0.00' then return 'EQUAL TO YOUR BEST LAP' end
+  return s .. ' S SHORT OF YOUR BEST LAP'
 end
 
 -- the record entry for a race's track and class, updated from this race: extra = { time, lap } (seconds; the time

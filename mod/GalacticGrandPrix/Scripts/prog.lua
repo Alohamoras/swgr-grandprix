@@ -46,7 +46,9 @@ end
 local WORDS = { 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine' }
 local function numWord(n) return WORDS[n] or tostring(n) end
 P.numWord = numWord
-local function shortCount(gold, of, name) return ('%s %s %s open it'):format(numWord(of), name, gold and 'golds' or 'trophies') end
+local function shortCount(gold, of, name) return ('Obtain %s %s %s to unlock.'):format(numWord(of), name, gold and 'gold' or 'trophies') end
+-- the cup tile's line is narrower than a HOME poster's (test_tiletext): numerals, no 'Obtain'
+local function shortCountTile(gold, of, name) return ('%d %s %s to unlock'):format(of, name, gold and 'gold' or 'trophies') end
 local function titleCase(s) return (tostring(s):lower():gsub("(%a)([%w']*)", function(a, b) return a:upper() .. b end)) end
 
 -- is a class open? -> open, why (the text for a locked tile's info: what opens it), short (the same for the tile)
@@ -65,23 +67,23 @@ function P.classOpen(data, classKey)
   local gold = conf().Unlock == 'gold'
   local n, of = count(data, prev.key, gold and 1 or 3)
   if n >= of then return true end
-  return false, ('%s in every %s planet cup opens it. %d of %d so far.'):format(gold and 'Gold' or 'A trophy', prev.name, n, of),
-    shortCount(gold, of, prev.name)
+  return false, ('Obtain %s in every %s planet cup to unlock. %d of %d so far.'):format(gold and 'gold' or 'a trophy', prev.name, n, of),
+    shortCount(gold, of, prev.name), shortCountTile(gold, of, prev.name)
 end
 
 -- is a cup open at a class? (the class must be open too) -> open, why, short
 function P.cupOpen(data, classKey, cupKey)
   if not P.on() then return true end
-  local okC, whyC, shortC = P.classOpen(data, classKey)
-  if not okC then return false, whyC, shortC end
+  local okC, whyC, shortC, tileC = P.classOpen(data, classKey)
+  if not okC then return false, whyC, tileC or shortC end -- (the cup tile takes the short form)
   local cup = cupByKey(cupKey)
   if not (cup and cup.final) then return true end
   if raced(data, classKey, cupKey) then return true end
   local gold = conf().Unlock == 'gold'
   local n, of = count(data, classKey, gold and 1 or 3)
   if n >= of then return true end
-  return false, ('%s in every %s planet cup opens it. %d of %d so far.'):format(gold and 'Gold' or 'A trophy', className(classKey), n, of),
-    shortCount(gold, of, className(classKey))
+  return false, ('Obtain %s in every %s planet cup to unlock. %d of %d so far.'):format(gold and 'gold' or 'a trophy', className(classKey), n, of),
+    shortCountTile(gold, of, className(classKey))
 end
 
 -- the finale cup (the Galactic Cup), or nil
@@ -104,8 +106,8 @@ function P.titleOpen(data, classKey)
   local gold = conf().Unlock == 'gold'
   local b = bestOf(data, classKey, fin.key)
   if b and b <= (gold and 1 or 3) then return true end
-  return false, ('%s in the %s at %s opens it.'):format(gold and 'Gold' or 'A trophy', fin.name, className(classKey)),
-    ('%s %s %s opens it'):format(gold and 'Gold in the' or 'A', titleCase(fin.name), gold and '' or 'trophy'):gsub('%s+', ' ')
+  return false, (gold and ('Obtain gold in the %s to unlock.'):format(titleCase(fin.name)) or ('Obtain the %s trophy to unlock.'):format(titleCase(fin.name))),
+    (gold and ('Obtain gold in the %s to unlock.'):format(titleCase(fin.name)) or ('Obtain the %s trophy to unlock.'):format(titleCase(fin.name)))
 end
 
 -- everything open, as a set of names ('CHALLENGER', 'GALACTIC CUP at RIFF-RAFF', 'TITLE RACE at RIFF-RAFF') - compared before /

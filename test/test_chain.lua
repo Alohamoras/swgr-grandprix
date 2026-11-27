@@ -296,7 +296,7 @@ local feP = rawget(W.fe, '__props')
 local origLaunch = feP.LaunchQuickRace
 feP.LaunchQuickRace = function() error('refused by the test') end
 M.tick(MENU_TICKS)
-T.check(T.logHas('[chain] via the menu: the launch of race 2 failed (Launch failed - see grandprix.log) - the cover off, the standings page', mark),
+T.check(T.logHas('[chain] via the menu: the launch of race 2 failed (The race could not start. See grandprix.log.) - the cover off, the standings page', mark),
   'D: the failed auto-launch logged with why')
 T.check(T.logHas('[cover] off', mark) and T.logHas('[menu] standings', mark), 'D: the cover off, today\'s standings page')
 T.check(T.titles() == 'NEXT RACE' and T.badges() == 'RACE 2 / 4' and T.save().run.race == 2, 'D: NEXT RACE, RACE 2 / 4, the cup at race 2')

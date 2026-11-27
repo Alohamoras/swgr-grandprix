@@ -26,7 +26,7 @@ local function infoOf(i)
   end
   return info or ''
 end
-T.check(infoOf(T.ntiles() - 1):find('Opens at CHALLENGER.', 1, true) ~= nil and infoOf(T.ntiles()):find('Opens at ACE.', 1, true) ~= nil,
+T.check(infoOf(T.ntiles() - 1):find('Unlocks at CHALLENGER.', 1, true) ~= nil and infoOf(T.ntiles()):find('Unlocks at ACE.', 1, true) ~= nil,
   'the slots say which league opens them, in the info line')
 T.check(T.logHas('[tune-ups] dropped from the save (not tune-ups): Conditions_FreezeProtection, Cooled_GainWhileSlipstream'), 'the old keys logged')
 local n = T.ntiles()

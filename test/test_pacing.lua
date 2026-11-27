@@ -80,7 +80,7 @@ local function checkState(label)
   local next1, tiles = oneStepSet(data), lockedTiles()
   local goals = {}
   for _, x in ipairs(locked) do
-    if next1[x] and tiles[x] and (tiles[x]:find(' open it$') or tiles[x]:find(' opens it$')) then goals[#goals + 1] = x end
+    if next1[x] and tiles[x] and tiles[x]:find(' to unlock%.?$') then goals[#goals + 1] = x end
   end
   if #goals == 0 then problems[#problems + 1] = label .. ': no visible locked thing one step away' end
   -- every single cup result from here

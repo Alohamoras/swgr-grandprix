@@ -229,8 +229,8 @@ local function timedStakes(st, left)
   if not mine or #others == 0 then return nil end
   local other = others[1]
   local d = other.time - mine.time
-  if math.abs(d) < 0.05 then return ('LEVEL WITH %s, %s'):format(upper(other.key), stagesLeft(left)) end
-  if d > 0 then return ('LEADING BY %s OVER %s, %s'):format(secs(d), upper(other.key), stagesLeft(left)) end
+  if math.abs(d) < 0.05 then return ('TIED WITH %s, %s'):format(upper(other.key), stagesLeft(left)) end
+  if d > 0 then return ('%s AHEAD OF %s, %s'):format(secs(d), upper(other.key), stagesLeft(left)) end
   return ('%s BEHIND %s, %s'):format(secs(d), upper(other.key), stagesLeft(left))
 end
 function CU.stakes(st, points)
@@ -251,37 +251,37 @@ function CU.stakes(st, points)
     local second = others[1]
     local lead = mine - second.pts
     -- a DNF in every race left and the second winning them all still leaves you ahead
-    if lead > top * left then return ('GOLD IS YOURS: %s CLEAR, %s'):format(pts(lead), racesLeft(left)) end
-    local head = lead == 0 and ('LEVEL ON POINTS WITH %s'):format(upper(second.key))
-      or ('LEADING BY %d OVER %s'):format(lead, upper(second.key))
+    if lead > top * left then return ('GOLD SECURED: %s AHEAD, %s'):format(pts(lead), racesLeft(left)) end
+    local head = lead == 0 and ('TIED WITH %s'):format(upper(second.key))
+      or ('%s AHEAD OF %s'):format(pts(lead), upper(second.key))
     if left == 1 then
       -- finishing p-th (p >= 2) gives you points[p] while anyone else can win the race (top); strictly more is
       -- needed, since a racer level with you who finished ahead in the last race ranks ahead
       local p
       for i = 2, #points do if mine + points[i] > second.pts + top then p = i end end
       if p and p >= #others + 1 then return head .. ': ANY FINISH WINS THE CUP' end
-      if p then return ('%s: %s OR BETTER WINS THE CUP'):format(head, ord(p)) end
+      if p then return ('%s: FINISH %s OR BETTER TO WIN THE CUP'):format(head, ord(p)) end
       -- winning: you +top, anyone else at most points[2], and you take any tie
-      return head .. ': A WIN TAKES THE CUP'
+      return head .. ': WIN THE RACE TO WIN THE CUP'
     end
     return ('%s, %s'):format(head, racesLeft(left))
   end
   local leader = others[1]
   if reach(others, mine, 1, left, points) ~= 'no' then
     local d = leader.pts - mine
-    if d == 0 then return ('LEVEL ON POINTS WITH %s, %s'):format(upper(leader.key), racesLeft(left)) end
+    if d == 0 then return ('TIED WITH %s, %s'):format(upper(leader.key), racesLeft(left)) end
     return ('%s BEHIND %s, %s'):format(pts(d), upper(leader.key), racesLeft(left))
   end
   for t = 2, 3 do
     local r = reach(others, mine, t, left, points)
     if r ~= 'no' then
-      local out = CU.TROPHIES[t - 1] .. ' IS OUT OF REACH, '
-      if r == 'yes' then return out .. CU.TROPHIES[t] .. ' IS NOT' end
+      local out = CU.TROPHIES[t - 1] .. ' OUT OF REACH. '
+      if r == 'yes' then return out .. CU.TROPHIES[t] .. ' STILL POSSIBLE' end
       -- (you are below rank t here: at rank t the finishing order above always works)
       return out .. ('%s FROM %s'):format(pts(math.max(0, others[t].pts - mine)), CU.TROPHIES[t])
     end
   end
-  return 'THE TROPHIES ARE OUT OF REACH'
+  return 'NO TROPHY POSSIBLE'
 end
 
 -- after the last race: how close you came to the next trophy colour up (rank 2 -> gold, 3 -> silver, 4th or lower ->

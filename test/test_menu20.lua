@@ -54,9 +54,9 @@ T.check(spec.hero.lines[1][1] == 'GOLD TROPHY' and spec.hero.lines[1][2] >= 44, 
 T.check(hasText(spec.hero.lines, 'PERFECT CUP'), 'PERFECT CUP as a badge (' .. joined(spec.hero.lines) .. ')')
 T.check(spec.table and #spec.table.rows == 3 and spec.table.rows[1].cells[2] == 'YOU' and spec.table.rows[1].cells[1] == '1st',
   'the final top 3 only (' .. (spec.table and #spec.table.rows or 0) .. ' rows)')
-T.check(hasText(spec.after, 'THE GALACTIC CUP AT JUNKER OPENS'), 'what\'s next: what it unlocked (' .. joined(spec.after) .. ')')
+T.check(hasText(spec.after, 'THE GALACTIC CUP AT JUNKER UNLOCKED'), 'what\'s next: what it unlocked (' .. joined(spec.after) .. ')')
 T.check(not findText(spec.after, 'Next:'), 'one what\'s-next line only')
-T.check(not findText(spec.after, 'Last race') and findText(spec.after, 'NEW RECORD') ~= nil, 'v0.22: no Last race line, its record kept (' .. joined(spec.after) .. ')')
+T.check(not findText(spec.after, 'Last race') and findText(spec.after, 'NEW TRACK RECORD') ~= nil, 'v0.22: no Last race line, its record kept (' .. joined(spec.after) .. ')')
 local cont = spec.items[1]
 T.check(cont.title == 'CONTINUE' and cont.desc == nil and S.focusMem.cups == 5,
   'v0.21: CONTINUE lands on the cup just raced, the Sentinel Cup (' .. tostring(cont.desc) .. ', ' .. tostring(S.focusMem.cups) .. ')')
@@ -132,7 +132,7 @@ for _, it in ipairs(home.items) do infos[#infos + 1] = tostring(it.info) end
 T.check(not table.concat(infos, '|'):find('division', 1, true) and not table.concat(infos, '|'):find('League proper', 1, true),
   'v0.21: no class blurbs in HOME\'s info lines')
 -- (v0.36.1, owner: the league's mechanics in the focused poster's info line)
-T.check(home.items[1].info:find('Afterburner and ramjet wound to ten on a scrapyard chassis. Cornering, resilience and drift stock, the battery barely holding. One ability, no tune-ups.', 1, true) ~= nil,
+T.check(home.items[1].info:find('Afterburner and ramjet wound to ten on a scrapyard chassis. Cornering, resilience and drift are stock. One ability, no tune-ups.', 1, true) ~= nil,
   'v0.36.1: an open league\'s info line says its rules (' .. home.items[1].info .. ')')
 local measures = {}
 for _, it in ipairs(home.items) do

@@ -119,7 +119,7 @@ end
 local function cupArgs(run) return run.class, run.vehicle, run.picks or picksFor(run.class), run.mods or modsFor() end
 local function launchNext()
   local run, ev = K.run(), K.nextRace()
-  if not (run and ev) then S.message = 'No cup running'; return true end
+  if not (run and ev) then S.message = 'No cup in progress.'; return true end
   local ok, why = R.launch(ev, cupArgs(run))
   if ok then S.message = nil; return 'launched' end
   S.message = why
@@ -257,18 +257,18 @@ local function titleLine(c)
   local st = TI.status(c.key)
   local boss = TI.bossName and TI.bossName() or 'Kestar Bool'
   if type(st) == 'table' and st.won then
-    return ('Gold star: you are the %s champion. You beat %s in the Galactic Cup final.'):format(c.name:upper(), boss)
+    return ('You are the %s champion. You beat %s in the Galactic Cup final.'):format(c.name:upper(), boss)
   end
   if not (TI.finaleOn and TI.finaleOn()) then return 'Gold star: win this league\'s title to light it.' end
   local gate = ((cfg.Boss or {}).Gate) or 'trophy'
   local how = gate == 'always' and 'Finish the Galactic Cup'
     or (gate == 'gold' and 'Win the Galactic Cup' or 'Finish the Galactic Cup in the top 3')
-  return ('Gold star: the league title. %s, then beat %s in a one-on-one race to win it.'):format(how, boss)
+  return ('%s, then beat %s one on one to win the league title.'):format(how, boss)
 end
 local function perfectLine(cup, perfect, won)
   if cfg.StarLines == false then return nil end
-  if perfect then return 'Crown: a perfect cup. You won every race.' end
-  if won then return 'Win every race of this cup in one go to earn the crown.' end
+  if perfect then return 'Perfect cup. You won every race.' end
+  if won then return 'Win every race in this cup to earn the crown.' end
   return nil
 end
 -- the perfect-cup mark (config PerfectIcon; 'star' = the old gold star)
@@ -342,12 +342,12 @@ SCREENS.home = function()
   items[#items + 1] = { title = 'RESET PROGRESS', art = 'T_UI_FE_Tile_02',
     info = padInfo('', 1),
     act = function()
-      S.confirm = { text = 'Wipe the record books? Every trophy, lap record and title goes.', back = 'home', noFirst = true,
+      S.confirm = { text = 'This will erase all progress.', back = 'home', noFirst = true,
         yes = function()
-          return { text = 'There is no way back. Wipe them?', back = 'home', noFirst = true,
+          return { text = 'Are you sure?', back = 'home', noFirst = true,
             yes = function()
               local b = K.reset()
-              S.message = b and 'A clean slate.' or 'The save could not be backed up. Nothing was wiped.'
+              S.message = b and 'Progress erased.' or 'The save could not be backed up. Nothing was erased.'
             end }
         end }
       return go('confirm')
@@ -400,17 +400,17 @@ local function cupInfo(cup, head)
     local n = (tonumber(cup.planets) or 4) - (cup.last and 1 or 0)
     lines = {}
     if planetLine(p) then lines[#lines + 1] = planetLine(p) end
-    lines[#lines + 1] = ('%s planets, then %s.'):format(PR.numWord and PR.numWord(n) or tostring(n), p and p.name or 'the finals')
-    if TI.finaleOn() then lines[#lines + 1] = TI.finaleText() end -- (v0.33: Kestar's 1 v 1 with a trophy)
+    lines[#lines + 1] = ('Race %s different planets then %s for the title.'):format(PR.numWord and PR.numWord(n) or tostring(n), p and p.name or 'the finals')
+    -- (v0.46: the owner cut the finale line here; TI.finaleText stays for the tests / the legacy flow)
   elseif cup.pods then
     -- v0.40 (worded to the §1j rules)
     local n = tonumber(cfg.CupRaces) or 4
-    lines = { ('%d races on the podracing tracks of Mos Espa, Mawhonic and Holdfast\'s Folly, against Sebulba, the other pod racers and Kestar Bool. You race in your pilot\'s podracer, or Shade\'s if your pilot has none.'):format(n) }
+    lines = { ('%d races on the podracing tracks of Mos Espa, Mawhonic and Holdfast\'s Folly, against Sebulba, the other pod racers and Kestar Bool.'):format(n) }
   elseif cup.rally then
     -- v0.30
     local R = cfg.Rally or {}
-    lines = { ('%s stages, %s racers, the clock decides. Weather and nightfall are unknown until you arrive.'):format(
-      PR.numWord and PR.numWord(#K.bases(cup)) or tostring(#K.bases(cup)), (PR.numWord and PR.numWord(tonumber(R.Grid) or 4) or tostring(R.Grid or 4)):lower()) }
+    lines = { ('%s tracks. %s racers. Total time determines the winner. Unknown weather effects.'):format(
+      PR.numWord and PR.numWord(#K.bases(cup)) or tostring(#K.bases(cup)), PR.numWord and PR.numWord(tonumber(R.Grid) or 4) or tostring(R.Grid or 4)) }
     if cfg.CupTracks then for _, l in ipairs(chunks(K.bases(cup), 4)) do lines[#lines + 1] = l end end
   else
     local first = K.pool(cup.key)[1]
@@ -616,7 +616,7 @@ SCREENS.garage = function()
     for _, p in ipairs(P.pilots()) do
       if P.locked(p.key) then
         local o = RC.get(p.key) or {}
-        lockLine = lockLine .. ('  %s\'s %s opens once you beat him in a Galactic Cup final.'):format(o.name or p.key, p.pod or 'pod')
+        lockLine = lockLine .. ('  %s\'s %s unlocks once you beat him in a Galactic Cup final.'):format(o.name or p.key, p.pod or 'pod')
       end
     end
     items[#items + 1] = { title = (r.name or 'PILOT'):upper(), span = 2, kind = 'racer',
@@ -636,7 +636,7 @@ SCREENS.garage = function()
       art = (r.key == 'Antagonist') and ART.SHOWDOWN or 'T_UI_FE_Tile_01',
       glyph = face and { face, { 1, 1, 1 }, side = 'left' } or nil,
       tag = { 'PILOT', { 0.62, 0.85, 1 } },
-      info = ('%s. %s.'):format(r.name or '?', r.line or '') .. table.concat(locks),
+      info = ((r.line or '') ~= '' and ('%s. %s.'):format(r.name or '?', r.line) or ((r.name or '?') .. '.')) .. table.concat(locks),
       act = function()
         local prev = (RC.current() or {}).key
         local n = RC.cycle(1)
@@ -645,7 +645,7 @@ SCREENS.garage = function()
           K.data.picks = AB.normalize(AB.racerPicks(n.key), levelNow())
           K.data.picksRacer = n.key
           K.save()
-          S.message = ('%s. %s, signature kit.'):format(n.name, RC.vehicleText(n.key))
+          S.message = ('%s. %s.'):format(n.name, RC.vehicleText(n.key))
         end
         return true
       end }
@@ -659,13 +659,13 @@ SCREENS.garage = function()
     local pod = P.podName(key)
     items[#items + 1] = { title = pod and pod:upper() or 'PODRACER', span = 2, kind = 'vehicle',
       art = '/Game/Griffin/UI/Library/Textures/Content/Arcade/T_UI_Arcade_Bgl_Plane_Tile', tag = { 'PODRACER', U.GOLD },
-      info = ('%s\'s podracer. Every pilot on this grid flies their own.'):format(who and who.name or 'Shade'),
+      info = ('%s\'s podracer. Every pilot flies their own.'):format(who and who.name or 'Shade'),
       act = function() return true end }
   elseif RC and RC.cycleVehicle then
     local veh = myVehicle()
     items[#items + 1] = { title = (veh.name or 'VEHICLE'):upper(), span = 2, kind = 'vehicle',
       art = ART.vehicle(veh.key), tag = { 'VEHICLE', U.GOLD },
-      info = 'Landspeeder, speeder bike or skim speeder, in the pilot\'s colours.',
+      info = 'Landspeeder, speeder bike or skim speeder.',
       act = function()
         RC.cycleVehicle(1)
         S.message = nil   -- (v0.35.0: the tile changed; no message)
@@ -694,18 +694,18 @@ SCREENS.garage = function()
       -- v0.35.0 (docs/menu-text-review-2026-11-25.md §3.2): the tile is titled by the league that opens it
       items[#items + 1] = { title = tostring(where):upper(), art = ART.MODS, kind = 'tuneup', disabled = true,
         tag = { 'TUNE-UP', U.GOLD }, corner = lockCorner(),
-        info = ('Opens at %s.'):format(where),
+        info = ('Unlocks at %s.'):format(where),
         act = function() return nil end }
     else
     items[#items + 1] = { title = e and e.name:upper() or 'NONE', art = e and (ART.modGroup and ART.modGroup(e.group)) or ART.MODS, kind = 'tuneup',
       glyph = e and { ART.tuneUp(e.key), { 1, 1, 1 }, 120 } or nil, tag = { 'TUNE-UP', U.GOLD },
-      info = (e and (e.name .. '. ' .. (e.line or e.desc or '') .. '.') or 'Nothing fitted.')
-        .. ((i > open) and ('  Opens at %s.'):format(fromClass[i] or '?') or ''),
+      info = (e and (e.name .. '. ' .. (e.line or e.desc or '') .. '.') or 'No tune-up fitted.')
+        .. ((i > open) and ('  Unlocks at %s.'):format(fromClass[i] or '?') or ''),
       act = function()
         if MS.cycle then list[i] = MS.cycle(list, i, 1) end
         K.data.mods = MS.normalize(list); K.save()
         local ne = MS.effect(K.data.mods[i])
-        S.message = ne and nil or 'Slot emptied'   -- (v0.35.0: the tile says what was fitted)
+        S.message = ne and nil or 'Tune-up removed.'   -- (v0.35.0: the tile says what was fitted)
         return true
       end }
     end
@@ -756,7 +756,7 @@ end
 SCREENS.offline = function()
   return {
     key = 'offline', title = 'GRAND PRIX',
-    lines = { { 'The Grand Prix runs offline.', 26, U.WHITE }, { S.blocked or '', 20, U.GOLD },
+    lines = { { 'The Grand Prix is offline only.', 26, U.WHITE }, { S.blocked or '', 20, U.GOLD },
       { 'Leave your party or the queue, then come back.', 18 } },
     items = { { title = 'BACK', art = 'T_UI_FE_Tile_03', act = function() return 'close' end } },
   }
@@ -836,7 +836,7 @@ SCREENS.wait = function()
   local cup = run and K.cup(run.cup)
   return {
     key = 'wait', title = cup and cup.name or 'GRAND PRIX',
-    lines = { { 'Next race loading', 22 } },
+    lines = { { 'Loading next race', 22 } },
     items = { { title = 'NEXT RACE', art = (cup and run and ART.cup(cup, run.vehicle)) or 'T_UI_FE_Tile_Campaign_Hero',
       badge = run and ('%s %d / %d'):format(run.timed and 'STAGE' or 'RACE', run.race, run.races) or nil, desc = nxt and (nxt.shown or nxt.title) or nil,
       act = function() return nil end } },
@@ -949,8 +949,8 @@ local BACK = { cups = 'home', pods = 'home', garage = (cfg.StartScreen == false)
 -- v0.9: B on the standings while the cup runs (races 1-3) - one confirm: YES forfeits and goes HOME, NO = the standings
 -- (v0.21: also straight from B on the results screen's panel, chain.lua CH.leaveAsk)
 local function leaveConfirm()
-  return { text = 'Leave the cup? The points and the trophy go with it.', back = 'standings',
-    yes = function() K.forfeit(); S.message = 'Cup abandoned' end, after = 'home' }
+  return { text = 'Leave the cup? This cup progress will be lost.', back = 'standings',
+    yes = function() K.forfeit(); S.message = 'Cup progress lost.' end, after = 'home' }
 end
 local function leaveCup()
   S.confirm = leaveConfirm()

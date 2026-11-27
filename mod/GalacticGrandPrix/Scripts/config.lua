@@ -242,15 +242,15 @@ return {
         { key = 'riffraff', name = 'JUNKER', parts = { [1] = 10, [3] = 10, [4] = 2 }, mods = 0, abilities = 1, open = true,
           tagline = 'Scrapyard junk with too much engine',
           brief = 'One ability. No tune-ups.',
-          rules = 'Afterburner and ramjet wound to ten on a scrapyard chassis. Cornering, resilience and drift stock, the battery barely holding. One ability, no tune-ups.' },
+          rules = 'Afterburner and ramjet wound to ten on a scrapyard chassis. Cornering, resilience and drift are stock. One ability, no tune-ups.' },
         { key = 'challenger', name = 'CHALLENGER', parts = 7, mods = 1, abilities = 2, open = true,
           tagline = 'Proper rigs, and pilots out to make a name',
           brief = 'Two abilities. One tune-up.',
-          rules = 'Every part at seven, and every rig on the grid the same. Two abilities, one tune-up.' },
+          rules = 'Every part is level seven. Two abilities, one tune-up.' },
         { key = 'ace', name = 'ACE', parts = 10, mods = 2, abilities = 3,
-          tagline = 'Every credit on the rig. The galaxy\'s finest',
+          tagline = 'The finest vehicles money can buy.',
           brief = 'Three abilities. Two tune-ups.',
-          rules = 'Every part at ten, every credit spent. Three abilities, two tune-ups, and the field fires everything it carries.' },
+          rules = 'Every part is level 10. Three abilities, two tune-ups. Enemies are more aggressive. Learn to brake.' },
     },
 
     -- Points by place in each race (1st first); a racer who doesn't finish scores 0
@@ -298,10 +298,10 @@ return {
         -- never change it. The owner chose two steps (2026-11-26: "Two"), both open from the start. Results from the
         -- v0.40 cup at the car leagues move to the first step at the first load (gp.lua fill).
         League = { name = 'PODRACING', tagline = 'Two engines, a cockpit and nerve',
-          rules = 'Your pilot\'s podracer against Sebulba, the pod racers and Kestar Bool. One cup, four races, at LEARNER or PRO.' },
+          rules = 'One cup of four races.' },
         Steps = {
           { key = 'pods', name = 'LEARNER', tagline = 'The pace to learn the tracks',
-            line = 'LEARNER. The game\'s own podracers, no abilities on the grid. The pace to learn the tracks.' },
+            line = 'No abilities. Learn the tracks.' },
           -- v0.43.0 (owner 2026-11-26: "i thought the pro podracing was supposed to add abilities"; the recon, TASKS
           -- §1h-L PL0, docs/podracing-recon-2026-11-25.md "PL0"): abilities = the level of your four picks and the
           -- field's kits (as a league's; the pod build has no ability slots, so yours go onto your pod's race copy at
@@ -311,7 +311,7 @@ return {
           -- build: cornering 0, afterburner 2, resilience 1, ramjet 0, battery 0, drift 0 (LEARNER keeps it). Never
           -- below the game's own: parts 0 broke TestAutopilot's ability in the recon.
           { key = 'podspro', name = 'PRO', tagline = 'Abilities on every pod', abilities = 3, kits = true, parts = 7,
-            line = 'PRO. Every pod tuned to seven. Your four abilities on your pod, and every pod racer carries a kit of their own.' },
+            line = 'Every part is level seven. Abilities on every pod.' },
         } },
     TimeToBeat = { On = true, Route = 'viewport', Size = 44, Y = 0.38, Color = { 1, 1, 1 }, LapLine = false },
 
@@ -658,7 +658,7 @@ return {
     -- compares it once per racer at launch and logs a mismatch). Shade drives the base landspeeder (owner). unlockBoss
     -- (v0.21) = locked until you beat the final boss (Boss above: Kestar Bool himself); until then the garage skips him.
     Racers = {
-        { key = 'DarkEnigma',          name = 'Shade',          vehicle = 'car',     line = 'No family name, no sponsor, just the rig' },
+        { key = 'DarkEnigma',          name = 'Shade',          vehicle = 'car' },
         { key = 'Protege',             name = 'Ary Quill',      vehicle = 'car',     line = 'Audacious heir to the Quill racing legacy' },
         { key = 'Mercenary',           name = 'Malis Vazosk',   vehicle = 'bike',    line = 'Racing and mercenary work are one and the same' },
         { key = 'QuietStrength',       name = 'Nik Skandaro',   vehicle = 'car',     line = 'The Bools\' former enforcer, racing for solace' },
@@ -670,7 +670,7 @@ return {
         { key = 'Thrall',              name = 'Sen Fira',       vehicle = 'bike',    line = 'Races for Kestar until her debt to the Bools is repaid' },
         { key = 'Rager',               name = 'Biddy Blas',     vehicle = 'bike',    line = 'Hot-headed; his last shot at a face on a cereal box' },
         { key = 'Star',                name = 'Lyren Shok',     vehicle = 'skimmer', line = 'Celebrity waveskimmer racer after a new start and fans' },
-        { key = 'Mentor',              name = 'Sebulba',        vehicle = 'skimmer', line = 'The legend himself, never on the League\'s grid' },
+        { key = 'Mentor',              name = 'Sebulba',        vehicle = 'skimmer', line = 'The legend himself' },
         { key = 'Antagonist',          name = 'Kestar Bool',    vehicle = 'car',     line = 'Galactic League Champion, proud son of the Bool family', unlockBoss = true },
     },
 
@@ -804,7 +804,7 @@ return {
           mods = { 'Ramjet_TempCanDropWhileBoosting', 'Ramjet_CooledWhenCritical' } },
         { key = 'ramjet_rider', name = 'RAMJET RIDER', group = 'Ramjet', line = 'No Ramjet heat in the air. 90% resets, no blow-up',
           mods = { 'Ramjet_NoHeatWhileAirborne', 'Ramjet_CriticalResetChance' } },
-        { key = 'afterburner', name = 'AFTERBURNER', group = 'Afterburner', line = 'No fuel used in the air. a full tank on landing',
+        { key = 'afterburner', name = 'AFTERBURNER', group = 'Afterburner', line = 'No fuel used in the air. A full tank on landing',
           mods = { 'Afterburner_BetterWhileAirborne', 'Afterburner_RefillOnLanding' } },
         { key = 'brawler', name = 'BRAWLER', group = 'Takedowns', line = 'Takedowns ready the Ramjet and give 4 Energy',
           mods = { 'Takedown_ResetHeat', 'Energy_GainOnTakedown' } },
@@ -814,7 +814,7 @@ return {
           mods = { 'Slipstream_gainSurging', 'Cooled_GainWhileSlipstream' } },
         { key = 'firebug', name = 'FIREBUG', group = 'Cooling & heat', line = 'Burning makes 90% less heat and Overcharges you',
           mods = { 'Burning_GainOvercharged', 'Conditions_DecreaseBurningPotency' } },
-        { key = 'engineer', name = 'ENGINEER', group = 'Crashes & recovery', line = 'Malfunctions end 200% sooner. a perfect fix restores a Crash',
+        { key = 'engineer', name = 'ENGINEER', group = 'Crashes & recovery', line = 'Malfunctions end 200% sooner. A perfect fix restores a crash',
           mods = { 'SysMalf_ShorterMalfunction', 'CritMalf_PerfectRecoversCrash' } },
         { key = 'tenacious', name = 'TENACIOUS', group = 'Status protection', line = 'Corroded crashes you 200% slower and never chokes you',
           mods = { 'Conditions_CorrodeResistance', 'Corrode_NoLongerChokes' } },

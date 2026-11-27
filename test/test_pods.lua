@@ -53,7 +53,7 @@ T.check(T.titles():find('ACE|PODRACING', 1, true) ~= nil, 'HOME: the PODRACING p
 local function homeItem()
   for _, it in ipairs(H.SCREENS.home().items) do if it.title == 'PODRACING' then return it end end
 end
-T.check(homeItem() and #homeItem().pips == 2 and homeItem().info:find('LEARNER or PRO', 1, true), 'the poster: a medal per step, its rules line')
+T.check(homeItem() and #homeItem().pips == 2 and homeItem().info:find('One cup of four races.', 1, true), 'the poster: a medal per step, its rules line')
 cfg.Pods.On = false
 T.check(homeItem() == nil, 'Pods.On = false: no poster')
 cfg.Pods.On = true
@@ -67,7 +67,7 @@ local pg = H.SCREENS[H.S.screen]()
 local pt = {}
 for i, it in ipairs(pg.items) do pt[i] = it.title end
 T.check(H.S.screen == 'pods' and table.concat(pt, '|') == 'LEARNER|PRO' and pg.title == 'PODRACING', 'the poster -> the PODRACING page: LEARNER | PRO (' .. table.concat(pt, '|') .. ')')
-T.check(pg.items[2].info:find('PRO.', 1, true) == 1 and pg.items[1].desc == 'The pace to learn the tracks', 'each step: its tagline and rules line')
+T.check(pg.items[2].info:find('Abilities on every pod.', 1, true) ~= nil and pg.items[1].desc == 'The pace to learn the tracks', 'each step: its tagline and rules line')
 -- PRO opens the cup's start screen at PRO
 pg.items[2].act()
 T.check(H.S.screen == 'garage' and H.S.start.cup == 'pods' and H.S.start.class == 'podspro' and #H.S.start.draw == 4 and K.data.podStep == 'podspro',
@@ -91,7 +91,7 @@ T.check(AB0.levelFor('podspro') == 3 and AB0.levelFor('pods') == 1, 'the ability
 T.check(gi.lines[1][1] == 'PODRACING PRO', 'the header: PODRACING PRO')
 -- the PILOT tile: Shade (the car pilot here is Shade) flies the MythP3; no signature-kit words; Kestar's pod locked
 T.check(pil.title == 'SHADE' and pil.info:find('Shade flies the MythP3.', 1, true) == 1 and not pil.info:find('signature', 1, true)
-  and pil.info:find('Kestar Bool\'s Northropi opens once you beat him in a Galactic Cup final.', 1, true),
+  and pil.info:find('Kestar Bool\'s Northropi unlocks once you beat him in a Galactic Cup final.', 1, true),
   'the PILOT tile: Shade flies the MythP3, Kestar\'s pod locked (' .. pil.info .. ')')
 T.check(vt.title == 'MYTHP3' and vt.info:find('Shade\'s podracer', 1, true) == 1, 'the PODRACER tile: MYTHP3 (' .. vt.title .. ')')
 local carRacer = K.data.racer

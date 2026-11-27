@@ -39,8 +39,8 @@ for _, cls in ipairs({ 'JUNKER', 'CHALLENGER', 'ACE' }) do
   T.check(info(1):find("Jakku. Starship wrecks boil under the scorching heat of this desert world.", 1, true) ~= nil
     and info(1):find('THE WAR FIELDS', 1, true) == nil and info(1):find('SCRAP SPIRAL', 1, true) == nil,
     cls .. ': the Jakku Cup\'s info is its planet\'s line, no track names (' .. info(1):gsub('\n', ' | ') .. ')')
-  T.check(info(6):find('Derven Acos. Home of the Galactic League, where racers face the ultimate challenge.\nThree planets, then Derven Acos.\nFinish on the podium and Kestar Bool waits in the stadium. One race for the title.', 1, true) ~= nil,
-    cls .. ': the Galactic Cup\'s info: the planets, then the finals, then (v0.33) the finale (' .. info(6):gsub('\n', ' | ') .. ')')
+  T.check(info(6):find('Derven Acos. Home of the Galactic League, where racers face the ultimate challenge.\nRace Three different planets then Derven Acos for the title.', 1, true) ~= nil and info(6):find('Kestar Bool', 1, true) == nil,
+    cls .. ': the Galactic Cup\'s info: the planets, then the finals; the finale line cut (v0.45.2, owner) (' .. info(6):gsub('\n', ' | ') .. ')')
   M.press('BACKSPACE'); M.tick(3)
 end
 T.clickTitle('CHALLENGER'); M.tick(3)

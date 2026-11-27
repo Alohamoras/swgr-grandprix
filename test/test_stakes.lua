@@ -35,24 +35,24 @@ end
 -- behind / leading
 eq(cup(twelve({ YOU = 35, ['Biddy Blas'] = 37 }), { YOU = 1, ['Biddy Blas'] = 2 }, 3), '2 POINTS BEHIND BIDDY BLAS, 1 RACE LEFT', 'behind the leader, last race next')
 eq(cup(twelve({ YOU = 26, ['Biddy Blas'] = 27 }), {}, 2), '1 POINT BEHIND BIDDY BLAS, 2 RACES LEFT', 'one point behind (singular)')
-eq(cup(twelve({ YOU = 27, ['Sen Fira'] = 23 }), {}, 2), 'LEADING BY 4 OVER SEN FIRA, 2 RACES LEFT', 'leading, two races left')
-eq(cup(twelve({ YOU = 15, ['Sen Fira'] = 12 }), {}, 1), 'LEADING BY 3 OVER SEN FIRA, 3 RACES LEFT', 'after race 1')
+eq(cup(twelve({ YOU = 27, ['Sen Fira'] = 23 }), {}, 2), '4 POINTS AHEAD OF SEN FIRA, 2 RACES LEFT', 'leading, two races left')
+eq(cup(twelve({ YOU = 15, ['Sen Fira'] = 12 }), {}, 1), '3 POINTS AHEAD OF SEN FIRA, 3 RACES LEFT', 'after race 1')
 -- ties (the latest race decides: CU.standings)
-eq(cup(twelve({ YOU = 27, ['Sen Fira'] = 27 }), { YOU = 1, ['Sen Fira'] = 2 }, 2), 'LEVEL ON POINTS WITH SEN FIRA, 2 RACES LEFT', 'tie, you ahead on the latest race')
-eq(cup(twelve({ YOU = 27, ['Sen Fira'] = 27 }), { YOU = 2, ['Sen Fira'] = 1 }, 2), 'LEVEL ON POINTS WITH SEN FIRA, 2 RACES LEFT', 'tie, Sen Fira ahead on the latest race')
-eq(cup(twelve({ YOU = 37, ['Sen Fira'] = 37 }), { YOU = 1, ['Sen Fira'] = 2 }, 3), 'LEVEL ON POINTS WITH SEN FIRA: A WIN TAKES THE CUP', 'tie before the last race')
+eq(cup(twelve({ YOU = 27, ['Sen Fira'] = 27 }), { YOU = 1, ['Sen Fira'] = 2 }, 2), 'TIED WITH SEN FIRA, 2 RACES LEFT', 'tie, you ahead on the latest race')
+eq(cup(twelve({ YOU = 27, ['Sen Fira'] = 27 }), { YOU = 2, ['Sen Fira'] = 1 }, 2), 'TIED WITH SEN FIRA, 2 RACES LEFT', 'tie, Sen Fira ahead on the latest race')
+eq(cup(twelve({ YOU = 37, ['Sen Fira'] = 37 }), { YOU = 1, ['Sen Fira'] = 2 }, 3), 'TIED WITH SEN FIRA: WIN THE RACE TO WIN THE CUP', 'tie before the last race')
 -- the last race: what finish wins the cup (strictly more than the second winning it: 15)
-eq(cup(twelve({ YOU = 40, ['Sen Fira'] = 36 }), {}, 3), 'LEADING BY 4 OVER SEN FIRA: 2ND OR BETTER WINS THE CUP', 'lead 4, last race: 2nd (12 > 11)')
-eq(cup(twelve({ YOU = 40, ['Sen Fira'] = 31 }), {}, 3), 'LEADING BY 9 OVER SEN FIRA: 6TH OR BETTER WINS THE CUP', 'lead 9, last race: 6th (7 > 6, 7th ties and loses)')
-eq(cup(twelve({ YOU = 40, ['Sen Fira'] = 37 }), {}, 3), 'LEADING BY 3 OVER SEN FIRA: A WIN TAKES THE CUP', 'lead 3: 2nd would tie and lose')
-eq(cup(twelve({ YOU = 45, ['Sen Fira'] = 30 }), {}, 3), 'LEADING BY 15 OVER SEN FIRA: ANY FINISH WINS THE CUP', 'lead 15 of 12 racers: any finish (12th = 1)')
-eq(cup(twelve({ YOU = 46, ['Sen Fira'] = 30 }), {}, 3), 'GOLD IS YOURS: 16 POINTS CLEAR, 1 RACE LEFT', 'lead 16: gold even with a DNF')
-eq(cup(twelve({ YOU = 31, ['Sen Fira'] = 1 }, 0), {}, 2), 'LEADING BY 30 OVER SEN FIRA, 2 RACES LEFT', 'lead 30 with 2 left is not safe (30 = 2 x 15)')
+eq(cup(twelve({ YOU = 40, ['Sen Fira'] = 36 }), {}, 3), '4 POINTS AHEAD OF SEN FIRA: FINISH 2ND OR BETTER TO WIN THE CUP', 'lead 4, last race: 2nd (12 > 11)')
+eq(cup(twelve({ YOU = 40, ['Sen Fira'] = 31 }), {}, 3), '9 POINTS AHEAD OF SEN FIRA: FINISH 6TH OR BETTER TO WIN THE CUP', 'lead 9, last race: 6th (7 > 6, 7th ties and loses)')
+eq(cup(twelve({ YOU = 40, ['Sen Fira'] = 37 }), {}, 3), '3 POINTS AHEAD OF SEN FIRA: WIN THE RACE TO WIN THE CUP', 'lead 3: 2nd would tie and lose')
+eq(cup(twelve({ YOU = 45, ['Sen Fira'] = 30 }), {}, 3), '15 POINTS AHEAD OF SEN FIRA: ANY FINISH WINS THE CUP', 'lead 15 of 12 racers: any finish (12th = 1)')
+eq(cup(twelve({ YOU = 46, ['Sen Fira'] = 30 }), {}, 3), 'GOLD SECURED: 16 POINTS AHEAD, 1 RACE LEFT', 'lead 16: gold even with a DNF')
+eq(cup(twelve({ YOU = 31, ['Sen Fira'] = 1 }, 0), {}, 2), '30 POINTS AHEAD OF SEN FIRA, 2 RACES LEFT', 'lead 30 with 2 left is not safe (30 = 2 x 15)')
 -- out of reach (a DNF: you scored nothing in two races)
-eq(cup(twelve({ YOU = 12, ['Biddy Blas'] = 30, ['Sen Fira'] = 20 }, 2), {}, 3), 'GOLD IS OUT OF REACH, SILVER IS NOT', 'DNF: gold out (12 + 15 < 30), silver still on')
-eq(cup(twelve({ YOU = 10, ['Biddy Blas'] = 45, ['Sen Fira'] = 40, ['Katja Mox'] = 20 }, 2), {}, 3), 'SILVER IS OUT OF REACH, BRONZE IS NOT', 'two out of reach, bronze on')
-eq(cup(twelve({ YOU = 0, ['Biddy Blas'] = 45, ['Sen Fira'] = 40, ['Katja Mox'] = 36 }, 2), {}, 3), 'THE TROPHIES ARE OUT OF REACH', 'three out of reach')
-eq(cup({ YOU = 10, ['Biddy Blas'] = 40, ['Sen Fira'] = 24, ['Katja Mox'] = 24, ['Shade'] = 24 }, {}, 3), 'GOLD IS OUT OF REACH, 14 POINTS FROM SILVER',
+eq(cup(twelve({ YOU = 12, ['Biddy Blas'] = 30, ['Sen Fira'] = 20 }, 2), {}, 3), 'GOLD OUT OF REACH. SILVER STILL POSSIBLE', 'DNF: gold out (12 + 15 < 30), silver still on')
+eq(cup(twelve({ YOU = 10, ['Biddy Blas'] = 45, ['Sen Fira'] = 40, ['Katja Mox'] = 20 }, 2), {}, 3), 'SILVER OUT OF REACH. BRONZE STILL POSSIBLE', 'two out of reach, bronze on')
+eq(cup(twelve({ YOU = 0, ['Biddy Blas'] = 45, ['Sen Fira'] = 40, ['Katja Mox'] = 36 }, 2), {}, 3), 'NO TROPHY POSSIBLE', 'three out of reach')
+eq(cup({ YOU = 10, ['Biddy Blas'] = 40, ['Sen Fira'] = 24, ['Katja Mox'] = 24, ['Shade'] = 24 }, {}, 3), 'GOLD OUT OF REACH. 14 POINTS FROM SILVER',
   'a bunched field: silver not promised, the gap given')
 -- an actual DNF through CU.addRace
 do
@@ -159,14 +159,14 @@ local function claimsHold(st, bots)
   local function every(pred) for _, o in ipairs(all) do if not pred(o) then return false end end return true end
   local ok = true
   local function finishedAll(o, best) for _, p in ipairs(o.places) do if not p or p > best then return false end end return true end
-  if line:find('^GOLD IS YOURS') then ok = ok and every(function(o) return o.rank == 1 end) end
-  local p = line:match(': (%d+)%a%a OR BETTER WINS THE CUP$')
+  if line:find('^GOLD SECURED') then ok = ok and every(function(o) return o.rank == 1 end) end
+  local p = line:match(': FINISH (%d+)%a%a OR BETTER TO WIN THE CUP$')
   if p then ok = ok and every(function(o) return not finishedAll(o, tonumber(p)) or o.rank == 1 end) end
   if line:find('ANY FINISH WINS THE CUP$') then ok = ok and every(function(o) return not finishedAll(o, 99) or o.rank == 1 end) end
-  if line:find('A WIN TAKES THE CUP$') then ok = ok and every(function(o) return not finishedAll(o, 1) or o.rank == 1 end) end
-  if line:find('^GOLD IS OUT OF REACH') then ok = ok and none(function(o) return o.rank <= 1 end) end
-  if line:find('^SILVER IS OUT OF REACH') then ok = ok and none(function(o) return o.rank <= 2 end) end
-  if line:find('^THE TROPHIES ARE OUT OF REACH') then ok = ok and none(function(o) return o.rank <= 3 end) end
+  if line:find('WIN THE RACE TO WIN THE CUP$') then ok = ok and every(function(o) return not finishedAll(o, 1) or o.rank == 1 end) end
+  if line:find('^GOLD OUT OF REACH') then ok = ok and none(function(o) return o.rank <= 1 end) end
+  if line:find('^SILVER OUT OF REACH') then ok = ok and none(function(o) return o.rank <= 2 end) end
+  if line:find('^NO TROPHY POSSIBLE') then ok = ok and none(function(o) return o.rank <= 3 end) end
   if line:find('SILVER IS NOT$') then ok = ok and some(function(o) return o.rank <= 2 end) end
   if line:find('BRONZE IS NOT$') then ok = ok and some(function(o) return o.rank <= 3 end) end
   return ok, line

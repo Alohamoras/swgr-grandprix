@@ -28,11 +28,11 @@ local list = RC.list()
 T.check(#list == 14 and list[1].key == 'DarkEnigma' and list[14].key == 'Antagonist', '14 pilots, Shade first, Kestar last')
 local okCfg, seen = true, {}
 for _, r in ipairs(list) do
-  if seen[r.key] or not W.RACER_NAMES[r.key] or W.RACER_NAMES[r.key] ~= r.name or type(r.line) ~= 'string' or #r.line > 70 or #r.line == 0 then okCfg = false end
+  if seen[r.key] or not W.RACER_NAMES[r.key] or W.RACER_NAMES[r.key] ~= r.name or (r.line ~= nil and (type(r.line) ~= 'string' or #r.line > 70 or #r.line == 0)) then okCfg = false end
   seen[r.key] = true
   if r.key == 'TestPilot' or r.key == 'MentorBossRace' then okCfg = false end
 end
-T.check(okCfg, 'every pilot: a game key, the game\'s name, a line of 1-70 chars; no Autopilot / boss Sebulba')
+T.check(okCfg, 'every pilot: a game key, the game\'s name, a line of 1-70 chars if any (Shade has none, v0.45.2); no Autopilot / boss Sebulba')
 T.check(RC.current().key == 'Antagonist' and RC.displayName() == 'Kestar Bool', 'the pick comes from the save (Kestar Bool)')
 T.check(RC.cycle(1).key == 'DarkEnigma', 'cycle forward from the last wraps to Shade')
 T.check(T.save().racer == 'DarkEnigma', 'the pick is saved')

@@ -26,8 +26,8 @@ function LS.text(ev)
   if not (ev and ev.class and ev.path) then return nil end
   local rec = ((K.data.records or {})[ev.class] or {})[ev.path]
   local lap = rec and tonumber(rec.lap)
-  if lap and lap > 0 then return 'TIME TO BEAT  ' .. K.fmtTime(lap) end
-  return 'NO LAP SET'
+  if lap and lap > 0 then return 'PREVIOUS BEST LAP  ' .. K.fmtTime(lap) end
+  return 'NO PREVIOUS LAP'
 end
 
 -- at launch (race.lua R.launch): the job, or nil. Never on a finale / title race (no records) or a rally stage (the

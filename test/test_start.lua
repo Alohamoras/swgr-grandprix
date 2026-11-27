@@ -17,7 +17,7 @@ T.check(S.ui.rows and S.ui.nav ~= nil, 'HOME in rows (the D-pad map made)')
 T.check(T.pips('CHALLENGER') == 'GB-----.', 'Challenger: gold, bronze, five faint medals, the title star not won (' .. tostring(T.pips('CHALLENGER')) .. ')')
 T.check(T.badges() == '||||', 'no words on the HOME tiles (' .. T.badges() .. ')')
 T.check(T.marks():find('^pips:%S+|pips:%S+|pips:%S+|pips:%S+|$') ~= nil, 'v0.27: only the medal pips on the posters, no chevrons (' .. T.marks() .. ')')
-T.check(S.ui.items[1].desc == 'Scrapyard junk with too much engine' and S.ui.items[3].desc == 'Every credit on the rig. The galaxy\'s finest',
+T.check(S.ui.items[1].desc == 'Scrapyard junk with too much engine' and S.ui.items[3].desc == 'The finest vehicles money can buy.',
   'v0.27: each poster\'s tagline (' .. tostring(S.ui.items[1].desc) .. ')')
 T.check(S.ui.nav[1].down == 5 and S.ui.nav[5].up ~= nil, 'down from JUNKER reaches RESET, and back up')
 
@@ -48,7 +48,7 @@ for _, it in ipairs(its) do
   if it.kind == 'tuneup' and it.disabled then t2 = it end
 end
 T.check(table.concat(tags, ',') == 'PILOT,VEHICLE,TUNE-UP,TUNE-UP,ABILITY,ABILITY,ABILITY,ABILITY', 'v0.27.4 (v0.31: PILOT and VEHICLE first): a caption on each slot (' .. table.concat(tags, ',') .. ')')
-T.check(t2 and t2.title == 'ACE' and t2.corner and t2.corner[1][1] == ART.LOCK and t2.info == 'Opens at ACE.',
+T.check(t2 and t2.title == 'ACE' and t2.corner and t2.corner[1][1] == ART.LOCK and t2.info == 'Unlocks at ACE.',
   'v0.27.4: at Challenger the second tune-up slot greyed with a lock, says it opens at Ace')
 T.check(T.marks():find('LOCK', 1, true) ~= nil, 'the lock drawn on the tile (' .. T.marks() .. ')')
 local H1 = S.ui and H.SCREENS.garage()

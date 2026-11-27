@@ -10,9 +10,9 @@ local SD = require('standings')
 
 -- K.nearLap (Near.LapSeconds = 0.5)
 T.check(cfg.Near.LapSeconds == 0.5 and cfg.LapTimes == true, 'defaults: LapSeconds 0.5, LapTimes on')
-T.check(K.nearLap({ lapOffBy = 0.4 }) == '0.4 S OFF YOUR LAP RECORD', '0.4 s off the lap record')
+T.check(K.nearLap({ lapOffBy = 0.4 }) == '0.4 S SHORT OF YOUR BEST LAP', '0.4 s off the lap record')
 T.check(K.nearLap({ lapOffBy = 0.7 }) == nil, '0.7 s: not close')
-T.check(K.nearLap({ lapOffBy = 0 }) == 'LEVEL WITH YOUR LAP RECORD', 'equal')
+T.check(K.nearLap({ lapOffBy = 0 }) == 'EQUAL TO YOUR BEST LAP', 'equal')
 T.check(K.nearLap({ lapOffBy = 0.2, newLap = true }) == nil and K.nearLap(nil) == nil, 'a new lap record is never "off"')
 
 -- through K.record: lapOffBy / oldLap
@@ -36,9 +36,9 @@ end
 -- the standings (no cup run: the race lines alone)
 local s2 = textOf(SD.spec(o2))
 T.check(s2:find('2nd   -   ' .. K.fmtTime(101) .. '   -   best lap ' .. K.fmtTime(32.3), 1, true) ~= nil, 'your line: the race time, then the best lap (' .. s2 .. ')')
-T.check(s2:find('1.0 S OFF YOUR RECORD   -   0.3 S OFF YOUR LAP RECORD', 1, true) ~= nil, 'the race and lap near misses share one row')
+T.check(s2:find('1.0 S SHORT OF YOUR RECORD   -   0.3 S SHORT OF YOUR BEST LAP', 1, true) ~= nil, 'the race and lap near misses share one row')
 local s3 = textOf(SD.spec(o3))
-T.check(s3:find('NEW RECORD  ' .. K.fmtTime(99) .. ', was ' .. K.fmtTime(100) .. '   -   NEW BEST LAP  ' .. K.fmtTime(31.5), 1, true) ~= nil,
+T.check(s3:find('NEW TRACK RECORD  ' .. K.fmtTime(99) .. ' (PREVIOUS ' .. K.fmtTime(100) .. ')   -   NEW BEST LAP  ' .. K.fmtTime(31.5), 1, true) ~= nil,
   'NEW RECORD and NEW BEST LAP on the same row (' .. s3 .. ')')
 -- a sprint: no lap anywhere
 local spr = { path = EV .. '_P2P', title = 'SPRINT', class = 'riffraff', laps = 1 }

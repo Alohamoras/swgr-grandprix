@@ -117,7 +117,7 @@ local function raceNotes(r, ev)
   local note, big = {}, false
   if cfg.LapTimes ~= false then
     if r.newRecord and K.fmtTime then
-      note[#note + 1] = ('NEW RECORD  %s%s'):format(K.fmtTime(r.time), r.oldTime and (', was %s'):format(K.fmtTime(r.oldTime)) or ''); big = true
+      note[#note + 1] = ('NEW TRACK RECORD  %s%s'):format(K.fmtTime(r.time), r.oldTime and (' (PREVIOUS %s)'):format(K.fmtTime(r.oldTime)) or ''); big = true
     else
       local near = K.nearRecord and K.nearRecord(r)
       if near then note[#note + 1] = near; big = true end
@@ -127,7 +127,7 @@ local function raceNotes(r, ev)
     return note, big
   end
   if r.newRecord and K.fmtTime then
-    note[#note + 1] = ('NEW RECORD  %s%s'):format(K.fmtTime(r.time), r.oldTime and (', was %s'):format(K.fmtTime(r.oldTime)) or ''); big = true
+    note[#note + 1] = ('NEW TRACK RECORD  %s%s'):format(K.fmtTime(r.time), r.oldTime and (' (PREVIOUS %s)'):format(K.fmtTime(r.oldTime)) or ''); big = true
   else
     local near = K.nearRecord and K.nearRecord(r)
     if near then note[#note + 1] = near; big = true end
@@ -142,8 +142,8 @@ end
 function SD.opensLine(list)
   local up = {}
   for i, n in ipairs(list) do up[i] = tostring(n):upper():gsub('^GALACTIC CUP', 'THE GALACTIC CUP') end
-  if #up == 1 then return up[1] .. ' OPENS' end
-  return table.concat(up, ', ', 1, #up - 1) .. ' AND ' .. up[#up] .. ' OPEN'
+  if #up == 1 then return up[1] .. ' UNLOCKED' end
+  return table.concat(up, ', ', 1, #up - 1) .. ' AND ' .. up[#up] .. ' UNLOCKED'
 end
 function SD.whatsNext(r)
   if r.unlocked and #r.unlocked > 0 then return SD.opensLine(r.unlocked) end
@@ -175,7 +175,7 @@ function SD.cupSpec(r)
   if type(fin) == 'table' then
     if fin.won then
       hero.lines[#hero.lines + 1] = { ('%s CHAMPION'):format(tostring(fin.league or ''):upper()), 30, U.GOLD }
-      if fin.unlockedRacer then hero.lines[#hero.lines + 1] = { tostring(fin.vs or 'Kestar Bool'):upper() .. ' RACES IN YOUR COLOURS NOW', 22, U.GOLD } end
+      if fin.unlockedRacer then hero.lines[#hero.lines + 1] = { tostring(fin.vs or 'Kestar Bool'):upper() .. ' UNLOCKED', 22, U.GOLD } end
     else
       hero.lines[#hero.lines + 1] = { ('%s KEEPS THE TITLE'):format(tostring(fin.vs or 'Kestar Bool'):upper()), 26, U.GREY }
     end
@@ -211,7 +211,7 @@ function SD.spec(r)
   -- v0.33: the points races done, a trophy in hand: the finale next
   local fn = r.finaleNext
   if type(fn) == 'table' then
-    lines[#lines + 1] = { ('%s. %s NEXT, ONE RACE FOR THE %s TITLE'):format(fn.trophy and (fn.trophy .. ' TROPHY SECURED') or ('%s PLACE SECURED'):format(ordinal(fn.rank or 0):upper()),
+    lines[#lines + 1] = { ('%s. NEXT: %s FOR THE %s TITLE'):format(fn.trophy and (fn.trophy .. ' TROPHY SECURED') or ('%s PLACE SECURED'):format(ordinal(fn.rank or 0):upper()),
       tostring(fn.vs or 'KESTAR BOOL'):upper(), tostring(fn.league or ''):upper()), 22, U.GOLD }
   end
   local note, big = raceNotes(r, ev)

@@ -248,9 +248,12 @@ function R.eventTag(ev)
 end
 -- can this vehicle enter? Vehicle.Standard (or no tag) takes any car / bike / skimmer; Vehicle.Standard.Car etc. one.
 local NEEDS = { Car = 'car', Bike = 'bike', Skimmer = 'skimmer' }
+function R.needs(tag)
+  if not tag or tag == 'Vehicle.Standard' or tag == 'Vehicle' then return nil end
+  return NEEDS[tag:match('%.(%a+)$') or '']
+end
 function R.fits(vehKey, tag)
-  if not tag or tag == 'Vehicle.Standard' or tag == 'Vehicle' then return true end
-  local need = NEEDS[tag:match('%.(%a+)$') or '']
+  local need = R.needs(tag)
   return need == nil or need == vehKey
 end
 
@@ -333,7 +336,10 @@ local function prepare(ev, classKey, vehKey, picks, mods, opts)
   -- (v0.31: no key - the title race, the boss - races the vehicle picked in the garage, like a cup: RC.chosenVehicle)
   local veh = vehKey and K.vehicle(vehKey) or (RC.chosenVehicle and RC.chosenVehicle() or RC.vehicle())
   local tag = C.tag(try(function() return e.VehicleTypeTag end))
-  if not R.fits(veh.key, tag) then return nil, ('The %s can\'t enter %s (it needs: %s)'):format(veh.name, ev.title, tostring(tag)) end
+  if not R.fits(veh.key, tag) then
+    local want = K.vehicle(R.needs(tag))
+    return nil, ('The %s can\'t race on %s. Choose a %s.'):format(veh.name, ev.title, want and tostring(want.name):lower() or 'different vehicle')
+  end
   local arch = archetype(veh.arch)
   local build = C.asset(veh.build)
   if not (alive(arch) and build) then log('vehicle or build not found: ' .. veh.key); return nil, 'Vehicle or build not found' end
@@ -511,7 +517,7 @@ function R.launch(ev, classKey, vehKey, picks, mods, opts)
   if not ok then
     log('launch failed: ' .. tostring(err))
     R.restoreBuild('launch failed')
-    return false, 'Launch failed - see grandprix.log'
+    return false, 'The race could not start. See grandprix.log.'
   end
   startRun(ev, classKey, p, skip, { oldFe = addr(fe), exp = exp })
   return true

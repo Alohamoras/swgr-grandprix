@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.45.2 (2026-11-26): the owner's on-screen text - plain words, "unlock", nothing coined (strings only)
+- The owner rewrote the mod's lines themself in a Claude Doc (every line the installed v0.45 shows, by screen; Claude's
+  fill-ins for the blanks were approved as suggestions): league rules ("Every part is level seven"), locks ("Obtain
+  Five JUNKER trophies to unlock." / "Obtain a trophy in every JUNKER planet cup to unlock. 2 of 5 so far."; the narrow
+  cup tile says "5 JUNKER trophies to unlock"), the star lines without the "Gold star:" label, "Perfect cup. You won
+  every race.", the RESET questions ("This will erase all progress." / "Are you sure?" / "Progress erased."), the
+  Galactic Cup's finale line CUT from the cups page, Shade's bio cut (the PILOT line is just "Shade."), Sebulba "The
+  legend himself", "Unlocks at ACE.", "No tune-up fitted.", "Tune-up removed.", the pod lines, PREVIOUS BEST LAP / NO
+  PREVIOUS LAP above the countdown, the stakes ("4 POINTS AHEAD OF SEN FIRA, 2 RACES LEFT" - mirrors "BEHIND"; "TIED
+  WITH"; "GOLD SECURED: 16 POINTS AHEAD"; "FINISH 2ND OR BETTER TO WIN THE CUP"; "WIN THE RACE TO WIN THE CUP"; "GOLD
+  OUT OF REACH. SILVER STILL POSSIBLE"; "NO TROPHY POSSIBLE"), the notes ("NEW TRACK RECORD  1:45.07 (PREVIOUS
+  1:46.10)", "0.4 S SHORT OF YOUR RECORD", "EQUAL TO YOUR BEST LAP"), "KESTAR BOOL UNLOCKED", "CHALLENGER UNLOCKED",
+  "Leave the cup? This cup progress will be lost." / "Cup progress lost.", the offline page and the launch messages
+  ("The Speeder bike can't race on THE WAR FIELDS. Choose a landspeeder."; `R.needs(tag)`).
+- One deviation from the doc: "LEADING X BY N POINTS" would not fit one line with the longest name (72 > 70 chars), so
+  the leading lines read "N POINTS AHEAD OF X" (the rally: "3.2 S AHEAD OF X"). The doc's cells were updated to match.
+- 19 test files re-pinned; 54 green. `TI.finaleText` stays for the legacy title flow.
+
 ## v0.45.0 (2026-11-26): boosting feels fast - the field stops matching your ramjet (TASKS §1k)
 - Owner: "the racers in front of you speed up so quickly when you ramjet and afterburner, this is the most annoying
   part of the game". The recon (docs/boost-recon-2026-11-26.md): the racer ahead went into ramjet within 3 s of yours

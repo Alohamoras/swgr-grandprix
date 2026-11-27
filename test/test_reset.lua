@@ -38,13 +38,13 @@ T.check(rs and rs.desc == nil and not rs.info:find('%a'), 'v0.22: the RESET tile
 -- 1. NO on the first question: nothing cleared
 T.clickTitle('RESET PROGRESS'); M.tick(3)
 T.check(T.titles() == 'NO|YES' and S.focus == 1, 'question 1: NO first, focused')
-T.check(S.confirm.text == 'Wipe the record books? Every trophy, lap record and title goes.', 'question 1 text')
+T.check(S.confirm.text == 'This will erase all progress.', 'question 1 text')
 T.clickTitle('NO'); M.tick(3)
 T.check(S.screen == 'home' and T.save().titles['challenger'].won == true, 'NO: HOME, nothing cleared')
 -- 2. YES, then NO on the second: nothing cleared
 T.clickTitle('RESET PROGRESS'); M.tick(3)
 T.clickTitle('YES'); M.tick(3)
-T.check(T.titles() == 'NO|YES' and S.focus == 1 and S.confirm.text == 'There is no way back. Wipe them?', 'question 2: NO first, its own text')
+T.check(T.titles() == 'NO|YES' and S.focus == 1 and S.confirm.text == 'Are you sure?', 'question 2: NO first, its own text')
 T.clickTitle('NO'); M.tick(3)
 T.check(S.screen == 'home' and T.save().boss.beaten == true and not T.logHas('progress reset'), 'NO on question 2: HOME, nothing cleared')
 -- 3. YES, YES: everything cleared but the garage
@@ -56,9 +56,9 @@ local cleared = next(sv.best) == nil and next(sv.records) == nil and next(sv.per
   and next(sv.titles) == nil and sv.boss == nil and next(sv.leader) == nil and sv.races == 0 and sv.cups == 0 and sv.last == nil and sv.class == nil
 T.check(cleared, 'YES, YES: trophies, records, perfect cups, standings, titles, the boss, leaders, counts, last race all cleared')
 T.check(sv.picks and sv.picks[1] == 'bolt.concuss' and sv.mods and sv.mods[1] == 'heat_shield', 'the garage kept: abilities and tune-ups')
-T.check(sv.racer == 'DarkEnigma' and T.logHas('Racer Kestar Bool is locked again: racing as Shade.'), 'Kestar locked again: the racer falls back to Shade')
+T.check(sv.racer == 'DarkEnigma' and T.logHas('Kestar Bool is locked again. Racing as Shade.'), 'Kestar locked again: the racer falls back to Shade')
 T.check(T.logHas('progress reset: everything cleared') and T.logHas('(44 races, 11 cups)'), 'logged with what was there')
-T.check(S.screen == 'home' and S.message == 'A clean slate.', 'back on HOME with a message')
+T.check(S.screen == 'home' and S.message == 'Progress erased.', 'back on HOME with a message')
 local p = io.popen('ls "' .. T.dir .. '"')
 local backup = false
 for f in p:lines() do if f:find('^save%.backup%-reset%-') then backup = true end end

@@ -19,7 +19,7 @@ local function lines(s) local n = 0; for _ in tostring(s):gmatch('[^\n]+') do n 
 -- 1. HOME: the focused league's info line = its rules, then the gold star's meaning (not won yet: how to win it)
 local i1 = homeInfo('riffraff')
 T.check(i1:find(cfg.Leagues[1].rules, 1, true) == 1, 'HOME: the rules line first')
-T.check(i1:find('Gold star: the league title. Finish the Galactic Cup in the top 3, then beat Kestar Bool in a one-on-one race to win it.', 1, true) ~= nil,
+T.check(i1:find('Finish the Galactic Cup in the top 3, then beat Kestar Bool one on one to win the league title.', 1, true) ~= nil,
   'HOME: the star explained, title not won (' .. i1 .. ')')
 local i2 = homeInfo('challenger')
 T.check(lines(i1) == lines(i2), 'HOME: every league\'s info the same height')
@@ -27,7 +27,7 @@ T.check(lines(i1) == lines(i2), 'HOME: every league\'s info the same height')
 K.data.titles = K.data.titles or {}
 K.data.titles.riffraff = { won = true }
 local i3 = homeInfo('riffraff')
-T.check(i3:find('Gold star: you are the JUNKER champion. You beat Kestar Bool in the Galactic Cup final.', 1, true) ~= nil,
+T.check(i3:find('You are the JUNKER champion. You beat Kestar Bool in the Galactic Cup final.', 1, true) ~= nil,
   'HOME: the champion line once the title is won (' .. i3 .. ')')
 -- Gate gold: says win, not top 3
 cfg.Boss.Gate = 'gold'
@@ -47,12 +47,12 @@ T.check(not items[1].info:find('crown', 1, true), 'cups: no trophy, no crown lin
 K.data.best.riffraff = K.data.best.riffraff or {}
 K.data.best.riffraff.jakku = 2
 items = H.SCREENS.cups().items
-T.check(items[1].info:find('Win every race of this cup in one go to earn the crown.', 1, true) ~= nil, 'cups: a trophy, not perfect: how to earn the crown')
+T.check(items[1].info:find('Win every race in this cup to earn the crown.', 1, true) ~= nil, 'cups: a trophy, not perfect: how to earn the crown')
 T.check(items[1].corner == nil, 'cups: no crown yet')
 K.data.best.riffraff.jakku = 1
 K.data.perfect.riffraff = { jakku = true }
 items = H.SCREENS.cups().items
-T.check(items[1].info:find('Crown: a perfect cup. You won every race.', 1, true) ~= nil, 'cups: the perfect cup line')
+T.check(items[1].info:find('Perfect cup. You won every race.', 1, true) ~= nil, 'cups: the perfect cup line')
 T.check(items[1].corner and items[1].corner[1][1] == cfg.PerfectIcon and cfg.PerfectIcon:find('T_UI_Map_ChampionEvent_Icn', 1, true) ~= nil,
   'cups: a perfect cup wears the crown, not the star')
 T.check(items[1].corner[1][1] ~= ART.STAR, 'the star is the league title\'s only')

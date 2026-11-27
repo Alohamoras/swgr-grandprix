@@ -193,9 +193,9 @@ for _, won in ipairs({ true, false }) do
   S.result = { boss = true, won = won, vs = 'Kestar Bool', pos = won and 1 or 2, ev = { class = 'challenger' }, firstWin = won }
   check('boss result', SC.titleResult())
 end
-S.confirm = { text = 'Wipe the record books? Every trophy, lap record and title goes.', back = 'home', noFirst = true }
+S.confirm = { text = 'This will erase all progress.', back = 'home', noFirst = true }
 check('confirm reset', SC.confirm())
-S.confirm = { text = 'There is no way back. Wipe them?', back = 'home', noFirst = true }
+S.confirm = { text = 'Are you sure?', back = 'home', noFirst = true }
 check('confirm reset 2', SC.confirm())
 S.confirm = { text = 'Leave the cup? The points and the trophy go with it.', back = 'standings' }
 check('confirm leave', SC.confirm())

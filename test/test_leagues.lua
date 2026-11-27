@@ -38,7 +38,7 @@ T.check(sv.mods[1] == false and sv.mods[2] == 'armour' and sv.mods[3] == nil,
 T.check(sv.racer == 'DarkEnigma' and RC.locked('Antagonist'), 'Kestar locked again: the pick back to Shade')
 T.check(sv.restores and sv.abilityRestores and sv.modRestores, 'the put-back records kept')
 T.check(T.logCount('[save] v0.26: three leagues - a clean start (backup save.backup-v2-') == 1
-  and T.logHas('kept: racer, abilities, tune-ups. Racer Kestar Bool is locked again: racing as Shade.'), 'logged once, naming the backup')
+  and T.logHas('kept: racer, abilities, tune-ups. Kestar Bool is locked again. Racing as Shade.'), 'logged once, naming the backup')
 T.check(not T.logHas('dropped at boot'), 'the old cup is simply gone (no boot drop)')
 local p = io.popen('ls "' .. T.dir .. '"'); local files = p:read('a'); p:close()
 local bk = files:match('(save%.backup%-v2%-[%d%-]+%.lua)')
@@ -102,9 +102,9 @@ H = rawget(_G, 'GU_TEST_SCREENS')
 M.press('F6'); M.tick(6)
 T.check(T.locks() == '||LOCKED|||', 'v0.27.2 (owner): a new save: Riff-Raff and Challenger open, Ace locked (' .. T.marks() .. ')')
 local items = H.SCREENS.home().items
-T.check(items[2].desc == 'Proper rigs, and pilots out to make a name' and items[3].desc == 'Five CHALLENGER trophies open it',
+T.check(items[2].desc == 'Proper rigs, and pilots out to make a name' and items[3].desc == 'Obtain Five CHALLENGER trophies to unlock.',
   'Challenger shows its tagline; the Ace lock says what opens it (' .. tostring(items[2].desc) .. ' / ' .. tostring(items[3].desc) .. ')')
-T.check(items[3].info:find('A trophy in every CHALLENGER planet cup opens it. 0 of 5 so far.', 1, true) ~= nil, 'the full why in the info line')
+T.check(items[3].info:find('Obtain a trophy in every CHALLENGER planet cup to unlock. 0 of 5 so far.', 1, true) ~= nil, 'the full why in the info line')
 T.clickTitle('ACE'); M.tick(3)
 T.check(H.S.screen == 'home', 'a locked league can\'t be entered')
 T.clickTitle('CHALLENGER'); M.tick(3)

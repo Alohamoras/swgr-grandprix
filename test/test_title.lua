@@ -209,7 +209,7 @@ T.boot({ version = 2, races = 40, cups = 8, racer = 'Antagonist', titles = { ['1
 sv = T.save()
 T.check(sv.version == 3 and sv.boss == nil and next(sv.titles) == nil and sv.rivals == nil, 'clean start: no title, no boss, no rivals')
 T.check(sv.racer == 'DarkEnigma' and require('racer').locked('Antagonist'), 'Kestar locked again: the pick back to Shade')
-T.check(T.logHas('[save] v0.26: three leagues - a clean start (backup save.backup-v2-') and T.logHas('Racer Kestar Bool is locked again: racing as Shade.'), 'logged once, with the fall back')
+T.check(T.logHas('[save] v0.26: three leagues - a clean start (backup save.backup-v2-') and T.logHas('Kestar Bool is locked again. Racing as Shade.'), 'logged once, with the fall back')
 T.finish()
 T.reset()
 T.boot(sv)
