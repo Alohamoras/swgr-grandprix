@@ -744,7 +744,7 @@ return {
             -- step back (9), the weak three (7). (A lift only reaches a slot that has a tune set - loadout.lua
             -- L.botParts - so at Junker the Elite's +1 goes onto the afterburner and ramjet, 10 -> 11 stacks, not onto
             -- the stock slots.)
-            ace = { base = 5, elite = 6, contender = 5, weak = 4 },
+            ace = { base = 8, elite = 9, contender = 8, weak = 7 }, -- v0.45.1 (owner racing ACE: "just a little easier than it should be", "up it by 3 points"): +3 (was base 5 / 6 / 5 / 4)
         },
         -- v0.32 (thrust.lua; docs/freerace-review-2026-11-25.md §6.3): a per-bot pace dial to TEST - a run-time tune set
         -- on the bot's vehicle multiplying its thrust (MaxRPM and the accelerations), applied ThrustAfterS after the

@@ -29,9 +29,9 @@ T.check(T.logHas('[ai] pilot strength (challenger): ') and T.logHas('Biddy Blas 
   and T.logHas('Katja Mox +5 ('), 'v0.45: pilot strength at load - the Elite +6, an unlisted pilot +5 (base)')
 T.check(T.logHas('Biddy Blas +6 (20 upgrades, now 11)'), 'v0.45: Biddy\'s stacking parts 5 -> 11 (the Battery upgrade left alone)')
 local LO = require('loadout')
-T.check(LO.strengthFor('Biddy Blas', 'riffraff') == 4 and LO.strengthFor('Goli & 02-R0', 'riffraff') == 3 and LO.strengthFor('Malis Vazosk', 'ace') == 4
-  and LO.strengthFor('Biddy Blas', 'ace') == 6 and LO.strengthFor('Shade', 'ace') == 5 and LO.strengthFor('Biddy Blas', 'nosuch') == 0,
-  'v0.45: the strength table per league (Junker +4/+3/+2, base +3; Ace +6/+5/+4, base +5)')
+T.check(LO.strengthFor('Biddy Blas', 'riffraff') == 4 and LO.strengthFor('Goli & 02-R0', 'riffraff') == 3 and LO.strengthFor('Malis Vazosk', 'ace') == 7
+  and LO.strengthFor('Biddy Blas', 'ace') == 9 and LO.strengthFor('Shade', 'ace') == 8 and LO.strengthFor('Biddy Blas', 'nosuch') == 0,
+  'v0.45: the strength table per league (Junker +4/+3/+2, base +3; Ace +9/+8/+7, base +8 (v0.45.1))')
 W.backToMenu(); M.tick(45)
 M.press('BACKSPACE'); M.tick(3); T.clickTitle('YES'); M.tick(3) -- (leave the cup)
 
