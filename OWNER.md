@@ -4,6 +4,11 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
+- [ ] **Upload v0.45.2 to Nexus (2026-11-26 evening):** the kit is on your Desktop - `GalacticGrandPrix-v0.45.2.zip`
+      (also dist/), `nexus-changelog-v0.45.2.txt` (the Files tab's version notes, covers everything since the v0.31.1 zip)
+      and `nexus-description.bbcode` (replace the mod page's description: PODRACING levels, the finale, PREVIOUS BEST LAP,
+      the field). Still open: the two `<author>` names in the credits (UE4SS GR Edition, FreeRace) - fill from their
+      "Created by" lines before pasting. Screenshots are from v0.29 (no PODRACING page, old cup result) - optional refresh.
 - [ ] **ACE harder - how? (2026-11-26 evening, TASKS §1i-ace):** you asked for harder ACE bots. Faster (pace), meaner
       (abilities / aggression / shorter grace), or fewer mistakes? And how hard: "gold should take a clean cup" or "I should
       rarely win"? v0.45.1 already gave them +3 parts; tell me what still feels easy (they fall back? they don't attack? you
