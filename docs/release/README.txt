@@ -78,7 +78,10 @@ KNOWN LIMITS
 
 CREDITS
 - UE4SS (Re-UE4SS project) and the UE4SS Galactic Racer Edition (Nexus mod 2) - what this mod runs on.
-- FreeRace (https://www.nexusmods.com/starwarsgalacticracer/mods/80) - for showing how to press the results
-  screen's CONTINUE, its difficulty presets and the vehicle-recipe call.
+- FreeRace (https://www.nexusmods.com/starwarsgalacticracer/mods/80) by <author> - several ideas in this mod come
+  from reading FreeRace's code (re-implemented here; none of its files are included): chaining races through the
+  results screen's CONTINUE, the game's tour-end screen as the cup summary, the bots cycling their abilities with
+  cooldowns, the start grace, the buoys off The Galactic Gauntlet, catching the results screen as it is made, runtime
+  tune sets on the opponents' cars, its difficulty presets and the vehicle-recipe call. Thank you.
 - STAR WARS: Galactic Racer by Fuse Games, published by EA. STAR WARS and related names are trademarks of Lucasfilm Ltd.
 - Developed with the help of Claude (Anthropic).

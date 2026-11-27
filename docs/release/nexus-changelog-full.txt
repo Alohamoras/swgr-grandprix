@@ -1,0 +1,85 @@
+GALACTIC GRAND PRIX - CHANGELOG (Nexus)
+Two entries: paste v0.45.2 as the new version's notes, v0.31.1 as the earlier version's (never posted).
+
+==================================================================================
+v0.45.2 - PODRACING, the Galactic Cup finale, your lap records in the race, a faster field, new menu text
+
+NEW: PODRACING
+A fourth poster on the home page, a league of its own. The PODRACER CUP: four races drawn
+from the pod tracks of Mos Espa, Mawhonic and Holdfast's Folly, against Sebulba, the other
+pod racers and Kestar Bool. You fly your pilot's own podracer (Shade, Goli, Fola, Sebulba,
+or Kestar once you have beaten him). Two levels, each with its own trophy and records:
+- LEARNER: no abilities, the pace to learn the tracks.
+- PRO: every pod at level 7 parts, your four abilities on your pod, and every pod racer
+  carries a kit of their own.
+
+NEW: THE GALACTIC CUP FINALE
+Take a trophy in the Galactic Cup and Kestar Bool waits as its fifth race: a 1 v 1 in the
+stadium for the league title. Beat him at ACE and he races for you. The separate title race
+tile is gone; the league's gold star now means its title.
+
+NEW: IN THE RACE AND ON THE RESULTS
+- PREVIOUS BEST LAP during the start countdown: your lap record on this track at this league.
+- Your best lap on the standings, NEW BEST LAP when it falls, and the near-miss lines for both
+  the race record and the lap record.
+- The CUP RESULT on the game's own tour-end screen: the planets you raced with your finish on
+  each, your trophy and standing. A crown on a cup you won every race of.
+- Standings header, stakes and notes reworded by the mod's author in plain words: "4 POINTS
+  AHEAD OF SEN FIRA, 2 RACES LEFT", "GOLD SECURED", "NO TROPHY POSSIBLE", "NEW TRACK RECORD".
+
+THE FIELD
+- Boosting feels fast: the racers ahead of you no longer fire their ramjet in reply to yours
+  (they did 75% of the time); the racers behind you catch up harder instead.
+- The bots use their abilities (kits per pilot, cycled in the race), with a 15 s grace at
+  the start so the field does not launch away at the green light.
+- Pilot strength per league: JUNKER +3 parts around, CHALLENGER +5, ACE +8 (the Elite a step
+  more, the weak a step less). The back of the grid stays in the race (no slow row).
+- The car per league: JUNKER's afterburner and ramjet at 10 on stock everything else,
+  CHALLENGER every part at 7, ACE every part at 10 - yours and theirs.
+- The Rally Cup's rivals catch up (they used to fall 15-60 s back).
+- The Precision buoys are off The Galactic Gauntlet when it is raced as a cup race.
+
+MENUS
+- Every line on screen rewritten by the mod's author: plain statements, what each thing is
+  and how it unlocks. The league's rules under the focused poster; "Obtain Five JUNKER
+  trophies to unlock." on a locked league; the game's own typefaces and ink on our text.
+- The D-pad follows the tiles' real positions on every page.
+- START refuses while the game's menu is locked by an online queue.
+
+FIXES
+- The cup result screen closes on A, Enter, Space, B or Escape (it used to wait 120 s).
+- A press while the next race loads can no longer start the campaign.
+
+Requires UE4SS for Galactic Racer (Open Beta v0.9.4 or later). Offline only. Your save from
+an earlier version is kept; a locked pilot you were racing as falls back to Shade.
+
+==================================================================================
+v0.31.1 - The Rally Cup, pilot faces, any vehicle for any pilot, signature kits
+
+NEW: THE RALLY CUP
+A seventh cup on every league's page. Every point-to-point road in the game, run as a
+seven-stage rally in tour order: The Giants' Graveyard, Geothermal Tour, Rhodochrosite
+Run, Bool River Run both ways, Mountain to Sea, and Dai Bendu Ascension at night as the
+finale.
+- Four cars: you and three rivals drawn when the cup starts, the same three every stage.
+- Standings by total time, with gaps to the leader. A stage you don't finish costs the
+  slowest finisher's time plus 30 seconds.
+- The night and weather of each stage are drawn when you start the cup and kept secret
+  until the stage loads.
+- The Rally Cup counts for nothing else: leagues and the Galactic Cup unlock as before.
+
+NEW: PILOTS AND VEHICLES (from pull request #1 by MilkManEX - thank you)
+- The garage now has a PILOT tile with the racer's face and a VEHICLE tile. Race any
+  pilot in a landspeeder, a speeder bike or a skim speeder. A pilot's own vehicle looks
+  as the game built it; the other two wear that rider's scheme (ace, enforcer, raider,
+  vintage or robotic, in paint, rust or steel).
+- Each pilot starts with their signature four abilities. Change them as before. Your
+  saved picks from an earlier version are kept.
+- The title race and the final boss use the vehicle you picked too.
+
+ALSO
+- The rider's scheme is put back at the main menu, and after a crash at the next start.
+- Nothing from the game is shipped in this archive: every picture and preset is read
+  from your own installation.
+
+Requires UE4SS for Galactic Racer (Open Beta v0.9.4 or later). Offline only.
