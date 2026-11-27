@@ -401,6 +401,21 @@ the thrust dial / shorter grace if PRO turns out too easy); both open from the s
       per step; DESIGN.md §3d; README / release text; OWNER.md playtest (one cup per step; the `[gaps]` lines).
 - [ ] **PL6. Pacing (owner's races).** Learner should be winnable while learning; Champion a fight. Tune each step's profile.
 
+## 1i-ace. ACE bots harder (owner 2026-11-26 evening: "make enemies on ACE mode harder somehow") - not started
+Context: v0.45.1 already lifted `AI.Strength.ace` by +3 (elite +9, contender +8, weak +7, base +8) after the owner
+found ACE "just a little easier than it should be"; the owner still wants ACE harder. Levers, cheapest first (details
+docs/ai-driving-research-2026-11-12.md, docs/boost-recon-2026-11-26.md, docs/league-styles-2026-11-12.md):
+- [ ] **A1. Owner's call (OWNER.md):** harder how - faster (pace), meaner (abilities / aggression), or fewer mistakes?
+      And how much: "I should rarely win a cup" or "gold should take a clean cup"?
+- [ ] **A2. Pace:** `AI.Strength.ace` up again (bots' parts; +2 = ~3-4 s a race per the 2026-11-12 study) and / or
+      `AI.Profiles.ace.pacing` with the bots AHEAD allowed to pull away (today they never slow down but never speed up).
+- [ ] **A3. Aggression:** `AI.Profiles.ace.pressure` up (today 0.5), `TNS_AI_Aggression_Boost` on the Elite (docs/ai-study),
+      the ability recharge / cycle for ACE in aiuse.lua (today every 4 s), `AI.Grace` shorter at ACE (today 15 s).
+- [ ] **A4. Fewer mistakes:** `errors` is already 0 at ACE; check the driving styles for a look-ahead / aim lever.
+- [ ] **A5. Held-race test** (TestAutopilot hold.txt, experiment.lua switch) for each lever, then one owner cup; log the
+      `[gaps]` spread. Keep CHALLENGER as it is (the owner is happy there).
+- Note: §1i HEAT is the opt-in version of this; A2-A4 change the ACE baseline for everyone.
+
 ## 1i. HEAT: optional handicaps for Ace cups (owner 2026-11-25: "the heat options sound brutal and fun, write up that work") - not started
 The plan: `docs/heat-2026-11-25.md` (rules, the 15 modifiers with their dials, screens, save, risks). Switch handicaps on
 before an Ace cup; each is worth heat; each cup keeps the best heat you won gold at. One tag per chunk.

@@ -4,6 +4,10 @@ Claude's running list of what only you can answer or judge. Tick a box, or write
 up next session. Newest first in each section. (Started 2026-11-11; Claude keeps it current.)
 
 ## Questions for you
+- [ ] **ACE harder - how? (2026-11-26 evening, TASKS §1i-ace):** you asked for harder ACE bots. Faster (pace), meaner
+      (abilities / aggression / shorter grace), or fewer mistakes? And how hard: "gold should take a clean cup" or "I should
+      rarely win"? v0.45.1 already gave them +3 parts; tell me what still feels easy (they fall back? they don't attack? you
+      pull away on the straights?) and I'll pick the lever.
 - [ ] **A ramjet for pods? (2026-11-26):** every pod comes with `RamjetInstalled = false` (cars: true) - that's why pods
       have no ramjet. I could switch it on for your pod (and the field's) at PRO; it may or may not work from your boost
       button (setting it mid-race didn't make the autopilot ramjet). Want me to try it as an option you test?
